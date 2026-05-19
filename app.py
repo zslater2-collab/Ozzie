@@ -71,8 +71,8 @@ def get_lineups_and_starters(game_date):
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
             gid   = g['gamePk']
-            home  = g['teams']['home']['team']['abbreviation']
-            away  = g['teams']['away']['team']['abbreviation']
+            home  = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
+            away  = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
             hp    = g['teams']['home'].get('probablePitcher', {})
             ap    = g['teams']['away'].get('probablePitcher', {})
 
