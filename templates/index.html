@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Picks</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --surface2: #16161f;
+    --border:   #1e1e2e;
+    --accent:   #e8ff47;
+    --green:    #4fffb0;
+    --text:     #e8e8f0;
+    --muted:    #555570;
+    --dim:      #333348;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+
+  /* ── Header ─────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .date-badge {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Run button ──────────────────────────── */
+  .run-wrap {
+    padding: 24px 20px 0;
+  }
+
+  #run-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    padding: 18px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  #run-btn:active { transform: scale(0.98); }
+  #run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(10,10,15,0.3);
+    border-top-color: #0a0a0f;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Status bar ─────────────────────────── */
+  #status-bar {
+    margin: 16px 20px 0;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    min-height: 18px;
+  }
+
+  /* ── Games list ─────────────────────────── */
+  #games-section { padding: 20px 20px 0; display: none; }
+
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .game-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .game-chip.ready { border-color: var(--dim); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot.ready  { background: var(--green); }
+  .dot.pending { background: var(--muted); }
+
+  /* ── Picks ──────────────────────────────── */
+  #picks-section { padding: 24px 20px 0; display: none; }
+
+  .picks-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .picks-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .col-labels {
+    display: grid;
+    grid-template-columns: 1fr 80px 68px 68px;
+    gap: 6px;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 14px;
+    margin-bottom: 6px;
+  }
+
+  .pick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.25s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pick-main {
+    display: grid;
+    grid-template-columns: 1fr 80px 68px 68px;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .player-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .combined {
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-align: right;
+  }
+
+  .odds {
+    font-size: 0.82rem;
+    color: var(--green);
+    text-align: right;
+  }
+
+  .pick-sub {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--dim);
+    border-radius: 4px;
+    padding: 3px 7px;
+  }
+
+  .tag.arch { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+  /* ── No picks ───────────────────────────── */
+  #no-picks {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.7;
+  }
+
+  /* ── Error ──────────────────────────────── */
+  #error-box {
+    display: none;
+    margin: 16px 20px 0;
+    background: rgba(255,80,80,0.08);
+    border: 1px solid rgba(255,80,80,0.25);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.75rem;
+    color: #ff8080;
+    line-height: 1.6;
+  }
+
+  /* ── Footer ─────────────────────────────── */
+  footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 0.62rem;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">HR PICKS</div>
+  <div class="date-badge" id="date-label">—</div>
+</header>
+
+<div class="run-wrap">
+  <button id="run-btn" onclick="runPicks()">
+    <div class="spinner" id="spinner"></div>
+    <span id="btn-label">GET TODAY'S PICKS</span>
+  </button>
+</div>
+
+<div id="status-bar"></div>
+<div id="error-box"></div>
+
+<div id="games-section">
+  <div class="section-label">Today's Slate</div>
+  <div class="games-grid" id="games-grid"></div>
+</div>
+
+<div id="picks-section">
+  <div class="picks-header">
+    <div class="picks-count" id="picks-count"></div>
+    <div class="section-label" style="margin:0">Bet if market &gt; fair odds</div>
+  </div>
+  <div class="col-labels">
+    <div>Player</div>
+    <div style="text-align:right">Comb%</div>
+    <div style="text-align:right">HR Fair</div>
+    <div style="text-align:right">3TB Fair</div>
+  </div>
+  <div id="picks-list"></div>
+</div>
+
+<div id="no-picks">
+  No picks yet.<br>
+  Lineups may not be posted — check back closer to game time.
+</div>
+
+<footer>
+  <a href="/logout">sign out</a>
+</footer>
+
+<script>
+  document.getElementById('date-label').textContent =
+    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
+
+  function runPicks() {
+    const btn     = document.getElementById('run-btn');
+    const spinner = document.getElementById('spinner');
+    const label   = document.getElementById('btn-label');
+    const status  = document.getElementById('status-bar');
+    const errBox  = document.getElementById('error-box');
+
+    btn.disabled    = true;
+    spinner.style.display = 'block';
+    label.textContent     = 'LOADING MODEL…';
+    status.textContent    = 'Downloading model files from Drive — takes ~15s on first load…';
+    errBox.style.display  = 'none';
+
+    document.getElementById('games-section').style.display = 'none';
+    document.getElementById('picks-section').style.display = 'none';
+    document.getElementById('no-picks').style.display      = 'none';
+
+    fetch('/api/picks')
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled          = false;
+        spinner.style.display = 'none';
+        label.textContent     = 'REFRESH PICKS';
+        status.textContent    = `${data.complete}/${data.total} games with complete lineups`;
+
+        // Games grid
+        const grid = document.getElementById('games-grid');
+        grid.innerHTML = '';
+        (data.games || []).forEach(g => {
+          const chip = document.createElement('div');
+          chip.className = 'game-chip' + (g.complete ? ' ready' : '');
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>
+                            <span>${g.away} @ ${g.home}</span>`;
+          grid.appendChild(chip);
+        });
+        document.getElementById('games-section').style.display = 'block';
+
+        // Picks
+        const picks = data.picks || [];
+        if (picks.length === 0) {
+          document.getElementById('no-picks').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('picks-count').textContent = `${picks.length} Pick${picks.length !== 1 ? 's' : ''}`;
+        const list = document.getElementById('picks-list');
+        list.innerHTML = '';
+
+        picks.forEach((p, i) => {
+          const card = document.createElement('div');
+          card.className = 'pick-card';
+          card.style.animationDelay = `${i * 0.04}s`;
+          card.innerHTML = `
+            <div class="pick-main">
+              <div class="player-name">${p.player_name}</div>
+              <div class="combined">${p.combined}%</div>
+              <div class="odds">${p.hr_fair}</div>
+              <div class="odds">${p.tb3_fair}</div>
+            </div>
+            <div class="pick-sub">
+              <span class="tag">${p.game}</span>
+              <span class="tag">vs ${p.pitcher_name}</span>
+              <span class="tag arch">${p.arch_name}</span>
+            </div>`;
+          list.appendChild(card);
+        });
+
+        document.getElementById('picks-section').style.display = 'block';
+      })
+      .catch(err => {
+        btn.disabled          = false;
+        spinner.style.display = 'none';
+        label.textContent     = 'GET TODAY\'S PICKS';
+        status.textContent    = '';
+        errBox.style.display  = 'block';
+        errBox.textContent    = 'Error: ' + err.message;
+      });
+  }
+</script>
+</body>
+</html>
