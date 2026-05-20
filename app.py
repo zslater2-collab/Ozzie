@@ -2,6 +2,7 @@ import os
 import pickle
 import requests
 import pandas as pd
+import pytz
 from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
@@ -241,7 +242,7 @@ def api_picks():
         return jsonify({'error': 'Not authenticated'}), 401
     try:
         model     = load_model()
-        today     = datetime.now().strftime('%Y-%m-%d')
+        today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games     = get_lineups_and_starters(today)
         picks     = get_hr_picks(games, model)
         complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
