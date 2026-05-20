@@ -189,15 +189,18 @@ def get_hr_picks(games, model):
                     combined      = STARTER_WEIGHT * starter_rate + BULLPEN_WEIGHT * bullpen_rate
                     if combined < JUICY_THRESHOLD:
                         continue
-                    pf       = get_park_factor(fielding_team, batter_hand, model)
-                    adjusted = combined * pf
+                    pf           = get_park_factor(fielding_team, batter_hand, model)
+                    adjusted     = combined * pf
+                    power_map    = model.get('batter_power_map', {})
+                    power_mult   = power_map.get(batter_id, 1.0)
+                    hr_adjusted  = adjusted * power_mult
                     picks.append({
                         'player_name':  batter['name'],
                         'player_id':    batter_id,
                         'pitcher_name': pitcher_name,
                         'game':         game_str,
                         'combined':     round(combined, 2),
-                        'hr_fair':      pa_rate_to_game_odds(adjusted),
+                        'hr_fair':      pa_rate_to_game_odds(hr_adjusted),
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
                     })
