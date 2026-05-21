@@ -440,12 +440,14 @@
           const card = document.createElement('div');
           card.className = 'pick-card';
           card.style.animationDelay = `${i * 0.04}s`;
+          const hrClass  = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
+          const tbClass  = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
               <div class="combined">${p.combined}%</div>
-              <div class="hr-odds">${p.hr_fair}</div>
-              <div class="tb-odds">${p.tb3_fair}</div>
+              <div class="${hrClass}">${p.hr_fair}</div>
+              <div class="${tbClass}">${p.tb3_fair}</div>
             </div>
             <div class="pick-sub">
               <span class="tag">${p.game}</span>
