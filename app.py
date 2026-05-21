@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import pytz
 from datetime import datetime
+from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
 import tempfile
@@ -72,11 +73,11 @@ def get_lineups_and_starters(game_date):
     games = []
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
-            gid   = g['gamePk']
-            home  = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
-            away  = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
-            hp    = g['teams']['home'].get('probablePitcher', {})
-            ap    = g['teams']['away'].get('probablePitcher', {})
+            gid  = g['gamePk']
+            home = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
+            away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
+            hp   = g['teams']['home'].get('probablePitcher', {})
+            ap   = g['teams']['away'].get('probablePitcher', {})
 
             home_lineup, away_lineup = [], []
             try:
@@ -111,7 +112,7 @@ def get_lineups_and_starters(game_date):
 # ── Scoring helpers ────────────────────────────────────────────────────────────
 
 def pa_rate_to_game_odds(pa_rate_pct):
-    pa_rate  = pa_rate_pct / 100
+    pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
     if game_prob <= 0:
         return '+9999'
@@ -129,8 +130,8 @@ def get_park_factor(fielding_team, batter_hand, model):
     if fielding_team not in all_parks:
         return 1.0
     try:
-        dims  = all_parks[fielding_team].get('dimensions', {})
-        valid = [p for p in all_parks.values() if 'dimensions' in p]
+        dims   = all_parks[fielding_team].get('dimensions', {})
+        valid  = [p for p in all_parks.values() if 'dimensions' in p]
         avg_lf = sum(p['dimensions'].get('left_field',  330) for p in valid) / len(valid)
         avg_cf = sum(p['dimensions'].get('center',      400) for p in valid) / len(valid)
         avg_rf = sum(p['dimensions'].get('right_field', 330) for p in valid) / len(valid)
@@ -163,11 +164,11 @@ def get_hr_picks(games, model):
             continue
         matchups = [
             (game['away_lineup'], game['home_pitcher_id'], game['home_team'],
-             f"{game['away_team']}@{game['home_team']}", game['home_pitcher_name']),
+             f"{game['away_team']}@{game['home_team']}", game['home_pitcher_name'], game['away_team']),
             (game['home_lineup'], game['away_pitcher_id'], game['away_team'],
-             f"{game['away_team']}@{game['home_team']}", game['away_pitcher_name']),
+             f"{game['away_team']}@{game['home_team']}", game['away_pitcher_name'], game['home_team']),
         ]
-        for lineup, pitcher_id, fielding_team, game_str, pitcher_name in matchups:
+        for lineup, pitcher_id, fielding_team, game_str, pitcher_name, batting_team in matchups:
             if not pitcher_id or pitcher_id not in pitcher_scores:
                 continue
             pitcher = pitcher_scores[pitcher_id]
@@ -185,29 +186,29 @@ def get_hr_picks(games, model):
                     arch_data = pitcher['archetypes'].get(arch_key, {})
                     if arch_data.get('sensor_pa', 0) < MIN_SENSOR_PA:
                         continue
-                    starter_rate  = arch_data.get('shrunk_rate', LEAGUE_AVG)
-                    bullpen_rate  = get_bullpen_score(fielding_team, arch_key, model)
-                    combined      = STARTER_WEIGHT * starter_rate + BULLPEN_WEIGHT * bullpen_rate
+                    starter_rate = arch_data.get('shrunk_rate', LEAGUE_AVG)
+                    bullpen_rate = get_bullpen_score(fielding_team, arch_key, model)
+                    combined     = STARTER_WEIGHT * starter_rate + BULLPEN_WEIGHT * bullpen_rate
                     if combined < JUICY_THRESHOLD:
                         continue
-                    pf           = get_park_factor(fielding_team, batter_hand, model)
-                    adjusted     = combined * pf
-                    power_map    = model.get('batter_power_map', {})
-                    power_mult   = power_map.get(batter_id, 1.0)
-                    hr_adjusted  = adjusted * power_mult
-                    hr_odds_str  = pa_rate_to_game_odds(hr_adjusted)
-                    hr_odds_num  = int(hr_odds_str.replace('+',''))
+                    pf          = get_park_factor(fielding_team, batter_hand, model)
+                    adjusted    = combined * pf
+                    power_map   = model.get('batter_power_map', {})
+                    power_mult  = power_map.get(batter_id, 1.0)
+                    hr_adjusted = adjusted * power_mult
+                    hr_odds_str = pa_rate_to_game_odds(hr_adjusted)
+                    hr_odds_num = int(hr_odds_str.replace('+', ''))
                     picks.append({
                         'player_name':  batter['name'],
                         'player_id':    batter_id,
                         'pitcher_name': pitcher_name,
                         'game':         game_str,
+                        'batting_team': batting_team,
                         'combined':     round(combined, 2),
                         'hr_fair':      hr_odds_str,
                         'hr_odds_num':  hr_odds_num,
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
-                        'batting_team': batting_team,
                     })
 
     seen = {}
@@ -245,26 +246,29 @@ def api_picks():
     if not session.get('authenticated'):
         return jsonify({'error': 'Not authenticated'}), 401
     try:
-        model     = load_model()
-        today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-        games     = get_lineups_and_starters(today)
-        picks     = get_hr_picks(games, model)
-        complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+        model    = load_model()
+        today    = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        games    = get_lineups_and_starters(today)
+        picks    = get_hr_picks(games, model)
+        complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
-        # Split picks: HR props under +1000, rest to team totals
-        hr_picks = picks
-        
+
         # Team total candidates: teams with 3+ flags
-        from collections import Counter
         team_flags = Counter()
         for p in picks:
             team_flags[p['batting_team']] += 1
+
         tt_candidates = [
-            {'team': team, 'flags': count, 'avg_combined': round(
-                sum(p['combined'] for p in picks if p['away_team'] == team) / count, 2
-            )}
+            {
+                'team':         team,
+                'flags':        count,
+                'avg_combined': round(
+                    sum(p['combined'] for p in picks if p['batting_team'] == team) / count, 2
+                )
+            }
             for team, count in team_flags.items() if count >= 3
         ]
         tt_candidates.sort(key=lambda x: x['flags'], reverse=True)
@@ -273,8 +277,7 @@ def api_picks():
             'date':          today,
             'complete':      complete,
             'total':         len(games),
-            'picks':         hr_picks,
-            'all_picks':     picks,
+            'picks':         picks,
             'tt_candidates': tt_candidates,
             'games':         games_out,
         })
