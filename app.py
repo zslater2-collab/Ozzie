@@ -207,7 +207,7 @@ def get_hr_picks(games, model):
                         'hr_odds_num':  hr_odds_num,
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
-                        hr_picks = picks
+                        'batting_team': batting_team,
                     })
 
     seen = {}
