@@ -34,8 +34,6 @@ _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
 
-# ── Model loading ──────────────────────────────────────────────────────────────
-
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
     with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as tmp:
@@ -60,8 +58,6 @@ def load_model():
     _model_cache_time = now
     return model
 
-# ── MLB API ────────────────────────────────────────────────────────────────────
-
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
            f"?sportId=1&date={game_date}&hydrate=probablePitcher,lineups")
@@ -69,7 +65,6 @@ def get_lineups_and_starters(game_date):
         data = requests.get(url, timeout=15).json()
     except Exception:
         return []
-
     games = []
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
@@ -78,7 +73,6 @@ def get_lineups_and_starters(game_date):
             away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
             hp   = g['teams']['home'].get('probablePitcher', {})
             ap   = g['teams']['away'].get('probablePitcher', {})
-
             home_lineup, away_lineup = [], []
             try:
                 bs = requests.get(
@@ -95,7 +89,6 @@ def get_lineups_and_starters(game_date):
                         })
             except Exception:
                 pass
-
             games.append({
                 'game_id':           gid,
                 'home_team':         home,
@@ -108,8 +101,6 @@ def get_lineups_and_starters(game_date):
                 'away_lineup':       away_lineup,
             })
     return games
-
-# ── Scoring helpers ────────────────────────────────────────────────────────────
 
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
@@ -151,14 +142,11 @@ def get_park_factor(fielding_team, batter_hand, model):
     except Exception:
         return 1.0
 
-# ── Picks engine ───────────────────────────────────────────────────────────────
-
 def get_hr_picks(games, model):
     arch_hitter_map = model['arch_hitter_map']
     pitcher_scores  = model['all_pitcher_arch_scores']
     archetypes      = model['archetypes']
     picks           = []
-
     for game in games:
         if not game['home_lineup'] or not game['away_lineup']:
             continue
@@ -210,15 +198,12 @@ def get_hr_picks(games, model):
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
                     })
-
     seen = {}
     for p in picks:
         pid = p['player_id']
         if pid not in seen or p['combined'] > seen[pid]['combined']:
             seen[pid] = p
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
-
-# ── Routes ─────────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
@@ -251,16 +236,12 @@ def api_picks():
         games    = get_lineups_and_starters(today)
         picks    = get_hr_picks(games, model)
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
-
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
-
-        # Team total candidates: teams with 3+ flags
         team_flags = Counter()
         for p in picks:
             team_flags[p['batting_team']] += 1
-
         tt_candidates = [
             {
                 'team':         team,
@@ -272,7 +253,6 @@ def api_picks():
             for team, count in team_flags.items() if count >= 3
         ]
         tt_candidates.sort(key=lambda x: x['flags'], reverse=True)
-
         return jsonify({
             'date':          today,
             'complete':      complete,
@@ -281,6 +261,26 @@ def api_picks():
             'tt_candidates': tt_candidates,
             'games':         games_out,
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/kalshi_test')
+def kalshi_test():
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    try:
+        kalshi_key = os.environ.get('KALSHI_API_KEY', '')
+        headers = {
+            'Authorization': f'Bearer {kalshi_key}',
+            'Content-Type': 'application/json'
+        }
+        resp = requests.get(
+            'https://external-api.kalshi.com/trade-api/v2/markets',
+            headers=headers,
+            params={'status': 'open', 'limit': 20, 'series_ticker': 'MLBHR'},
+            timeout=15
+        )
+        return jsonify(resp.json())
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
