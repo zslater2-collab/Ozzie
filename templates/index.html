@@ -442,6 +442,9 @@
           card.style.animationDelay = `${i * 0.04}s`;
           const hrClass  = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
           const tbClass  = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
+          const ttTeams   = (data.tt_candidates || []).map(t => t.team);
+          const isttTeam  = ttTeams.includes(p.batting_team);
+          const gameClass = isttTeam ? 'tag tt-game' : 'tag';
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
@@ -450,7 +453,7 @@
               <div class="${tbClass}">${p.tb3_fair}</div>
             </div>
             <div class="pick-sub">
-              <span class="tag">${p.game}</span>
+              <span class="${gameClass}">${p.game}</span>
               <span class="tag">vs ${p.pitcher_name}</span>
               <span class="tag arch">${p.arch_name}</span>
             </div>`;
