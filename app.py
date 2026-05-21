@@ -207,8 +207,7 @@ def get_hr_picks(games, model):
                         'hr_odds_num':  hr_odds_num,
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
-                        'home_team':    game_str.split('@')[1] if '@' in game_str else '',
-                        'away_team':    game_str.split('@')[0] if '@' in game_str else '',
+                        hr_picks = picks
                     })
 
     seen = {}
