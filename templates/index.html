@@ -14,6 +14,7 @@
     --border:   #1e1e2e;
     --accent:   #e8ff47;
     --green:    #4fffb0;
+    --orange:   #ff9f47;
     --text:     #e8e8f0;
     --muted:    #555570;
     --dim:      #333348;
@@ -29,7 +30,6 @@
     padding-bottom: 48px;
   }
 
-  /* ── Header ─────────────────────────────── */
   header {
     display: flex;
     align-items: center;
@@ -52,10 +52,7 @@
     text-transform: uppercase;
   }
 
-  /* ── Run button ──────────────────────────── */
-  .run-wrap {
-    padding: 24px 20px 0;
-  }
+  .run-wrap { padding: 20px 20px 0; }
 
   #run-btn {
     width: 100%;
@@ -89,56 +86,99 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Status bar ─────────────────────────── */
   #status-bar {
-    margin: 16px 20px 0;
+    margin: 12px 20px 0;
     font-size: 0.7rem;
     color: var(--muted);
     letter-spacing: 0.08em;
     min-height: 18px;
   }
 
-  /* ── Games list ─────────────────────────── */
-  #games-section { padding: 20px 20px 0; display: none; }
+  /* Games */
+  #games-section { padding: 16px 20px 0; display: none; }
 
   .section-label {
     font-size: 0.62rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
-  .games-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+  .games-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
   }
 
   .game-chip {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 8px 10px;
-    font-size: 0.72rem;
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 0.68rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    white-space: nowrap;
   }
 
   .game-chip.ready { border-color: var(--dim); }
-  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .dot.ready  { background: var(--green); }
   .dot.pending { background: var(--muted); }
 
-  /* ── Picks ──────────────────────────────── */
-  #picks-section { padding: 24px 20px 0; display: none; }
+  /* Team Total Section */
+  #tt-section { padding: 20px 20px 0; display: none; }
+
+  .tt-card {
+    background: var(--surface);
+    border: 1px solid var(--orange);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeIn 0.25s ease both;
+  }
+
+  .tt-team {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .tt-meta {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .tt-flags {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--orange);
+    letter-spacing: 0.05em;
+    text-align: right;
+  }
+
+  .tt-flags-label {
+    font-size: 0.58rem;
+    color: var(--muted);
+    text-align: right;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* HR Picks */
+  #picks-section { padding: 20px 20px 0; display: none; }
 
   .picks-header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .picks-count {
@@ -150,8 +190,8 @@
 
   .col-labels {
     display: grid;
-    grid-template-columns: 1fr 80px 68px 68px;
-    gap: 6px;
+    grid-template-columns: 1fr 72px 60px 60px;
+    gap: 4px;
     font-size: 0.58rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -164,25 +204,25 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 8px;
+    padding: 12px 14px;
+    margin-bottom: 7px;
     animation: fadeIn 0.25s ease both;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(5px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
   .pick-main {
     display: grid;
-    grid-template-columns: 1fr 80px 68px 68px;
-    gap: 6px;
+    grid-template-columns: 1fr 72px 60px 60px;
+    gap: 4px;
     align-items: center;
   }
 
   .player-name {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 500;
     color: var(--text);
     white-space: nowrap;
@@ -191,60 +231,64 @@
   }
 
   .combined {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     color: var(--accent);
     text-align: right;
   }
 
-  .odds {
+  .hr-odds {
     font-size: 0.82rem;
     color: var(--green);
+    text-align: right;
+    font-weight: 500;
+  }
+
+  .tb-odds {
+    font-size: 0.78rem;
+    color: var(--muted);
     text-align: right;
   }
 
   .pick-sub {
-    margin-top: 8px;
+    margin-top: 7px;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
   }
 
   .tag {
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
     color: var(--muted);
     background: var(--bg);
     border: 1px solid var(--dim);
     border-radius: 4px;
-    padding: 3px 7px;
+    padding: 2px 6px;
   }
 
-  .tag.arch { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .tag.arch { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
 
-  /* ── No picks ───────────────────────────── */
   #no-picks {
     display: none;
     text-align: center;
-    padding: 40px 20px;
+    padding: 36px 20px;
     color: var(--muted);
-    font-size: 0.8rem;
-    line-height: 1.7;
+    font-size: 0.78rem;
+    line-height: 1.8;
   }
 
-  /* ── Error ──────────────────────────────── */
   #error-box {
     display: none;
-    margin: 16px 20px 0;
+    margin: 14px 20px 0;
     background: rgba(255,80,80,0.08);
     border: 1px solid rgba(255,80,80,0.25);
     border-radius: 8px;
-    padding: 14px;
-    font-size: 0.75rem;
+    padding: 12px;
+    font-size: 0.72rem;
     color: #ff8080;
     line-height: 1.6;
   }
 
-  /* ── Footer ─────────────────────────────── */
   footer {
     margin-top: 32px;
     text-align: center;
@@ -253,9 +297,12 @@
     letter-spacing: 0.1em;
   }
 
-  footer a {
-    color: var(--muted);
-    text-decoration: none;
+  footer a { color: var(--muted); text-decoration: none; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 20px 0;
   }
 </style>
 </head>
@@ -278,31 +325,40 @@
 
 <div id="games-section">
   <div class="section-label">Today's Slate</div>
-  <div class="games-grid" id="games-grid"></div>
+  <div class="games-row" id="games-row"></div>
+</div>
+
+<div id="tt-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="section-label">Team Total Candidates</div>
+    <div id="tt-list"></div>
+  </div>
 </div>
 
 <div id="picks-section">
-  <div class="picks-header">
-    <div class="picks-count" id="picks-count"></div>
-    <div class="section-label" style="margin:0">Bet if market &gt; fair odds</div>
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="picks-header">
+      <div class="picks-count" id="picks-count"></div>
+      <div class="section-label" style="margin:0">Market > Fair = Bet</div>
+    </div>
+    <div class="col-labels">
+      <div>Player</div>
+      <div style="text-align:right">Comb%</div>
+      <div style="text-align:right">HR</div>
+      <div style="text-align:right">3TB</div>
+    </div>
+    <div id="picks-list"></div>
   </div>
-  <div class="col-labels">
-    <div>Player</div>
-    <div style="text-align:right">Comb%</div>
-    <div style="text-align:right">HR Fair</div>
-    <div style="text-align:right">3TB Fair</div>
-  </div>
-  <div id="picks-list"></div>
 </div>
 
 <div id="no-picks">
   No picks yet.<br>
-  Lineups may not be posted — check back closer to game time.
+  Check back closer to game time.
 </div>
 
-<footer>
-  <a href="/logout">sign out</a>
-</footer>
+<footer><a href="/logout">sign out</a></footer>
 
 <script>
   document.getElementById('date-label').textContent =
@@ -315,15 +371,16 @@
     const status  = document.getElementById('status-bar');
     const errBox  = document.getElementById('error-box');
 
-    btn.disabled    = true;
+    btn.disabled          = true;
     spinner.style.display = 'block';
-    label.textContent     = 'LOADING MODEL…';
-    status.textContent    = 'Downloading model files from Drive — takes ~15s on first load…';
+    label.textContent     = 'LOADING…';
+    status.textContent    = 'Fetching lineups and model data…';
     errBox.style.display  = 'none';
 
-    document.getElementById('games-section').style.display = 'none';
-    document.getElementById('picks-section').style.display = 'none';
-    document.getElementById('no-picks').style.display      = 'none';
+    document.getElementById('games-section').style.display  = 'none';
+    document.getElementById('tt-section').style.display     = 'none';
+    document.getElementById('picks-section').style.display  = 'none';
+    document.getElementById('no-picks').style.display       = 'none';
 
     fetch('/api/picks')
       .then(r => r.json())
@@ -333,26 +390,49 @@
         label.textContent     = 'REFRESH PICKS';
         status.textContent    = `${data.complete}/${data.total} games with complete lineups`;
 
-        // Games grid
-        const grid = document.getElementById('games-grid');
-        grid.innerHTML = '';
+        // Games
+        const row = document.getElementById('games-row');
+        row.innerHTML = '';
         (data.games || []).forEach(g => {
           const chip = document.createElement('div');
           chip.className = 'game-chip' + (g.complete ? ' ready' : '');
-          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>
-                            <span>${g.away} @ ${g.home}</span>`;
-          grid.appendChild(chip);
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
+          row.appendChild(chip);
         });
         document.getElementById('games-section').style.display = 'block';
 
-        // Picks
+        // Team Totals
+        const ttList = document.getElementById('tt-list');
+        ttList.innerHTML = '';
+        const ttCandidates = data.tt_candidates || [];
+        if (ttCandidates.length > 0) {
+          ttCandidates.forEach((t, i) => {
+            const card = document.createElement('div');
+            card.className = 'tt-card';
+            card.style.animationDelay = `${i * 0.05}s`;
+            card.innerHTML = `
+              <div>
+                <div class="tt-team">${t.team}</div>
+                <div class="tt-meta">${t.avg_combined}% avg combined</div>
+              </div>
+              <div>
+                <div class="tt-flags">${t.flags}</div>
+                <div class="tt-flags-label">Flags</div>
+              </div>`;
+            ttList.appendChild(card);
+          });
+          document.getElementById('tt-section').style.display = 'block';
+        }
+
+        // HR Picks
         const picks = data.picks || [];
         if (picks.length === 0) {
           document.getElementById('no-picks').style.display = 'block';
           return;
         }
 
-        document.getElementById('picks-count').textContent = `${picks.length} Pick${picks.length !== 1 ? 's' : ''}`;
+        document.getElementById('picks-count').textContent =
+          `${picks.length} HR Pick${picks.length !== 1 ? 's' : ''}`;
         const list = document.getElementById('picks-list');
         list.innerHTML = '';
 
@@ -364,8 +444,8 @@
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
               <div class="combined">${p.combined}%</div>
-              <div class="odds">${p.hr_fair}</div>
-              <div class="odds">${p.tb3_fair}</div>
+              <div class="hr-odds">${p.hr_fair}</div>
+              <div class="tb-odds">${p.tb3_fair}</div>
             </div>
             <div class="pick-sub">
               <span class="tag">${p.game}</span>
