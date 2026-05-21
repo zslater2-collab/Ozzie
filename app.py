@@ -195,15 +195,20 @@ def get_hr_picks(games, model):
                     power_map    = model.get('batter_power_map', {})
                     power_mult   = power_map.get(batter_id, 1.0)
                     hr_adjusted  = adjusted * power_mult
+                    hr_odds_str  = pa_rate_to_game_odds(hr_adjusted)
+                    hr_odds_num  = int(hr_odds_str.replace('+',''))
                     picks.append({
                         'player_name':  batter['name'],
                         'player_id':    batter_id,
                         'pitcher_name': pitcher_name,
                         'game':         game_str,
                         'combined':     round(combined, 2),
-                        'hr_fair':      pa_rate_to_game_odds(hr_adjusted),
+                        'hr_fair':      hr_odds_str,
+                        'hr_odds_num':  hr_odds_num,
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
+                        'home_team':    game_str.split('@')[1] if '@' in game_str else '',
+                        'away_team':    game_str.split('@')[0] if '@' in game_str else '',
                     })
 
     seen = {}
@@ -249,12 +254,30 @@ def api_picks():
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
+        # Split picks: HR props under +1000, rest to team totals
+        hr_picks = [p for p in picks if p['hr_odds_num'] <= 1000]
+        
+        # Team total candidates: teams with 3+ flags
+        from collections import Counter
+        team_flags = Counter()
+        for p in picks:
+            team_flags[p['away_team']] += 1
+        tt_candidates = [
+            {'team': team, 'flags': count, 'avg_combined': round(
+                sum(p['combined'] for p in picks if p['away_team'] == team) / count, 2
+            )}
+            for team, count in team_flags.items() if count >= 3
+        ]
+        tt_candidates.sort(key=lambda x: x['flags'], reverse=True)
+
         return jsonify({
-            'date':     today,
-            'complete': complete,
-            'total':    len(games),
-            'picks':    picks,
-            'games':    games_out,
+            'date':          today,
+            'complete':      complete,
+            'total':         len(games),
+            'picks':         hr_picks,
+            'all_picks':     picks,
+            'tt_candidates': tt_candidates,
+            'games':         games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
