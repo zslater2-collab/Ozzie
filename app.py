@@ -255,7 +255,7 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
         # Split picks: HR props under +1000, rest to team totals
-        hr_picks = [p for p in picks if p['hr_odds_num'] <= 1000]
+        hr_picks = picks
         
         # Team total candidates: teams with 3+ flags
         from collections import Counter
