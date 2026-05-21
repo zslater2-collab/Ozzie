@@ -260,7 +260,7 @@ def api_picks():
         from collections import Counter
         team_flags = Counter()
         for p in picks:
-            team_flags[p['away_team']] += 1
+            team_flags[p['batting_team']] += 1
         tt_candidates = [
             {'team': team, 'flags': count, 'avg_combined': round(
                 sum(p['combined'] for p in picks if p['away_team'] == team) / count, 2
