@@ -275,9 +275,9 @@ def kalshi_test():
             'Content-Type': 'application/json'
         }
         resp = requests.get(
-            'https://external-api.kalshi.com/trade-api/v2/markets',
+            'https://external-api.kalshi.com/trade-api/v2/events',
             headers=headers,
-            params={'status': 'open', 'limit': 100, 'event_ticker': 'kxmlbgame-26may211840atlmia'},
+            params={'status': 'open', 'limit': 20},
             timeout=15
         )
         return jsonify(resp.json())
