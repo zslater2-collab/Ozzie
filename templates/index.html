@@ -445,7 +445,7 @@
           const tbClass  = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
           const ttTeams   = (data.tt_candidates || []).map(t => t.team);
           const isttTeam  = ttTeams.includes(p.batting_team);
-          const gameClass = isttTeam ? 'tag tt-game' : 'tag';
+          const gameClass = isttTeam ? 'tag tt-game' : 'tag team';
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
