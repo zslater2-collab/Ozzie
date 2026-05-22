@@ -15,6 +15,7 @@
     --accent:   #e8ff47;
     --green:    #4fffb0;
     --orange:   #ff9f47;
+    --red:      #ff6b6b;
     --text:     #e8e8f0;
     --muted:    #555570;
     --dim:      #333348;
@@ -94,7 +95,6 @@
     min-height: 18px;
   }
 
-  /* Games */
   #games-section { padding: 16px 20px 0; display: none; }
 
   .section-label {
@@ -123,9 +123,8 @@
     white-space: nowrap;
   }
 
-  .game-chip.ready { border-color: var(--dim); }
   .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-  .dot.ready  { background: var(--green); }
+  .dot.ready   { background: var(--green); }
   .dot.pending { background: var(--muted); }
 
   /* Team Total Section */
@@ -137,10 +136,14 @@
     border-radius: 10px;
     padding: 14px;
     margin-bottom: 8px;
+    animation: fadeIn 0.25s ease both;
+  }
+
+  .tt-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    animation: fadeIn 0.25s ease both;
+    margin-bottom: 10px;
   }
 
   .tt-team {
@@ -149,18 +152,13 @@
     color: var(--text);
   }
 
-  .tt-meta {
-    font-size: 0.68rem;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-
   .tt-flags {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.4rem;
     color: var(--orange);
     letter-spacing: 0.05em;
     text-align: right;
+    line-height: 1;
   }
 
   .tt-flags-label {
@@ -170,6 +168,42 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
+
+  .tt-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 10px;
+  }
+
+  .tt-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .tt-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tt-stat-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tt-stat-value {
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+
+  .tt-stat-value.juicy     { color: var(--orange); }
+  .tt-stat-value.very-juicy { color: var(--accent); }
+  .tt-stat-value.safe      { color: var(--green); }
+  .tt-stat-value.very-safe { color: #4fb8ff; }
+  .tt-stat-value.odds-good { color: var(--green); }
 
   /* HR Picks */
   #picks-section { padding: 20px 20px 0; display: none; }
@@ -230,24 +264,9 @@
     text-overflow: ellipsis;
   }
 
-  .combined {
-    font-size: 0.82rem;
-    color: var(--accent);
-    text-align: right;
-  }
-
-  .hr-odds {
-    font-size: 0.82rem;
-    color: var(--green);
-    text-align: right;
-    font-weight: 500;
-  }
-
-  .tb-odds {
-    font-size: 0.78rem;
-    color: var(--muted);
-    text-align: right;
-  }
+  .combined { font-size: 0.82rem; color: var(--accent); text-align: right; }
+  .hr-odds  { font-size: 0.82rem; color: var(--green);  text-align: right; font-weight: 500; }
+  .tb-odds  { font-size: 0.78rem; color: var(--muted);  text-align: right; }
 
   .pick-sub {
     margin-top: 7px;
@@ -266,9 +285,10 @@
     padding: 2px 6px;
   }
 
-  .tag.arch { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
-  .tag.team { color: var(--text); border-color: color-mix(in srgb, var(--text) 20%, transparent); }
+  .tag.arch    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tag.team    { color: var(--text);   border-color: color-mix(in srgb, var(--text) 20%, transparent); }
   .tag.tt-game { color: var(--orange); border-color: color-mix(in srgb, var(--orange) 35%, transparent); }
+
   #no-picks {
     display: none;
     text-align: center;
@@ -290,21 +310,10 @@
     line-height: 1.6;
   }
 
-  footer {
-    margin-top: 32px;
-    text-align: center;
-    font-size: 0.62rem;
-    color: var(--dim);
-    letter-spacing: 0.1em;
-  }
+  .divider { height: 1px; background: var(--border); margin: 20px 20px 0; }
 
+  footer { margin-top: 32px; text-align: center; font-size: 0.62rem; color: var(--dim); letter-spacing: 0.1em; }
   footer a { color: var(--muted); text-decoration: none; }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 20px 20px 0;
-  }
 </style>
 </head>
 <body>
@@ -365,6 +374,14 @@
   document.getElementById('date-label').textContent =
     new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
 
+  function categoryClass(cat) {
+    if (cat === 'Very Juicy') return 'very-juicy';
+    if (cat === 'Juicy')      return 'juicy';
+    if (cat === 'Safe')       return 'safe';
+    if (cat === 'Very Safe')  return 'very-safe';
+    return '';
+  }
+
   function runPicks() {
     const btn     = document.getElementById('run-btn');
     const spinner = document.getElementById('spinner');
@@ -378,10 +395,10 @@
     status.textContent    = 'Fetching lineups and model data…';
     errBox.style.display  = 'none';
 
-    document.getElementById('games-section').style.display  = 'none';
-    document.getElementById('tt-section').style.display     = 'none';
-    document.getElementById('picks-section').style.display  = 'none';
-    document.getElementById('no-picks').style.display       = 'none';
+    document.getElementById('games-section').style.display = 'none';
+    document.getElementById('tt-section').style.display    = 'none';
+    document.getElementById('picks-section').style.display = 'none';
+    document.getElementById('no-picks').style.display      = 'none';
 
     fetch('/api/picks')
       .then(r => r.json())
@@ -396,29 +413,49 @@
         row.innerHTML = '';
         (data.games || []).forEach(g => {
           const chip = document.createElement('div');
-          chip.className = 'game-chip' + (g.complete ? ' ready' : '');
+          chip.className = 'game-chip';
           chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
           row.appendChild(chip);
         });
         document.getElementById('games-section').style.display = 'block';
 
         // Team Totals
-        const ttList = document.getElementById('tt-list');
-        ttList.innerHTML = '';
+        const ttList       = document.getElementById('tt-list');
+        ttList.innerHTML   = '';
         const ttCandidates = data.tt_candidates || [];
         if (ttCandidates.length > 0) {
           ttCandidates.forEach((t, i) => {
             const card = document.createElement('div');
             card.className = 'tt-card';
             card.style.animationDelay = `${i * 0.05}s`;
+            const catClass  = categoryClass(t.pitcher_category);
+            const oddsColor = (t.f5_fair_odds && t.f5_fair_odds.startsWith('+')) ? 'odds-good' : '';
             card.innerHTML = `
-              <div>
+              <div class="tt-top">
                 <div class="tt-team">${t.team}</div>
-                <div class="tt-meta">${t.avg_combined}% avg combined</div>
+                <div>
+                  <div class="tt-flags">${t.flags}</div>
+                  <div class="tt-flags-label">Flags</div>
+                </div>
               </div>
-              <div>
-                <div class="tt-flags">${t.flags}</div>
-                <div class="tt-flags-label">Flags</div>
+              <div class="tt-divider"></div>
+              <div class="tt-bottom">
+                <div class="tt-stat">
+                  <div class="tt-stat-label">vs Pitcher</div>
+                  <div class="tt-stat-value">${t.pitcher_name}</div>
+                </div>
+                <div class="tt-stat">
+                  <div class="tt-stat-label">Pitcher Type</div>
+                  <div class="tt-stat-value ${catClass}">${t.pitcher_category}</div>
+                </div>
+                <div class="tt-stat">
+                  <div class="tt-stat-label">Avg Score</div>
+                  <div class="tt-stat-value">${t.pitcher_avg}%</div>
+                </div>
+                <div class="tt-stat">
+                  <div class="tt-stat-label">F5 Fair Odds</div>
+                  <div class="tt-stat-value ${oddsColor}">${t.f5_fair_odds}</div>
+                </div>
               </div>`;
             ttList.appendChild(card);
           });
@@ -437,15 +474,16 @@
         const list = document.getElementById('picks-list');
         list.innerHTML = '';
 
+        const ttTeams = (data.tt_candidates || []).map(t => t.team);
+
         picks.forEach((p, i) => {
-          const card = document.createElement('div');
-          card.className = 'pick-card';
+          const card      = document.createElement('div');
+          card.className  = 'pick-card';
           card.style.animationDelay = `${i * 0.04}s`;
-          const hrClass  = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
-          const tbClass  = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
-          const ttTeams   = (data.tt_candidates || []).map(t => t.team);
+          const hrClass   = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
+          const tbClass   = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
           const isttTeam  = ttTeams.includes(p.batting_team);
-          const gameClass = isttTeam ? 'tag tt-game' : 'tag team';
+          const teamClass = isttTeam ? 'tag tt-game' : 'tag team';
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
@@ -454,7 +492,7 @@
               <div class="${tbClass}">${p.tb3_fair}</div>
             </div>
             <div class="pick-sub">
-              <span class="${gameClass}">${p.batting_team}</span>
+              <span class="${teamClass}">${p.batting_team}</span>
               <span class="tag">vs ${p.pitcher_name}</span>
               <span class="tag arch">${p.arch_name}</span>
             </div>`;
