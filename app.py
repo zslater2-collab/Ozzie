@@ -274,10 +274,11 @@ def kalshi_test():
             'Authorization': f'Bearer {kalshi_key}',
             'Content-Type': 'application/json'
         }
+        # Get today's MLB game events
         resp = requests.get(
             'https://external-api.kalshi.com/trade-api/v2/events',
             headers=headers,
-            params={'status': 'open', 'limit': 20},
+            params={'status': 'open', 'series_ticker': 'kxmlbgame', 'limit': 20},
             timeout=15
         )
         return jsonify(resp.json())
