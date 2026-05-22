@@ -110,7 +110,8 @@ def get_lineups_and_starters(game_date):
                     timeout=15).json()
                 for team_key, lineup in [('home', home_lineup), ('away', away_lineup)]:
                     td = bs.get('teams', {}).get(team_key, {})
-                    for pid in td.get('battingOrder', []):
+                    batting_order = td.get('battingOrder', [])[:9]
+                    for pid in batting_order:
                         p = td.get('players', {}).get(f'ID{pid}', {})
                         lineup.append({
                             'id':   pid,
