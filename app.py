@@ -30,6 +30,15 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
+# F5 fair odds by pitcher category (from backtest)
+F5_FAIR_ODDS = {
+    'Very Juicy':  -126,
+    'Juicy':       +118,
+    'Average':     +133,
+    'Safe':        +143,
+    'Very Safe':   +191,
+}
+
 _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
@@ -57,6 +66,27 @@ def load_model():
     _model_cache      = model
     _model_cache_time = now
     return model
+
+def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
+    if pitcher_id not in pitcher_scores:
+        return None, 'Unknown'
+    pitcher    = pitcher_scores[pitcher_id]
+    all_scores = [
+        pitcher['archetypes'].get(ak, {}).get('shrunk_rate', LEAGUE_AVG)
+        for ak in archetypes
+    ]
+    avg = sum(all_scores) / len(all_scores)
+    if avg >= 5.5:
+        category = 'Very Juicy'
+    elif avg >= 4.5:
+        category = 'Juicy'
+    elif avg >= 3.5:
+        category = 'Average'
+    elif avg >= 3.0:
+        category = 'Safe'
+    else:
+        category = 'Very Safe'
+    return round(avg, 2), category
 
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
@@ -110,6 +140,9 @@ def pa_rate_to_game_odds(pa_rate_pct):
     fair = round((1 / game_prob - 1) * 100)
     return f'+{fair}' if fair > 0 else str(fair)
 
+def format_odds(n):
+    return f'+{n}' if n > 0 else str(n)
+
 def get_bullpen_score(team, arch_key, model):
     bs = model.get('team_bullpen_scores', {})
     if team in bs and arch_key in bs[team]:
@@ -147,6 +180,7 @@ def get_hr_picks(games, model):
     pitcher_scores  = model['all_pitcher_arch_scores']
     archetypes      = model['archetypes']
     picks           = []
+
     for game in games:
         if not game['home_lineup'] or not game['away_lineup']:
             continue
@@ -190,14 +224,17 @@ def get_hr_picks(games, model):
                         'player_name':  batter['name'],
                         'player_id':    batter_id,
                         'pitcher_name': pitcher_name,
+                        'pitcher_id':   pitcher_id,
                         'game':         game_str,
                         'batting_team': batting_team,
+                        'fielding_team': fielding_team,
                         'combined':     round(combined, 2),
                         'hr_fair':      hr_odds_str,
                         'hr_odds_num':  hr_odds_num,
                         'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':    archetypes[arch_key]['name'],
                     })
+
     seen = {}
     for p in picks:
         pid = p['player_id']
@@ -236,23 +273,42 @@ def api_picks():
         games    = get_lineups_and_starters(today)
         picks    = get_hr_picks(games, model)
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
-        team_flags = Counter()
+
+        # Team total candidates: teams with 3+ flags
+        pitcher_scores = model['all_pitcher_arch_scores']
+        archetypes     = model['archetypes']
+
+        team_flags    = Counter()
+        team_pitcher  = {}
         for p in picks:
             team_flags[p['batting_team']] += 1
-        tt_candidates = [
-            {
+            team_pitcher[p['batting_team']] = (p['pitcher_id'], p['pitcher_name'], p['fielding_team'])
+
+        tt_candidates = []
+        for team, count in team_flags.items():
+            if count < 3:
+                continue
+            pid, pname, fteam = team_pitcher[team]
+            avg_score, category = get_pitcher_avg_score(pid, pitcher_scores, archetypes)
+            f5_odds = F5_FAIR_ODDS.get(category, None)
+            tt_candidates.append({
                 'team':         team,
                 'flags':        count,
                 'avg_combined': round(
                     sum(p['combined'] for p in picks if p['batting_team'] == team) / count, 2
-                )
-            }
-            for team, count in team_flags.items() if count >= 3
-        ]
+                ),
+                'pitcher_name':    pname,
+                'pitcher_avg':     avg_score,
+                'pitcher_category': category,
+                'f5_fair_odds':    format_odds(f5_odds) if f5_odds else 'N/A',
+            })
+
         tt_candidates.sort(key=lambda x: x['flags'], reverse=True)
+
         return jsonify({
             'date':          today,
             'complete':      complete,
@@ -261,27 +317,6 @@ def api_picks():
             'tt_candidates': tt_candidates,
             'games':         games_out,
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/kalshi_test')
-def kalshi_test():
-    if not session.get('authenticated'):
-        return jsonify({'error': 'Not authenticated'}), 401
-    try:
-        kalshi_key = os.environ.get('KALSHI_API_KEY', '')
-        headers = {
-            'Authorization': f'Bearer {kalshi_key}',
-            'Content-Type': 'application/json'
-        }
-        # Get today's MLB game events
-        resp = requests.get(
-            'https://external-api.kalshi.com/trade-api/v2/events',
-            headers=headers,
-            params={'status': 'open', 'series_ticker': 'kxmlbgame', 'limit': 20},
-            timeout=15
-        )
-        return jsonify(resp.json())
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
