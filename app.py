@@ -20,6 +20,9 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
+    # ── Heat map models ──────────────────────────────────────────────────
+    'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
+    'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
 }
 
 LEAGUE_AVG      = 3.88
@@ -29,6 +32,12 @@ STARTER_WEIGHT  = 0.80
 BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
+
+# ── Heat map thresholds (validated on full MLB 2025, out-of-sample) ───────────
+HEATMAP_MEAN            = 1.0133
+HEATMAP_STD             = 0.0063
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -176,6 +185,116 @@ def get_park_factor(fielding_team, batter_hand, model):
     except Exception:
         return 1.0
 
+# ── Heat map scoring ──────────────────────────────────────────────────────────
+
+def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
+    """
+    Compute overlap score for a single batter vs pitcher.
+    Returns float or None if insufficient data.
+    Score > 1.0 = pitcher tends to throw to batter's preferred zones.
+    Score < 1.0 = pitcher avoids batter's preferred zones.
+    """
+    batter_profiles = model.get('batter_ev_profiles_lr', {})
+    pitcher_tendencies = model.get('pitcher_tendency_map', {})
+    archetypes = model.get('archetypes', {})
+
+    if batter_id not in batter_profiles: return None
+    if pitcher_id not in pitcher_tendencies: return None
+    if pitcher_hand not in batter_profiles[batter_id]: return None
+
+    tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
+    if not tends: return None
+
+    evs  = batter_profiles[batter_id][pitcher_hand]
+    wsum = wtot = 0.0
+
+    for ak in archetypes:
+        if (ak.endswith('_L')) != (batter_hand == 'L'): continue
+        t     = tends.get(ak, 0.0)
+        e     = evs.get(ak, 1.0)
+        wsum += e * t
+        wtot += t
+
+    return wsum / wtot if wtot > 0 else None
+
+
+def get_heatmap_flags(games, model):
+    """
+    For each game with a confirmed lineup, compute team overlap scores
+    and flag games exceeding validated thresholds.
+
+    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std, p=0.023)
+    Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std, p=0.029)
+    """
+    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    flags = []
+
+    for game in games:
+        matchups = [
+            (game['away_lineup'], game['home_pitcher_id'],
+             game['home_pitcher_name'], game['away_team'],
+             game['home_team'], f"{game['away_team']}@{game['home_team']}"),
+            (game['home_lineup'], game['away_pitcher_id'],
+             game['away_pitcher_name'], game['home_team'],
+             game['away_team'], f"{game['away_team']}@{game['home_team']}"),
+        ]
+
+        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team, game_str in matchups:
+            if not lineup or not pitcher_id:
+                continue
+
+            # Get pitcher handedness from existing pitcher scores
+            pitcher_hand = 'R'  # default
+            if pitcher_id in pitcher_scores:
+                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
+
+            scores = []
+            scored_batters = 0
+
+            for batter in lineup:
+                batter_id   = batter['id']
+                batter_hand = batter.get('hand', 'R')
+                s = compute_batter_overlap(
+                    batter_id, pitcher_id,
+                    batter_hand, pitcher_hand,
+                    model
+                )
+                if s is not None:
+                    scores.append(s)
+                    scored_batters += 1
+
+            if scored_batters < 3:
+                continue
+
+            team_score = sum(scores) / len(scores)
+            std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
+
+            if team_score >= HEATMAP_OVER_THRESHOLD:
+                signal = 'over'
+            elif team_score <= HEATMAP_UNDER_THRESHOLD:
+                signal = 'under'
+            else:
+                continue  # no flag — middle of distribution
+
+            flags.append({
+                'game':           game_str,
+                'batting_team':   batting_team,
+                'fielding_team':  fielding_team,
+                'pitcher_name':   pitcher_name,
+                'pitcher_hand':   pitcher_hand,
+                'pitcher_id':     pitcher_id,
+                'overlap_score':  round(team_score, 4),
+                'std_from_mean':  round(std_from_mean, 2),
+                'signal':         signal,
+                'batters_scored': scored_batters,
+                'lineup_complete': len(lineup) >= 8,
+            })
+
+    # Sort: strongest signals first (furthest from mean)
+    flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
+    return flags
+
+
 def get_hr_picks(games, model):
     arch_hitter_map = model['arch_hitter_map']
     pitcher_scores  = model['all_pitcher_arch_scores']
@@ -279,44 +398,16 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        # Team total candidates: teams with 3+ flags
-        pitcher_scores = model['all_pitcher_arch_scores']
-        archetypes     = model['archetypes']
-
-        team_flags    = Counter()
-        team_pitcher  = {}
-        for p in picks:
-            team_flags[p['batting_team']] += 1
-            team_pitcher[p['batting_team']] = (p['pitcher_id'], p['pitcher_name'], p['fielding_team'])
-
-        tt_candidates = []
-        for team, count in team_flags.items():
-            if count < 3:
-                continue
-            pid, pname, fteam = team_pitcher[team]
-            avg_score, category = get_pitcher_avg_score(pid, pitcher_scores, archetypes)
-            f5_odds = F5_FAIR_ODDS.get(category, None)
-            tt_candidates.append({
-                'team':         team,
-                'flags':        count,
-                'avg_combined': round(
-                    sum(p['combined'] for p in picks if p['batting_team'] == team) / count, 2
-                ),
-                'pitcher_name':    pname,
-                'pitcher_avg':     avg_score,
-                'pitcher_category': category,
-                'f5_fair_odds':    format_odds(f5_odds) if f5_odds else 'N/A',
-            })
-
-        tt_candidates.sort(key=lambda x: x['flags'], reverse=True)
+        # ── Heat map TT flags (primary signal) ───────────────────────────
+        heatmap_flags = get_heatmap_flags(games, model)
 
         return jsonify({
-            'date':          today,
-            'complete':      complete,
-            'total':         len(games),
-            'picks':         picks,
-            'tt_candidates': tt_candidates,
-            'games':         games_out,
+            'date':           today,
+            'complete':       complete,
+            'total':          len(games),
+            'picks':          picks,
+            'heatmap_flags':  heatmap_flags,
+            'games':          games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
