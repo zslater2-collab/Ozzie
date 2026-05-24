@@ -21,8 +21,8 @@ FILE_IDS = {
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
     # ── Heat map models ──────────────────────────────────────────────────
-    'pitcher_tendency_map':     '1XMpyYVlHvwfd5YC3NCwP_C5JoPotNxRK',
-    'batter_ev_profiles_lr':    '1wzLpm1vPRpxW3TEmfqL_5HAR4RFbks49',
+    'pitcher_tendency_map':     '1qb1tZx-WkFsTzHlcYH08_n4HqWf6du-U',
+    'batter_ev_profiles_lr':    '15i9SOJLihQFCEsX3Hg-vWxJEOBc__FAg',
 }
 
 LEAGUE_AVG      = 3.88
