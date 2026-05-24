@@ -250,7 +250,7 @@
 
   .hm-bottom {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
 
@@ -555,6 +555,10 @@
                 <div class="hm-stat">
                   <div class="hm-stat-label">Batters Scored</div>
                   <div class="hm-stat-value">${f.batters_scored} / 9</div>
+                </div>
+                <div class="hm-stat">
+                  <div class="hm-stat-label">Pitcher K%</div>
+                  <div class="hm-stat-value">${(f.k_rate * 100).toFixed(1)}%</div>
                 </div>
               </div>
               ${lineupTag}`;
