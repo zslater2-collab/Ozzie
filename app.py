@@ -20,9 +20,10 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    # ── Heat map models ──────────────────────────────────────────────────
+    # ── Heat map models (2022-2025, linear weighted 1:2:3:4) ─────────────
     'pitcher_tendency_map':     '1qb1tZx-WkFsTzHlcYH08_n4HqWf6du-U',
     'batter_ev_profiles_lr':    '15i9SOJLihQFCEsX3Hg-vWxJEOBc__FAg',
+    'pitcher_contact_rates':    '1OzWCA_NviSwLLzh1ZtgLildwFQwRk6ly',
 }
 
 LEAGUE_AVG      = 3.88
@@ -33,11 +34,13 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── Heat map thresholds (validated on full MLB 2025, out-of-sample) ───────────
-HEATMAP_MEAN            = 1.0133
-HEATMAP_STD             = 0.0063
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
+# ── Heat map thresholds — K rate modified overlap score ───────────────────────
+# Validated: r=+0.1005 HHR, r=+0.0559 xwOBA F5, both p<0.001, full MLB 2025
+HEATMAP_MEAN            = 0.9984
+HEATMAP_STD             = 0.0597
+HEATMAP_OVER_THRESHOLD  = 1.0880   # mean + 1.5 std  (HHR +0.0174, p=0.0000)
+HEATMAP_UNDER_THRESHOLD = 0.9088   # mean - 1.5 std  (HHR -0.0151, p=0.0011)
+LEAGUE_K_RATE           = 0.229    # 2022-2024 MLB average
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -189,16 +192,14 @@ def get_park_factor(fielding_team, batter_hand, model):
 
 def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
     """
-    Compute overlap score for a single batter vs pitcher.
-    Returns float or None if insufficient data.
-    Score > 1.0 = pitcher tends to throw to batter's preferred zones.
-    Score < 1.0 = pitcher avoids batter's preferred zones.
+    Compute raw overlap score for a single batter vs pitcher.
+    K rate modifier applied at team level in get_heatmap_flags().
     """
-    batter_profiles = model.get('batter_ev_profiles_lr', {})
+    batter_profiles    = model.get('batter_ev_profiles_lr', {})
     pitcher_tendencies = model.get('pitcher_tendency_map', {})
-    archetypes = model.get('archetypes', {})
+    archetypes         = model.get('archetypes', {})
 
-    if batter_id not in batter_profiles: return None
+    if batter_id not in batter_profiles:    return None
     if pitcher_id not in pitcher_tendencies: return None
     if pitcher_hand not in batter_profiles[batter_id]: return None
 
@@ -220,13 +221,18 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
 
 def get_heatmap_flags(games, model):
     """
-    For each game with a confirmed lineup, compute team overlap scores
-    and flag games exceeding validated thresholds.
+    Score each lineup vs opposing starter using K rate modified overlap score.
 
-    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std, p=0.023)
-    Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std, p=0.029)
+    Modifier: raw_overlap × (1 - pitcher_k_rate) / (1 - league_k_rate)
+    High K pitchers (miss bats) → score dampened → fewer flags
+    Low K pitchers (pitch to contact) → score amplified → more flags
+
+    Validated thresholds (K rate mod, full MLB 2025, out-of-sample):
+      Over:  score > 1.0880  (+1.5σ, HHR +0.0174, p=0.0000)
+      Under: score < 0.9088  (-1.5σ, HHR -0.0151, p=0.0011)
     """
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    pitcher_scores   = model.get('all_pitcher_arch_scores', {})
+    contact_rate_map = model.get('pitcher_contact_rates', {})
     flags = []
 
     for game in games:
@@ -243,12 +249,18 @@ def get_heatmap_flags(games, model):
             if not lineup or not pitcher_id:
                 continue
 
-            # Get pitcher handedness from existing pitcher scores
-            pitcher_hand = 'R'  # default
+            # Pitcher handedness
+            pitcher_hand = 'R'
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            scores = []
+            # K rate modifier — fall back to league average for unknown pitchers
+            p_stats  = contact_rate_map.get(pitcher_id, {})
+            k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
+            if k_rate != k_rate: k_rate = LEAGUE_K_RATE   # nan check
+            k_modifier = (1 - k_rate) / (1 - LEAGUE_K_RATE)
+
+            raw_scores    = []
             scored_batters = 0
 
             for batter in lineup:
@@ -260,37 +272,39 @@ def get_heatmap_flags(games, model):
                     model
                 )
                 if s is not None:
-                    scores.append(s)
+                    raw_scores.append(s)
                     scored_batters += 1
 
             if scored_batters < 3:
                 continue
 
-            team_score = sum(scores) / len(scores)
-            std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
+            # Apply K rate modifier to team average
+            raw_score     = sum(raw_scores) / len(raw_scores)
+            modified_score = raw_score * k_modifier
+            std_from_mean  = (modified_score - HEATMAP_MEAN) / HEATMAP_STD
 
-            if team_score >= HEATMAP_OVER_THRESHOLD:
+            if modified_score >= HEATMAP_OVER_THRESHOLD:
                 signal = 'over'
-            elif team_score <= HEATMAP_UNDER_THRESHOLD:
+            elif modified_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                continue  # no flag — middle of distribution
+                continue
 
             flags.append({
-                'game':           game_str,
-                'batting_team':   batting_team,
-                'fielding_team':  fielding_team,
-                'pitcher_name':   pitcher_name,
-                'pitcher_hand':   pitcher_hand,
-                'pitcher_id':     pitcher_id,
-                'overlap_score':  round(team_score, 4),
-                'std_from_mean':  round(std_from_mean, 2),
-                'signal':         signal,
-                'batters_scored': scored_batters,
+                'game':            game_str,
+                'batting_team':    batting_team,
+                'fielding_team':   fielding_team,
+                'pitcher_name':    pitcher_name,
+                'pitcher_hand':    pitcher_hand,
+                'pitcher_id':      pitcher_id,
+                'overlap_score':   round(modified_score, 4),
+                'std_from_mean':   round(std_from_mean, 2),
+                'signal':          signal,
+                'batters_scored':  scored_batters,
+                'k_rate':          round(k_rate, 3),
                 'lineup_complete': len(lineup) >= 8,
             })
 
-    # Sort: strongest signals first (furthest from mean)
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
@@ -341,18 +355,18 @@ def get_hr_picks(games, model):
                     hr_odds_str = pa_rate_to_game_odds(hr_adjusted)
                     hr_odds_num = int(hr_odds_str.replace('+', ''))
                     picks.append({
-                        'player_name':  batter['name'],
-                        'player_id':    batter_id,
-                        'pitcher_name': pitcher_name,
-                        'pitcher_id':   pitcher_id,
-                        'game':         game_str,
-                        'batting_team': batting_team,
+                        'player_name':   batter['name'],
+                        'player_id':     batter_id,
+                        'pitcher_name':  pitcher_name,
+                        'pitcher_id':    pitcher_id,
+                        'game':          game_str,
+                        'batting_team':  batting_team,
                         'fielding_team': fielding_team,
-                        'combined':     round(combined, 2),
-                        'hr_fair':      hr_odds_str,
-                        'hr_odds_num':  hr_odds_num,
-                        'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
-                        'arch_name':    archetypes[arch_key]['name'],
+                        'combined':      round(combined, 2),
+                        'hr_fair':       hr_odds_str,
+                        'hr_odds_num':   hr_odds_num,
+                        'tb3_fair':      pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
+                        'arch_name':     archetypes[arch_key]['name'],
                     })
 
     seen = {}
@@ -398,16 +412,15 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        # ── Heat map TT flags (primary signal) ───────────────────────────
         heatmap_flags = get_heatmap_flags(games, model)
 
         return jsonify({
-            'date':           today,
-            'complete':       complete,
-            'total':          len(games),
-            'picks':          picks,
-            'heatmap_flags':  heatmap_flags,
-            'games':          games_out,
+            'date':          today,
+            'complete':      complete,
+            'total':         len(games),
+            'picks':         picks,
+            'heatmap_flags': heatmap_flags,
+            'games':         games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
