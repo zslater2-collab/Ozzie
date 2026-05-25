@@ -4,28 +4,35 @@ import requests
 import pandas as pd
 import pytz
 from datetime import datetime
-from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
 import tempfile
 
+try:
+    from scipy.stats import nbinom
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'zach-picks-secret-2026')
-APP_PASSWORD = os.environ.get('APP_PASSWORD', 'picks2026')
+APP_PASSWORD    = os.environ.get('APP_PASSWORD', 'picks2026')
 
 FILE_IDS = {
-    'all_pitcher_arch_scores': '1qA9iSXEv1ONRlXvm0O5TzLSQTUKFVQGn',
+    'all_pitcher_arch_scores':  '1qA9iSXEv1ONRlXvm0O5TzLSQTUKFVQGn',
     'arch_hitter_map_combined': '15wE3HfjaR4g68YnwcSCQV76_t0F4I7YG',
     'archetypes_combined':      '1WNBjJ98Q8n20oDjF5AMVFeeUIJiqkz4h',
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    # ── Heat map models ──────────────────────────────────────────────────
+    # ── Heatmap / team total models ──────────────────────────────────────
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
     'pitcher_contact_rates':    '1OzWCA_NviSwLLzh1ZtgLildwFQwRk6ly',
     'batter_walk_rates':        '1gQNL-3v7txA9V87a9VsxzZmLZCCsgJ3m',
-    'bullpen_tendency_map':     '1UT-LeqNn-pDGq_foeO0jRFgt771ttTqd',
+    # ── Full game innings gate ────────────────────────────────────────────
+    # Upload pitcher_innings_share_2025.pkl to Drive and paste ID here
+    'pitcher_innings_share':    'REPLACE_WITH_DRIVE_ID',
 }
 
 LEAGUE_AVG      = 3.88
@@ -36,44 +43,89 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── Heat map thresholds — validated on full MLB 2025, out-of-sample ──────────
-# 70/30 direct blend (overlap_k_mod + lineup_walk_rate), Script K
-# Population stats used for z-normalization (from validation run)
-OVERLAP_POP_MEAN    = 0.9984   # overlap_k_mod population mean
-OVERLAP_POP_STD     = 0.0598   # overlap_k_mod population std
-WALK_POP_MEAN       = 0.0834   # lineup_walk_rate population mean
-WALK_POP_STD        = 0.0104   # lineup_walk_rate population std
-WALK_BLEND_WEIGHT   = 0.30     # validated optimal: 70% overlap / 30% walk
+# ── F5 heatmap thresholds (validated, out-of-sample 2025) ────────────────────
+OVERLAP_POP_MEAN    = 0.9984
+OVERLAP_POP_STD     = 0.0598
+WALK_POP_MEAN       = 0.0834
+WALK_POP_STD        = 0.0104
+WALK_BLEND_WEIGHT   = 0.30
+HEATMAP_MEAN        = 0.9984
+HEATMAP_STD         = 0.0455
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # -2.0σ
+LEAGUE_K_RATE           = 0.217
 
-HEATMAP_MEAN            = 0.9984   # blended score mean
-HEATMAP_STD             = 0.0455   # blended score std (tighter than raw overlap)
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0666
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 0.9074
+# ── Full game thresholds (starter-only, validated Path A backtest) ────────────
+# overlap_k_mod distribution: mean=0.998363, std=0.059773 (from backtest)
+# -1.0σ threshold; IP gate applied separately
+FG_BLEND_MEAN       = 0.998363
+FG_BLEND_STD        = 0.059773
+FG_UNDER_THRESHOLD  = FG_BLEND_MEAN - 1.0 * FG_BLEND_STD     # 0.9386
+MIN_STARTER_IP      = 5.0   # avg IP gate — filters short starters (validated Q2)
 
-LEAGUE_K_RATE           = 0.217    # fallback if pitcher not in contact_rates
+# ── Fair odds calibration — Negative Binomial fit on fg_runs (Script R) ──────
+# E[fg_runs] = FG_BETA0 + FG_BETA1 × overlap_score
+# NB dispersion: r=3.181 p=r/(r+μ) per score
+# Fit validated: deltas < 0.5% across full run distribution
+FG_BETA0 = -1.005553
+FG_BETA1 =  5.448378
+FG_NB_R  =  3.1811
+FG_LINES = [3.5, 4.5, 5.5]
 
-# ── Full game thresholds — 70/30 starter+bullpen blend (Script M validated) ──
-# Distribution from game_scores_bullpen_m_2025 blend_70_30 column
-FG_STARTER_WEIGHT   = 0.70     # starter signal weight in full game blend
-FG_BULLPEN_WEIGHT   = 0.30     # bullpen signal weight in full game blend
-FG_BP_POP_MEAN      = 0.9984   # bullpen overlap mean (same scale as starter signal)
-FG_BP_POP_STD       = 0.0480   # bullpen overlap std (slightly tighter than starter)
-FG_BLEND_MEAN       = 0.9984   # full game blend mean (same scale as F5)
-FG_BLEND_STD        = 0.0455   # full game blend std
-FG_UNDER_THRESHOLD  = FG_BLEND_MEAN - 1.0 * FG_BLEND_STD  # -1.0σ entry point
-
-# F5 fair odds by pitcher category (from backtest)
-F5_FAIR_ODDS = {
-    'Very Juicy':  -126,
-    'Juicy':       +118,
-    'Average':     +133,
-    'Safe':        +143,
-    'Very Safe':   +191,
+# Empirical fallback table if scipy unavailable
+# Keyed by overlap score bucket upper bound → {line: american_odds}
+_FAIR_ODDS_FALLBACK = {
+    0.88: {3.5: -130, 4.5: -231, 5.5: -489},
+    0.91: {3.5: -152, 4.5: -250, 5.5: -473},
+    0.94: {3.5: -101, 4.5: -180, 5.5: -300},
+    0.97: {3.5: +116, 4.5: -145, 5.5: -232},
+    1.00: {3.5: +113, 4.5: -145, 5.5: -227},
+    1.03: {3.5: +127, 4.5: -137, 5.5: -207},
+    1.06: {3.5: +138, 4.5: -122, 5.5: -184},
+    1.09: {3.5: +145, 4.5: -124, 5.5: -217},
+    9.99: {3.5: +159, 4.5: -102, 5.5: -168},
 }
 
 _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
+
+
+# ── Fair odds ─────────────────────────────────────────────────────────────────
+
+def get_fair_odds(overlap_score, lines=FG_LINES):
+    """
+    Return fair American odds for under at each line given overlap_k_mod score.
+    Uses Negative Binomial(r=3.181, p=r/(r+μ)) where μ = β0 + β1 × score.
+    Falls back to empirical lookup table if scipy unavailable.
+    Note: calibrated on full game runs. F5 odds are approximate.
+    """
+    lam = max(FG_BETA0 + FG_BETA1 * overlap_score, 0.5)
+
+    def _fmt(odds):
+        return f'+{odds}' if odds > 0 else str(odds)
+
+    if SCIPY_AVAILABLE:
+        p_nb = FG_NB_R / (FG_NB_R + lam)   # recompute p for this score's mean
+        result = {}
+        for line in lines:
+            k    = int(line - 0.5)           # 4.5 → 4, 3.5 → 3
+            prob = nbinom.cdf(k, FG_NB_R, p_nb)
+            prob = min(max(prob, 0.001), 0.999)
+            odds = round(-(prob / (1 - prob)) * 100) if prob >= 0.5 \
+                   else round(((1 - prob) / prob) * 100)
+            result[line] = _fmt(odds)
+        return result
+    else:
+        # Empirical fallback
+        for cutoff in sorted(_FAIR_ODDS_FALLBACK.keys()):
+            if overlap_score <= cutoff:
+                bucket = _FAIR_ODDS_FALLBACK[cutoff]
+                return {line: _fmt(bucket.get(line, 0)) for line in lines}
+        bucket = _FAIR_ODDS_FALLBACK[9.99]
+        return {line: _fmt(bucket.get(line, 0)) for line in lines}
+
+
+# ── Model loading ─────────────────────────────────────────────────────────────
 
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -92,33 +144,21 @@ def load_model():
         return _model_cache
     model = {}
     for name, fid in FILE_IDS.items():
-        model[name] = download_pkl(fid)
-    model['arch_hitter_map'] = model['arch_hitter_map_combined']
-    model['archetypes']      = model['archetypes_combined']
+        if fid == 'REPLACE_WITH_DRIVE_ID':
+            model[name] = {}
+            continue
+        try:
+            model[name] = download_pkl(fid)
+        except Exception:
+            model[name] = {}
+    model['arch_hitter_map'] = model.get('arch_hitter_map_combined', {})
+    model['archetypes']      = model.get('archetypes_combined', {})
     _model_cache      = model
     _model_cache_time = now
     return model
 
-def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
-    if pitcher_id not in pitcher_scores:
-        return None, 'Unknown'
-    pitcher    = pitcher_scores[pitcher_id]
-    all_scores = [
-        pitcher['archetypes'].get(ak, {}).get('shrunk_rate', LEAGUE_AVG)
-        for ak in archetypes
-    ]
-    avg = sum(all_scores) / len(all_scores)
-    if avg >= 5.5:
-        category = 'Very Juicy'
-    elif avg >= 4.5:
-        category = 'Juicy'
-    elif avg >= 3.5:
-        category = 'Average'
-    elif avg >= 3.0:
-        category = 'Safe'
-    else:
-        category = 'Very Safe'
-    return round(avg, 2), category
+
+# ── Lineup fetch ──────────────────────────────────────────────────────────────
 
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
@@ -131,8 +171,10 @@ def get_lineups_and_starters(game_date):
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
             gid  = g['gamePk']
-            home = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
-            away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
+            home = g['teams']['home']['team'].get('abbreviation') or \
+                   g['teams']['home']['team'].get('name', 'HOME')
+            away = g['teams']['away']['team'].get('abbreviation') or \
+                   g['teams']['away']['team'].get('name', 'AWAY')
             hp   = g['teams']['home'].get('probablePitcher', {})
             ap   = g['teams']['away'].get('probablePitcher', {})
             home_lineup, away_lineup = [], []
@@ -141,7 +183,7 @@ def get_lineups_and_starters(game_date):
                     f"https://statsapi.mlb.com/api/v1/game/{gid}/boxscore",
                     timeout=15).json()
                 for team_key, lineup in [('home', home_lineup), ('away', away_lineup)]:
-                    td = bs.get('teams', {}).get(team_key, {})
+                    td            = bs.get('teams', {}).get(team_key, {})
                     batting_order = td.get('battingOrder', [])[:9]
                     for pid in batting_order:
                         p = td.get('players', {}).get(f'ID{pid}', {})
@@ -165,16 +207,64 @@ def get_lineups_and_starters(game_date):
             })
     return games
 
+
+# ── Shared scoring helpers ────────────────────────────────────────────────────
+
+def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
+    batter_profiles    = model.get('batter_ev_profiles_lr', {})
+    pitcher_tendencies = model.get('pitcher_tendency_map', {})
+    archetypes         = model.get('archetypes', {})
+    if batter_id not in batter_profiles:    return None
+    if pitcher_id not in pitcher_tendencies: return None
+    if pitcher_hand not in batter_profiles[batter_id]: return None
+    tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
+    if not tends: return None
+    evs  = batter_profiles[batter_id][pitcher_hand]
+    wsum = wtot = 0.0
+    for ak in archetypes:
+        if (ak.endswith('_L')) != (batter_hand == 'L'): continue
+        t     = tends.get(ak, 0.0)
+        e     = evs.get(ak, 1.0)
+        wsum += e * t
+        wtot += t
+    return wsum / wtot if wtot > 0 else None
+
+def _compute_overlap_k_mod(lineup, pitcher_id, pitcher_hand, model):
+    """
+    Shared steps 1+2: raw overlap → K-rate modified score.
+    Returns (overlap_k_mod, walk_vals) or (None, []) if insufficient data.
+    """
+    contact_rates     = model.get('pitcher_contact_rates', {})
+    batter_walk_rates = model.get('batter_walk_rates', {})
+    raw_scores, walk_vals = [], []
+
+    for batter in lineup:
+        batter_id   = batter['id']
+        batter_hand = batter.get('hand', 'R')
+        s = compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model)
+        if s is not None:
+            raw_scores.append(s)
+        w = batter_walk_rates.get(batter_id, {}).get('walk_rate')
+        if w is not None:
+            walk_vals.append(w)
+
+    if len(raw_scores) < 3:
+        return None, []
+
+    p_stats  = contact_rates.get(pitcher_id, {})
+    k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
+    if not isinstance(k_rate, float) or k_rate != k_rate:
+        k_rate = LEAGUE_K_RATE
+    k_mod         = (1 - k_rate) / (1 - LEAGUE_K_RATE)
+    overlap_k_mod = (sum(raw_scores) / len(raw_scores)) * k_mod
+    return overlap_k_mod, walk_vals
+
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
-    if game_prob <= 0:
-        return '+9999'
+    if game_prob <= 0: return '+9999'
     fair = round((1 / game_prob - 1) * 100)
     return f'+{fair}' if fair > 0 else str(fair)
-
-def format_odds(n):
-    return f'+{n}' if n > 0 else str(n)
 
 def get_bullpen_score(team, arch_key, model):
     bs = model.get('team_bullpen_scores', {})
@@ -184,8 +274,7 @@ def get_bullpen_score(team, arch_key, model):
 
 def get_park_factor(fielding_team, batter_hand, model):
     all_parks = model.get('all_parks', {})
-    if fielding_team not in all_parks:
-        return 1.0
+    if fielding_team not in all_parks: return 1.0
     try:
         dims   = all_parks[fielding_team].get('dimensions', {})
         valid  = [p for p in all_parks.values() if 'dimensions' in p]
@@ -208,52 +297,17 @@ def get_park_factor(fielding_team, batter_hand, model):
     except Exception:
         return 1.0
 
-# ── Heat map scoring ──────────────────────────────────────────────────────────
 
-def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
-    """
-    Compute overlap score for a single batter vs pitcher.
-    Returns float or None if insufficient data.
-    Score > 1.0 = pitcher tends to throw to batter's preferred zones.
-    Score < 1.0 = pitcher avoids batter's preferred zones.
-    """
-    batter_profiles = model.get('batter_ev_profiles_lr', {})
-    pitcher_tendencies = model.get('pitcher_tendency_map', {})
-    archetypes = model.get('archetypes', {})
-
-    if batter_id not in batter_profiles: return None
-    if pitcher_id not in pitcher_tendencies: return None
-    if pitcher_hand not in batter_profiles[batter_id]: return None
-
-    tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
-    if not tends: return None
-
-    evs  = batter_profiles[batter_id][pitcher_hand]
-    wsum = wtot = 0.0
-
-    for ak in archetypes:
-        if (ak.endswith('_L')) != (batter_hand == 'L'): continue
-        t     = tends.get(ak, 0.0)
-        e     = evs.get(ak, 1.0)
-        wsum += e * t
-        wtot += t
-
-    return wsum / wtot if wtot > 0 else None
-
+# ── F5 Team Total Under flags ─────────────────────────────────────────────────
 
 def get_heatmap_flags(games, model):
     """
-    Score each lineup vs starter using:
-      1. Raw overlap score (EV profiles × pitcher tendency map)
-      2. K rate modifier: raw × (1 - k_rate) / (1 - LEAGUE_K_RATE)
-      3. 70/30 direct blend with lineup walk rate (z-normalized)
-
-    Over:  blended score > HEATMAP_OVER_THRESHOLD  (+1.5σ)
-    Under: blended score < HEATMAP_UNDER_THRESHOLD (-2.0σ)
+    F5 team total under flags.
+    Signal: overlap_k_mod + 70/30 walk blend, threshold -2.0σ.
+    Adds fair_odds (approximate — calibrated on full game runs) and avg_ip.
     """
     pitcher_scores   = model.get('all_pitcher_arch_scores', {})
-    contact_rates    = model.get('pitcher_contact_rates', {})
-    batter_walk_rates = model.get('batter_walk_rates', {})
+    innings_share    = model.get('pitcher_innings_share', {})
     flags = []
 
     for game in games:
@@ -274,53 +328,30 @@ def get_heatmap_flags(games, model):
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            # ── Step 1: raw overlap scores per batter ─────────────────────
-            raw_scores = []
-            walk_vals  = []
-
-            for batter in lineup:
-                batter_id   = batter['id']
-                batter_hand = batter.get('hand', 'R')
-
-                s = compute_batter_overlap(
-                    batter_id, pitcher_id,
-                    batter_hand, pitcher_hand, model
-                )
-                if s is not None:
-                    raw_scores.append(s)
-
-                w = batter_walk_rates.get(batter_id, {}).get('walk_rate')
-                if w is not None:
-                    walk_vals.append(w)
-
-            if len(raw_scores) < 3:
+            overlap_k_mod, walk_vals = _compute_overlap_k_mod(
+                lineup, pitcher_id, pitcher_hand, model
+            )
+            if overlap_k_mod is None:
                 continue
 
-            # ── Step 2: K rate modifier ───────────────────────────────────
-            p_stats  = contact_rates.get(pitcher_id, {})
-            k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
-            if not isinstance(k_rate, float) or k_rate != k_rate:  # NaN guard
-                k_rate = LEAGUE_K_RATE
-            k_modifier    = (1 - k_rate) / (1 - LEAGUE_K_RATE)
-            overlap_k_mod = (sum(raw_scores) / len(raw_scores)) * k_modifier
-
-            # ── Step 3: 70/30 direct blend with lineup walk rate ──────────
+            # 70/30 walk blend
             if len(walk_vals) >= 3:
                 lineup_walk_rate = sum(walk_vals) / len(walk_vals)
-                ov_z   = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
-                wk_z   = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
-                blend_z      = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
-                team_score   = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
+                ov_z    = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
+                wk_z    = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
+                blend_z = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
+                team_score = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
             else:
-                # Insufficient walk data — fall back to K-mod overlap only
                 team_score = overlap_k_mod
+
+            if team_score > HEATMAP_UNDER_THRESHOLD:
+                continue
 
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
 
-            # Over signal suppressed — no edge in F5 team total market (backtest validated)
-            if team_score > HEATMAP_UNDER_THRESHOLD:
-                continue
-            signal = 'under' 
+            # Starter avg IP (informational for F5 — no gate applied)
+            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
+            avg_ip  = round(ip_data['avg_ip'], 1) if ip_data else None
 
             flags.append({
                 'game':            game_str,
@@ -331,72 +362,31 @@ def get_heatmap_flags(games, model):
                 'pitcher_id':      pitcher_id,
                 'overlap_score':   round(team_score, 4),
                 'std_from_mean':   round(std_from_mean, 2),
-                'signal':          signal,
-                'batters_scored':  len(raw_scores),
+                'signal':          'under',
+                'batters_scored':  sum(1 for b in lineup if compute_batter_overlap(
+                                       b['id'], pitcher_id, b.get('hand','R'),
+                                       pitcher_hand, model) is not None),
                 'lineup_complete': len(lineup) >= 8,
+                'avg_ip':          avg_ip,
+                'fair_odds':       get_fair_odds(team_score),
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
 
-def compute_bullpen_overlap(lineup, fielding_team, model):
-    """
-    Compute bullpen overlap score for a batting lineup vs fielding team bullpen.
-    Same zone/archetype logic as compute_batter_overlap but uses
-    bullpen_tendency_map (team-level aggregated relief pitcher tendencies)
-    instead of individual pitcher tendency map.
-    Returns float or None if insufficient data.
-    """
-    batter_profiles   = model.get('batter_ev_profiles_lr', {})
-    bullpen_tendencies= model.get('bullpen_tendency_map', {})
-    archetypes        = model.get('archetypes', {})
-
-    bp_tends = bullpen_tendencies.get(fielding_team, {})
-    if not bp_tends:
-        return None
-
-    raw_scores = []
-    for batter in lineup:
-        batter_id   = batter['id']
-        batter_hand = batter.get('hand', 'R')
-
-        if batter_id not in batter_profiles:
-            continue
-        bp_hand = bp_tends.get(batter_hand, {})
-        if not bp_hand:
-            continue
-        batter_p = batter_profiles[batter_id].get(batter_hand, {})
-        if not batter_p:
-            continue
-
-        wsum = wtot = 0.0
-        for ak in archetypes:
-            if (ak.endswith('_L')) != (batter_hand == 'L'):
-                continue
-            t     = bp_hand.get(ak, 0.0)
-            e     = batter_p.get(ak, 1.0)
-            wsum += e * t
-            wtot += t
-        if wtot > 0:
-            raw_scores.append(wsum / wtot)
-
-    if len(raw_scores) < 3:
-        return None
-    return sum(raw_scores) / len(raw_scores)
-
+# ── Full Game Team Total Under flags ─────────────────────────────────────────
 
 def get_fullgame_flags(games, model):
     """
-    Full game under flags using 70/30 starter+bullpen blend.
-    Starter signal: same K-rate + walk blend as F5 model.
-    Bullpen signal: lineup EV profiles x fielding team bullpen tendency map.
-    Both z-normalized before blending so scales are comparable.
-    Threshold: -1.0σ (looser than F5 -2.0σ — full game market less inefficient)
+    Full game team total under flags.
+    Signal: overlap_k_mod only (starter, no walk blend — matches backtest).
+    Gate:   avg_ip >= MIN_STARTER_IP (5.0) — validated Q2, +0.134 ROI lift.
+    Threshold: -1.0σ from FG_BLEND_MEAN/STD.
+    Adds fair_odds (NegBin calibrated) and avg_ip.
     """
-    pitcher_scores    = model.get('all_pitcher_arch_scores', {})
-    contact_rates     = model.get('pitcher_contact_rates', {})
-    batter_walk_rates = model.get('batter_walk_rates', {})
+    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    innings_share  = model.get('pitcher_innings_share', {})
     flags = []
 
     for game in games:
@@ -417,59 +407,25 @@ def get_fullgame_flags(games, model):
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            # ── Starter signal (identical to F5 model) ────────────────────
-            raw_scores = []
-            walk_vals  = []
+            # ── IP gate — skip short starters ────────────────────────────
+            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
+            avg_ip  = ip_data['avg_ip'] if ip_data else None
+            if innings_share and (avg_ip is None or avg_ip < MIN_STARTER_IP):
+                # innings_share loaded but pitcher below threshold — skip
+                # if innings_share empty (Drive ID not set), gate is bypassed
+                if innings_share:
+                    continue
 
-            for batter in lineup:
-                batter_id   = batter['id']
-                batter_hand = batter.get('hand', 'R')
-
-                s = compute_batter_overlap(
-                    batter_id, pitcher_id,
-                    batter_hand, pitcher_hand, model
-                )
-                if s is not None:
-                    raw_scores.append(s)
-
-                w = batter_walk_rates.get(batter_id, {}).get('walk_rate')
-                if w is not None:
-                    walk_vals.append(w)
-
-            if len(raw_scores) < 3:
+            # ── Starter signal (overlap_k_mod, no walk blend) ─────────────
+            overlap_k_mod, _ = _compute_overlap_k_mod(
+                lineup, pitcher_id, pitcher_hand, model
+            )
+            if overlap_k_mod is None:
                 continue
 
-            p_stats  = contact_rates.get(pitcher_id, {})
-            k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
-            if not isinstance(k_rate, float) or k_rate != k_rate:
-                k_rate = LEAGUE_K_RATE
-            k_modifier    = (1 - k_rate) / (1 - LEAGUE_K_RATE)
-            overlap_k_mod = (sum(raw_scores) / len(raw_scores)) * k_modifier
+            std_from_mean = (overlap_k_mod - FG_BLEND_MEAN) / FG_BLEND_STD
 
-            if len(walk_vals) >= 3:
-                lineup_walk_rate = sum(walk_vals) / len(walk_vals)
-                ov_z        = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
-                wk_z        = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
-                blend_z     = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
-                starter_score = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
-            else:
-                starter_score = overlap_k_mod
-
-            # ── Bullpen signal ────────────────────────────────────────────
-            bp_score = compute_bullpen_overlap(lineup, fielding_team, model)
-            if bp_score is None:
-                # No bullpen data — fall back to starter signal only
-                full_game_score = starter_score
-            else:
-                # Z-normalize both signals then blend 70/30
-                st_z   = (starter_score - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
-                bp_z   = (bp_score      - FG_BP_POP_MEAN)   / FG_BP_POP_STD
-                fg_z   = st_z * FG_STARTER_WEIGHT + bp_z * FG_BULLPEN_WEIGHT
-                full_game_score = fg_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
-
-            std_from_mean = (full_game_score - FG_BLEND_MEAN) / FG_BLEND_STD
-
-            if full_game_score > FG_UNDER_THRESHOLD:
+            if overlap_k_mod > FG_UNDER_THRESHOLD:
                 continue
 
             flags.append({
@@ -479,18 +435,23 @@ def get_fullgame_flags(games, model):
                 'pitcher_name':    pitcher_name,
                 'pitcher_hand':    pitcher_hand,
                 'pitcher_id':      pitcher_id,
-                'overlap_score':   round(full_game_score, 4),
+                'overlap_score':   round(overlap_k_mod, 4),
                 'std_from_mean':   round(std_from_mean, 2),
                 'signal':          'under',
                 'market':          'full_game',
-                'batters_scored':  len(raw_scores),
+                'batters_scored':  sum(1 for b in lineup if compute_batter_overlap(
+                                       b['id'], pitcher_id, b.get('hand','R'),
+                                       pitcher_hand, model) is not None),
                 'lineup_complete': len(lineup) >= 8,
-                'has_bullpen':     bp_score is not None,
+                'avg_ip':          round(avg_ip, 1) if avg_ip else None,
+                'fair_odds':       get_fair_odds(overlap_k_mod),
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
+
+# ── HR Watchlist ──────────────────────────────────────────────────────────────
 
 def get_hr_picks(games, model):
     arch_hitter_map = model['arch_hitter_map']
@@ -522,7 +483,7 @@ def get_hr_picks(games, model):
                         pool = set(pool['batter_id'].tolist())
                     if batter_id not in pool:
                         continue
-                    arch_data = pitcher['archetypes'].get(arch_key, {})
+                    arch_data    = pitcher['archetypes'].get(arch_key, {})
                     if arch_data.get('sensor_pa', 0) < MIN_SENSOR_PA:
                         continue
                     starter_rate = arch_data.get('shrunk_rate', LEAGUE_AVG)
@@ -538,18 +499,18 @@ def get_hr_picks(games, model):
                     hr_odds_str = pa_rate_to_game_odds(hr_adjusted)
                     hr_odds_num = int(hr_odds_str.replace('+', ''))
                     picks.append({
-                        'player_name':  batter['name'],
-                        'player_id':    batter_id,
-                        'pitcher_name': pitcher_name,
-                        'pitcher_id':   pitcher_id,
-                        'game':         game_str,
-                        'batting_team': batting_team,
+                        'player_name':   batter['name'],
+                        'player_id':     batter_id,
+                        'pitcher_name':  pitcher_name,
+                        'pitcher_id':    pitcher_id,
+                        'game':          game_str,
+                        'batting_team':  batting_team,
                         'fielding_team': fielding_team,
-                        'combined':     round(combined, 2),
-                        'hr_fair':      hr_odds_str,
-                        'hr_odds_num':  hr_odds_num,
-                        'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
-                        'arch_name':    archetypes[arch_key]['name'],
+                        'combined':      round(combined, 2),
+                        'hr_fair':       hr_odds_str,
+                        'hr_odds_num':   hr_odds_num,
+                        'tb3_fair':      pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
+                        'arch_name':     archetypes[arch_key]['name'],
                     })
 
     seen = {}
@@ -558,6 +519,9 @@ def get_hr_picks(games, model):
         if pid not in seen or p['combined'] > seen[pid]['combined']:
             seen[pid] = p
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
+
+
+# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
@@ -595,9 +559,8 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        # ── Heat map TT flags (primary signal) ───────────────────────────
-        heatmap_flags   = get_heatmap_flags(games, model)
-        fullgame_flags  = get_fullgame_flags(games, model)
+        heatmap_flags  = get_heatmap_flags(games, model)
+        fullgame_flags = get_fullgame_flags(games, model)
 
         return jsonify({
             'date':           today,
@@ -610,6 +573,7 @@ def api_picks():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
