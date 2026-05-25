@@ -280,6 +280,50 @@
     opacity: 0.7;
   }
 
+  /* ── Fair Odds Row (Full Game cards only) ────────────────────────── */
+  .fair-odds-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .fair-odds-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--dim);
+    border-radius: 6px;
+    padding: 7px 4px;
+  }
+
+  .fair-odds-line {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .fair-odds-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+  }
+
+  .fair-odds-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
   /* ── HR Picks ────────────────────────────────────────────────────── */
   #picks-section { padding: 20px 20px 0; display: none; }
 
@@ -420,7 +464,7 @@
   <div style="padding-top:20px">
     <div class="flags-header">
       <div class="flags-count" id="heatmap-count"></div>
-      <div class="section-label" style="margin:0">F5 Team Total Flags</div>
+      <div class="section-label" style="margin:0">F5 Team Total Under</div>
     </div>
     <div id="heatmap-list"></div>
   </div>
@@ -432,7 +476,7 @@
   <div style="padding-top:20px">
     <div class="flags-header">
       <div class="flags-count" id="fullgame-count"></div>
-      <div class="section-label" style="margin:0">Full Game Team Total Flags</div>
+      <div class="section-label" style="margin:0">Full Game Team Total Under</div>
     </div>
     <div id="fullgame-list"></div>
   </div>
@@ -470,6 +514,7 @@
   document.getElementById('date-label').textContent =
     new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
 
+  // ── F5 flag card ──────────────────────────────────────────────────────────
   function buildFlagCard(f, i) {
     const card = document.createElement('div');
     card.className = 'hm-card under';
@@ -481,8 +526,6 @@
       ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
       : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
     const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-    const bpTag      = (f.has_bullpen === false)
-      ? `<span class="bp-tag">⚠ starter only</span>` : '';
 
     card.innerHTML = `
       <div class="hm-top">
@@ -511,7 +554,79 @@
           <div class="hm-stat-value">${f.batters_scored} / 9</div>
         </div>
       </div>
-      ${lineupTag}${bpTag}`;
+      ${lineupTag}`;
+    return card;
+  }
+
+  // ── Full game flag card (with fair odds) ──────────────────────────────────
+  function buildFgCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
+    const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
+    const lineupTag  = f.lineup_complete
+      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
+    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
+    const avgIp      = f.avg_ip ? `${f.avg_ip} IP avg` : '—';
+
+    // Fair odds row — falls back gracefully if not present
+    let fairOddsHtml = '';
+    if (f.fair_odds) {
+      const fo = f.fair_odds;
+      fairOddsHtml = `
+        <div class="fair-odds-label">Fair Odds (Under)</div>
+        <div class="fair-odds-row">
+          <div class="fair-odds-cell">
+            <div class="fair-odds-line">3.5 runs</div>
+            <div class="fair-odds-val">${fo['3.5'] || '—'}</div>
+          </div>
+          <div class="fair-odds-cell">
+            <div class="fair-odds-line">4.5 runs</div>
+            <div class="fair-odds-val">${fo['4.5'] || '—'}</div>
+          </div>
+          <div class="fair-odds-cell">
+            <div class="fair-odds-line">5.5 runs</div>
+            <div class="fair-odds-val">${fo['5.5'] || '—'}</div>
+          </div>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal under">UNDER</div>
+          <div class="hm-sigma under">${sigmaLabel}</div>
+        </div>
+      </div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div class="hm-stat">
+          <div class="hm-stat-label">vs Pitcher</div>
+          <div class="hm-stat-value">${f.pitcher_name}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Throws</div>
+          <div class="hm-stat-value">${handLabel}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Overlap Score</div>
+          <div class="hm-stat-value">${f.overlap_score}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Starter Avg IP</div>
+          <div class="hm-stat-value">${avgIp}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Batters Scored</div>
+          <div class="hm-stat-value">${f.batters_scored} / 9</div>
+        </div>
+      </div>
+      ${fairOddsHtml}
+      ${lineupTag}`;
     return card;
   }
 
@@ -553,32 +668,32 @@
         });
         document.getElementById('games-section').style.display = 'block';
 
-        // ── F5 Team Total Flags ────────────────────────────────────────
-        const hmList = document.getElementById('heatmap-list');
-        hmList.innerHTML = '';
+        // ── F5 Team Total Under ────────────────────────────────────────
+        const hmList  = document.getElementById('heatmap-list');
+        hmList.innerHTML  = '';
         const f5Flags = data.heatmap_flags || [];
-        const underTeams = new Set();
+        const underTeams  = new Set();
 
         if (f5Flags.length > 0) {
           document.getElementById('heatmap-count').textContent =
             `${f5Flags.length} Flag${f5Flags.length !== 1 ? 's' : ''}`;
           f5Flags.forEach((f, i) => {
             if (f.signal === 'under') underTeams.add(f.batting_team);
-            hmList.appendChild(buildFlagCard(f, i));
+            hmList.appendChild(buildFgCard(f, i));
           });
           document.getElementById('heatmap-section').style.display = 'block';
         }
 
-        // ── Full Game Team Total Flags ─────────────────────────────────
-        const fgList = document.getElementById('fullgame-list');
-        fgList.innerHTML = '';
+        // ── Full Game Team Total Under ─────────────────────────────────
+        const fgList  = document.getElementById('fullgame-list');
+        fgList.innerHTML  = '';
         const fgFlags = data.fullgame_flags || [];
 
         if (fgFlags.length > 0) {
           document.getElementById('fullgame-count').textContent =
             `${fgFlags.length} Flag${fgFlags.length !== 1 ? 's' : ''}`;
           fgFlags.forEach((f, i) => {
-            fgList.appendChild(buildFlagCard(f, i));
+            fgList.appendChild(buildFgCard(f, i));
           });
           document.getElementById('fullgame-section').style.display = 'block';
         }
