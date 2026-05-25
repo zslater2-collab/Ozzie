@@ -23,6 +23,8 @@ FILE_IDS = {
     # ── Heat map models ──────────────────────────────────────────────────
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
+    'pitcher_contact_rates':    '1OzWCA_NviSwLLzh1ZtgLildwFQwRk6ly',
+    'batter_walk_rates':        '1gQNL-3v7txA9V87a9VsxzZmLZCCsgJ3m',
 }
 
 LEAGUE_AVG      = 3.88
@@ -33,11 +35,21 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── Heat map thresholds (validated on full MLB 2025, out-of-sample) ───────────
-HEATMAP_MEAN            = 1.0133
-HEATMAP_STD             = 0.0063
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
+# ── Heat map thresholds — validated on full MLB 2025, out-of-sample ──────────
+# 70/30 direct blend (overlap_k_mod + lineup_walk_rate), Script K
+# Population stats used for z-normalization (from validation run)
+OVERLAP_POP_MEAN    = 0.9984   # overlap_k_mod population mean
+OVERLAP_POP_STD     = 0.0598   # overlap_k_mod population std
+WALK_POP_MEAN       = 0.0834   # lineup_walk_rate population mean
+WALK_POP_STD        = 0.0104   # lineup_walk_rate population std
+WALK_BLEND_WEIGHT   = 0.30     # validated optimal: 70% overlap / 30% walk
+
+HEATMAP_MEAN            = 0.9984   # blended score mean
+HEATMAP_STD             = 0.0455   # blended score std (tighter than raw overlap)
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0666
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 0.9074
+
+LEAGUE_K_RATE           = 0.217    # fallback if pitcher not in contact_rates
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -220,13 +232,17 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
 
 def get_heatmap_flags(games, model):
     """
-    For each game with a confirmed lineup, compute team overlap scores
-    and flag games exceeding validated thresholds.
+    Score each lineup vs starter using:
+      1. Raw overlap score (EV profiles × pitcher tendency map)
+      2. K rate modifier: raw × (1 - k_rate) / (1 - LEAGUE_K_RATE)
+      3. 70/30 direct blend with lineup walk rate (z-normalized)
 
-    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std, p=0.023)
-    Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std, p=0.029)
+    Over:  blended score > HEATMAP_OVER_THRESHOLD  (+1.5σ)
+    Under: blended score < HEATMAP_UNDER_THRESHOLD (-2.0σ)
     """
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    pitcher_scores   = model.get('all_pitcher_arch_scores', {})
+    contact_rates    = model.get('pitcher_contact_rates', {})
+    batter_walk_rates = model.get('batter_walk_rates', {})
     flags = []
 
     for game in games:
@@ -243,30 +259,51 @@ def get_heatmap_flags(games, model):
             if not lineup or not pitcher_id:
                 continue
 
-            # Get pitcher handedness from existing pitcher scores
-            pitcher_hand = 'R'  # default
+            pitcher_hand = 'R'
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            scores = []
-            scored_batters = 0
+            # ── Step 1: raw overlap scores per batter ─────────────────────
+            raw_scores = []
+            walk_vals  = []
 
             for batter in lineup:
                 batter_id   = batter['id']
                 batter_hand = batter.get('hand', 'R')
+
                 s = compute_batter_overlap(
                     batter_id, pitcher_id,
-                    batter_hand, pitcher_hand,
-                    model
+                    batter_hand, pitcher_hand, model
                 )
                 if s is not None:
-                    scores.append(s)
-                    scored_batters += 1
+                    raw_scores.append(s)
 
-            if scored_batters < 3:
+                w = batter_walk_rates.get(batter_id, {}).get('walk_rate')
+                if w is not None:
+                    walk_vals.append(w)
+
+            if len(raw_scores) < 3:
                 continue
 
-            team_score = sum(scores) / len(scores)
+            # ── Step 2: K rate modifier ───────────────────────────────────
+            p_stats  = contact_rates.get(pitcher_id, {})
+            k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
+            if not isinstance(k_rate, float) or k_rate != k_rate:  # NaN guard
+                k_rate = LEAGUE_K_RATE
+            k_modifier    = (1 - k_rate) / (1 - LEAGUE_K_RATE)
+            overlap_k_mod = (sum(raw_scores) / len(raw_scores)) * k_modifier
+
+            # ── Step 3: 70/30 direct blend with lineup walk rate ──────────
+            if len(walk_vals) >= 3:
+                lineup_walk_rate = sum(walk_vals) / len(walk_vals)
+                ov_z   = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
+                wk_z   = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
+                blend_z      = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
+                team_score   = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
+            else:
+                # Insufficient walk data — fall back to K-mod overlap only
+                team_score = overlap_k_mod
+
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
 
             if team_score >= HEATMAP_OVER_THRESHOLD:
@@ -274,23 +311,22 @@ def get_heatmap_flags(games, model):
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                continue  # no flag — middle of distribution
+                continue
 
             flags.append({
-                'game':           game_str,
-                'batting_team':   batting_team,
-                'fielding_team':  fielding_team,
-                'pitcher_name':   pitcher_name,
-                'pitcher_hand':   pitcher_hand,
-                'pitcher_id':     pitcher_id,
-                'overlap_score':  round(team_score, 4),
-                'std_from_mean':  round(std_from_mean, 2),
-                'signal':         signal,
-                'batters_scored': scored_batters,
+                'game':            game_str,
+                'batting_team':    batting_team,
+                'fielding_team':   fielding_team,
+                'pitcher_name':    pitcher_name,
+                'pitcher_hand':    pitcher_hand,
+                'pitcher_id':      pitcher_id,
+                'overlap_score':   round(team_score, 4),
+                'std_from_mean':   round(std_from_mean, 2),
+                'signal':          signal,
+                'batters_scored':  len(raw_scores),
                 'lineup_complete': len(lineup) >= 8,
             })
 
-    # Sort: strongest signals first (furthest from mean)
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
