@@ -145,24 +145,23 @@
   .dot.ready   { background: var(--green); }
   .dot.pending { background: var(--muted); }
 
-  /* ── Heat Map TT Section ─────────────────────────────────────────── */
-  #heatmap-section { padding: 20px 20px 0; display: none; }
+  /* ── Shared flag card styles ─────────────────────────────────────── */
+  .flags-section { padding: 20px 20px 0; display: none; }
 
-  .heatmap-header {
+  .flags-header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     margin-bottom: 12px;
   }
 
-  .heatmap-count {
+  .flags-count {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.1rem;
     letter-spacing: 0.08em;
     color: var(--accent);
   }
 
-  /* Over card — red border */
   .hm-card {
     background: var(--surface);
     border-radius: 10px;
@@ -173,24 +172,9 @@
     overflow: hidden;
   }
 
-  .hm-card.over {
-    border: 1px solid var(--red);
-    box-shadow: 0 0 18px rgba(255, 107, 107, 0.08);
-  }
-
   .hm-card.under {
     border: 1px solid var(--blue);
     box-shadow: 0 0 18px rgba(79, 184, 255, 0.08);
-  }
-
-  /* Subtle glow strip at top */
-  .hm-card.over::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--red), transparent);
-    opacity: 0.6;
   }
 
   .hm-card.under::before {
@@ -230,7 +214,6 @@
     line-height: 1;
   }
 
-  .hm-signal.over  { color: var(--red); }
   .hm-signal.under { color: var(--blue); }
 
   .hm-sigma {
@@ -239,7 +222,6 @@
     text-align: right;
   }
 
-  .hm-sigma.over  { color: color-mix(in srgb, var(--red) 70%, var(--muted)); }
   .hm-sigma.under { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
 
   .hm-divider {
@@ -284,6 +266,19 @@
 
   .hm-lineup-tag.confirmed { color: var(--green); }
   .hm-lineup-tag.pending   { color: var(--muted); }
+
+  .bp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    margin-left: 8px;
+    color: var(--orange);
+    opacity: 0.7;
+  }
 
   /* ── HR Picks ────────────────────────────────────────────────────── */
   #picks-section { padding: 20px 20px 0; display: none; }
@@ -365,10 +360,9 @@
     padding: 2px 6px;
   }
 
-  .tag.arch    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
-  .tag.team    { color: var(--text);   border-color: color-mix(in srgb, var(--text) 20%, transparent); }
-  .tag.tt-over { color: var(--red);    border-color: color-mix(in srgb, var(--red) 35%, transparent); }
-  .tag.tt-under { color: var(--blue);  border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
+  .tag.arch     { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tag.team     { color: var(--text);   border-color: color-mix(in srgb, var(--text) 20%, transparent); }
+  .tag.tt-under { color: var(--blue);   border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
 
   #no-picks {
     display: none;
@@ -420,15 +414,27 @@
   <div class="games-row" id="games-row"></div>
 </div>
 
-<!-- Heat Map TT Flags -->
-<div id="heatmap-section">
+<!-- F5 Team Total Flags -->
+<div id="heatmap-section" class="flags-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
-    <div class="heatmap-header">
-      <div class="heatmap-count" id="heatmap-count"></div>
-      <div class="section-label" style="margin:0">Team Total Flags</div>
+    <div class="flags-header">
+      <div class="flags-count" id="heatmap-count"></div>
+      <div class="section-label" style="margin:0">F5 Team Total Flags</div>
     </div>
     <div id="heatmap-list"></div>
+  </div>
+</div>
+
+<!-- Full Game Team Total Flags -->
+<div id="fullgame-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="fullgame-count"></div>
+      <div class="section-label" style="margin:0">Full Game Team Total Flags</div>
+    </div>
+    <div id="fullgame-list"></div>
   </div>
 </div>
 
@@ -464,6 +470,51 @@
   document.getElementById('date-label').textContent =
     new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
 
+  function buildFlagCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
+    const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
+    const lineupTag  = f.lineup_complete
+      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
+    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
+    const bpTag      = (f.has_bullpen === false)
+      ? `<span class="bp-tag">⚠ starter only</span>` : '';
+
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal under">UNDER</div>
+          <div class="hm-sigma under">${sigmaLabel}</div>
+        </div>
+      </div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div class="hm-stat">
+          <div class="hm-stat-label">vs Pitcher</div>
+          <div class="hm-stat-value">${f.pitcher_name}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Throws</div>
+          <div class="hm-stat-value">${handLabel}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Overlap Score</div>
+          <div class="hm-stat-value">${f.overlap_score}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Batters Scored</div>
+          <div class="hm-stat-value">${f.batters_scored} / 9</div>
+        </div>
+      </div>
+      ${lineupTag}${bpTag}`;
+    return card;
+  }
+
   function runPicks() {
     const btn     = document.getElementById('run-btn');
     const spinner = document.getElementById('spinner');
@@ -477,10 +528,11 @@
     status.textContent    = 'Fetching lineups and model data…';
     errBox.style.display  = 'none';
 
-    document.getElementById('games-section').style.display   = 'none';
-    document.getElementById('heatmap-section').style.display = 'none';
-    document.getElementById('picks-section').style.display   = 'none';
-    document.getElementById('no-picks').style.display        = 'none';
+    document.getElementById('games-section').style.display    = 'none';
+    document.getElementById('heatmap-section').style.display  = 'none';
+    document.getElementById('fullgame-section').style.display = 'none';
+    document.getElementById('picks-section').style.display    = 'none';
+    document.getElementById('no-picks').style.display         = 'none';
 
     fetch('/api/picks')
       .then(r => r.json())
@@ -501,71 +553,34 @@
         });
         document.getElementById('games-section').style.display = 'block';
 
-        // ── Heat Map TT Flags ──────────────────────────────────────────
-        const hmList  = document.getElementById('heatmap-list');
+        // ── F5 Team Total Flags ────────────────────────────────────────
+        const hmList = document.getElementById('heatmap-list');
         hmList.innerHTML = '';
-        const flags   = data.heatmap_flags || [];
-
-        // Track flagged teams for HR pick cross-reference
-        const overTeams  = new Set();
+        const f5Flags = data.heatmap_flags || [];
         const underTeams = new Set();
 
-        if (flags.length > 0) {
+        if (f5Flags.length > 0) {
           document.getElementById('heatmap-count').textContent =
-            `${flags.length} Flag${flags.length !== 1 ? 's' : ''}`;
-
-          flags.forEach((f, i) => {
-            if (f.signal === 'over')  overTeams.add(f.batting_team);
+            `${f5Flags.length} Flag${f5Flags.length !== 1 ? 's' : ''}`;
+          f5Flags.forEach((f, i) => {
             if (f.signal === 'under') underTeams.add(f.batting_team);
-
-            const card = document.createElement('div');
-            card.className = `hm-card ${f.signal}`;
-            card.style.animationDelay = `${i * 0.06}s`;
-
-            const sigLabel   = f.signal === 'over' ? 'OVER' : 'UNDER';
-            const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
-            const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
-            const lineupTag  = f.lineup_complete
-              ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-              : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-            const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-
-            card.innerHTML = `
-              <div class="hm-top">
-                <div class="hm-team">${f.batting_team}</div>
-                <div class="hm-signal-wrap">
-                  <div class="hm-signal ${f.signal}">${sigLabel}</div>
-                  <div class="hm-sigma ${f.signal}">${sigmaLabel}</div>
-                </div>
-              </div>
-              <div class="hm-divider"></div>
-              <div class="hm-bottom">
-                <div class="hm-stat">
-                  <div class="hm-stat-label">vs Pitcher</div>
-                  <div class="hm-stat-value">${f.pitcher_name}</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Throws</div>
-                  <div class="hm-stat-value">${handLabel}</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Overlap Score</div>
-                  <div class="hm-stat-value">${f.overlap_score}</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Batters Scored</div>
-                  <div class="hm-stat-value">${f.batters_scored} / 9</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Pitcher K%</div>
-                  <div class="hm-stat-value">${(f.k_rate * 100).toFixed(1)}%</div>
-                </div>
-              </div>
-              ${lineupTag}`;
-            hmList.appendChild(card);
+            hmList.appendChild(buildFlagCard(f, i));
           });
-
           document.getElementById('heatmap-section').style.display = 'block';
+        }
+
+        // ── Full Game Team Total Flags ─────────────────────────────────
+        const fgList = document.getElementById('fullgame-list');
+        fgList.innerHTML = '';
+        const fgFlags = data.fullgame_flags || [];
+
+        if (fgFlags.length > 0) {
+          document.getElementById('fullgame-count').textContent =
+            `${fgFlags.length} Flag${fgFlags.length !== 1 ? 's' : ''}`;
+          fgFlags.forEach((f, i) => {
+            fgList.appendChild(buildFlagCard(f, i));
+          });
+          document.getElementById('fullgame-section').style.display = 'block';
         }
 
         // ── HR Watchlist ───────────────────────────────────────────────
@@ -585,16 +600,12 @@
           card.className = 'pick-card';
           card.style.animationDelay = `${i * 0.04}s`;
 
-          const hrClass  = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
-          const tbClass  = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
+          const hrClass = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
+          const tbClass = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
 
-          // Cross-reference with heat map flags
           let teamTagClass = 'tag team';
           let teamTagExtra = '';
-          if (overTeams.has(p.batting_team)) {
-            teamTagClass = 'tag tt-over';
-            teamTagExtra = ' ▲';
-          } else if (underTeams.has(p.batting_team)) {
+          if (underTeams.has(p.batting_team)) {
             teamTagClass = 'tag tt-under';
             teamTagExtra = ' ▼';
           }
