@@ -470,6 +470,21 @@
   </div>
 </div>
 
+<!-- F5 Combined Total Flags (Kalshi) -->
+<div id="f5combined-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="f5combined-count"></div>
+      <div class="section-label" style="margin:0">F5 Combined Total Under
+        <span style="font-size:0.55rem;letter-spacing:0.1em;color:var(--green);
+                     margin-left:8px;text-transform:uppercase">Kalshi</span>
+      </div>
+    </div>
+    <div id="f5combined-list"></div>
+  </div>
+</div>
+
 <!-- Full Game Team Total Flags -->
 <div id="fullgame-section" class="flags-section">
   <div class="divider"></div>
@@ -479,6 +494,18 @@
       <div class="section-label" style="margin:0">Full Game Team Total Under</div>
     </div>
     <div id="fullgame-list"></div>
+  </div>
+</div>
+
+<!-- Game Total Under Flags -->
+<div id="gametotal-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="gametotal-count"></div>
+      <div class="section-label" style="margin:0">Game Total Under</div>
+    </div>
+    <div id="gametotal-list"></div>
   </div>
 </div>
 
@@ -630,6 +657,58 @@
     return card;
   }
 
+  // ── Game total card ───────────────────────────────────────────────────────
+  function buildGtCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const lineupTag = f.lineup_complete
+      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
+
+    const ipA = f.avg_ip_a ? `${f.avg_ip_a} IP` : '—';
+    const ipB = f.avg_ip_b ? `${f.avg_ip_b} IP` : '—';
+
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.team_a} @ ${f.team_b}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal under">UNDER</div>
+          <div class="hm-sigma under">${f.combined_z}σ combined</div>
+        </div>
+      </div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div class="hm-stat">
+          <div class="hm-stat-label">${f.team_a} vs</div>
+          <div class="hm-stat-value">${f.pitcher_b} ${f.pitcher_b_hand === 'L' ? 'LHP' : 'RHP'}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Score / σ</div>
+          <div class="hm-stat-value">${f.score_a} (${f.z_a}σ)</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Starter Avg IP</div>
+          <div class="hm-stat-value">${ipB}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">${f.team_b} vs</div>
+          <div class="hm-stat-value">${f.pitcher_a} ${f.pitcher_a_hand === 'L' ? 'LHP' : 'RHP'}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Score / σ</div>
+          <div class="hm-stat-value">${f.score_b} (${f.z_b}σ)</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Starter Avg IP</div>
+          <div class="hm-stat-value">${ipA}</div>
+        </div>
+      </div>
+      ${lineupTag}`;
+    return card;
+  }
+
   function runPicks() {
     const btn     = document.getElementById('run-btn');
     const spinner = document.getElementById('spinner');
@@ -643,11 +722,13 @@
     status.textContent    = 'Fetching lineups and model data…';
     errBox.style.display  = 'none';
 
-    document.getElementById('games-section').style.display    = 'none';
-    document.getElementById('heatmap-section').style.display  = 'none';
-    document.getElementById('fullgame-section').style.display = 'none';
-    document.getElementById('picks-section').style.display    = 'none';
-    document.getElementById('no-picks').style.display         = 'none';
+    document.getElementById('games-section').style.display     = 'none';
+    document.getElementById('heatmap-section').style.display   = 'none';
+    document.getElementById('f5combined-section').style.display = 'none';
+    document.getElementById('fullgame-section').style.display  = 'none';
+    document.getElementById('gametotal-section').style.display = 'none';
+    document.getElementById('picks-section').style.display     = 'none';
+    document.getElementById('no-picks').style.display          = 'none';
 
     fetch('/api/picks')
       .then(r => r.json())
@@ -684,6 +765,20 @@
           document.getElementById('heatmap-section').style.display = 'block';
         }
 
+        // ── F5 Combined Total Under (Kalshi) ──────────────────────────
+        const f5cList  = document.getElementById('f5combined-list');
+        f5cList.innerHTML  = '';
+        const f5cFlags = data.f5combined_flags || [];
+
+        if (f5cFlags.length > 0) {
+          document.getElementById('f5combined-count').textContent =
+            `${f5cFlags.length} Flag${f5cFlags.length !== 1 ? 's' : ''}`;
+          f5cFlags.forEach((f, i) => {
+            f5cList.appendChild(buildGtCard(f, i));
+          });
+          document.getElementById('f5combined-section').style.display = 'block';
+        }
+
         // ── Full Game Team Total Under ─────────────────────────────────
         const fgList  = document.getElementById('fullgame-list');
         fgList.innerHTML  = '';
@@ -696,6 +791,20 @@
             fgList.appendChild(buildFgCard(f, i));
           });
           document.getElementById('fullgame-section').style.display = 'block';
+        }
+
+        // ── Game Total Under ───────────────────────────────────────────
+        const gtList  = document.getElementById('gametotal-list');
+        gtList.innerHTML  = '';
+        const gtFlags = data.gametotal_flags || [];
+
+        if (gtFlags.length > 0) {
+          document.getElementById('gametotal-count').textContent =
+            `${gtFlags.length} Flag${gtFlags.length !== 1 ? 's' : ''}`;
+          gtFlags.forEach((f, i) => {
+            gtList.appendChild(buildGtCard(f, i));
+          });
+          document.getElementById('gametotal-section').style.display = 'block';
         }
 
         // ── HR Watchlist ───────────────────────────────────────────────
