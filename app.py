@@ -331,7 +331,7 @@ def _compute_overlap_k_mod(lineup, pitcher_id, pitcher_hand, model):
         if w is not None:
             walk_vals.append(w)
 
-    if len(raw_scores) < 3:
+    if len(raw_scores) < 5:
         return None, []
 
     p_stats  = contact_rates.get(pitcher_id, {})
