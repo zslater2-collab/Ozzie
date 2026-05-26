@@ -287,6 +287,8 @@ def get_lineups_and_starters(game_date):
                 'away_pitcher_name': ap.get('fullName', 'TBD'),
                 'home_lineup':       home_lineup,
                 'away_lineup':       away_lineup,
+                'game_date':         g.get('gameDate', '')[:10],
+                'game_time_utc':     g.get('gameDate', ''),
             })
     return games
 
@@ -863,6 +865,45 @@ def api_picks():
         gametotal_flags  = get_gametotal_flags(games, model)
         f5combined_flags = get_f5combined_flags(games, model)
 
+        # ── Attach live Kalshi prices to flagged games ────────────────────
+        # Build lookup: game_str → kalshi prices
+        kalshi_cache = {}
+        all_flagged_games = set(
+            f['game'] for f in heatmap_flags + fullgame_flags +
+            gametotal_flags + f5combined_flags
+        )
+        for game in games:
+            gs = f"{game['away_team']}@{game['home_team']}"
+            if gs in all_flagged_games:
+                prices = get_kalshi_prices(game)
+                if prices:
+                    kalshi_cache[gs] = prices
+
+        # Attach team total prices to per-team flags
+        for flag in heatmap_flags + fullgame_flags:
+            gs    = flag['game']
+            team  = flag['batting_team']
+            kdata = kalshi_cache.get(gs, {})
+            tt    = kdata.get('team_totals', {}).get(team)
+            if tt:
+                flag['kalshi_line']  = tt['line']
+                flag['kalshi_under'] = tt['under']
+
+        # Attach F5 combined / game total prices to combined flags
+        for flag in f5combined_flags:
+            kdata = kalshi_cache.get(flag['game'], {})
+            f5c   = kdata.get('f5_combined')
+            if f5c:
+                flag['kalshi_line']  = f5c['line']
+                flag['kalshi_under'] = f5c['under']
+
+        for flag in gametotal_flags:
+            kdata = kalshi_cache.get(flag['game'], {})
+            gt    = kdata.get('game_total')
+            if gt:
+                flag['kalshi_line']  = gt['line']
+                flag['kalshi_under'] = gt['under']
+
         return jsonify({
             'date':             today,
             'complete':         complete,
@@ -881,3 +922,170 @@ def api_picks():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# KALSHI LIVE PRICE LOOKUP
+# ══════════════════════════════════════════════════════════════════════════════
+
+KALSHI_BASE = 'https://external-api.kalshi.com/trade-api/v2'
+
+# MLB team abbreviation → Kalshi ticker suffix
+KALSHI_TEAM_MAP = {
+    'ARI':'AZ',  'ATL':'ATL', 'BAL':'BAL', 'BOS':'BOS',
+    'CHC':'CHC', 'CWS':'CWS', 'CIN':'CIN', 'CLE':'CLE',
+    'COL':'COL', 'DET':'DET', 'HOU':'HOU', 'KC':'KC',
+    'LAA':'LAA', 'LAD':'LAD', 'MIA':'MIA', 'MIL':'MIL',
+    'MIN':'MIN', 'NYM':'NYM', 'NYY':'NYY', 'OAK':'ATH',
+    'PHI':'PHI', 'PIT':'PIT', 'SD':'SD',  'SF':'SF',
+    'SEA':'SEA', 'STL':'STL', 'TB':'TB',  'TEX':'TEX',
+    'TOR':'TOR', 'WSH':'WSH',
+}
+
+def _kalshi_get(endpoint, params=None):
+    try:
+        r = requests.get(
+            f"{KALSHI_BASE}{endpoint}",
+            params=params or {},
+            timeout=5
+        )
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return None
+
+def _cents_to_american(cents):
+    if not cents or cents <= 0 or cents >= 100:
+        return None
+    p = cents / 100
+    return round(-(p/(1-p))*100) if p >= 0.5 else round(((1-p)/p)*100)
+
+def _fmt_odds(o):
+    if o is None: return None
+    return f'+{o}' if o > 0 else str(o)
+
+def _build_event_ticker(series, game_date_str, game_time_et, away_abbr, home_abbr):
+    """
+    Build Kalshi event ticker.
+    Format: {SERIES}-{YY}{MON}{DD}{HHMM}{AWAY}{HOME}
+    e.g. KXMLBF5TOTAL-26MAY261940MINCWS
+    game_date_str: 'YYYY-MM-DD'
+    game_time_et:  'HH:MM' in ET (from MLB API commence time)
+    """
+    import datetime as dt
+    d    = dt.datetime.strptime(game_date_str, '%Y-%m-%d')
+    yy   = d.strftime('%y')
+    mon  = d.strftime('%b').upper()
+    day  = d.strftime('%d')
+    time = game_time_et[:4]   # already HHMM
+    away = KALSHI_TEAM_MAP.get(away_abbr, away_abbr)
+    home = KALSHI_TEAM_MAP.get(home_abbr, home_abbr)
+    return f"{series}-{yy}{mon}{day}{time}{away}{home}"
+
+def _get_kalshi_markets(event_ticker):
+    """Fetch all markets for a Kalshi event ticker."""
+    data = _kalshi_get('/markets', {'event_ticker': event_ticker, 'limit': 50})
+    return data.get('markets', []) if data else []
+
+def _best_under_price(markets, target_line=None, team_abbr=None):
+    """
+    From a list of Kalshi markets, find the best under price.
+    team_abbr: for team totals, filter to specific team (e.g. 'MIN')
+    target_line: prefer market closest to this run total
+    Returns (line, american_odds_str) or (None, None)
+    """
+    candidates = []
+    for m in markets:
+        ticker = m.get('ticker', '')
+        # Team total filter
+        if team_abbr and f'-{team_abbr}' not in ticker:
+            continue
+        # Extract line number from ticker suffix
+        try:
+            suffix = ticker.split('-')[-1]
+            # Team totals: MIN4 → 4, CWS3 → 3
+            num_str = ''.join(c for c in suffix if c.isdigit())
+            line = int(num_str) if num_str else None
+        except Exception:
+            line = None
+        if line is None:
+            continue
+        # Under = No side
+        no_ask  = m.get('no_ask')
+        yes_bid = m.get('yes_bid')
+        under_cents = no_ask if no_ask is not None else \
+                      (100 - yes_bid if yes_bid is not None else None)
+        if under_cents is None:
+            continue
+        odds = _cents_to_american(under_cents)
+        candidates.append((line, under_cents, odds))
+
+    if not candidates:
+        return None, None
+
+    if target_line is not None:
+        # Pick closest to target line
+        best = min(candidates, key=lambda x: abs(x[0] - target_line))
+    else:
+        # Pick line with most favorable under price (lowest cents = longest odds)
+        best = min(candidates, key=lambda x: x[1])
+
+    return best[0], _fmt_odds(best[2])
+
+
+def get_kalshi_prices(game, model=None):
+    """
+    Fetch live Kalshi prices for a game.
+    game: dict with away_team, home_team, game_id, commence_time
+    Returns dict with f5_combined, game_total, team_totals per team.
+
+    Called at /api/picks time for flagged games only.
+    Returns None if market not open or prices unavailable.
+    """
+    away = game.get('away_team', '')
+    home = game.get('home_team', '')
+
+    # Parse game date and time from MLB API gameDate field (ISO UTC)
+    import pytz, datetime as dt
+    et_tz = pytz.timezone('America/New_York')
+    game_time_utc = game.get('game_time_utc', '')
+    game_date     = game.get('game_date', datetime.now(et_tz).strftime('%Y-%m-%d'))
+    try:
+        utc_dt   = dt.datetime.fromisoformat(game_time_utc.replace('Z', '+00:00'))
+        et_dt    = utc_dt.astimezone(et_tz)
+        game_time = et_dt.strftime('%H%M')   # HHMM format for ticker
+        game_date = et_dt.strftime('%Y-%m-%d')
+    except Exception:
+        game_time = '1905'   # fallback
+
+    result = {}
+
+    # ── F5 Combined Total ─────────────────────────────────────────────────────
+    et_f5 = _build_event_ticker('KXMLBF5TOTAL', game_date, game_time, away, home)
+    mkts_f5 = _get_kalshi_markets(et_f5)
+    if mkts_f5:
+        line, odds = _best_under_price(mkts_f5, target_line=5)
+        if odds:
+            result['f5_combined'] = {'line': line, 'under': odds}
+
+    # ── Game Total ────────────────────────────────────────────────────────────
+    et_gt = _build_event_ticker('KXMLBTOTAL', game_date, game_time, away, home)
+    mkts_gt = _get_kalshi_markets(et_gt)
+    if mkts_gt:
+        line, odds = _best_under_price(mkts_gt, target_line=9)
+        if odds:
+            result['game_total'] = {'line': line, 'under': odds}
+
+    # ── Team Totals ───────────────────────────────────────────────────────────
+    et_tt = _build_event_ticker('KXMLBTEAMTOTAL', game_date, game_time, away, home)
+    mkts_tt = _get_kalshi_markets(et_tt)
+    if mkts_tt:
+        result['team_totals'] = {}
+        for team_abbr in [away, home]:
+            k_abbr = KALSHI_TEAM_MAP.get(team_abbr, team_abbr)
+            line, odds = _best_under_price(mkts_tt, target_line=4, team_abbr=k_abbr)
+            if odds:
+                result['team_totals'][team_abbr] = {'line': line, 'under': odds}
+
+    return result if result else None
