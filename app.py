@@ -150,6 +150,64 @@ def get_fair_odds(overlap_score, lines=FG_LINES):
         return {line: _fmt(bucket.get(line, 0)) for line in lines}
 
 
+def get_f5c_fair_odds(sum_z, lines=[3.5, 4.5, 5.5, 6.5]):
+    """
+    Fair odds for F5 combined total (both teams through 5 innings).
+    E[F5_combined] = 4.96 + 0.28 × sum_z
+    NegBin: r=3.97 calibrated from F5 combined distribution (mean=4.96, std=3.34)
+    Lines: 4.5 / 5.5 / 6.5 (population mean = 4.96)
+    """
+    F5C_NB_R  = 3.97
+    lam       = max(4.96 + 0.28 * sum_z, 0.5)
+    p_nb      = F5C_NB_R / (F5C_NB_R + lam)
+
+    def _fmt(o): return f'+{o}' if o > 0 else str(o)
+
+    if SCIPY_AVAILABLE:
+        result = {}
+        for line in lines:
+            k    = int(line - 0.5)
+            prob = min(max(nbinom.cdf(k, F5C_NB_R, p_nb), 0.001), 0.999)
+            odds = round(-(prob/(1-prob))*100) if prob >= 0.5 \
+                   else round(((1-prob)/prob)*100)
+            result[line] = _fmt(odds)
+        return result
+    else:
+        # Empirical fallback at -1.5σ combined
+        for line, p in zip([4.5, 5.5, 6.5], [0.612, 0.701, 0.806]):
+            pass
+        return {line: _fmt(round(-(p/(1-p))*100))
+                for line, p in zip([3.5, 4.5, 5.5, 6.5], [0.376, 0.612, 0.701, 0.806])}
+
+
+def get_gt_fair_odds(sum_z, lines=[7.5, 8.5, 9.5]):
+    """
+    Fair odds for game total (both teams, full game).
+    E[game_total] = 8.88 + 0.38 × sum_z
+    NegBin: r=6.57 calibrated from game total distribution (mean=8.88, std=4.57)
+    Lines: 7.5 / 8.5 / 9.5 (population mean = 8.88)
+    """
+    GT_NB_R = 6.57
+    lam     = max(8.88 + 0.38 * sum_z, 0.5)
+    p_nb    = GT_NB_R / (GT_NB_R + lam)
+
+    def _fmt(o): return f'+{o}' if o > 0 else str(o)
+
+    if SCIPY_AVAILABLE:
+        result = {}
+        for line in lines:
+            k    = int(line - 0.5)
+            prob = min(max(nbinom.cdf(k, GT_NB_R, p_nb), 0.001), 0.999)
+            odds = round(-(prob/(1-prob))*100) if prob >= 0.5 \
+                   else round(((1-prob)/prob)*100)
+            result[line] = _fmt(odds)
+        return result
+    else:
+        # Empirical fallback at -1.5σ combined
+        return {line: _fmt(round(-(p/(1-p))*100))
+                for line, p in zip([7.5, 8.5, 9.5], [0.514, 0.579, 0.686])}
+
+
 # ── Model loading ─────────────────────────────────────────────────────────────
 
 def download_pkl(file_id):
@@ -633,6 +691,7 @@ def get_f5combined_flags(games, model):
             'market':          'f5_combined',
             'signal':          'under',
             'combined_z':      round(combined_z, 2),
+            'sum_z':           round(sum_z, 3),
             # Team A (away batting vs home pitcher)
             'team_a':          team_scores[0]['batting_team'],
             'pitcher_a':       team_scores[0]['pitcher_name'],
@@ -646,6 +705,7 @@ def get_f5combined_flags(games, model):
             'score_b':         round(team_scores[1]['f5_score'], 4),
             'z_b':             round(z_scores[1], 2),
             'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
+            'fair_odds':       get_f5c_fair_odds(sum_z),
         })
 
     flags.sort(key=lambda x: x['combined_z'])
@@ -753,6 +813,7 @@ def get_gametotal_flags(games, model):
             'avg_ip_b':       team_scores[1]['avg_ip'],
             # Lineup quality
             'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
+            'fair_odds':       get_gt_fair_odds(sum_z),
         })
 
     flags.sort(key=lambda x: x['combined_z'])   # most suppressed first
