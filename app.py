@@ -62,6 +62,31 @@ FG_BLEND_STD        = 0.059773
 FG_UNDER_THRESHOLD  = FG_BLEND_MEAN - 1.0 * FG_BLEND_STD     # 0.9386
 MIN_STARTER_IP      = 5.0   # avg IP gate — filters short starters (validated Q2)
 
+# ── Game total thresholds (both-suppressed filter, validated game total backtest) ─
+# Both teams must independently score below zero Z (both_under = True)
+# Combined Z-score of sum must clear -1.5σ
+# Backtest: Pinnacle +0.145 ROI / DK +0.127 ROI at n=114
+# Population distribution: sum_z mean≈0, std≈1.422 (near √2 — teams independent)
+GT_SUM_Z_MEAN   = 0.0204    # from game_total_signal_check
+GT_SUM_Z_STD    = 1.4218
+GT_UNDER_SIGMA  = 1.5       # -1.5σ threshold on combined Z
+GT_UNDER_THR    = GT_SUM_Z_MEAN - GT_UNDER_SIGMA * GT_SUM_Z_STD  # ≈ -2.112
+
+# Per-team Z uses the same FG_BLEND distribution
+# both_under: both teams' overlap_k_mod_z < 0 (independently suppressed)
+
+# ── F5 Combined Total thresholds (Kalshi: totals_1st_5_innings) ───────────────
+# Both starters must independently score below their F5 mean (both z < 0)
+# Combined Z of the pair must clear -1.5σ
+# Backtest (Pinnacle): +0.099 ROI at n=123 — conservative on sharp book
+# Kalshi expected stronger: lines set more mechanically (~5.0 vs Pinnacle 4.55)
+# Signal check: flagged games avg 4.36 F5 combined vs population 4.96
+# F5 walk-blended signal — same as per-team F5 under (+0.640 ROI)
+F5C_SUM_Z_MEAN  = 0.0221    # from f5_combined_signal_check
+F5C_SUM_Z_STD   = 1.3390
+F5C_UNDER_SIGMA = 1.5       # -1.5σ threshold on combined Z
+F5C_UNDER_THR   = F5C_SUM_Z_MEAN - F5C_UNDER_SIGMA * F5C_SUM_Z_STD  # ≈ -1.987
+
 # ── Fair odds calibration — Negative Binomial fit on fg_runs (Script R) ──────
 # E[fg_runs] = FG_BETA0 + FG_BETA1 × overlap_score
 # NB dispersion: r=3.181 p=r/(r+μ) per score
@@ -521,6 +546,219 @@ def get_hr_picks(games, model):
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
 
 
+# ── F5 Combined Total Under flags (Kalshi market) ────────────────────────────
+
+def get_f5combined_flags(games, model):
+    """
+    F5 combined total under flags — both starters suppressing both lineups.
+    Uses walk-blended F5 signal (same as per-team F5 under, +0.640 ROI).
+    Gate: both teams independently z < 0 AND combined Z ≤ -1.5σ.
+    Backtest: Pinnacle +0.099 ROI. Kalshi expected stronger (mechanical lines).
+    Market: totals_1st_5_innings — available on Kalshi/Robinhood, no limits.
+    Flagged games avg 4.36 F5 combined runs vs population mean 4.96.
+    """
+    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    flags = []
+
+    for game in games:
+        game_str = f"{game['away_team']}@{game['home_team']}"
+        matchups  = [
+            (game['away_lineup'], game['home_pitcher_id'],
+             game['home_pitcher_name'], game['away_team'], game['home_team']),
+            (game['home_lineup'], game['away_pitcher_id'],
+             game['away_pitcher_name'], game['home_team'], game['away_team']),
+        ]
+
+        team_scores = []
+        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team in matchups:
+            if not lineup or not pitcher_id:
+                continue
+
+            pitcher_hand = 'R'
+            if pitcher_id in pitcher_scores:
+                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
+
+            overlap_k_mod, walk_vals = _compute_overlap_k_mod(
+                lineup, pitcher_id, pitcher_hand, model
+            )
+            if overlap_k_mod is None:
+                continue
+
+            # F5 walk-blended score (same as per-team F5 signal)
+            if len(walk_vals) >= 3:
+                lineup_walk_rate = sum(walk_vals) / len(walk_vals)
+                ov_z    = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
+                wk_z    = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
+                blend_z = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
+                f5_score = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
+            else:
+                f5_score = overlap_k_mod
+
+            # Per-team Z using F5/heatmap distribution
+            f5_z = (f5_score - HEATMAP_MEAN) / HEATMAP_STD
+
+            team_scores.append({
+                'batting_team':   batting_team,
+                'pitcher_name':   pitcher_name,
+                'pitcher_hand':   pitcher_hand,
+                'pitcher_id':     pitcher_id,
+                'f5_score':       f5_score,
+                'f5_z':           f5_z,
+                'lineup_complete': len(lineup) >= 8,
+                'batters_scored': sum(
+                    1 for b in lineup
+                    if compute_batter_overlap(b['id'], pitcher_id,
+                                              b.get('hand','R'),
+                                              pitcher_hand, model) is not None
+                ),
+            })
+
+        if len(team_scores) != 2:
+            continue
+
+        z_scores = [ts['f5_z'] for ts in team_scores]
+
+        # Gate 1: both teams independently suppressed
+        if not all(z < 0 for z in z_scores):
+            continue
+
+        # Gate 2: combined Z clears -1.5σ threshold
+        sum_z      = sum(z_scores)
+        combined_z = (sum_z - F5C_SUM_Z_MEAN) / F5C_SUM_Z_STD
+        if combined_z > -F5C_UNDER_SIGMA:
+            continue
+
+        flags.append({
+            'game':            game_str,
+            'market':          'f5_combined',
+            'signal':          'under',
+            'combined_z':      round(combined_z, 2),
+            # Team A (away batting vs home pitcher)
+            'team_a':          team_scores[0]['batting_team'],
+            'pitcher_a':       team_scores[0]['pitcher_name'],
+            'pitcher_a_hand':  team_scores[0]['pitcher_hand'],
+            'score_a':         round(team_scores[0]['f5_score'], 4),
+            'z_a':             round(z_scores[0], 2),
+            # Team B (home batting vs away pitcher)
+            'team_b':          team_scores[1]['batting_team'],
+            'pitcher_b':       team_scores[1]['pitcher_name'],
+            'pitcher_b_hand':  team_scores[1]['pitcher_hand'],
+            'score_b':         round(team_scores[1]['f5_score'], 4),
+            'z_b':             round(z_scores[1], 2),
+            'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
+        })
+
+    flags.sort(key=lambda x: x['combined_z'])
+    return flags
+
+
+# ── Game Total Under flags ────────────────────────────────────────────────────
+
+def get_gametotal_flags(games, model):
+    """
+    Game total under flags — combined suppression signal.
+    Both starters must independently score below their mean (both_under).
+    Combined Z-score of the pair must clear -1.5σ.
+    Signal: overlap_k_mod per team, no walk blend (matches backtest).
+    Threshold: GT_UNDER_THR = -1.5σ on combined sum_z distribution.
+    Backtest: Pinnacle +0.145 ROI / DK +0.127 ROI at n=114 (2025).
+    """
+    pitcher_scores = model.get('all_pitcher_arch_scores', {})
+    innings_share  = model.get('pitcher_innings_share', {})
+    flags = []
+
+    for game in games:
+        # Score both matchups in this game
+        game_str   = f"{game['away_team']}@{game['home_team']}"
+        matchups   = [
+            (game['away_lineup'], game['home_pitcher_id'],
+             game['home_pitcher_name'], game['away_team'], game['home_team']),
+            (game['home_lineup'], game['away_pitcher_id'],
+             game['away_pitcher_name'], game['home_team'], game['away_team']),
+        ]
+
+        team_scores = []   # [(batting_team, overlap_k_mod, pitcher_name, hand, avg_ip)]
+        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team in matchups:
+            if not lineup or not pitcher_id:
+                continue
+
+            pitcher_hand = 'R'
+            if pitcher_id in pitcher_scores:
+                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
+
+            overlap_k_mod, _ = _compute_overlap_k_mod(
+                lineup, pitcher_id, pitcher_hand, model
+            )
+            if overlap_k_mod is None:
+                continue
+
+            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
+            avg_ip  = round(ip_data['avg_ip'], 1) if ip_data else None
+
+            team_scores.append({
+                'batting_team': batting_team,
+                'pitcher_name': pitcher_name,
+                'pitcher_hand': pitcher_hand,
+                'pitcher_id':   pitcher_id,
+                'overlap_k_mod': overlap_k_mod,
+                'avg_ip':        avg_ip,
+                'batters_scored': sum(
+                    1 for b in lineup
+                    if compute_batter_overlap(b['id'], pitcher_id,
+                                              b.get('hand','R'),
+                                              pitcher_hand, model) is not None
+                ),
+                'lineup_complete': len(lineup) >= 8,
+            })
+
+        # Need both teams scored
+        if len(team_scores) != 2:
+            continue
+
+        # Per-team Z-scores (using FG distribution)
+        z_scores = [
+            (ts['overlap_k_mod'] - FG_BLEND_MEAN) / FG_BLEND_STD
+            for ts in team_scores
+        ]
+
+        # Gate 1: both teams independently suppressed (both z < 0)
+        if not all(z < 0 for z in z_scores):
+            continue
+
+        # Gate 2: combined sum Z clears threshold
+        sum_z     = sum(z_scores)
+        combined_z = (sum_z - GT_SUM_Z_MEAN) / GT_SUM_Z_STD
+        if combined_z > -GT_UNDER_SIGMA:
+            continue
+
+        flags.append({
+            'game':           game_str,
+            'market':         'game_total',
+            'signal':         'under',
+            'combined_z':     round(combined_z, 2),
+            'sum_z':          round(sum_z, 3),
+            # Team A (away batting)
+            'team_a':         team_scores[0]['batting_team'],
+            'pitcher_a':      team_scores[0]['pitcher_name'],
+            'pitcher_a_hand': team_scores[0]['pitcher_hand'],
+            'score_a':        round(team_scores[0]['overlap_k_mod'], 4),
+            'z_a':            round(z_scores[0], 2),
+            'avg_ip_a':       team_scores[0]['avg_ip'],
+            # Team B (home batting)
+            'team_b':         team_scores[1]['batting_team'],
+            'pitcher_b':      team_scores[1]['pitcher_name'],
+            'pitcher_b_hand': team_scores[1]['pitcher_hand'],
+            'score_b':        round(team_scores[1]['overlap_k_mod'], 4),
+            'z_b':            round(z_scores[1], 2),
+            'avg_ip_b':       team_scores[1]['avg_ip'],
+            # Lineup quality
+            'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
+        })
+
+    flags.sort(key=lambda x: x['combined_z'])   # most suppressed first
+    return flags
+
+
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -559,17 +797,21 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        heatmap_flags  = get_heatmap_flags(games, model)
-        fullgame_flags = get_fullgame_flags(games, model)
+        heatmap_flags    = get_heatmap_flags(games, model)
+        fullgame_flags   = get_fullgame_flags(games, model)
+        gametotal_flags  = get_gametotal_flags(games, model)
+        f5combined_flags = get_f5combined_flags(games, model)
 
         return jsonify({
-            'date':           today,
-            'complete':       complete,
-            'total':          len(games),
-            'picks':          picks,
-            'heatmap_flags':  heatmap_flags,
-            'fullgame_flags': fullgame_flags,
-            'games':          games_out,
+            'date':             today,
+            'complete':         complete,
+            'total':            len(games),
+            'picks':            picks,
+            'heatmap_flags':    heatmap_flags,
+            'fullgame_flags':   fullgame_flags,
+            'gametotal_flags':  gametotal_flags,
+            'f5combined_flags': f5combined_flags,
+            'games':            games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
