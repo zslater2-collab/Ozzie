@@ -599,26 +599,30 @@
     const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
     const avgIp      = f.avg_ip ? `${f.avg_ip} IP avg` : '—';
 
-    // Fair odds row — falls back gracefully if not present
+    // Fair odds + Kalshi live price
     let fairOddsHtml = '';
     if (f.fair_odds) {
-      const fo = f.fair_odds;
+      const fo   = f.fair_odds;
+      const keys = Object.keys(fo).sort((a,b) => parseFloat(a)-parseFloat(b));
+      const cells = keys.map(line => `
+        <div class="fair-odds-cell">
+          <div class="fair-odds-line">${line} runs</div>
+          <div class="fair-odds-val">${fo[line] || '—'}</div>
+        </div>`).join('');
+      const kalshiRow = (f.kalshi_line && f.kalshi_under) ? `
+        <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
+                    border:1px solid rgba(79,255,176,0.2);border-radius:6px;
+                    display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
+                       color:var(--green)">Kalshi U${f.kalshi_line}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+                       letter-spacing:0.06em;color:var(--green)">${f.kalshi_under}</span>
+        </div>` : '';
       fairOddsHtml = `
         <div class="fair-odds-label">Fair Odds (Under)</div>
-        <div class="fair-odds-row">
-          <div class="fair-odds-cell">
-            <div class="fair-odds-line">3.5 runs</div>
-            <div class="fair-odds-val">${fo['3.5'] || '—'}</div>
-          </div>
-          <div class="fair-odds-cell">
-            <div class="fair-odds-line">4.5 runs</div>
-            <div class="fair-odds-val">${fo['4.5'] || '—'}</div>
-          </div>
-          <div class="fair-odds-cell">
-            <div class="fair-odds-line">5.5 runs</div>
-            <div class="fair-odds-val">${fo['5.5'] || '—'}</div>
-          </div>
-        </div>`;
+        <div class="fair-odds-row">${cells}</div>
+        ${kalshiRow}`;
+    }
     }
 
     card.innerHTML = `
@@ -680,11 +684,22 @@
           <div class="fair-odds-line">${line} runs</div>
           <div class="fair-odds-val">${fo[line] || '—'}</div>
         </div>`).join('');
+      const kalshiRow = (f.kalshi_line && f.kalshi_under) ? `
+        <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
+                    border:1px solid rgba(79,255,176,0.2);border-radius:6px;
+                    display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
+                       color:var(--green)">Kalshi U${f.kalshi_line}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+                       letter-spacing:0.06em;color:var(--green)">${f.kalshi_under}</span>
+        </div>` : '';
       fairOddsHtml = `
         <div class="fair-odds-label">Fair Odds (Under)</div>
         <div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">
           ${cells}
-        </div>`;
+        </div>
+        ${kalshiRow}`;
+    }
     }
 
     card.innerHTML = `
