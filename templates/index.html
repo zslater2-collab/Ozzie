@@ -670,6 +670,23 @@
     const ipA = f.avg_ip_a ? `${f.avg_ip_a} IP` : '—';
     const ipB = f.avg_ip_b ? `${f.avg_ip_b} IP` : '—';
 
+    // Fair odds row — uses market-appropriate lines
+    let fairOddsHtml = '';
+    if (f.fair_odds) {
+      const fo   = f.fair_odds;
+      const keys = Object.keys(fo).sort((a,b) => parseFloat(a)-parseFloat(b));
+      const cells = keys.map(line => `
+        <div class="fair-odds-cell">
+          <div class="fair-odds-line">${line} runs</div>
+          <div class="fair-odds-val">${fo[line] || '—'}</div>
+        </div>`).join('');
+      fairOddsHtml = `
+        <div class="fair-odds-label">Fair Odds (Under)</div>
+        <div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">
+          ${cells}
+        </div>`;
+    }
+
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.team_a} @ ${f.team_b}</div>
@@ -705,6 +722,7 @@
           <div class="hm-stat-value">${ipA}</div>
         </div>
       </div>
+      ${fairOddsHtml}
       ${lineupTag}`;
     return card;
   }
