@@ -866,18 +866,28 @@ def api_picks():
         f5combined_flags = get_f5combined_flags(games, model)
 
         # ── Attach live Kalshi prices to flagged games ────────────────────
-        # Build lookup: game_str → kalshi prices
+        # Only fetch for strongest flags to avoid hanging the response
+        # Max 3 games × 3 API calls = 9 calls × 2s timeout = 18s worst case
         kalshi_cache = {}
-        all_flagged_games = set(
-            f['game'] for f in heatmap_flags + fullgame_flags +
-            gametotal_flags + f5combined_flags
-        )
-        for game in games:
-            gs = f"{game['away_team']}@{game['home_team']}"
-            if gs in all_flagged_games:
-                prices = get_kalshi_prices(game)
-                if prices:
-                    kalshi_cache[gs] = prices
+        strong_flags = sorted(
+            gametotal_flags + f5combined_flags,
+            key=lambda x: x['combined_z']
+        )[:3]   # top 3 most suppressed combined games
+        strong_per_team = sorted(
+            heatmap_flags + fullgame_flags,
+            key=lambda x: x['std_from_mean']
+        )[:3]   # top 3 most suppressed per-team flags
+
+        for flag in strong_flags + strong_per_team:
+            gs = flag['game']
+            if gs in kalshi_cache:
+                continue
+            # Find matching game object
+            for game in games:
+                if f"{game['away_team']}@{game['home_team']}" == gs:
+                    prices = get_kalshi_prices(game)
+                    kalshi_cache[gs] = prices or {}
+                    break
 
         # Attach team total prices to per-team flags
         for flag in heatmap_flags + fullgame_flags:
@@ -947,7 +957,7 @@ def _kalshi_get(endpoint, params=None):
         r = requests.get(
             f"{KALSHI_BASE}{endpoint}",
             params=params or {},
-            timeout=5
+            timeout=2   # hard 2-second limit — fail fast
         )
         if r.status_code == 200:
             return r.json()
