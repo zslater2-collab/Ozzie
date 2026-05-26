@@ -865,54 +865,8 @@ def api_picks():
         gametotal_flags  = get_gametotal_flags(games, model)
         f5combined_flags = get_f5combined_flags(games, model)
 
-        # ── Attach live Kalshi prices to flagged games ────────────────────
-        # Only fetch for strongest flags to avoid hanging the response
-        # Max 3 games × 3 API calls = 9 calls × 2s timeout = 18s worst case
-        kalshi_cache = {}
-        strong_flags = sorted(
-            gametotal_flags + f5combined_flags,
-            key=lambda x: x['combined_z']
-        )[:3]   # top 3 most suppressed combined games
-        strong_per_team = sorted(
-            heatmap_flags + fullgame_flags,
-            key=lambda x: x['std_from_mean']
-        )[:3]   # top 3 most suppressed per-team flags
-
-        for flag in strong_flags + strong_per_team:
-            gs = flag['game']
-            if gs in kalshi_cache:
-                continue
-            # Find matching game object
-            for game in games:
-                if f"{game['away_team']}@{game['home_team']}" == gs:
-                    prices = get_kalshi_prices(game)
-                    kalshi_cache[gs] = prices or {}
-                    break
-
-        # Attach team total prices to per-team flags
-        for flag in heatmap_flags + fullgame_flags:
-            gs    = flag['game']
-            team  = flag['batting_team']
-            kdata = kalshi_cache.get(gs, {})
-            tt    = kdata.get('team_totals', {}).get(team)
-            if tt:
-                flag['kalshi_line']  = tt['line']
-                flag['kalshi_under'] = tt['under']
-
-        # Attach F5 combined / game total prices to combined flags
-        for flag in f5combined_flags:
-            kdata = kalshi_cache.get(flag['game'], {})
-            f5c   = kdata.get('f5_combined')
-            if f5c:
-                flag['kalshi_line']  = f5c['line']
-                flag['kalshi_under'] = f5c['under']
-
-        for flag in gametotal_flags:
-            kdata = kalshi_cache.get(flag['game'], {})
-            gt    = kdata.get('game_total')
-            if gt:
-                flag['kalshi_line']  = gt['line']
-                flag['kalshi_under'] = gt['under']
+        # Kalshi live prices — disabled in hot path to prevent timeouts
+        # Re-enable via /api/kalshi endpoint once async frontend call is built
 
         return jsonify({
             'date':             today,
