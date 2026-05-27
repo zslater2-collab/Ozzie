@@ -484,30 +484,6 @@
   </div>
 </div>
 
-<!-- Full Game Team Total Flags -->
-<div id="fullgame-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="fullgame-count"></div>
-      <div class="section-label" style="margin:0">Full Game Team Total Under</div>
-    </div>
-    <div id="fullgame-list"></div>
-  </div>
-</div>
-
-<!-- Game Total Under Flags -->
-<div id="gametotal-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="gametotal-count"></div>
-      <div class="section-label" style="margin:0">Game Total Under</div>
-    </div>
-    <div id="gametotal-list"></div>
-  </div>
-</div>
-
 <!-- HR Picks (Watchlist) -->
 <div id="picks-section">
   <div class="divider"></div>
@@ -610,58 +586,7 @@
     return card;
   }
 
-  // ── Full game single team card ────────────────────────────────────────────
-  function buildFgCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'hm-card under';
-    card.style.animationDelay = `${i * 0.06}s`;
-
-    const sigmaSign    = f.std_from_mean >= 0 ? '+' : '';
-    const sigmaLabel   = `${sigmaSign}${f.std_from_mean}σ from mean`;
-    const lineupTag    = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const handLabel    = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-    const avgIp        = f.avg_ip ? `${f.avg_ip} IP avg` : '—';
-    const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
-
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.batting_team}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal under">UNDER</div>
-          <div class="hm-sigma under">${sigmaLabel}</div>
-        </div>
-      </div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div class="hm-stat">
-          <div class="hm-stat-label">vs Pitcher</div>
-          <div class="hm-stat-value">${f.pitcher_name}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Throws</div>
-          <div class="hm-stat-value">${handLabel}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Overlap Score</div>
-          <div class="hm-stat-value">${f.overlap_score}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Starter Avg IP</div>
-          <div class="hm-stat-value">${avgIp}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Batters Scored</div>
-          <div class="hm-stat-value">${f.batters_scored} / 9</div>
-        </div>
-      </div>
-      ${fairOddsHtml}
-      ${lineupTag}`;
-    return card;
-  }
-
-  // ── Combined (F5 or game total) card ─────────────────────────────────────
+  // ── Combined F5 card ─────────────────────────────────────────────────────
   function buildGtCard(f, i) {
     const card = document.createElement('div');
     card.className = 'hm-card under';
@@ -732,8 +657,6 @@
     document.getElementById('games-section').style.display      = 'none';
     document.getElementById('heatmap-section').style.display    = 'none';
     document.getElementById('f5combined-section').style.display = 'none';
-    document.getElementById('fullgame-section').style.display   = 'none';
-    document.getElementById('gametotal-section').style.display  = 'none';
     document.getElementById('picks-section').style.display      = 'none';
     document.getElementById('no-picks').style.display           = 'none';
 
@@ -791,30 +714,6 @@
             `${f5cFlags.length} Flag${f5cFlags.length !== 1 ? 's' : ''}`;
           f5cFlags.forEach((f, i) => f5cList.appendChild(buildGtCard(f, i)));
           document.getElementById('f5combined-section').style.display = 'block';
-        }
-
-        // ── Full Game Team Total Under ─────────────────────────────────
-        const fgList  = document.getElementById('fullgame-list');
-        fgList.innerHTML  = '';
-        const fgFlags = data.fg_single || data.fullgame_flags || [];
-
-        if (fgFlags.length > 0) {
-          document.getElementById('fullgame-count').textContent =
-            `${fgFlags.length} Flag${fgFlags.length !== 1 ? 's' : ''}`;
-          fgFlags.forEach((f, i) => fgList.appendChild(buildFgCard(f, i)));
-          document.getElementById('fullgame-section').style.display = 'block';
-        }
-
-        // ── Game Total Under ───────────────────────────────────────────
-        const gtList  = document.getElementById('gametotal-list');
-        gtList.innerHTML  = '';
-        const gtFlags = data.fg_combined || data.gametotal_flags || [];
-
-        if (gtFlags.length > 0) {
-          document.getElementById('gametotal-count').textContent =
-            `${gtFlags.length} Flag${gtFlags.length !== 1 ? 's' : ''}`;
-          gtFlags.forEach((f, i) => gtList.appendChild(buildGtCard(f, i)));
-          document.getElementById('gametotal-section').style.display = 'block';
         }
 
         // ── HR Watchlist ───────────────────────────────────────────────
