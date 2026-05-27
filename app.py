@@ -4,9 +4,8 @@ import requests
 import pandas as pd
 import pytz
 from datetime import datetime
-from collections import defaultdict
+from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-from scipy.stats import nbinom
 import gdown
 import tempfile
 
@@ -21,11 +20,11 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
+    # ── Heat map models ──────────────────────────────────────────────────
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
 }
 
-# ── HR prop constants ─────────────────────────────────────────────────────────
 LEAGUE_AVG      = 3.88
 JUICY_THRESHOLD = 5.0
 MIN_SENSOR_PA   = 20
@@ -34,81 +33,24 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── F5 heatmap thresholds (validated, full MLB 2025 out-of-sample) ────────────
+# ── Heat map thresholds (validated on full MLB 2025, out-of-sample) ───────────
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.5 * HEATMAP_STD   # 1.0038
 
-# ── Combined flag thresholds (validated backtest) ─────────────────────────────
-# Both teams must independently flag under (z < 0), AND sum-Z must clear threshold
-# F5 Combined: Pinnacle +0.099 ROI @ n=123
-# FG Combined: Pinnacle +0.145 ROI / DK +0.127 ROI @ n=114
-F5C_SUM_Z_MEAN  = 0.0221
-F5C_SUM_Z_STD   = 1.3390
-F5C_UNDER_THR   = F5C_SUM_Z_MEAN - 1.5 * F5C_SUM_Z_STD   # ≈ -1.987
-
-GT_SUM_Z_MEAN   = 0.0204
-GT_SUM_Z_STD    = 1.4218
-GT_UNDER_THR    = GT_SUM_Z_MEAN - 1.5 * GT_SUM_Z_STD      # ≈ -2.112
-
-# ── Fair odds constants (Script R calibration, NegBin fit) ───────────────────
-# Regression: E[fg_runs] = FG_BETA0 + FG_BETA1 × overlap_score
-# r=0.10, r²=0.01, p<0.0001 — significant but weak; NegBin distribution correct
-# NegBin fit: max empirical delta 0.6% vs Poisson 13.2% — NegBin is the right call
-FG_BETA0          = -1.005553
-FG_BETA1          =  5.448378
-FG_F5_TEAM_AVG    =  2.3
-FG_FG_TEAM_AVG    =  4.5
-FG_NB_R           =  3.1811
-FG_USE_NEGBIN     =  True
-
-F5_SINGLE_LINES   = [1.5, 2.5, 3.5]
-FG_SINGLE_LINES   = [4.5, 5.5, 6.5]
-F5_COMBINED_LINES = [3.5, 4.5, 5.5]
-FG_COMBINED_LINES = [6.5, 7.5, 8.5, 9.5]
+# F5 fair odds by pitcher category (from backtest)
+F5_FAIR_ODDS = {
+    'Very Juicy':  -126,
+    'Juicy':       +118,
+    'Average':     +133,
+    'Safe':        +143,
+    'Very Safe':   +191,
+}
 
 _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
-
-
-# ── Fair odds ─────────────────────────────────────────────────────────────────
-
-def get_fair_odds(overlap_score, section):
-    """
-    Returns dict {line_str: american_odds_str} for the given section.
-    section: 'f5_single' | 'fg_single' | 'f5_combined' | 'fg_combined'
-    """
-    fg_lam = max(0.5, FG_BETA0 + FG_BETA1 * overlap_score)
-    f5_lam = fg_lam * (FG_F5_TEAM_AVG / FG_FG_TEAM_AVG)
-
-    lam_map = {
-        'f5_single':   (f5_lam,     F5_SINGLE_LINES),
-        'fg_single':   (fg_lam,     FG_SINGLE_LINES),
-        'f5_combined': (f5_lam * 2, F5_COMBINED_LINES),
-        'fg_combined': (fg_lam * 2, FG_COMBINED_LINES),
-    }
-    lam, lines = lam_map[section]
-
-    result = {}
-    for line in lines:
-        k = int(line)
-        if FG_USE_NEGBIN:
-            p_nb = FG_NB_R / (FG_NB_R + lam)
-            p = nbinom.cdf(k, FG_NB_R, p_nb)
-        else:
-            from scipy.stats import poisson
-            p = poisson.cdf(k, lam)
-        if p <= 0 or p >= 1:
-            result[str(line)] = 'N/A'
-        else:
-            odds = round(-(p / (1 - p)) * 100) if p >= 0.5 else round(((1 - p) / p) * 100)
-            result[str(line)] = f'+{odds}' if odds > 0 else str(odds)
-    return result
-
-
-# ── Model loading ─────────────────────────────────────────────────────────────
 
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -134,8 +76,26 @@ def load_model():
     _model_cache_time = now
     return model
 
-
-# ── Lineup + starter fetch ────────────────────────────────────────────────────
+def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
+    if pitcher_id not in pitcher_scores:
+        return None, 'Unknown'
+    pitcher    = pitcher_scores[pitcher_id]
+    all_scores = [
+        pitcher['archetypes'].get(ak, {}).get('shrunk_rate', LEAGUE_AVG)
+        for ak in archetypes
+    ]
+    avg = sum(all_scores) / len(all_scores)
+    if avg >= 5.5:
+        category = 'Very Juicy'
+    elif avg >= 4.5:
+        category = 'Juicy'
+    elif avg >= 3.5:
+        category = 'Average'
+    elif avg >= 3.0:
+        category = 'Safe'
+    else:
+        category = 'Very Safe'
+    return round(avg, 2), category
 
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
@@ -182,9 +142,6 @@ def get_lineups_and_starters(game_date):
             })
     return games
 
-
-# ── HR prop helpers ───────────────────────────────────────────────────────────
-
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
@@ -228,13 +185,18 @@ def get_park_factor(fielding_team, batter_hand, model):
     except Exception:
         return 1.0
 
-
-# ── Batter overlap scoring ────────────────────────────────────────────────────
+# ── Heat map scoring ──────────────────────────────────────────────────────────
 
 def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
-    batter_profiles    = model.get('batter_ev_profiles_lr', {})
+    """
+    Compute overlap score for a single batter vs pitcher.
+    Returns float or None if insufficient data.
+    Score > 1.0 = pitcher tends to throw to batter's preferred zones.
+    Score < 1.0 = pitcher avoids batter's preferred zones.
+    """
+    batter_profiles = model.get('batter_ev_profiles_lr', {})
     pitcher_tendencies = model.get('pitcher_tendency_map', {})
-    archetypes         = model.get('archetypes', {})
+    archetypes = model.get('archetypes', {})
 
     if batter_id not in batter_profiles: return None
     if pitcher_id not in pitcher_tendencies: return None
@@ -256,12 +218,13 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
     return wsum / wtot if wtot > 0 else None
 
 
-# ── F5 heatmap flags ──────────────────────────────────────────────────────────
-
 def get_heatmap_flags(games, model):
     """
-    Compute per-team F5 overlap scores. Returns flags with fair odds attached.
-    Flags are split into f5_single and f5_combined by the caller.
+    For each game with a confirmed lineup, compute team overlap scores
+    and flag games exceeding validated thresholds.
+
+    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std, p=0.023)
+    Under: score < HEATMAP_UNDER_THRESHOLD (-1.5 std, p=0.067)
     """
     pitcher_scores = model.get('all_pitcher_arch_scores', {})
     flags = []
@@ -280,17 +243,21 @@ def get_heatmap_flags(games, model):
             if not lineup or not pitcher_id:
                 continue
 
-            pitcher_hand = 'R'
+            # Get pitcher handedness from existing pitcher scores
+            pitcher_hand = 'R'  # default
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            scores        = []
+            scores = []
             scored_batters = 0
 
             for batter in lineup:
+                batter_id   = batter['id']
+                batter_hand = batter.get('hand', 'R')
                 s = compute_batter_overlap(
-                    batter['id'], pitcher_id,
-                    batter.get('hand', 'R'), pitcher_hand, model
+                    batter_id, pitcher_id,
+                    batter_hand, pitcher_hand,
+                    model
                 )
                 if s is not None:
                     scores.append(s)
@@ -299,7 +266,7 @@ def get_heatmap_flags(games, model):
             if scored_batters < 3:
                 continue
 
-            team_score    = sum(scores) / len(scores)
+            team_score = sum(scores) / len(scores)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
 
             if team_score >= HEATMAP_OVER_THRESHOLD:
@@ -307,87 +274,26 @@ def get_heatmap_flags(games, model):
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                continue
-
-            fair_odds = get_fair_odds(team_score, 'f5_single')
+                continue  # no flag — middle of distribution
 
             flags.append({
-                'game':            game_str,
-                'batting_team':    batting_team,
-                'fielding_team':   fielding_team,
-                'pitcher_name':    pitcher_name,
-                'pitcher_hand':    pitcher_hand,
-                'pitcher_id':      pitcher_id,
-                'overlap_score':   round(team_score, 4),
-                'std_from_mean':   round(std_from_mean, 2),
-                'signal':          signal,
-                'batters_scored':  scored_batters,
+                'game':           game_str,
+                'batting_team':   batting_team,
+                'fielding_team':  fielding_team,
+                'pitcher_name':   pitcher_name,
+                'pitcher_hand':   pitcher_hand,
+                'pitcher_id':     pitcher_id,
+                'overlap_score':  round(team_score, 4),
+                'std_from_mean':  round(std_from_mean, 2),
+                'signal':         signal,
+                'batters_scored': scored_batters,
                 'lineup_complete': len(lineup) >= 8,
-                'fair_odds':       fair_odds,
             })
 
+    # Sort: strongest signals first (furthest from mean)
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
-
-def get_combined_flags(all_flags, bet_type='f5'):
-    """
-    From a list of per-team flags, find games where both teams are flagged
-    in the same direction. Applies validated combined Z threshold.
-
-    bet_type: 'f5' uses F5C thresholds; 'fg' uses GT thresholds.
-    Returns list of combined flag dicts.
-    """
-    sum_z_thr   = F5C_UNDER_THR if bet_type == 'f5' else GT_UNDER_THR
-    odds_section = 'f5_combined' if bet_type == 'f5' else 'fg_combined'
-
-    # Group by game
-    by_game = defaultdict(list)
-    for f in all_flags:
-        by_game[f['game']].append(f)
-
-    combined = []
-    for game_str, team_flags in by_game.items():
-        under_flags = [f for f in team_flags if f['signal'] == 'under']
-        over_flags  = [f for f in team_flags if f['signal'] == 'over']
-
-        for direction, group in [('under', under_flags), ('over', over_flags)]:
-            if len(group) < 2:
-                continue
-
-            # Both teams independently flagged in same direction
-            z1, z2       = group[0]['std_from_mean'], group[1]['std_from_mean']
-            combined_z   = z1 + z2
-
-            # Apply validated combined Z threshold (under only — over signal unvalidated)
-            if direction == 'under' and combined_z > sum_z_thr:
-                continue
-            if direction == 'over':
-                continue  # over combined signal not validated — skip
-
-            avg_score = (group[0]['overlap_score'] + group[1]['overlap_score']) / 2
-            fair_odds = get_fair_odds(avg_score, odds_section)
-
-            combined.append({
-                'game':          game_str,
-                'team_1':        group[0]['batting_team'],
-                'team_2':        group[1]['batting_team'],
-                'pitcher_1':     group[0]['pitcher_name'],
-                'pitcher_2':     group[1]['pitcher_name'],
-                'z_team_1':      round(z1, 2),
-                'z_team_2':      round(z2, 2),
-                'combined_z':    round(combined_z, 2),
-                'avg_score':     round(avg_score, 4),
-                'signal':        direction,
-                'fair_odds':     fair_odds,
-                'lineup_complete': group[0]['lineup_complete'] and group[1]['lineup_complete'],
-            })
-
-    combined.sort(key=lambda x: x['combined_z'])
-    return combined
-
-
-# ── HR props ──────────────────────────────────────────────────────────────────
 
 def get_hr_picks(games, model):
     arch_hitter_map = model['arch_hitter_map']
@@ -435,18 +341,18 @@ def get_hr_picks(games, model):
                     hr_odds_str = pa_rate_to_game_odds(hr_adjusted)
                     hr_odds_num = int(hr_odds_str.replace('+', ''))
                     picks.append({
-                        'player_name':   batter['name'],
-                        'player_id':     batter_id,
-                        'pitcher_name':  pitcher_name,
-                        'pitcher_id':    pitcher_id,
-                        'game':          game_str,
-                        'batting_team':  batting_team,
+                        'player_name':  batter['name'],
+                        'player_id':    batter_id,
+                        'pitcher_name': pitcher_name,
+                        'pitcher_id':   pitcher_id,
+                        'game':         game_str,
+                        'batting_team': batting_team,
                         'fielding_team': fielding_team,
-                        'combined':      round(combined, 2),
-                        'hr_fair':       hr_odds_str,
-                        'hr_odds_num':   hr_odds_num,
-                        'tb3_fair':      pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
-                        'arch_name':     archetypes[arch_key]['name'],
+                        'combined':     round(combined, 2),
+                        'hr_fair':      hr_odds_str,
+                        'hr_odds_num':  hr_odds_num,
+                        'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
+                        'arch_name':    archetypes[arch_key]['name'],
                     })
 
     seen = {}
@@ -455,9 +361,6 @@ def get_hr_picks(games, model):
         if pid not in seen or p['combined'] > seen[pid]['combined']:
             seen[pid] = p
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
-
-
-# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
@@ -485,40 +388,26 @@ def api_picks():
     if not session.get('authenticated'):
         return jsonify({'error': 'Not authenticated'}), 401
     try:
-        model   = load_model()
-        today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-        games   = get_lineups_and_starters(today)
-        picks   = get_hr_picks(games, model)
+        model    = load_model()
+        today    = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        games    = get_lineups_and_starters(today)
+        picks    = get_hr_picks(games, model)
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        # ── F5 flags ──────────────────────────────────────────────────────────
-        f5_flags    = get_heatmap_flags(games, model)
-        f5_combined = get_combined_flags(f5_flags, bet_type='f5')
-
-        # ── FG flags (TODO: requires fullgame scoring function + bullpen model)
-        # fg_flags    = get_fullgame_flags(games, model)
-        # fg_combined = get_combined_flags(fg_flags, bet_type='fg')
-        fg_flags    = []
-        fg_combined = []
+        # ── Heat map TT flags (primary signal) ───────────────────────────
+        heatmap_flags = get_heatmap_flags(games, model)
 
         return jsonify({
-            'date':         today,
-            'complete':     complete,
-            'total':        len(games),
-            'games':        games_out,
-            # ── Five sections ─────────────────────────────────────────────────
-            'f5_combined':  f5_combined,   # 1. Combined F5
-            'f5_single':    f5_flags,      # 2. Single Team F5
-            'fg_combined':  fg_combined,   # 3. Combined Full Game (TODO)
-            'fg_single':    fg_flags,      # 4. Single Team Full Game (TODO)
-            'hr_picks':     picks,         # 5. HR Props
-            # ── Legacy key (backwards compat) ─────────────────────────────────
-            'heatmap_flags': f5_flags,
-            'picks':         picks,
+            'date':           today,
+            'complete':       complete,
+            'total':          len(games),
+            'picks':          picks,
+            'heatmap_flags':  heatmap_flags,
+            'games':          games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
