@@ -4,37 +4,28 @@ import requests
 import pandas as pd
 import pytz
 from datetime import datetime
+from collections import defaultdict
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from scipy.stats import nbinom
 import gdown
 import tempfile
 
-try:
-    from scipy.stats import nbinom
-    SCIPY_AVAILABLE = True
-except ImportError:
-    SCIPY_AVAILABLE = False
-
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'zach-picks-secret-2026')
-APP_PASSWORD    = os.environ.get('APP_PASSWORD', 'picks2026')
+APP_PASSWORD = os.environ.get('APP_PASSWORD', 'picks2026')
 
 FILE_IDS = {
-    'all_pitcher_arch_scores':  '1qA9iSXEv1ONRlXvm0O5TzLSQTUKFVQGn',
+    'all_pitcher_arch_scores': '1qA9iSXEv1ONRlXvm0O5TzLSQTUKFVQGn',
     'arch_hitter_map_combined': '15wE3HfjaR4g68YnwcSCQV76_t0F4I7YG',
     'archetypes_combined':      '1WNBjJ98Q8n20oDjF5AMVFeeUIJiqkz4h',
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    # ── Heatmap / team total models ──────────────────────────────────────
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
-    'pitcher_contact_rates':    '1OzWCA_NviSwLLzh1ZtgLildwFQwRk6ly',
-    'batter_walk_rates':        '1gQNL-3v7txA9V87a9VsxzZmLZCCsgJ3m',
-    # ── Full game innings gate ────────────────────────────────────────────
-    # Upload pitcher_innings_share_2025.pkl to Drive and paste ID here
-    'pitcher_innings_share':    'REPLACE_WITH_DRIVE_ID',
 }
 
+# ── HR prop constants ─────────────────────────────────────────────────────────
 LEAGUE_AVG      = 3.88
 JUICY_THRESHOLD = 5.0
 MIN_SENSOR_PA   = 20
@@ -43,72 +34,39 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── F5 heatmap thresholds (validated, out-of-sample 2025) ────────────────────
-OVERLAP_POP_MEAN    = 0.9984
-OVERLAP_POP_STD     = 0.0598
-WALK_POP_MEAN       = 0.0834
-WALK_POP_STD        = 0.0104
-WALK_BLEND_WEIGHT   = 0.30
-HEATMAP_MEAN        = 0.9984
-HEATMAP_STD         = 0.0455
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # -2.0σ
-LEAGUE_K_RATE           = 0.217
+# ── F5 heatmap thresholds (validated, full MLB 2025 out-of-sample) ────────────
+HEATMAP_MEAN            = 1.0133
+HEATMAP_STD             = 0.0063
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
 
-# ── Full game thresholds (starter-only, validated Path A backtest) ────────────
-# overlap_k_mod distribution: mean=0.998363, std=0.059773 (from backtest)
-# -1.0σ threshold; IP gate applied separately
-FG_BLEND_MEAN       = 0.998363
-FG_BLEND_STD        = 0.059773
-FG_UNDER_THRESHOLD  = FG_BLEND_MEAN - 1.0 * FG_BLEND_STD     # 0.9386
-MIN_STARTER_IP      = 5.0   # avg IP gate — filters short starters (validated Q2)
-
-# ── Game total thresholds (both-suppressed filter, validated game total backtest) ─
-# Both teams must independently score below zero Z (both_under = True)
-# Combined Z-score of sum must clear -1.5σ
-# Backtest: Pinnacle +0.145 ROI / DK +0.127 ROI at n=114
-# Population distribution: sum_z mean≈0, std≈1.422 (near √2 — teams independent)
-GT_SUM_Z_MEAN   = 0.0204    # from game_total_signal_check
-GT_SUM_Z_STD    = 1.4218
-GT_UNDER_SIGMA  = 1.5       # -1.5σ threshold on combined Z
-GT_UNDER_THR    = GT_SUM_Z_MEAN - GT_UNDER_SIGMA * GT_SUM_Z_STD  # ≈ -2.112
-
-# Per-team Z uses the same FG_BLEND distribution
-# both_under: both teams' overlap_k_mod_z < 0 (independently suppressed)
-
-# ── F5 Combined Total thresholds (Kalshi: totals_1st_5_innings) ───────────────
-# Both starters must independently score below their F5 mean (both z < 0)
-# Combined Z of the pair must clear -1.5σ
-# Backtest (Pinnacle): +0.099 ROI at n=123 — conservative on sharp book
-# Kalshi expected stronger: lines set more mechanically (~5.0 vs Pinnacle 4.55)
-# Signal check: flagged games avg 4.36 F5 combined vs population 4.96
-# F5 walk-blended signal — same as per-team F5 under (+0.640 ROI)
-F5C_SUM_Z_MEAN  = 0.0221    # from f5_combined_signal_check
+# ── Combined flag thresholds (validated backtest) ─────────────────────────────
+# Both teams must independently flag under (z < 0), AND sum-Z must clear threshold
+# F5 Combined: Pinnacle +0.099 ROI @ n=123
+# FG Combined: Pinnacle +0.145 ROI / DK +0.127 ROI @ n=114
+F5C_SUM_Z_MEAN  = 0.0221
 F5C_SUM_Z_STD   = 1.3390
-F5C_UNDER_SIGMA = 1.5       # -1.5σ threshold on combined Z
-F5C_UNDER_THR   = F5C_SUM_Z_MEAN - F5C_UNDER_SIGMA * F5C_SUM_Z_STD  # ≈ -1.987
+F5C_UNDER_THR   = F5C_SUM_Z_MEAN - 1.5 * F5C_SUM_Z_STD   # ≈ -1.987
 
-# ── Fair odds calibration — Negative Binomial fit on fg_runs (Script R) ──────
-# E[fg_runs] = FG_BETA0 + FG_BETA1 × overlap_score
-# NB dispersion: r=3.181 p=r/(r+μ) per score
-# Fit validated: deltas < 0.5% across full run distribution
-FG_BETA0 = -1.005553
-FG_BETA1 =  5.448378
-FG_NB_R  =  3.1811
-FG_LINES = [3.5, 4.5, 5.5]
+GT_SUM_Z_MEAN   = 0.0204
+GT_SUM_Z_STD    = 1.4218
+GT_UNDER_THR    = GT_SUM_Z_MEAN - 1.5 * GT_SUM_Z_STD      # ≈ -2.112
 
-# Empirical fallback table if scipy unavailable
-# Keyed by overlap score bucket upper bound → {line: american_odds}
-_FAIR_ODDS_FALLBACK = {
-    0.88: {3.5: -130, 4.5: -231, 5.5: -489},
-    0.91: {3.5: -152, 4.5: -250, 5.5: -473},
-    0.94: {3.5: -101, 4.5: -180, 5.5: -300},
-    0.97: {3.5: +116, 4.5: -145, 5.5: -232},
-    1.00: {3.5: +113, 4.5: -145, 5.5: -227},
-    1.03: {3.5: +127, 4.5: -137, 5.5: -207},
-    1.06: {3.5: +138, 4.5: -122, 5.5: -184},
-    1.09: {3.5: +145, 4.5: -124, 5.5: -217},
-    9.99: {3.5: +159, 4.5: -102, 5.5: -168},
-}
+# ── Fair odds constants (Script R calibration, NegBin fit) ───────────────────
+# Regression: E[fg_runs] = FG_BETA0 + FG_BETA1 × overlap_score
+# r=0.10, r²=0.01, p<0.0001 — significant but weak; NegBin distribution correct
+# NegBin fit: max empirical delta 0.6% vs Poisson 13.2% — NegBin is the right call
+FG_BETA0          = -1.005553
+FG_BETA1          =  5.448378
+FG_F5_TEAM_AVG    =  2.3
+FG_FG_TEAM_AVG    =  4.5
+FG_NB_R           =  3.1811
+FG_USE_NEGBIN     =  True
+
+F5_SINGLE_LINES   = [1.5, 2.5, 3.5]
+FG_SINGLE_LINES   = [4.5, 5.5, 6.5]
+F5_COMBINED_LINES = [3.5, 4.5, 5.5]
+FG_COMBINED_LINES = [6.5, 7.5, 8.5, 9.5]
 
 _model_cache      = None
 _model_cache_time = None
@@ -117,95 +75,37 @@ MODEL_CACHE_TTL   = 3600
 
 # ── Fair odds ─────────────────────────────────────────────────────────────────
 
-def get_fair_odds(overlap_score, lines=FG_LINES):
+def get_fair_odds(overlap_score, section):
     """
-    Return fair American odds for under at each line given overlap_k_mod score.
-    Uses Negative Binomial(r=3.181, p=r/(r+μ)) where μ = β0 + β1 × score.
-    Falls back to empirical lookup table if scipy unavailable.
-    Note: calibrated on full game runs. F5 odds are approximate.
+    Returns dict {line_str: american_odds_str} for the given section.
+    section: 'f5_single' | 'fg_single' | 'f5_combined' | 'fg_combined'
     """
-    lam = max(FG_BETA0 + FG_BETA1 * overlap_score, 0.5)
+    fg_lam = max(0.5, FG_BETA0 + FG_BETA1 * overlap_score)
+    f5_lam = fg_lam * (FG_F5_TEAM_AVG / FG_FG_TEAM_AVG)
 
-    def _fmt(odds):
-        return f'+{odds}' if odds > 0 else str(odds)
+    lam_map = {
+        'f5_single':   (f5_lam,     F5_SINGLE_LINES),
+        'fg_single':   (fg_lam,     FG_SINGLE_LINES),
+        'f5_combined': (f5_lam * 2, F5_COMBINED_LINES),
+        'fg_combined': (fg_lam * 2, FG_COMBINED_LINES),
+    }
+    lam, lines = lam_map[section]
 
-    if SCIPY_AVAILABLE:
-        p_nb = FG_NB_R / (FG_NB_R + lam)   # recompute p for this score's mean
-        result = {}
-        for line in lines:
-            k    = int(line - 0.5)           # 4.5 → 4, 3.5 → 3
-            prob = nbinom.cdf(k, FG_NB_R, p_nb)
-            prob = min(max(prob, 0.001), 0.999)
-            odds = round(-(prob / (1 - prob)) * 100) if prob >= 0.5 \
-                   else round(((1 - prob) / prob) * 100)
-            result[line] = _fmt(odds)
-        return result
-    else:
-        # Empirical fallback
-        for cutoff in sorted(_FAIR_ODDS_FALLBACK.keys()):
-            if overlap_score <= cutoff:
-                bucket = _FAIR_ODDS_FALLBACK[cutoff]
-                return {line: _fmt(bucket.get(line, 0)) for line in lines}
-        bucket = _FAIR_ODDS_FALLBACK[9.99]
-        return {line: _fmt(bucket.get(line, 0)) for line in lines}
-
-
-def get_f5c_fair_odds(sum_z, lines=[3.5, 4.5, 5.5, 6.5]):
-    """
-    Fair odds for F5 combined total (both teams through 5 innings).
-    E[F5_combined] = 4.96 + 0.28 × sum_z
-    NegBin: r=3.97 calibrated from F5 combined distribution (mean=4.96, std=3.34)
-    Lines: 4.5 / 5.5 / 6.5 (population mean = 4.96)
-    """
-    F5C_NB_R  = 3.97
-    lam       = max(4.96 + 0.28 * sum_z, 0.5)
-    p_nb      = F5C_NB_R / (F5C_NB_R + lam)
-
-    def _fmt(o): return f'+{o}' if o > 0 else str(o)
-
-    if SCIPY_AVAILABLE:
-        result = {}
-        for line in lines:
-            k    = int(line - 0.5)
-            prob = min(max(nbinom.cdf(k, F5C_NB_R, p_nb), 0.001), 0.999)
-            odds = round(-(prob/(1-prob))*100) if prob >= 0.5 \
-                   else round(((1-prob)/prob)*100)
-            result[line] = _fmt(odds)
-        return result
-    else:
-        # Empirical fallback at -1.5σ combined
-        for line, p in zip([4.5, 5.5, 6.5], [0.612, 0.701, 0.806]):
-            pass
-        return {line: _fmt(round(-(p/(1-p))*100))
-                for line, p in zip([3.5, 4.5, 5.5, 6.5], [0.376, 0.612, 0.701, 0.806])}
-
-
-def get_gt_fair_odds(sum_z, lines=[7.5, 8.5, 9.5]):
-    """
-    Fair odds for game total (both teams, full game).
-    E[game_total] = 8.88 + 0.38 × sum_z
-    NegBin: r=6.57 calibrated from game total distribution (mean=8.88, std=4.57)
-    Lines: 7.5 / 8.5 / 9.5 (population mean = 8.88)
-    """
-    GT_NB_R = 6.57
-    lam     = max(8.88 + 0.38 * sum_z, 0.5)
-    p_nb    = GT_NB_R / (GT_NB_R + lam)
-
-    def _fmt(o): return f'+{o}' if o > 0 else str(o)
-
-    if SCIPY_AVAILABLE:
-        result = {}
-        for line in lines:
-            k    = int(line - 0.5)
-            prob = min(max(nbinom.cdf(k, GT_NB_R, p_nb), 0.001), 0.999)
-            odds = round(-(prob/(1-prob))*100) if prob >= 0.5 \
-                   else round(((1-prob)/prob)*100)
-            result[line] = _fmt(odds)
-        return result
-    else:
-        # Empirical fallback at -1.5σ combined
-        return {line: _fmt(round(-(p/(1-p))*100))
-                for line, p in zip([7.5, 8.5, 9.5], [0.514, 0.579, 0.686])}
+    result = {}
+    for line in lines:
+        k = int(line)
+        if FG_USE_NEGBIN:
+            p_nb = FG_NB_R / (FG_NB_R + lam)
+            p = nbinom.cdf(k, FG_NB_R, p_nb)
+        else:
+            from scipy.stats import poisson
+            p = poisson.cdf(k, lam)
+        if p <= 0 or p >= 1:
+            result[str(line)] = 'N/A'
+        else:
+            odds = round(-(p / (1 - p)) * 100) if p >= 0.5 else round(((1 - p) / p) * 100)
+            result[str(line)] = f'+{odds}' if odds > 0 else str(odds)
+    return result
 
 
 # ── Model loading ─────────────────────────────────────────────────────────────
@@ -227,21 +127,15 @@ def load_model():
         return _model_cache
     model = {}
     for name, fid in FILE_IDS.items():
-        if fid == 'REPLACE_WITH_DRIVE_ID':
-            model[name] = {}
-            continue
-        try:
-            model[name] = download_pkl(fid)
-        except Exception:
-            model[name] = {}
-    model['arch_hitter_map'] = model.get('arch_hitter_map_combined', {})
-    model['archetypes']      = model.get('archetypes_combined', {})
+        model[name] = download_pkl(fid)
+    model['arch_hitter_map'] = model['arch_hitter_map_combined']
+    model['archetypes']      = model['archetypes_combined']
     _model_cache      = model
     _model_cache_time = now
     return model
 
 
-# ── Lineup fetch ──────────────────────────────────────────────────────────────
+# ── Lineup + starter fetch ────────────────────────────────────────────────────
 
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
@@ -254,10 +148,8 @@ def get_lineups_and_starters(game_date):
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
             gid  = g['gamePk']
-            home = g['teams']['home']['team'].get('abbreviation') or \
-                   g['teams']['home']['team'].get('name', 'HOME')
-            away = g['teams']['away']['team'].get('abbreviation') or \
-                   g['teams']['away']['team'].get('name', 'AWAY')
+            home = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
+            away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
             hp   = g['teams']['home'].get('probablePitcher', {})
             ap   = g['teams']['away'].get('probablePitcher', {})
             home_lineup, away_lineup = [], []
@@ -266,7 +158,7 @@ def get_lineups_and_starters(game_date):
                     f"https://statsapi.mlb.com/api/v1/game/{gid}/boxscore",
                     timeout=15).json()
                 for team_key, lineup in [('home', home_lineup), ('away', away_lineup)]:
-                    td            = bs.get('teams', {}).get(team_key, {})
+                    td = bs.get('teams', {}).get(team_key, {})
                     batting_order = td.get('battingOrder', [])[:9]
                     for pid in batting_order:
                         p = td.get('players', {}).get(f'ID{pid}', {})
@@ -287,69 +179,22 @@ def get_lineups_and_starters(game_date):
                 'away_pitcher_name': ap.get('fullName', 'TBD'),
                 'home_lineup':       home_lineup,
                 'away_lineup':       away_lineup,
-                'game_date':         g.get('gameDate', '')[:10],
-                'game_time_utc':     g.get('gameDate', ''),
             })
     return games
 
 
-# ── Shared scoring helpers ────────────────────────────────────────────────────
-
-def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
-    batter_profiles    = model.get('batter_ev_profiles_lr', {})
-    pitcher_tendencies = model.get('pitcher_tendency_map', {})
-    archetypes         = model.get('archetypes', {})
-    if batter_id not in batter_profiles:    return None
-    if pitcher_id not in pitcher_tendencies: return None
-    if pitcher_hand not in batter_profiles[batter_id]: return None
-    tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
-    if not tends: return None
-    evs  = batter_profiles[batter_id][pitcher_hand]
-    wsum = wtot = 0.0
-    for ak in archetypes:
-        if (ak.endswith('_L')) != (batter_hand == 'L'): continue
-        t     = tends.get(ak, 0.0)
-        e     = evs.get(ak, 1.0)
-        wsum += e * t
-        wtot += t
-    return wsum / wtot if wtot > 0 else None
-
-def _compute_overlap_k_mod(lineup, pitcher_id, pitcher_hand, model):
-    """
-    Shared steps 1+2: raw overlap → K-rate modified score.
-    Returns (overlap_k_mod, walk_vals) or (None, []) if insufficient data.
-    """
-    contact_rates     = model.get('pitcher_contact_rates', {})
-    batter_walk_rates = model.get('batter_walk_rates', {})
-    raw_scores, walk_vals = [], []
-
-    for batter in lineup:
-        batter_id   = batter['id']
-        batter_hand = batter.get('hand', 'R')
-        s = compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model)
-        if s is not None:
-            raw_scores.append(s)
-        w = batter_walk_rates.get(batter_id, {}).get('walk_rate')
-        if w is not None:
-            walk_vals.append(w)
-
-    if len(raw_scores) < 5:
-        return None, []
-
-    p_stats  = contact_rates.get(pitcher_id, {})
-    k_rate   = p_stats.get('k_rate', LEAGUE_K_RATE)
-    if not isinstance(k_rate, float) or k_rate != k_rate:
-        k_rate = LEAGUE_K_RATE
-    k_mod         = (1 - k_rate) / (1 - LEAGUE_K_RATE)
-    overlap_k_mod = (sum(raw_scores) / len(raw_scores)) * k_mod
-    return overlap_k_mod, walk_vals
+# ── HR prop helpers ───────────────────────────────────────────────────────────
 
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
-    if game_prob <= 0: return '+9999'
+    if game_prob <= 0:
+        return '+9999'
     fair = round((1 / game_prob - 1) * 100)
     return f'+{fair}' if fair > 0 else str(fair)
+
+def format_odds(n):
+    return f'+{n}' if n > 0 else str(n)
 
 def get_bullpen_score(team, arch_key, model):
     bs = model.get('team_bullpen_scores', {})
@@ -359,7 +204,8 @@ def get_bullpen_score(team, arch_key, model):
 
 def get_park_factor(fielding_team, batter_hand, model):
     all_parks = model.get('all_parks', {})
-    if fielding_team not in all_parks: return 1.0
+    if fielding_team not in all_parks:
+        return 1.0
     try:
         dims   = all_parks[fielding_team].get('dimensions', {})
         valid  = [p for p in all_parks.values() if 'dimensions' in p]
@@ -383,16 +229,41 @@ def get_park_factor(fielding_team, batter_hand, model):
         return 1.0
 
 
-# ── F5 Team Total Under flags ─────────────────────────────────────────────────
+# ── Batter overlap scoring ────────────────────────────────────────────────────
+
+def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
+    batter_profiles    = model.get('batter_ev_profiles_lr', {})
+    pitcher_tendencies = model.get('pitcher_tendency_map', {})
+    archetypes         = model.get('archetypes', {})
+
+    if batter_id not in batter_profiles: return None
+    if pitcher_id not in pitcher_tendencies: return None
+    if pitcher_hand not in batter_profiles[batter_id]: return None
+
+    tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
+    if not tends: return None
+
+    evs  = batter_profiles[batter_id][pitcher_hand]
+    wsum = wtot = 0.0
+
+    for ak in archetypes:
+        if (ak.endswith('_L')) != (batter_hand == 'L'): continue
+        t     = tends.get(ak, 0.0)
+        e     = evs.get(ak, 1.0)
+        wsum += e * t
+        wtot += t
+
+    return wsum / wtot if wtot > 0 else None
+
+
+# ── F5 heatmap flags ──────────────────────────────────────────────────────────
 
 def get_heatmap_flags(games, model):
     """
-    F5 team total under flags.
-    Signal: overlap_k_mod + 70/30 walk blend, threshold -2.0σ.
-    Adds fair_odds (approximate — calibrated on full game runs) and avg_ip.
+    Compute per-team F5 overlap scores. Returns flags with fair odds attached.
+    Flags are split into f5_single and f5_combined by the caller.
     """
-    pitcher_scores   = model.get('all_pitcher_arch_scores', {})
-    innings_share    = model.get('pitcher_innings_share', {})
+    pitcher_scores = model.get('all_pitcher_arch_scores', {})
     flags = []
 
     for game in games:
@@ -413,30 +284,32 @@ def get_heatmap_flags(games, model):
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            overlap_k_mod, walk_vals = _compute_overlap_k_mod(
-                lineup, pitcher_id, pitcher_hand, model
-            )
-            if overlap_k_mod is None:
+            scores        = []
+            scored_batters = 0
+
+            for batter in lineup:
+                s = compute_batter_overlap(
+                    batter['id'], pitcher_id,
+                    batter.get('hand', 'R'), pitcher_hand, model
+                )
+                if s is not None:
+                    scores.append(s)
+                    scored_batters += 1
+
+            if scored_batters < 3:
                 continue
 
-            # 70/30 walk blend
-            if len(walk_vals) >= 3:
-                lineup_walk_rate = sum(walk_vals) / len(walk_vals)
-                ov_z    = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
-                wk_z    = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
-                blend_z = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
-                team_score = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
-            else:
-                team_score = overlap_k_mod
-
-            if team_score > HEATMAP_UNDER_THRESHOLD:
-                continue
-
+            team_score    = sum(scores) / len(scores)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
 
-            # Starter avg IP (informational for F5 — no gate applied)
-            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
-            avg_ip  = round(ip_data['avg_ip'], 1) if ip_data else None
+            if team_score >= HEATMAP_OVER_THRESHOLD:
+                signal = 'over'
+            elif team_score <= HEATMAP_UNDER_THRESHOLD:
+                signal = 'under'
+            else:
+                continue
+
+            fair_odds = get_fair_odds(team_score, 'f5_single')
 
             flags.append({
                 'game':            game_str,
@@ -447,96 +320,74 @@ def get_heatmap_flags(games, model):
                 'pitcher_id':      pitcher_id,
                 'overlap_score':   round(team_score, 4),
                 'std_from_mean':   round(std_from_mean, 2),
-                'signal':          'under',
-                'batters_scored':  sum(1 for b in lineup if compute_batter_overlap(
-                                       b['id'], pitcher_id, b.get('hand','R'),
-                                       pitcher_hand, model) is not None),
+                'signal':          signal,
+                'batters_scored':  scored_batters,
                 'lineup_complete': len(lineup) >= 8,
-                'avg_ip':          avg_ip,
-                'fair_odds':       get_fair_odds(team_score),
+                'fair_odds':       fair_odds,
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
 
-# ── Full Game Team Total Under flags ─────────────────────────────────────────
-
-def get_fullgame_flags(games, model):
+def get_combined_flags(all_flags, bet_type='f5'):
     """
-    Full game team total under flags.
-    Signal: overlap_k_mod only (starter, no walk blend — matches backtest).
-    Gate:   avg_ip >= MIN_STARTER_IP (5.0) — validated Q2, +0.134 ROI lift.
-    Threshold: -1.0σ from FG_BLEND_MEAN/STD.
-    Adds fair_odds (NegBin calibrated) and avg_ip.
+    From a list of per-team flags, find games where both teams are flagged
+    in the same direction. Applies validated combined Z threshold.
+
+    bet_type: 'f5' uses F5C thresholds; 'fg' uses GT thresholds.
+    Returns list of combined flag dicts.
     """
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    innings_share  = model.get('pitcher_innings_share', {})
-    flags = []
+    sum_z_thr   = F5C_UNDER_THR if bet_type == 'f5' else GT_UNDER_THR
+    odds_section = 'f5_combined' if bet_type == 'f5' else 'fg_combined'
 
-    for game in games:
-        matchups = [
-            (game['away_lineup'], game['home_pitcher_id'],
-             game['home_pitcher_name'], game['away_team'],
-             game['home_team'], f"{game['away_team']}@{game['home_team']}"),
-            (game['home_lineup'], game['away_pitcher_id'],
-             game['away_pitcher_name'], game['home_team'],
-             game['away_team'], f"{game['away_team']}@{game['home_team']}"),
-        ]
+    # Group by game
+    by_game = defaultdict(list)
+    for f in all_flags:
+        by_game[f['game']].append(f)
 
-        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team, game_str in matchups:
-            if not lineup or not pitcher_id:
+    combined = []
+    for game_str, team_flags in by_game.items():
+        under_flags = [f for f in team_flags if f['signal'] == 'under']
+        over_flags  = [f for f in team_flags if f['signal'] == 'over']
+
+        for direction, group in [('under', under_flags), ('over', over_flags)]:
+            if len(group) < 2:
                 continue
 
-            pitcher_hand = 'R'
-            if pitcher_id in pitcher_scores:
-                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
+            # Both teams independently flagged in same direction
+            z1, z2       = group[0]['std_from_mean'], group[1]['std_from_mean']
+            combined_z   = z1 + z2
 
-            # ── IP gate — skip short starters ────────────────────────────
-            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
-            avg_ip  = ip_data['avg_ip'] if ip_data else None
-            if innings_share and (avg_ip is None or avg_ip < MIN_STARTER_IP):
-                # innings_share loaded but pitcher below threshold — skip
-                # if innings_share empty (Drive ID not set), gate is bypassed
-                if innings_share:
-                    continue
-
-            # ── Starter signal (overlap_k_mod, no walk blend) ─────────────
-            overlap_k_mod, _ = _compute_overlap_k_mod(
-                lineup, pitcher_id, pitcher_hand, model
-            )
-            if overlap_k_mod is None:
+            # Apply validated combined Z threshold (under only — over signal unvalidated)
+            if direction == 'under' and combined_z > sum_z_thr:
                 continue
+            if direction == 'over':
+                continue  # over combined signal not validated — skip
 
-            std_from_mean = (overlap_k_mod - FG_BLEND_MEAN) / FG_BLEND_STD
+            avg_score = (group[0]['overlap_score'] + group[1]['overlap_score']) / 2
+            fair_odds = get_fair_odds(avg_score, odds_section)
 
-            if overlap_k_mod > FG_UNDER_THRESHOLD:
-                continue
-
-            flags.append({
-                'game':            game_str,
-                'batting_team':    batting_team,
-                'fielding_team':   fielding_team,
-                'pitcher_name':    pitcher_name,
-                'pitcher_hand':    pitcher_hand,
-                'pitcher_id':      pitcher_id,
-                'overlap_score':   round(overlap_k_mod, 4),
-                'std_from_mean':   round(std_from_mean, 2),
-                'signal':          'under',
-                'market':          'full_game',
-                'batters_scored':  sum(1 for b in lineup if compute_batter_overlap(
-                                       b['id'], pitcher_id, b.get('hand','R'),
-                                       pitcher_hand, model) is not None),
-                'lineup_complete': len(lineup) >= 8,
-                'avg_ip':          round(avg_ip, 1) if avg_ip else None,
-                'fair_odds':       get_fair_odds(overlap_k_mod),
+            combined.append({
+                'game':          game_str,
+                'team_1':        group[0]['batting_team'],
+                'team_2':        group[1]['batting_team'],
+                'pitcher_1':     group[0]['pitcher_name'],
+                'pitcher_2':     group[1]['pitcher_name'],
+                'z_team_1':      round(z1, 2),
+                'z_team_2':      round(z2, 2),
+                'combined_z':    round(combined_z, 2),
+                'avg_score':     round(avg_score, 4),
+                'signal':        direction,
+                'fair_odds':     fair_odds,
+                'lineup_complete': group[0]['lineup_complete'] and group[1]['lineup_complete'],
             })
 
-    flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
-    return flags
+    combined.sort(key=lambda x: x['combined_z'])
+    return combined
 
 
-# ── HR Watchlist ──────────────────────────────────────────────────────────────
+# ── HR props ──────────────────────────────────────────────────────────────────
 
 def get_hr_picks(games, model):
     arch_hitter_map = model['arch_hitter_map']
@@ -568,7 +419,7 @@ def get_hr_picks(games, model):
                         pool = set(pool['batter_id'].tolist())
                     if batter_id not in pool:
                         continue
-                    arch_data    = pitcher['archetypes'].get(arch_key, {})
+                    arch_data = pitcher['archetypes'].get(arch_key, {})
                     if arch_data.get('sensor_pa', 0) < MIN_SENSOR_PA:
                         continue
                     starter_rate = arch_data.get('shrunk_rate', LEAGUE_AVG)
@@ -606,222 +457,6 @@ def get_hr_picks(games, model):
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
 
 
-# ── F5 Combined Total Under flags (Kalshi market) ────────────────────────────
-
-def get_f5combined_flags(games, model):
-    """
-    F5 combined total under flags — both starters suppressing both lineups.
-    Uses walk-blended F5 signal (same as per-team F5 under, +0.640 ROI).
-    Gate: both teams independently z < 0 AND combined Z ≤ -1.5σ.
-    Backtest: Pinnacle +0.099 ROI. Kalshi expected stronger (mechanical lines).
-    Market: totals_1st_5_innings — available on Kalshi/Robinhood, no limits.
-    Flagged games avg 4.36 F5 combined runs vs population mean 4.96.
-    """
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    flags = []
-
-    for game in games:
-        game_str = f"{game['away_team']}@{game['home_team']}"
-        matchups  = [
-            (game['away_lineup'], game['home_pitcher_id'],
-             game['home_pitcher_name'], game['away_team'], game['home_team']),
-            (game['home_lineup'], game['away_pitcher_id'],
-             game['away_pitcher_name'], game['home_team'], game['away_team']),
-        ]
-
-        team_scores = []
-        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team in matchups:
-            if not lineup or not pitcher_id:
-                continue
-
-            pitcher_hand = 'R'
-            if pitcher_id in pitcher_scores:
-                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
-
-            overlap_k_mod, walk_vals = _compute_overlap_k_mod(
-                lineup, pitcher_id, pitcher_hand, model
-            )
-            if overlap_k_mod is None:
-                continue
-
-            # F5 walk-blended score (same as per-team F5 signal)
-            if len(walk_vals) >= 3:
-                lineup_walk_rate = sum(walk_vals) / len(walk_vals)
-                ov_z    = (overlap_k_mod    - OVERLAP_POP_MEAN) / OVERLAP_POP_STD
-                wk_z    = (lineup_walk_rate - WALK_POP_MEAN)    / WALK_POP_STD
-                blend_z = ov_z * (1 - WALK_BLEND_WEIGHT) + wk_z * WALK_BLEND_WEIGHT
-                f5_score = blend_z * OVERLAP_POP_STD + OVERLAP_POP_MEAN
-            else:
-                f5_score = overlap_k_mod
-
-            # Per-team Z using F5/heatmap distribution
-            f5_z = (f5_score - HEATMAP_MEAN) / HEATMAP_STD
-
-            team_scores.append({
-                'batting_team':   batting_team,
-                'pitcher_name':   pitcher_name,
-                'pitcher_hand':   pitcher_hand,
-                'pitcher_id':     pitcher_id,
-                'f5_score':       f5_score,
-                'f5_z':           f5_z,
-                'lineup_complete': len(lineup) >= 8,
-                'batters_scored': sum(
-                    1 for b in lineup
-                    if compute_batter_overlap(b['id'], pitcher_id,
-                                              b.get('hand','R'),
-                                              pitcher_hand, model) is not None
-                ),
-            })
-
-        if len(team_scores) != 2:
-            continue
-
-        z_scores = [ts['f5_z'] for ts in team_scores]
-
-        # Gate 1: both teams independently suppressed
-        if not all(z < 0 for z in z_scores):
-            continue
-
-        # Gate 2: combined Z clears -1.5σ threshold
-        sum_z      = sum(z_scores)
-        combined_z = (sum_z - F5C_SUM_Z_MEAN) / F5C_SUM_Z_STD
-        if combined_z > -F5C_UNDER_SIGMA:
-            continue
-
-        flags.append({
-            'game':            game_str,
-            'market':          'f5_combined',
-            'signal':          'under',
-            'combined_z':      round(combined_z, 2),
-            'sum_z':           round(sum_z, 3),
-            # Team A (away batting vs home pitcher)
-            'team_a':          team_scores[0]['batting_team'],
-            'pitcher_a':       team_scores[0]['pitcher_name'],
-            'pitcher_a_hand':  team_scores[0]['pitcher_hand'],
-            'score_a':         round(team_scores[0]['f5_score'], 4),
-            'z_a':             round(z_scores[0], 2),
-            # Team B (home batting vs away pitcher)
-            'team_b':          team_scores[1]['batting_team'],
-            'pitcher_b':       team_scores[1]['pitcher_name'],
-            'pitcher_b_hand':  team_scores[1]['pitcher_hand'],
-            'score_b':         round(team_scores[1]['f5_score'], 4),
-            'z_b':             round(z_scores[1], 2),
-            'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
-            'fair_odds':       get_f5c_fair_odds(sum_z),
-        })
-
-    flags.sort(key=lambda x: x['combined_z'])
-    return flags
-
-
-# ── Game Total Under flags ────────────────────────────────────────────────────
-
-def get_gametotal_flags(games, model):
-    """
-    Game total under flags — combined suppression signal.
-    Both starters must independently score below their mean (both_under).
-    Combined Z-score of the pair must clear -1.5σ.
-    Signal: overlap_k_mod per team, no walk blend (matches backtest).
-    Threshold: GT_UNDER_THR = -1.5σ on combined sum_z distribution.
-    Backtest: Pinnacle +0.145 ROI / DK +0.127 ROI at n=114 (2025).
-    """
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    innings_share  = model.get('pitcher_innings_share', {})
-    flags = []
-
-    for game in games:
-        # Score both matchups in this game
-        game_str   = f"{game['away_team']}@{game['home_team']}"
-        matchups   = [
-            (game['away_lineup'], game['home_pitcher_id'],
-             game['home_pitcher_name'], game['away_team'], game['home_team']),
-            (game['home_lineup'], game['away_pitcher_id'],
-             game['away_pitcher_name'], game['home_team'], game['away_team']),
-        ]
-
-        team_scores = []   # [(batting_team, overlap_k_mod, pitcher_name, hand, avg_ip)]
-        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team in matchups:
-            if not lineup or not pitcher_id:
-                continue
-
-            pitcher_hand = 'R'
-            if pitcher_id in pitcher_scores:
-                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
-
-            overlap_k_mod, _ = _compute_overlap_k_mod(
-                lineup, pitcher_id, pitcher_hand, model
-            )
-            if overlap_k_mod is None:
-                continue
-
-            ip_data = innings_share.get(int(pitcher_id)) if pitcher_id else None
-            avg_ip  = round(ip_data['avg_ip'], 1) if ip_data else None
-
-            team_scores.append({
-                'batting_team': batting_team,
-                'pitcher_name': pitcher_name,
-                'pitcher_hand': pitcher_hand,
-                'pitcher_id':   pitcher_id,
-                'overlap_k_mod': overlap_k_mod,
-                'avg_ip':        avg_ip,
-                'batters_scored': sum(
-                    1 for b in lineup
-                    if compute_batter_overlap(b['id'], pitcher_id,
-                                              b.get('hand','R'),
-                                              pitcher_hand, model) is not None
-                ),
-                'lineup_complete': len(lineup) >= 8,
-            })
-
-        # Need both teams scored
-        if len(team_scores) != 2:
-            continue
-
-        # Per-team Z-scores (using FG distribution)
-        z_scores = [
-            (ts['overlap_k_mod'] - FG_BLEND_MEAN) / FG_BLEND_STD
-            for ts in team_scores
-        ]
-
-        # Gate 1: both teams independently suppressed (both z < 0)
-        if not all(z < 0 for z in z_scores):
-            continue
-
-        # Gate 2: combined sum Z clears threshold
-        sum_z     = sum(z_scores)
-        combined_z = (sum_z - GT_SUM_Z_MEAN) / GT_SUM_Z_STD
-        if combined_z > -GT_UNDER_SIGMA:
-            continue
-
-        flags.append({
-            'game':           game_str,
-            'market':         'game_total',
-            'signal':         'under',
-            'combined_z':     round(combined_z, 2),
-            'sum_z':          round(sum_z, 3),
-            # Team A (away batting)
-            'team_a':         team_scores[0]['batting_team'],
-            'pitcher_a':      team_scores[0]['pitcher_name'],
-            'pitcher_a_hand': team_scores[0]['pitcher_hand'],
-            'score_a':        round(team_scores[0]['overlap_k_mod'], 4),
-            'z_a':            round(z_scores[0], 2),
-            'avg_ip_a':       team_scores[0]['avg_ip'],
-            # Team B (home batting)
-            'team_b':         team_scores[1]['batting_team'],
-            'pitcher_b':      team_scores[1]['pitcher_name'],
-            'pitcher_b_hand': team_scores[1]['pitcher_hand'],
-            'score_b':        round(team_scores[1]['overlap_k_mod'], 4),
-            'z_b':            round(z_scores[1], 2),
-            'avg_ip_b':       team_scores[1]['avg_ip'],
-            # Lineup quality
-            'lineup_complete': all(ts['lineup_complete'] for ts in team_scores),
-            'fair_odds':       get_gt_fair_odds(sum_z),
-        })
-
-    flags.sort(key=lambda x: x['combined_z'])   # most suppressed first
-    return flags
-
-
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -850,248 +485,44 @@ def api_picks():
     if not session.get('authenticated'):
         return jsonify({'error': 'Not authenticated'}), 401
     try:
-        model    = load_model()
-        today    = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-        games    = get_lineups_and_starters(today)
-        picks    = get_hr_picks(games, model)
+        model   = load_model()
+        today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        games   = get_lineups_and_starters(today)
+        picks   = get_hr_picks(games, model)
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        heatmap_flags    = get_heatmap_flags(games, model)
-        fullgame_flags   = get_fullgame_flags(games, model)
-        gametotal_flags  = get_gametotal_flags(games, model)
-        f5combined_flags = get_f5combined_flags(games, model)
+        # ── F5 flags ──────────────────────────────────────────────────────────
+        f5_flags    = get_heatmap_flags(games, model)
+        f5_combined = get_combined_flags(f5_flags, bet_type='f5')
 
-        # ── Attach live Kalshi prices to flagged games ────────────────────
-        # Max 3 games × 3 calls × 2s timeout = 18s worst case
-        kalshi_cache = {}
-        strong_flags = sorted(
-            gametotal_flags + f5combined_flags,
-            key=lambda x: x['combined_z']
-        )[:3]
-        strong_per_team = sorted(
-            heatmap_flags + fullgame_flags,
-            key=lambda x: x['std_from_mean']
-        )[:3]
-
-        for flag in strong_flags + strong_per_team:
-            gs = flag['game']
-            if gs in kalshi_cache:
-                continue
-            for g in games:
-                if f"{g['away_team']}@{g['home_team']}" == gs:
-                    kalshi_cache[gs] = get_kalshi_prices(g) or {}
-                    break
-
-        # Attach to per-team flags
-        for flag in heatmap_flags + fullgame_flags:
-            kdata = kalshi_cache.get(flag['game'], {})
-            tt    = kdata.get('team_totals', {}).get(flag['batting_team'])
-            if tt:
-                flag['kalshi_line']  = tt['line']
-                flag['kalshi_under'] = tt['under']
-
-        # Attach to combined flags
-        for flag in f5combined_flags:
-            f5c = kalshi_cache.get(flag['game'], {}).get('f5_combined')
-            if f5c:
-                flag['kalshi_line']  = f5c['line']
-                flag['kalshi_under'] = f5c['under']
-
-        for flag in gametotal_flags:
-            gt = kalshi_cache.get(flag['game'], {}).get('game_total')
-            if gt:
-                flag['kalshi_line']  = gt['line']
-                flag['kalshi_under'] = gt['under']
+        # ── FG flags (TODO: requires fullgame scoring function + bullpen model)
+        # fg_flags    = get_fullgame_flags(games, model)
+        # fg_combined = get_combined_flags(fg_flags, bet_type='fg')
+        fg_flags    = []
+        fg_combined = []
 
         return jsonify({
-            'date':             today,
-            'complete':         complete,
-            'total':            len(games),
-            'picks':            picks,
-            'heatmap_flags':    heatmap_flags,
-            'fullgame_flags':   fullgame_flags,
-            'gametotal_flags':  gametotal_flags,
-            'f5combined_flags': f5combined_flags,
-            'games':            games_out,
+            'date':         today,
+            'complete':     complete,
+            'total':        len(games),
+            'games':        games_out,
+            # ── Five sections ─────────────────────────────────────────────────
+            'f5_combined':  f5_combined,   # 1. Combined F5
+            'f5_single':    f5_flags,      # 2. Single Team F5
+            'fg_combined':  fg_combined,   # 3. Combined Full Game (TODO)
+            'fg_single':    fg_flags,      # 4. Single Team Full Game (TODO)
+            'hr_picks':     picks,         # 5. HR Props
+            # ── Legacy key (backwards compat) ─────────────────────────────────
+            'heatmap_flags': f5_flags,
+            'picks':         picks,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# KALSHI LIVE PRICE LOOKUP
-# ══════════════════════════════════════════════════════════════════════════════
-
-KALSHI_BASE = 'https://external-api.kalshi.com/trade-api/v2'
-
-# MLB team abbreviation → Kalshi ticker suffix
-KALSHI_TEAM_MAP = {
-    'ARI':'AZ',  'ATL':'ATL', 'BAL':'BAL', 'BOS':'BOS',
-    'CHC':'CHC', 'CWS':'CWS', 'CIN':'CIN', 'CLE':'CLE',
-    'COL':'COL', 'DET':'DET', 'HOU':'HOU', 'KC':'KC',
-    'LAA':'LAA', 'LAD':'LAD', 'MIA':'MIA', 'MIL':'MIL',
-    'MIN':'MIN', 'NYM':'NYM', 'NYY':'NYY', 'OAK':'ATH',
-    'PHI':'PHI', 'PIT':'PIT', 'SD':'SD',  'SF':'SF',
-    'SEA':'SEA', 'STL':'STL', 'TB':'TB',  'TEX':'TEX',
-    'TOR':'TOR', 'WSH':'WSH',
-}
-
-def _kalshi_get(endpoint, params=None):
-    try:
-        r = requests.get(
-            f"{KALSHI_BASE}{endpoint}",
-            params=params or {},
-            timeout=2   # hard 2-second limit — fail fast
-        )
-        if r.status_code == 200:
-            return r.json()
-    except Exception:
-        pass
-    return None
-
-def _cents_to_american(cents):
-    if not cents or cents <= 0 or cents >= 100:
-        return None
-    p = cents / 100
-    return round(-(p/(1-p))*100) if p >= 0.5 else round(((1-p)/p)*100)
-
-def _fmt_odds(o):
-    if o is None: return None
-    return f'+{o}' if o > 0 else str(o)
-
-def _build_event_ticker(series, game_date_str, game_time_et, away_abbr, home_abbr):
-    """
-    Build Kalshi event ticker.
-    Format: {SERIES}-{YY}{MON}{DD}{HHMM}{AWAY}{HOME}
-    e.g. KXMLBF5TOTAL-26MAY261940MINCWS
-    game_date_str: 'YYYY-MM-DD'
-    game_time_et:  'HH:MM' in ET (from MLB API commence time)
-    """
-    import datetime as dt
-    d    = dt.datetime.strptime(game_date_str, '%Y-%m-%d')
-    yy   = d.strftime('%y')
-    mon  = d.strftime('%b').upper()
-    day  = d.strftime('%d')
-    time = game_time_et[:4]   # already HHMM
-    away = KALSHI_TEAM_MAP.get(away_abbr, away_abbr)
-    home = KALSHI_TEAM_MAP.get(home_abbr, home_abbr)
-    return f"{series}-{yy}{mon}{day}{time}{away}{home}"
-
-def _get_kalshi_markets(event_ticker):
-    """Fetch all markets for a Kalshi event ticker."""
-    data = _kalshi_get('/markets', {'event_ticker': event_ticker, 'limit': 50})
-    return data.get('markets', []) if data else []
-
-def _best_under_price(markets, target_line=None, team_abbr=None):
-    """
-    From a list of Kalshi markets, find the best under price.
-    team_abbr: for team totals, filter to specific team (e.g. 'MIN')
-    target_line: prefer market closest to this run total
-    Returns (line, american_odds_str) or (None, None)
-    """
-    candidates = []
-    for m in markets:
-        ticker = m.get('ticker', '')
-        # Team total filter
-        if team_abbr and f'-{team_abbr}' not in ticker:
-            continue
-        # Extract line number from ticker suffix
-        try:
-            suffix = ticker.split('-')[-1]
-            # Team totals: MIN4 → 4, CWS3 → 3
-            num_str = ''.join(c for c in suffix if c.isdigit())
-            line = int(num_str) if num_str else None
-        except Exception:
-            line = None
-        if line is None:
-            continue
-        # Under = No side
-        no_ask  = m.get('no_ask')
-        yes_bid = m.get('yes_bid')
-        under_cents = no_ask if no_ask is not None else \
-                      (100 - yes_bid if yes_bid is not None else None)
-        if under_cents is None:
-            continue
-        odds = _cents_to_american(under_cents)
-        candidates.append((line, under_cents, odds))
-
-    if not candidates:
-        return None, None
-
-    if target_line is not None:
-        # Pick closest to target line
-        best = min(candidates, key=lambda x: abs(x[0] - target_line))
-    else:
-        # Pick line with most favorable under price (lowest cents = longest odds)
-        best = min(candidates, key=lambda x: x[1])
-
-    return best[0], _fmt_odds(best[2])
-
-
-def get_kalshi_prices(game, model=None):
-    """
-    Fetch live Kalshi prices for a game.
-    Returns dict with f5_combined, game_total, team_totals or None.
-    """
-    try:
-        away = game.get('away_team', '')
-        home = game.get('home_team', '')
-
-        # Parse game time from MLB API gameDate (ISO UTC string)
-        import pytz as _pytz
-        from datetime import datetime as _dt
-        et_tz         = _pytz.timezone('America/New_York')
-        game_time_utc = game.get('game_time_utc', '')
-        game_date     = game.get('game_date',
-                                 _dt.now(et_tz).strftime('%Y-%m-%d'))
-        try:
-            utc_dt    = _dt.fromisoformat(game_time_utc.replace('Z', '+00:00'))
-            et_dt     = utc_dt.astimezone(et_tz)
-            game_time = et_dt.strftime('%H%M')
-            game_date = et_dt.strftime('%Y-%m-%d')
-        except Exception:
-            game_time = '1905'
-
-        result = {}
-
-        # F5 Combined Total
-        et_f5   = _build_event_ticker('KXMLBF5TOTAL', game_date, game_time, away, home)
-        mkts_f5 = _get_kalshi_markets(et_f5)
-        if mkts_f5:
-            line, odds = _best_under_price(mkts_f5, target_line=5)
-            if odds:
-                result['f5_combined'] = {'line': line, 'under': odds}
-
-        # Game Total
-        et_gt   = _build_event_ticker('KXMLBTOTAL', game_date, game_time, away, home)
-        mkts_gt = _get_kalshi_markets(et_gt)
-        if mkts_gt:
-            line, odds = _best_under_price(mkts_gt, target_line=9)
-            if odds:
-                result['game_total'] = {'line': line, 'under': odds}
-
-        # Team Totals
-        et_tt   = _build_event_ticker('KXMLBTEAMTOTAL', game_date, game_time, away, home)
-        mkts_tt = _get_kalshi_markets(et_tt)
-        if mkts_tt:
-            result['team_totals'] = {}
-            for team_abbr in [away, home]:
-                k_abbr = KALSHI_TEAM_MAP.get(team_abbr, team_abbr)
-                line, odds = _best_under_price(mkts_tt, target_line=4,
-                                               team_abbr=k_abbr)
-                if odds:
-                    result['team_totals'][team_abbr] = {'line': line, 'under': odds}
-
-        return result if result else None
-
-    except Exception:
-        return None
