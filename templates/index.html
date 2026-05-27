@@ -692,13 +692,14 @@
         hmList.innerHTML  = '';
         const underTeams  = new Set();
         // support both new key (f5_single) and legacy (heatmap_flags)
-        const f5Flags = data.f5_single || data.heatmap_flags || [];
+        const f5Flags = (data.f5_single || data.heatmap_flags || [])
+          .filter(f => f.signal === 'under');
 
         if (f5Flags.length > 0) {
           document.getElementById('heatmap-count').textContent =
             `${f5Flags.length} Flag${f5Flags.length !== 1 ? 's' : ''}`;
           f5Flags.forEach((f, i) => {
-            if (f.signal === 'under') underTeams.add(f.batting_team);
+            underTeams.add(f.batting_team);
             hmList.appendChild(buildFlagCard(f, i));
           });
           document.getElementById('heatmap-section').style.display = 'block';
