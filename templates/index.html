@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ozzie's Picks</title>
+<title>Ozzie</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
-
   :root {
-    --bg:       #0a0a0f;
-    --surface:  #111118;
-    --surface2: #16161f;
-    --border:   #1e1e2e;
-    --accent:   #e8ff47;
-    --green:    #4fffb0;
-    --orange:   #ff9f47;
-    --red:      #ff6b6b;
-    --blue:     #4fb8ff;
-    --text:     #e8e8f0;
-    --muted:    #555570;
-    --dim:      #333348;
+    --bg:        #0d0f14;
+    --surface:   #13161e;
+    --border:    #1e2330;
+    --blue:      #4a9eff;
+    --green:     #3dd68c;
+    --red:       #ff5f5f;
+    --yellow:    #f5c842;
+    --muted:     #5a6275;
+    --text:      #e8eaf0;
+    --subtext:   #8b93a8;
+    --card-bg:   #161a24;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,870 +24,409 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     min-height: 100vh;
-    padding-bottom: 48px;
+    padding-bottom: 60px;
   }
 
-  header {
+  /* ── Header ── */
+  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 20px 16px;
+    padding: 18px 20px 14px;
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
   }
-
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 0.06em;
-    color: var(--accent);
-  }
-
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--blue); }
   .date-badge {
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 11px; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 4px; font-weight: 500;
   }
-
-  .run-wrap { padding: 20px 20px 0; }
-
-  #run-btn {
-    width: 100%;
-    background: var(--accent);
-    color: #0a0a0f;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 0.12em;
-    padding: 18px;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  .refresh-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--subtext); padding: 6px 14px; border-radius: 6px;
+    font-size: 12px; cursor: pointer; transition: all 0.15s;
   }
+  .refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
 
-  #run-btn:active { transform: scale(0.98); }
-  #run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
+  /* ── Loading / error ── */
+  .status {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); font-size: 14px;
+  }
   .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(10,10,15,0.3);
-    border-top-color: #0a0a0f;
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
-    display: none;
+    margin: 0 auto 16px;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  #status-bar {
-    margin: 12px 20px 0;
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    min-height: 18px;
-  }
-
-  #games-section { padding: 16px 20px 0; display: none; }
-
-  .section-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  .section-label.watchlist {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .watchlist-badge {
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: var(--surface2);
-    border: 1px solid var(--dim);
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
-
-  .games-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  .game-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 9px;
-    font-size: 0.68rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-  }
-
-  .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-  .dot.ready   { background: var(--green); }
-  .dot.pending { background: var(--muted); }
-
-  /* ── Shared flag card styles ─────────────────────────────────────── */
-  .flags-section { padding: 20px 20px 0; display: none; }
-
-  .flags-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+  /* ── Sections ── */
+  .section { padding: 0 16px; margin-top: 24px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 10px;
     margin-bottom: 12px;
   }
-
-  .flags-count {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-    color: var(--accent);
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .section-market {
+    font-size: 10px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--subtext);
+    margin-left: auto;
+  }
+  .flag-count {
+    font-size: 13px; font-weight: 700; color: var(--yellow);
+  }
+  .empty-section {
+    color: var(--muted); font-size: 12px; padding: 12px 0;
+    font-style: italic;
   }
 
-  .hm-card {
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 8px;
-    animation: fadeIn 0.25s ease both;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hm-card.under {
+  /* ── Cards ── */
+  .card {
+    background: var(--card-bg);
     border: 1px solid var(--blue);
-    box-shadow: 0 0 18px rgba(79, 184, 255, 0.08);
-  }
-
-  .hm-card.under::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--blue), transparent);
-    opacity: 0.6;
-  }
-
-  .hm-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .hm-team {
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: 0.02em;
-  }
-
-  .hm-signal-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-  }
-
-  .hm-signal {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 0.08em;
-    line-height: 1;
-  }
-
-  .hm-signal.under { color: var(--blue); }
-
-  .hm-sigma {
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
-    text-align: right;
-  }
-
-  .hm-sigma.under { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
-
-  .hm-divider {
-    height: 1px;
-    background: var(--border);
-    margin-bottom: 10px;
-  }
-
-  .hm-bottom {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-
-  .hm-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .hm-stat-label {
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .hm-stat-value {
-    font-size: 0.82rem;
-    color: var(--text);
-  }
-
-  .hm-lineup-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 10px;
-  }
-
-  .hm-lineup-tag.confirmed { color: var(--green); }
-  .hm-lineup-tag.pending   { color: var(--muted); }
-
-  .bp-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 6px;
-    margin-left: 8px;
-    color: var(--orange);
-    opacity: 0.7;
-  }
-
-  /* ── Fair Odds Row (Full Game cards only) ────────────────────────── */
-  .fair-odds-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-
-  .fair-odds-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    background: var(--surface2);
-    border: 1px solid var(--dim);
-    border-radius: 6px;
-    padding: 7px 4px;
-  }
-
-  .fair-odds-line {
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .fair-odds-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.05rem;
-    letter-spacing: 0.06em;
-    color: var(--blue);
-  }
-
-  .fair-odds-label {
-    font-size: 0.52rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 8px;
-    margin-bottom: 2px;
-  }
-
-  /* ── HR Picks ────────────────────────────────────────────────────── */
-  #picks-section { padding: 20px 20px 0; display: none; }
-
-  .picks-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    border-radius: 10px;
+    padding: 16px;
     margin-bottom: 12px;
   }
+  .card.over  { border-color: var(--red); }
+  .card.under { border-color: var(--blue); }
 
-  .picks-count {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-    color: var(--accent);
+  .card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px;
   }
-
-  .col-labels {
-    display: grid;
-    grid-template-columns: 1fr 72px 60px 60px;
-    gap: 4px;
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
+  .team-name { font-size: 20px; font-weight: 700; color: var(--text); }
+  .signal-badge {
+    font-size: 16px; font-weight: 800; letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 14px;
-    margin-bottom: 6px;
+  }
+  .signal-badge.under { color: var(--blue); }
+  .signal-badge.over  { color: var(--red); }
+  .sigma {
+    font-size: 11px; color: var(--blue); font-weight: 600;
+    font-family: 'SF Mono', monospace; text-align: right; margin-top: 2px;
+  }
+  .sigma.over { color: var(--red); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  .meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 12px;
+  }
+  .meta-item label {
+    display: block; font-size: 9px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 3px;
+  }
+  .meta-item span {
+    font-size: 13px; font-weight: 600; color: var(--text);
   }
 
-  .pick-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 7px;
-    animation: fadeIn 0.25s ease both;
+  /* ── Fair odds boxes ── */
+  .odds-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .odds-grid {
+    display: grid; gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  }
+  .odds-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 6px; text-align: center;
+  }
+  .odds-box .line {
+    font-size: 10px; color: var(--muted); margin-bottom: 3px;
+  }
+  .odds-box .odds-val {
+    font-size: 17px; font-weight: 800;
+    font-family: 'SF Mono', monospace; color: var(--text);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* ── Lineup confirmed ── */
+  .lineup-row {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 12px;
   }
-
-  .pick-main {
-    display: grid;
-    grid-template-columns: 1fr 72px 60px 60px;
-    gap: 4px;
-    align-items: center;
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot.green  { background: var(--green); }
+  .dot.yellow { background: var(--yellow); }
+  .lineup-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
   }
+  .lineup-label.green  { color: var(--green); }
+  .lineup-label.yellow { color: var(--yellow); }
 
-  .player-name {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  /* ── Combined cards ── */
+  .combined-teams {
+    font-size: 18px; font-weight: 700; color: var(--text);
   }
-
-  .combined { font-size: 0.82rem; color: var(--accent); text-align: right; }
-  .hr-odds  { font-size: 0.82rem; color: var(--green);  text-align: right; font-weight: 500; }
-  .tb-odds  { font-size: 0.78rem; color: var(--muted);  text-align: right; }
-
-  .pick-sub {
-    margin-top: 7px;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+  .combined-meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;
   }
-
-  .tag {
-    font-size: 0.6rem;
-    letter-spacing: 0.07em;
-    color: var(--muted);
-    background: var(--bg);
-    border: 1px solid var(--dim);
-    border-radius: 4px;
-    padding: 2px 6px;
+  .pitcher-block label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px;
   }
-
-  .tag.arch     { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
-  .tag.team     { color: var(--text);   border-color: color-mix(in srgb, var(--text) 20%, transparent); }
-  .tag.tt-under { color: var(--blue);   border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
-
-  #no-picks {
-    display: none;
-    text-align: center;
-    padding: 36px 20px;
-    color: var(--muted);
-    font-size: 0.78rem;
-    line-height: 1.8;
+  .pitcher-block span { font-size: 13px; font-weight: 600; }
+  .z-row {
+    display: flex; gap: 16px; margin-top: 8px;
   }
-
-  #error-box {
-    display: none;
-    margin: 14px 20px 0;
-    background: rgba(255,80,80,0.08);
-    border: 1px solid rgba(255,80,80,0.25);
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 0.72rem;
-    color: #ff8080;
-    line-height: 1.6;
+  .z-item label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px;
   }
+  .z-item span { font-size: 13px; font-weight: 600; font-family: 'SF Mono', monospace; }
 
-  .divider { height: 1px; background: var(--border); margin: 20px 20px 0; }
+  /* ── HR props ── */
+  .hr-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hr-left .player { font-size: 16px; font-weight: 700; }
+  .hr-left .hr-meta { font-size: 11px; color: var(--subtext); margin-top: 2px; }
+  .hr-right { text-align: right; }
+  .hr-right .odds-main { font-size: 20px; font-weight: 800; color: var(--yellow); }
+  .hr-right .odds-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  footer { margin-top: 32px; text-align: center; font-size: 0.62rem; color: var(--dim); letter-spacing: 0.1em; }
-  footer a { color: var(--muted); text-decoration: none; }
+  /* ── Game status bar ── */
+  .game-bar {
+    padding: 10px 16px; font-size: 11px; color: var(--muted);
+    display: flex; gap: 16px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .game-item .complete { color: var(--green); }
+  .game-item .pending  { color: var(--muted); }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">OZZIE'S PICKS</div>
-  <div class="date-badge" id="date-label">—</div>
-</header>
-
-<div class="run-wrap">
-  <button id="run-btn" onclick="runPicks()">
-    <div class="spinner" id="spinner"></div>
-    <span id="btn-label">GET TODAY'S PICKS</span>
-  </button>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">OZZIE</div>
+    <div class="date-badge" id="date-badge">—</div>
+  </div>
+  <button class="refresh-btn" onclick="load()">↻ Refresh</button>
 </div>
 
-<div id="status-bar"></div>
-<div id="error-box"></div>
-
-<!-- Today's Slate -->
-<div id="games-section">
-  <div class="section-label">Today's Slate</div>
-  <div class="games-row" id="games-row"></div>
-</div>
-
-<!-- F5 Team Total Flags -->
-<div id="heatmap-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="heatmap-count"></div>
-      <div class="section-label" style="margin:0">F5 Team Total Under</div>
-    </div>
-    <div id="heatmap-list"></div>
+<div id="app">
+  <div class="status">
+    <div class="spinner"></div>
+    Loading…
   </div>
 </div>
-
-<!-- F5 Combined Total Flags (Kalshi) -->
-<div id="f5combined-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="f5combined-count"></div>
-      <div class="section-label" style="margin:0">F5 Combined Total Under
-        <span style="font-size:0.55rem;letter-spacing:0.1em;color:var(--green);
-                     margin-left:8px;text-transform:uppercase">Kalshi</span>
-      </div>
-    </div>
-    <div id="f5combined-list"></div>
-  </div>
-</div>
-
-<!-- Full Game Team Total Flags -->
-<div id="fullgame-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="fullgame-count"></div>
-      <div class="section-label" style="margin:0">Full Game Team Total Under</div>
-    </div>
-    <div id="fullgame-list"></div>
-  </div>
-</div>
-
-<!-- Game Total Under Flags -->
-<div id="gametotal-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="gametotal-count"></div>
-      <div class="section-label" style="margin:0">Game Total Under</div>
-    </div>
-    <div id="gametotal-list"></div>
-  </div>
-</div>
-
-<!-- HR Picks (Watchlist) -->
-<div id="picks-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="picks-header">
-      <div class="picks-count" id="picks-count"></div>
-      <div class="section-label watchlist" style="margin:0">
-        HR Watchlist
-        <span class="watchlist-badge">Unconfirmed</span>
-      </div>
-    </div>
-    <div class="col-labels">
-      <div>Player</div>
-      <div style="text-align:right">Comb%</div>
-      <div style="text-align:right">HR</div>
-      <div style="text-align:right">3TB</div>
-    </div>
-    <div id="picks-list"></div>
-  </div>
-</div>
-
-<div id="no-picks">
-  No picks yet.<br>
-  Check back closer to game time.
-</div>
-
-<footer><a href="/logout">sign out</a></footer>
 
 <script>
-  document.getElementById('date-label').textContent =
-    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
-
-  // ── F5 flag card ──────────────────────────────────────────────────────────
-  function buildFlagCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'hm-card under';
-    card.style.animationDelay = `${i * 0.06}s`;
-
-    const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
-    const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
-    const lineupTag  = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.batting_team}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal under">UNDER</div>
-          <div class="hm-sigma under">${sigmaLabel}</div>
-        </div>
-      </div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div class="hm-stat">
-          <div class="hm-stat-label">vs Pitcher</div>
-          <div class="hm-stat-value">${f.pitcher_name}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Throws</div>
-          <div class="hm-stat-value">${handLabel}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Overlap Score</div>
-          <div class="hm-stat-value">${f.overlap_score}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Batters Scored</div>
-          <div class="hm-stat-value">${f.batters_scored} / 9</div>
-        </div>
-      </div>
-      ${lineupTag}`;
-    return card;
+async function load() {
+  const app = document.getElementById('app');
+  app.innerHTML = '<div class="status"><div class="spinner"></div>Loading…</div>';
+  try {
+    const r = await fetch('/api/picks');
+    const d = await r.json();
+    if (d.error) { app.innerHTML = `<div class="status">Error: ${d.error}</div>`; return; }
+    render(d);
+  } catch(e) {
+    app.innerHTML = `<div class="status">Failed to load: ${e.message}</div>`;
   }
+}
 
-  // ── Full game flag card (with fair odds) ──────────────────────────────────
-  function buildFgCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'hm-card under';
-    card.style.animationDelay = `${i * 0.06}s`;
+function fmt(val) {
+  if (!val || val === 'N/A') return '—';
+  return val;
+}
 
-    const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
-    const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
-    const lineupTag  = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-    const avgIp      = f.avg_ip ? `${f.avg_ip} IP avg` : '—';
+function sigmaClass(z, signal) {
+  return signal === 'over' ? 'over' : 'under';
+}
 
-    // Fair odds + Kalshi live price
-    let fairOddsHtml = '';
-    if (f.fair_odds) {
-      const fo   = f.fair_odds;
-      const keys = Object.keys(fo).sort((a,b) => parseFloat(a)-parseFloat(b));
-      const cells = keys.map(line => `
-        <div class="fair-odds-cell">
-          <div class="fair-odds-line">${line} runs</div>
-          <div class="fair-odds-val">${fo[line] || '—'}</div>
-        </div>`).join('');
-      const kalshiRow = (f.kalshi_line && f.kalshi_under) ? `
-        <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
-                    border:1px solid rgba(79,255,176,0.2);border-radius:6px;
-                    display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
-                       color:var(--green)">Kalshi U${f.kalshi_line}</span>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
-                       letter-spacing:0.06em;color:var(--green)">${f.kalshi_under}</span>
-        </div>` : '';
-      fairOddsHtml = `
-        <div class="fair-odds-label">Fair Odds (Under)</div>
-        <div class="fair-odds-row">${cells}</div>
-        ${kalshiRow}`;
-    }
+function lineupStatus(complete) {
+  return complete
+    ? `<div class="lineup-row"><div class="dot green"></div><div class="lineup-label green">Lineup Confirmed</div></div>`
+    : `<div class="lineup-row"><div class="dot yellow"></div><div class="lineup-label yellow">Lineup Pending</div></div>`;
+}
 
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.batting_team}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal under">UNDER</div>
-          <div class="hm-sigma under">${sigmaLabel}</div>
+function oddsGrid(fair_odds) {
+  if (!fair_odds || !Object.keys(fair_odds).length) return '';
+  const boxes = Object.entries(fair_odds).map(([line, odds]) => `
+    <div class="odds-box">
+      <div class="line">${line} runs</div>
+      <div class="odds-val">${fmt(odds)}</div>
+    </div>`).join('');
+  return `
+    <div class="odds-label">Fair Odds (Under)</div>
+    <div class="odds-grid">${boxes}</div>`;
+}
+
+function renderF5Single(flags) {
+  if (!flags.length) return '<div class="empty-section">No flags today</div>';
+  return flags.map(f => `
+    <div class="card ${f.signal}">
+      <div class="card-top">
+        <div class="team-name">${f.batting_team}</div>
+        <div>
+          <div class="signal-badge ${f.signal}">${f.signal.toUpperCase()}</div>
+          <div class="sigma ${sigmaClass(f.std_from_mean, f.signal)}">${f.std_from_mean}σ from mean</div>
         </div>
       </div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div class="hm-stat">
-          <div class="hm-stat-label">vs Pitcher</div>
-          <div class="hm-stat-value">${f.pitcher_name}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Throws</div>
-          <div class="hm-stat-value">${handLabel}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Overlap Score</div>
-          <div class="hm-stat-value">${f.overlap_score}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Starter Avg IP</div>
-          <div class="hm-stat-value">${avgIp}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Batters Scored</div>
-          <div class="hm-stat-value">${f.batters_scored} / 9</div>
+      <hr class="divider">
+      <div class="meta-grid">
+        <div class="meta-item"><label>vs Pitcher</label><span>${f.pitcher_name}</span></div>
+        <div class="meta-item"><label>Throws</label><span>${f.pitcher_hand}HP</span></div>
+        <div class="meta-item"><label>Overlap Score</label><span>${f.overlap_score}</span></div>
+        <div class="meta-item"><label>Starter Avg IP</label><span>—</span></div>
+        <div class="meta-item"><label>Batters Scored</label><span>${f.batters_scored} / 9</span></div>
+      </div>
+      ${oddsGrid(f.fair_odds)}
+      ${lineupStatus(f.lineup_complete)}
+    </div>`).join('');
+}
+
+function renderF5Combined(flags) {
+  if (!flags.length) return '<div class="empty-section">No combined flags today</div>';
+  return flags.map(f => `
+    <div class="card under">
+      <div class="card-top">
+        <div class="combined-teams">${f.team_1} + ${f.team_2}</div>
+        <div>
+          <div class="signal-badge under">UNDER</div>
+          <div class="sigma under">Σz = ${f.combined_z}</div>
         </div>
       </div>
-      ${fairOddsHtml}
-      ${lineupTag}`;
-    return card;
-  }
+      <hr class="divider">
+      <div class="combined-meta">
+        <div class="pitcher-block"><label>${f.team_1} Starter</label><span>${f.pitcher_1}</span></div>
+        <div class="pitcher-block"><label>${f.team_2} Starter</label><span>${f.pitcher_2}</span></div>
+      </div>
+      <div class="z-row">
+        <div class="z-item"><label>${f.team_1} z</label><span>${f.z_team_1}σ</span></div>
+        <div class="z-item"><label>${f.team_2} z</label><span>${f.z_team_2}σ</span></div>
+        <div class="z-item"><label>Avg Score</label><span>${f.avg_score}</span></div>
+      </div>
+      <hr class="divider">
+      ${oddsGrid(f.fair_odds)}
+      ${lineupStatus(f.lineup_complete)}
+    </div>`).join('');
+}
 
-  // ── Game total card ───────────────────────────────────────────────────────
-  function buildGtCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'hm-card under';
-    card.style.animationDelay = `${i * 0.06}s`;
-
-    const lineupTag = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
-
-    const ipA = f.avg_ip_a ? `${f.avg_ip_a} IP` : '—';
-    const ipB = f.avg_ip_b ? `${f.avg_ip_b} IP` : '—';
-
-    // Fair odds row — uses market-appropriate lines
-    let fairOddsHtml = '';
-    if (f.fair_odds) {
-      const fo   = f.fair_odds;
-      const keys = Object.keys(fo).sort((a,b) => parseFloat(a)-parseFloat(b));
-      const cells = keys.map(line => `
-        <div class="fair-odds-cell">
-          <div class="fair-odds-line">${line} runs</div>
-          <div class="fair-odds-val">${fo[line] || '—'}</div>
-        </div>`).join('');
-      const kalshiRow = (f.kalshi_line && f.kalshi_under) ? `
-        <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
-                    border:1px solid rgba(79,255,176,0.2);border-radius:6px;
-                    display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
-                       color:var(--green)">Kalshi U${f.kalshi_line}</span>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
-                       letter-spacing:0.06em;color:var(--green)">${f.kalshi_under}</span>
-        </div>` : '';
-      fairOddsHtml = `
-        <div class="fair-odds-label">Fair Odds (Under)</div>
-        <div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">
-          ${cells}
-        </div>
-        ${kalshiRow}`;
-    }
-
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.team_a} @ ${f.team_b}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal under">UNDER</div>
-          <div class="hm-sigma under">${f.combined_z}σ combined</div>
+function renderFGSingle(flags) {
+  if (!flags.length) return '<div class="empty-section">Full game model coming soon</div>';
+  return flags.map(f => `
+    <div class="card ${f.signal}">
+      <div class="card-top">
+        <div class="team-name">${f.batting_team}</div>
+        <div>
+          <div class="signal-badge ${f.signal}">${f.signal.toUpperCase()}</div>
+          <div class="sigma ${sigmaClass(f.std_from_mean, f.signal)}">${f.std_from_mean}σ from mean</div>
         </div>
       </div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div class="hm-stat">
-          <div class="hm-stat-label">${f.team_a} vs</div>
-          <div class="hm-stat-value">${f.pitcher_b} ${f.pitcher_b_hand === 'L' ? 'LHP' : 'RHP'}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Score / σ</div>
-          <div class="hm-stat-value">${f.score_a} (${f.z_a}σ)</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Starter Avg IP</div>
-          <div class="hm-stat-value">${ipB}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">${f.team_b} vs</div>
-          <div class="hm-stat-value">${f.pitcher_a} ${f.pitcher_a_hand === 'L' ? 'LHP' : 'RHP'}</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Score / σ</div>
-          <div class="hm-stat-value">${f.score_b} (${f.z_b}σ)</div>
-        </div>
-        <div class="hm-stat">
-          <div class="hm-stat-label">Starter Avg IP</div>
-          <div class="hm-stat-value">${ipA}</div>
-        </div>
+      <hr class="divider">
+      <div class="meta-grid">
+        <div class="meta-item"><label>vs Pitcher</label><span>${f.pitcher_name}</span></div>
+        <div class="meta-item"><label>Throws</label><span>${f.pitcher_hand}HP</span></div>
+        <div class="meta-item"><label>Overlap Score</label><span>${f.overlap_score}</span></div>
+        <div class="meta-item"><label>Batters Scored</label><span>${f.batters_scored} / 9</span></div>
       </div>
-      ${fairOddsHtml}
-      ${lineupTag}`;
-    return card;
-  }
+      ${oddsGrid(f.fair_odds)}
+      ${lineupStatus(f.lineup_complete)}
+    </div>`).join('');
+}
 
-  function runPicks() {
-    const btn     = document.getElementById('run-btn');
-    const spinner = document.getElementById('spinner');
-    const label   = document.getElementById('btn-label');
-    const status  = document.getElementById('status-bar');
-    const errBox  = document.getElementById('error-box');
+function renderFGCombined(flags) {
+  if (!flags.length) return '<div class="empty-section">Full game combined model coming soon</div>';
+  return renderF5Combined(flags); // same structure, different odds lines
+}
 
-    btn.disabled          = true;
-    spinner.style.display = 'block';
-    label.textContent     = 'LOADING…';
-    status.textContent    = 'Fetching lineups and model data…';
-    errBox.style.display  = 'none';
+function renderHR(picks) {
+  if (!picks.length) return '<div class="empty-section">No HR flags today</div>';
+  return picks.map(p => `
+    <div class="hr-card">
+      <div class="hr-left">
+        <div class="player">${p.player_name}</div>
+        <div class="hr-meta">${p.batting_team} · vs ${p.pitcher_name} · ${p.arch_name}</div>
+      </div>
+      <div class="hr-right">
+        <div class="odds-main">${fmt(p.hr_fair)}</div>
+        <div class="odds-sub">TB3+ ${fmt(p.tb3_fair)}</div>
+      </div>
+    </div>`).join('');
+}
 
-    document.getElementById('games-section').style.display     = 'none';
-    document.getElementById('heatmap-section').style.display   = 'none';
-    document.getElementById('f5combined-section').style.display = 'none';
-    document.getElementById('fullgame-section').style.display  = 'none';
-    document.getElementById('gametotal-section').style.display = 'none';
-    document.getElementById('picks-section').style.display     = 'none';
-    document.getElementById('no-picks').style.display          = 'none';
+function render(d) {
+  document.getElementById('date-badge').textContent = d.date || '—';
 
-    fetch('/api/picks')
-      .then(r => r.json())
-      .then(data => {
-        btn.disabled          = false;
-        spinner.style.display = 'none';
-        label.textContent     = 'REFRESH PICKS';
-        status.textContent    = `${data.complete}/${data.total} games with complete lineups`;
+  const gameBar = (d.games || []).map(g =>
+    `<span class="game-item">
+      <span class="${g.complete ? 'complete' : 'pending'}">${g.away}@${g.home}</span>
+    </span>`).join('');
 
-        // ── Today's Slate ──────────────────────────────────────────────
-        const row = document.getElementById('games-row');
-        row.innerHTML = '';
-        (data.games || []).forEach(g => {
-          const chip = document.createElement('div');
-          chip.className = 'game-chip';
-          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
-          row.appendChild(chip);
-        });
-        document.getElementById('games-section').style.display = 'block';
+  const html = `
+    <div class="game-bar">${gameBar || '<span>No games found</span>'}</div>
 
-        // ── F5 Team Total Under ────────────────────────────────────────
-        const hmList  = document.getElementById('heatmap-list');
-        hmList.innerHTML  = '';
-        const f5Flags = data.heatmap_flags || [];
-        const underTeams  = new Set();
+    <div class="section">
+      <div class="section-header">
+        <span class="flag-count">${(d.f5_combined||[]).length}</span>
+        <span class="section-title">Combined F5</span>
+        <span class="section-market">F5 Game Total Under</span>
+      </div>
+      ${renderF5Combined(d.f5_combined || [])}
+    </div>
 
-        if (f5Flags.length > 0) {
-          document.getElementById('heatmap-count').textContent =
-            `${f5Flags.length} Flag${f5Flags.length !== 1 ? 's' : ''}`;
-          f5Flags.forEach((f, i) => {
-            if (f.signal === 'under') underTeams.add(f.batting_team);
-            hmList.appendChild(buildFgCard(f, i));
-          });
-          document.getElementById('heatmap-section').style.display = 'block';
-        }
+    <div class="section">
+      <div class="section-header">
+        <span class="flag-count">${(d.f5_single||[]).length}</span>
+        <span class="section-title">Single Team F5</span>
+        <span class="section-market">F5 Team Total Under</span>
+      </div>
+      ${renderF5Single(d.f5_single || [])}
+    </div>
 
-        // ── F5 Combined Total Under (Kalshi) ──────────────────────────
-        const f5cList  = document.getElementById('f5combined-list');
-        f5cList.innerHTML  = '';
-        const f5cFlags = data.f5combined_flags || [];
+    <div class="section">
+      <div class="section-header">
+        <span class="flag-count">${(d.fg_combined||[]).length}</span>
+        <span class="section-title">Combined Full Game</span>
+        <span class="section-market">Game Total Under</span>
+      </div>
+      ${renderFGCombined(d.fg_combined || [])}
+    </div>
 
-        if (f5cFlags.length > 0) {
-          document.getElementById('f5combined-count').textContent =
-            `${f5cFlags.length} Flag${f5cFlags.length !== 1 ? 's' : ''}`;
-          f5cFlags.forEach((f, i) => {
-            f5cList.appendChild(buildGtCard(f, i));
-          });
-          document.getElementById('f5combined-section').style.display = 'block';
-        }
+    <div class="section">
+      <div class="section-header">
+        <span class="flag-count">${(d.fg_single||[]).length}</span>
+        <span class="section-title">Single Team Full Game</span>
+        <span class="section-market">Full Game Team Total Under</span>
+      </div>
+      ${renderFGSingle(d.fg_single || [])}
+    </div>
 
-        // ── Full Game Team Total Under ─────────────────────────────────
-        const fgList  = document.getElementById('fullgame-list');
-        fgList.innerHTML  = '';
-        const fgFlags = data.fullgame_flags || [];
+    <div class="section">
+      <div class="section-header">
+        <span class="flag-count">${(d.hr_picks||[]).length}</span>
+        <span class="section-title">HR Props</span>
+        <span class="section-market">Home Run</span>
+      </div>
+      ${renderHR(d.hr_picks || [])}
+    </div>`;
 
-        if (fgFlags.length > 0) {
-          document.getElementById('fullgame-count').textContent =
-            `${fgFlags.length} Flag${fgFlags.length !== 1 ? 's' : ''}`;
-          fgFlags.forEach((f, i) => {
-            fgList.appendChild(buildFgCard(f, i));
-          });
-          document.getElementById('fullgame-section').style.display = 'block';
-        }
+  document.getElementById('app').innerHTML = html;
+}
 
-        // ── Game Total Under ───────────────────────────────────────────
-        const gtList  = document.getElementById('gametotal-list');
-        gtList.innerHTML  = '';
-        const gtFlags = data.gametotal_flags || [];
-
-        if (gtFlags.length > 0) {
-          document.getElementById('gametotal-count').textContent =
-            `${gtFlags.length} Flag${gtFlags.length !== 1 ? 's' : ''}`;
-          gtFlags.forEach((f, i) => {
-            gtList.appendChild(buildGtCard(f, i));
-          });
-          document.getElementById('gametotal-section').style.display = 'block';
-        }
-
-        // ── HR Watchlist ───────────────────────────────────────────────
-        const picks = data.picks || [];
-        if (picks.length === 0) {
-          document.getElementById('no-picks').style.display = 'block';
-          return;
-        }
-
-        document.getElementById('picks-count').textContent =
-          `${picks.length} HR Pick${picks.length !== 1 ? 's' : ''}`;
-        const list = document.getElementById('picks-list');
-        list.innerHTML = '';
-
-        picks.forEach((p, i) => {
-          const card = document.createElement('div');
-          card.className = 'pick-card';
-          card.style.animationDelay = `${i * 0.04}s`;
-
-          const hrClass = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
-          const tbClass = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
-
-          let teamTagClass = 'tag team';
-          let teamTagExtra = '';
-          if (underTeams.has(p.batting_team)) {
-            teamTagClass = 'tag tt-under';
-            teamTagExtra = ' ▼';
-          }
-
-          card.innerHTML = `
-            <div class="pick-main">
-              <div class="player-name">${p.player_name}</div>
-              <div class="combined">${p.combined}%</div>
-              <div class="${hrClass}">${p.hr_fair}</div>
-              <div class="${tbClass}">${p.tb3_fair}</div>
-            </div>
-            <div class="pick-sub">
-              <span class="${teamTagClass}">${p.batting_team}${teamTagExtra}</span>
-              <span class="tag">vs ${p.pitcher_name}</span>
-              <span class="tag arch">${p.arch_name}</span>
-            </div>`;
-          list.appendChild(card);
-        });
-
-        document.getElementById('picks-section').style.display = 'block';
-      })
-      .catch(err => {
-        btn.disabled          = false;
-        spinner.style.display = 'none';
-        label.textContent     = 'GET TODAY\'S PICKS';
-        status.textContent    = '';
-        errBox.style.display  = 'block';
-        errBox.textContent    = 'Error: ' + err.message;
-      });
-  }
+load();
 </script>
 </body>
 </html>
