@@ -23,6 +23,7 @@ FILE_IDS = {
     # ── Heat map models ──────────────────────────────────────────────────
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
+    'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
 }
 
 LEAGUE_AVG      = 3.88
