@@ -1,10 +1,11 @@
 import os
+import csv
 import math
 import pickle
 import requests
 import pandas as pd
 import pytz
-from datetime import datetime
+from datetime import datetime, date as _date
 from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
@@ -36,7 +37,7 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# Heat map thresholds (validated on full MLB 2025, out-of-sample)
+# F5 heat map thresholds (validated on full MLB 2025, out-of-sample)
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD
@@ -51,9 +52,138 @@ F5_FAIR_ODDS = {
     'Very Safe':   +191,
 }
 
+# ── FG Team Total Under — three-leg signal constants (validated May 2026) ─────
+# Filter: blend_70_30 z ≤ -1.0 AND opp_bp_weak_z 0.5→1.0 AND off_z ≥ 0.0
+# Valid window: June 1 – July 15 ONLY (signal degrades after All-Star break)
+# Validated: n=14, 78.6% hit rate, +0.438 ROI vs Pinnacle (Jun-Sep 2025)
+# Static Apr-May profiles only — do NOT update mid-season
+FG_BLEND_MEAN        = 0.9984   # 2025 validated distribution mean
+FG_BLEND_STD         = 0.0353   # 2025 validated distribution std
+FG_STARTER_Z_THRESH  = -1.0     # blend_70_30 z-score threshold
+FG_BP_BAND_LOW       =  0.5     # opposing BP weakness band — floor
+FG_BP_BAND_HIGH      =  1.0     # opposing BP weakness band — ceiling (hard cap)
+FG_OFF_Z_THRESH      =  0.0     # batting team offense z-score minimum
+FG_VALID_START_MONTH =  6       # June
+FG_VALID_START_DAY   =  1
+FG_VALID_END_MONTH   =  7
+FG_VALID_END_DAY     = 15
+
 _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
+
+# ── FG profile cache (loaded once at startup) ─────────────────────────────────
+_FG_OFF_Z     = {}
+_FG_BP_WEAK_Z = {}
+_FG_PROFILES_LOADED = False
+
+
+def load_fg_profiles():
+    """
+    Load static Apr-May offense and bullpen profiles from CSV.
+    Tries current year first, falls back to prior year.
+    Populates module-level _FG_OFF_Z and _FG_BP_WEAK_Z dicts.
+    Files must be in same directory as app.py.
+    """
+    global _FG_OFF_Z, _FG_BP_WEAK_Z, _FG_PROFILES_LOADED
+    if _FG_PROFILES_LOADED:
+        return
+
+    base = os.path.dirname(os.path.abspath(__file__))
+    year = datetime.now().year
+
+    for y in [year, year - 1]:
+        off_path = os.path.join(base, f"team_offense_baseline_{y}.csv")
+        bp_path  = os.path.join(base, f"bullpen_profile_{y}.csv")
+        if os.path.exists(off_path) and os.path.exists(bp_path):
+            try:
+                with open(off_path) as f:
+                    for row in csv.DictReader(f):
+                        _FG_OFF_Z[row['team']] = float(row['off_z'])
+                with open(bp_path) as f:
+                    for row in csv.DictReader(f):
+                        _FG_BP_WEAK_Z[row['team']] = float(row['bp_weak_z'])
+                _FG_PROFILES_LOADED = True
+                print(f"FG profiles loaded: {y} ({len(_FG_OFF_Z)} teams)")
+                return
+            except Exception as e:
+                print(f"Warning: FG profile load failed for {y}: {e}")
+
+    print("Warning: FG profiles not found — FG three-leg signal disabled")
+
+
+def is_fg_valid_window():
+    """Returns True if today is within the June 1 – July 15 valid window."""
+    today = _date.today()
+    start = _date(today.year, FG_VALID_START_MONTH, FG_VALID_START_DAY)
+    end   = _date(today.year, FG_VALID_END_MONTH,   FG_VALID_END_DAY)
+    return start <= today <= end
+
+
+def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
+    """
+    Evaluate the three-leg FG team total under signal for one matchup.
+
+    Parameters:
+        batting_team      — short code e.g. 'LAD'
+        opp_team          — short code e.g. 'SF' (the team pitching in innings 6-9)
+        blend_70_30_score — raw blend_70_30 overlap score (NOT z-scored yet)
+
+    Returns dict with:
+        fg_under_signal   — True if all three legs pass
+        starter_z         — z-scored blend_70_30
+        opp_bp_weak_z     — opposing bullpen weakness z (from Apr-May profile)
+        off_z             — batting team offense z (from Apr-May profile)
+        bp_in_band        — True if opp_bp_weak_z is in [0.5, 1.0]
+        in_valid_window   — True if today is June 1 – July 15
+        reason            — human-readable explanation
+    """
+    in_window = is_fg_valid_window()
+
+    # Z-score the blend score using 2025 validated params
+    starter_z = round((blend_70_30_score - FG_BLEND_MEAN) / FG_BLEND_STD, 3)
+
+    off_z         = _FG_OFF_Z.get(batting_team)
+    opp_bp_weak_z = _FG_BP_WEAK_Z.get(opp_team)
+
+    if off_z is None or opp_bp_weak_z is None:
+        return {
+            'fg_under_signal': False,
+            'starter_z':       starter_z,
+            'opp_bp_weak_z':   opp_bp_weak_z,
+            'off_z':           off_z,
+            'bp_in_band':      False,
+            'in_valid_window': in_window,
+            'reason':          'missing_profile_data',
+        }
+
+    starter_flag = starter_z <= FG_STARTER_Z_THRESH
+    bp_band_flag = FG_BP_BAND_LOW <= opp_bp_weak_z <= FG_BP_BAND_HIGH
+    offense_flag = off_z >= FG_OFF_Z_THRESH
+    signal       = in_window and starter_flag and bp_band_flag and offense_flag
+
+    if signal:
+        reason = 'all_conditions_met'
+    elif not in_window:
+        reason = 'outside_valid_window'
+    elif not starter_flag:
+        reason = f'starter_not_suppressed (z={starter_z:.2f}, need ≤{FG_STARTER_Z_THRESH})'
+    elif not bp_band_flag:
+        reason = (f'bp_outside_band (z={opp_bp_weak_z:.2f}, '
+                  f'need {FG_BP_BAND_LOW}–{FG_BP_BAND_HIGH})')
+    else:
+        reason = f'offense_below_avg (off_z={off_z:.2f}, need ≥{FG_OFF_Z_THRESH})'
+
+    return {
+        'fg_under_signal': signal,
+        'starter_z':       starter_z,
+        'opp_bp_weak_z':   round(opp_bp_weak_z, 3),
+        'off_z':           round(off_z, 3),
+        'bp_in_band':      bp_band_flag,
+        'in_valid_window': in_window,
+        'reason':          reason,
+    }
+
 
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -64,6 +194,7 @@ def download_pkl(file_id):
         obj = pickle.load(f)
     os.unlink(tmp_path)
     return obj
+
 
 def load_model():
     global _model_cache, _model_cache_time
@@ -82,6 +213,7 @@ def load_model():
     _model_cache      = model
     _model_cache_time = now
     return model
+
 
 def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
     if pitcher_id not in pitcher_scores:
@@ -103,6 +235,7 @@ def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
     else:
         category = 'Very Safe'
     return round(avg, 2), category
+
 
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
@@ -149,6 +282,7 @@ def get_lineups_and_starters(game_date):
             })
     return games
 
+
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
@@ -157,14 +291,17 @@ def pa_rate_to_game_odds(pa_rate_pct):
     fair = round((1 / game_prob - 1) * 100)
     return f'+{fair}' if fair > 0 else str(fair)
 
+
 def format_odds(n):
     return f'+{n}' if n > 0 else str(n)
+
 
 def get_bullpen_score(team, arch_key, model):
     bs = model.get('team_bullpen_scores', {})
     if team in bs and arch_key in bs[team]:
         return bs[team][arch_key].get('shrunk_rate', LEAGUE_AVG)
     return LEAGUE_AVG
+
 
 def get_park_factor(fielding_team, batter_hand, model):
     all_parks = model.get('all_parks', {})
@@ -259,17 +396,7 @@ def get_f5_fair_odds(expected_runs):
     """
     Given expected F5 runs (NegBin point estimate), use Poisson CDF to
     compute fair implied odds for under 1.5 and under 2.5 F5 team totals.
-
     Returns dict of fair American odds (no vig) for both lines.
-    Compare to actual posted lines — edge exists where posted > fair.
-
-    Example:
-      expected_runs = 1.87
-      fair_under_1_5 = +122  (model says 44.8% chance)
-      fair_under_2_5 = -238  (model says 70.4% chance)
-
-      If book is offering under 1.5 at +110 → no value (book is stingier than fair)
-      If book is offering under 1.5 at +130 → value (book is more generous than fair)
     """
     if expected_runs is None:
         return {
@@ -280,9 +407,8 @@ def get_f5_fair_odds(expected_runs):
         }
 
     lam = expected_runs
-
-    p_under_1_5 = poisson_cdf(1, lam)   # P(runs in {0, 1})
-    p_under_2_5 = poisson_cdf(2, lam)   # P(runs in {0, 1, 2})
+    p_under_1_5 = poisson_cdf(1, lam)
+    p_under_2_5 = poisson_cdf(2, lam)
 
     return {
         'fair_under_1_5': prob_to_american(p_under_1_5),
@@ -337,22 +463,20 @@ def get_heatmap_flags(games, model):
     For each game with a confirmed lineup, compute team overlap scores
     and flag games exceeding validated thresholds.
 
-    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std)
-    Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std)
+    F5 signal:
+      Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std)
+      Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std)
 
-    Each flag includes:
-      expected_f5_runs  — NegBin point estimate (bias-corrected)
-      fair_under_1_5    — fair American odds for F5 team total under 1.5
-      fair_over_1_5     — fair American odds for F5 team total over 1.5
-      fair_under_2_5    — fair American odds for F5 team total under 2.5
-      fair_over_2_5     — fair American odds for F5 team total over 2.5
+    FG three-leg under signal (June 1 – July 15 only):
+      blend_70_30 z ≤ -1.0
+      opp_bp_weak_z: 0.5 → 1.0 (band)
+      off_z ≥ 0.0
 
-    To find value: compare fair_under_X_5 to actual posted line.
-    Posted line more generous than fair = value.
-    e.g. fair_under_1_5 = +122, book offers +130 = +8 cents of edge.
+    Each flag includes NegBin expected F5 runs, fair odds, and FG signal.
     """
     pitcher_scores = model.get('all_pitcher_arch_scores', {})
     nb_bundle      = model.get('negbin_model_params')
+    fg_in_window   = is_fg_valid_window()
     flags          = []
 
     for game in games:
@@ -401,12 +525,24 @@ def get_heatmap_flags(games, model):
             )
             fair_odds = get_f5_fair_odds(expected_f5)
 
+            # FG three-leg under signal
+            fg_flag = compute_fg_under_flag(
+                batting_team      = batting_team,
+                opp_team          = fielding_team,
+                blend_70_30_score = team_score,
+            )
+
             if team_score >= HEATMAP_OVER_THRESHOLD:
                 signal = 'over'
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                continue
+                # Not an F5 flag — but still compute FG signal for display
+                # Only include in output if FG signal fires
+                if fg_flag['fg_under_signal']:
+                    signal = 'fg_under_only'
+                else:
+                    continue
 
             flags.append({
                 'game':             game_str,
@@ -425,6 +561,14 @@ def get_heatmap_flags(games, model):
                 'fair_over_1_5':    fair_odds['fair_over_1_5'],
                 'fair_under_2_5':   fair_odds['fair_under_2_5'],
                 'fair_over_2_5':    fair_odds['fair_over_2_5'],
+                # FG three-leg under signal
+                'fg_under_signal':  fg_flag['fg_under_signal'],
+                'fg_starter_z':     fg_flag['starter_z'],
+                'fg_opp_bp_weak_z': fg_flag['opp_bp_weak_z'],
+                'fg_off_z':         fg_flag['off_z'],
+                'fg_bp_in_band':    fg_flag['bp_in_band'],
+                'fg_in_window':     fg_flag['in_valid_window'],
+                'fg_reason':        fg_flag['reason'],
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
@@ -537,16 +681,25 @@ def api_picks():
 
         heatmap_flags = get_heatmap_flags(games, model)
 
+        # Separate FG signals for UI — flags where FG under fired
+        fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
+
         return jsonify({
-            'date':          today,
-            'complete':      complete,
-            'total':         len(games),
-            'picks':         picks,
-            'heatmap_flags': heatmap_flags,
-            'games':         games_out,
+            'date':            today,
+            'complete':        complete,
+            'total':           len(games),
+            'picks':           picks,
+            'heatmap_flags':   heatmap_flags,
+            'fg_under_flags':  fg_under_flags,
+            'fg_in_window':    is_fg_valid_window(),
+            'games':           games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Load FG profiles at startup
+load_fg_profiles()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
