@@ -2,6 +2,8 @@ import os
 import csv
 import math
 import pickle
+import hashlib
+import json
 import requests
 import pandas as pd
 import pytz
@@ -57,13 +59,13 @@ F5_FAIR_ODDS = {
 # Valid window: June 1 – July 15 ONLY (signal degrades after All-Star break)
 # Validated: n=14, 78.6% hit rate, +0.438 ROI vs Pinnacle (Jun-Sep 2025)
 # Static Apr-May profiles only — do NOT update mid-season
-FG_BLEND_MEAN        = 0.9984   # 2025 validated distribution mean
-FG_BLEND_STD         = 0.0353   # 2025 validated distribution std
-FG_STARTER_Z_THRESH  = -1.0     # blend_70_30 z-score threshold
-FG_BP_BAND_LOW       =  0.5     # opposing BP weakness band — floor
-FG_BP_BAND_HIGH      =  1.0     # opposing BP weakness band — ceiling (hard cap)
-FG_OFF_Z_THRESH      =  0.0     # batting team offense z-score minimum
-FG_VALID_START_MONTH =  6       # June
+FG_BLEND_MEAN        = 0.9984
+FG_BLEND_STD         = 0.0353
+FG_STARTER_Z_THRESH  = -1.0
+FG_BP_BAND_LOW       =  0.5
+FG_BP_BAND_HIGH      =  1.0
+FG_OFF_Z_THRESH      =  0.0
+FG_VALID_START_MONTH =  6
 FG_VALID_START_DAY   =  1
 FG_VALID_END_MONTH   =  7
 FG_VALID_END_DAY     = 15
@@ -73,10 +75,125 @@ _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
 
 # ── FG profile cache (loaded once at startup) ─────────────────────────────────
-_FG_OFF_Z     = {}
-_FG_BP_WEAK_Z = {}
+_FG_OFF_Z           = {}
+_FG_BP_WEAK_Z       = {}
 _FG_PROFILES_LOADED = False
 
+# ── Telegram + Upstash config ─────────────────────────────────────────────────
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+TELEGRAM_CHAT_ID   = os.environ.get('TELEGRAM_CHAT_ID')
+NOTIFY_SECRET      = os.environ.get('NOTIFY_SECRET', 'ozzie-notify-secret')
+UPSTASH_URL        = os.environ.get('UPSTASH_REDIS_REST_URL')
+UPSTASH_TOKEN      = os.environ.get('UPSTASH_REDIS_REST_TOKEN')
+PICKS_HASH_KEY     = 'ozzie:picks_hash'
+
+
+# ── Upstash Redis helpers ─────────────────────────────────────────────────────
+
+def redis_get(key):
+    """Read a value from Upstash. Returns None if missing or on error."""
+    if not UPSTASH_URL or not UPSTASH_TOKEN:
+        return None
+    try:
+        r = requests.get(
+            f"{UPSTASH_URL}/get/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
+            timeout=5
+        )
+        return r.json().get('result')
+    except Exception:
+        return None
+
+
+def redis_set(key, value):
+    """Write a value to Upstash. Silently fails if misconfigured."""
+    if not UPSTASH_URL or not UPSTASH_TOKEN:
+        return
+    try:
+        requests.post(
+            f"{UPSTASH_URL}/set/{key}/{value}",
+            headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
+            timeout=5
+        )
+    except Exception:
+        pass
+
+
+# ── Telegram helpers ──────────────────────────────────────────────────────────
+
+def send_telegram(message: str):
+    """Send a Telegram message. Returns (ok: bool, detail: str)."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return False, 'Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID env vars'
+    try:
+        url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        resp = requests.post(url, json={
+            'chat_id':    TELEGRAM_CHAT_ID,
+            'text':       message,
+            'parse_mode': 'HTML',
+        }, timeout=10)
+        return resp.ok, resp.text
+    except Exception as e:
+        return False, str(e)
+
+
+def picks_hash(picks, heatmap_flags):
+    """
+    Stable fingerprint of current picks + flags.
+    Changes only when picks or heatmap flags actually change.
+    """
+    key = json.dumps({
+        'picks':   sorted([(p['player_id'], p['pitcher_id'], p['combined']) for p in picks]),
+        'heatmap': sorted([(f['batting_team'], f['pitcher_id'], f['signal']) for f in heatmap_flags]),
+    }, sort_keys=True)
+    return hashlib.md5(key.encode()).hexdigest()
+
+
+def format_telegram_message(picks, heatmap_flags, date):
+    lines = [f"<b>🤖 Ozzie Update — {date}</b>\n"]
+
+    # FG under flags (highest priority)
+    fg_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
+    if fg_flags:
+        lines.append("<b>🎯 FG Three-Leg Under Signal</b>")
+        for f in fg_flags[:3]:
+            lines.append(
+                f"⬇️ <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                f"| starter_z: {f['fg_starter_z']:.2f} "
+                f"| bp_z: {f['fg_opp_bp_weak_z']:.2f} "
+                f"| off_z: {f['fg_off_z']:.2f}"
+            )
+        lines.append("")
+
+    # F5 heatmap flags
+    f5_flags = [f for f in heatmap_flags if f['signal'] in ('over', 'under')]
+    if f5_flags:
+        lines.append("<b>🔥 Heatmap Flags (F5)</b>")
+        for f in f5_flags[:5]:
+            arrow = "⬆️" if f['signal'] == 'over' else "⬇️"
+            exp   = f" | xRuns: {f['expected_f5_runs']}" if f.get('expected_f5_runs') else ""
+            lines.append(
+                f"{arrow} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                f"| {f['overlap_score']:.4f} ({f['std_from_mean']:+.2f}σ){exp}"
+            )
+        lines.append("")
+
+    # HR picks
+    if picks:
+        lines.append("<b>💣 HR Picks</b>")
+        for p in picks[:8]:
+            lines.append(
+                f"• <b>{p['player_name']}</b> vs {p['pitcher_name']} "
+                f"| Fair: {p['hr_fair']} | Score: {p['combined']}"
+            )
+
+    if not picks and not heatmap_flags:
+        lines.append("No picks yet — lineups likely not posted.")
+
+    return "\n".join(lines)
+
+
+# ── FG profile loading ────────────────────────────────────────────────────────
 
 def load_fg_profiles():
     """
@@ -123,24 +240,8 @@ def is_fg_valid_window():
 def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
     """
     Evaluate the three-leg FG team total under signal for one matchup.
-
-    Parameters:
-        batting_team      — short code e.g. 'LAD'
-        opp_team          — short code e.g. 'SF' (the team pitching in innings 6-9)
-        blend_70_30_score — raw blend_70_30 overlap score (NOT z-scored yet)
-
-    Returns dict with:
-        fg_under_signal   — True if all three legs pass
-        starter_z         — z-scored blend_70_30
-        opp_bp_weak_z     — opposing bullpen weakness z (from Apr-May profile)
-        off_z             — batting team offense z (from Apr-May profile)
-        bp_in_band        — True if opp_bp_weak_z is in [0.5, 1.0]
-        in_valid_window   — True if today is June 1 – July 15
-        reason            — human-readable explanation
     """
     in_window = is_fg_valid_window()
-
-    # Z-score the blend score using 2025 validated params
     starter_z = round((blend_70_30_score - FG_BLEND_MEAN) / FG_BLEND_STD, 3)
 
     off_z         = _FG_OFF_Z.get(batting_team)
@@ -184,6 +285,8 @@ def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
         'reason':          reason,
     }
 
+
+# ── Model loading ─────────────────────────────────────────────────────────────
 
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -396,7 +499,6 @@ def get_f5_fair_odds(expected_runs):
     """
     Given expected F5 runs (NegBin point estimate), use Poisson CDF to
     compute fair implied odds for under 1.5 and under 2.5 F5 team totals.
-    Returns dict of fair American odds (no vig) for both lines.
     """
     if expected_runs is None:
         return {
@@ -537,8 +639,6 @@ def get_heatmap_flags(games, model):
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                # Not an F5 flag — but still compute FG signal for display
-                # Only include in output if FG signal fires
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
                 else:
@@ -643,6 +743,8 @@ def get_hr_picks(games, model):
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
 
 
+# ── Routes ────────────────────────────────────────────────────────────────────
+
 @app.route('/')
 def index():
     if not session.get('authenticated'):
@@ -681,19 +783,58 @@ def api_picks():
 
         heatmap_flags = get_heatmap_flags(games, model)
 
-        # Separate FG signals for UI — flags where FG under fired
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
 
         return jsonify({
-            'date':            today,
-            'complete':        complete,
-            'total':           len(games),
-            'picks':           picks,
-            'heatmap_flags':   heatmap_flags,
-            'fg_under_flags':  fg_under_flags,
-            'fg_in_window':    is_fg_valid_window(),
-            'games':           games_out,
+            'date':           today,
+            'complete':       complete,
+            'total':          len(games),
+            'picks':          picks,
+            'heatmap_flags':  heatmap_flags,
+            'fg_under_flags': fg_under_flags,
+            'fg_in_window':   is_fg_valid_window(),
+            'games':          games_out,
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/notify')
+def api_notify():
+    """
+    Called by cron-job.org on a schedule.
+    Sends a Telegram notification ONLY when picks have changed since last run.
+    Uses Upstash Redis to persist the hash across Render restarts/sleep cycles.
+    """
+    if request.args.get('secret') != NOTIFY_SECRET:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        model = load_model()
+        today = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        games = get_lineups_and_starters(today)
+        picks = get_hr_picks(games, model)
+        flags = get_heatmap_flags(games, model)
+
+        current_hash = picks_hash(picks, flags)
+        last_hash    = redis_get(PICKS_HASH_KEY)
+
+        if current_hash == last_hash:
+            return jsonify({'status': 'no_change', 'hash': current_hash})
+
+        message = format_telegram_message(picks, flags, today)
+        ok, detail = send_telegram(message)
+
+        if ok:
+            redis_set(PICKS_HASH_KEY, current_hash)
+            return jsonify({
+                'status': 'notified',
+                'picks':  len(picks),
+                'flags':  len(flags),
+            })
+        else:
+            return jsonify({'status': 'telegram_error', 'detail': detail}), 500
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
