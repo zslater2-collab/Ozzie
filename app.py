@@ -2,8 +2,6 @@ import os
 import csv
 import math
 import pickle
-import hashlib
-import json
 import requests
 import pandas as pd
 import pytz
@@ -43,7 +41,7 @@ TB3_MULTIPLIER  = 1.3
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD  # Lowered from -2.0 (May 2026)
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -54,146 +52,33 @@ F5_FAIR_ODDS = {
     'Very Safe':   +191,
 }
 
-# ── FG Team Total Under — three-leg signal constants (validated May 2026) ─────
-# Filter: blend_70_30 z ≤ -1.0 AND opp_bp_weak_z 0.5→1.0 AND off_z ≥ 0.0
-# Valid window: June 1 – July 15 ONLY (signal degrades after All-Star break)
-# Validated: n=14, 78.6% hit rate, +0.438 ROI vs Pinnacle (Jun-Sep 2025)
+# ── FG Team Total Under — two-leg signal constants (revised May 2026) ─────────
+# Filter: blend_70_30 z ≤ -0.5 AND opp_bp_weak_z 0.5→1.0
+# off_z dropped — shown to be noise in full 2025 backtest (May 29 2026 session)
+# Valid window: June 1 – July 31 ONLY (signal degrades in August, confirmed)
+# Validated: n=33 (≤-0.5 threshold), 69.7% hit rate, +0.295 ROI vs Pinnacle
+# Prior n=11 (≤-1.0): 90.9% hit, +0.675 ROI — threshold loosened for volume
 # Static Apr-May profiles only — do NOT update mid-season
-FG_BLEND_MEAN        = 0.9984
-FG_BLEND_STD         = 0.0353
-FG_STARTER_Z_THRESH  = -1.0
-FG_BP_BAND_LOW       =  0.5
-FG_BP_BAND_HIGH      =  1.0
-FG_OFF_Z_THRESH      =  0.0
-FG_VALID_START_MONTH =  5
-FG_VALID_START_DAY   =  29
+# Profiles: bullpen_profile_2026.csv, team_offense_baseline_2026.csv
+FG_BLEND_MEAN        = 0.9984   # 2025 validated distribution mean
+FG_BLEND_STD         = 0.0353   # 2025 validated distribution std
+FG_STARTER_Z_THRESH  = -0.5     # blend_70_30 z-score threshold (loosened from -1.0)
+FG_BP_BAND_LOW       =  0.5     # opposing BP weakness band — floor
+FG_BP_BAND_HIGH      =  1.0     # opposing BP weakness band — ceiling (hard cap)
+FG_VALID_START_MONTH =  6       # June
+FG_VALID_START_DAY   =  1
 FG_VALID_END_MONTH   =  7
-FG_VALID_END_DAY     = 15
+FG_VALID_END_DAY     = 31       # Extended from July 15 — Jul signal confirmed clean
 
 _model_cache      = None
 _model_cache_time = None
 MODEL_CACHE_TTL   = 3600
 
 # ── FG profile cache (loaded once at startup) ─────────────────────────────────
-_FG_OFF_Z           = {}
-_FG_BP_WEAK_Z       = {}
+_FG_OFF_Z     = {}
+_FG_BP_WEAK_Z = {}
 _FG_PROFILES_LOADED = False
 
-# ── Telegram + Upstash config ─────────────────────────────────────────────────
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
-TELEGRAM_CHAT_ID   = os.environ.get('TELEGRAM_CHAT_ID')
-NOTIFY_SECRET      = os.environ.get('NOTIFY_SECRET', 'ozzie-notify-secret')
-UPSTASH_URL        = os.environ.get('UPSTASH_REDIS_REST_URL')
-UPSTASH_TOKEN      = os.environ.get('UPSTASH_REDIS_REST_TOKEN')
-PICKS_HASH_KEY     = 'ozzie:picks_hash'
-
-
-# ── Upstash Redis helpers ─────────────────────────────────────────────────────
-
-def redis_get(key):
-    """Read a value from Upstash. Returns None if missing or on error."""
-    if not UPSTASH_URL or not UPSTASH_TOKEN:
-        return None
-    try:
-        r = requests.get(
-            f"{UPSTASH_URL}/get/{key}",
-            headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
-            timeout=5
-        )
-        return r.json().get('result')
-    except Exception:
-        return None
-
-
-def redis_set(key, value):
-    """Write a value to Upstash. Silently fails if misconfigured."""
-    if not UPSTASH_URL or not UPSTASH_TOKEN:
-        return
-    try:
-        requests.post(
-            f"{UPSTASH_URL}/set/{key}/{value}",
-            headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
-            timeout=5
-        )
-    except Exception:
-        pass
-
-
-# ── Telegram helpers ──────────────────────────────────────────────────────────
-
-def send_telegram(message: str):
-    """Send a Telegram message. Returns (ok: bool, detail: str)."""
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        return False, 'Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID env vars'
-    try:
-        url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        resp = requests.post(url, json={
-            'chat_id':    TELEGRAM_CHAT_ID,
-            'text':       message,
-            'parse_mode': 'HTML',
-        }, timeout=10)
-        return resp.ok, resp.text
-    except Exception as e:
-        return False, str(e)
-
-
-def picks_hash(picks, heatmap_flags):
-    """
-    Stable fingerprint of current picks + flags.
-    Changes only when picks or heatmap flags actually change.
-    """
-    key = json.dumps({
-        'picks':   sorted([(p['player_id'], p['pitcher_id'], p['combined']) for p in picks]),
-        'heatmap': sorted([(f['batting_team'], f['pitcher_id'], f['signal']) for f in heatmap_flags]),
-    }, sort_keys=True)
-    return hashlib.md5(key.encode()).hexdigest()
-
-
-def format_telegram_message(picks, heatmap_flags, date):
-    lines = [f"<b>🤖 Ozzie Update — {date}</b>\n"]
-
-    # FG under flags (highest priority)
-    fg_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
-    if fg_flags:
-        lines.append("<b>🎯 FG Three-Leg Under Signal</b>")
-        for f in fg_flags[:3]:
-            lines.append(
-                f"⬇️ <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"| starter_z: {f['fg_starter_z']:.2f} "
-                f"| bp_z: {f['fg_opp_bp_weak_z']:.2f} "
-                f"| off_z: {f['fg_off_z']:.2f}"
-            )
-        lines.append("")
-
-    # F5 heatmap flags
-    f5_flags = [f for f in heatmap_flags if f['signal'] in ('over', 'under')]
-    if f5_flags:
-        lines.append("<b>🔥 Heatmap Flags (F5)</b>")
-        for f in f5_flags[:5]:
-            arrow = "⬆️" if f['signal'] == 'over' else "⬇️"
-            exp   = f" | xRuns: {f['expected_f5_runs']}" if f.get('expected_f5_runs') else ""
-            lines.append(
-                f"{arrow} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"| {f['overlap_score']:.4f} ({f['std_from_mean']:+.2f}σ){exp}"
-            )
-        lines.append("")
-
-    # HR picks
-    if picks:
-        lines.append("<b>💣 HR Picks</b>")
-        for p in picks[:8]:
-            lines.append(
-                f"• <b>{p['player_name']}</b> vs {p['pitcher_name']} "
-                f"| Fair: {p['hr_fair']} | Score: {p['combined']}"
-            )
-
-    if not picks and not heatmap_flags:
-        lines.append("No picks yet — lineups likely not posted.")
-
-    return "\n".join(lines)
-
-
-# ── FG profile loading ────────────────────────────────────────────────────────
 
 def load_fg_profiles():
     """
@@ -230,7 +115,7 @@ def load_fg_profiles():
 
 
 def is_fg_valid_window():
-    """Returns True if today is within the June 1 – July 15 valid window."""
+    """Returns True if today is within the June 1 – July 31 valid window."""
     today = _date.today()
     start = _date(today.year, FG_VALID_START_MONTH, FG_VALID_START_DAY)
     end   = _date(today.year, FG_VALID_END_MONTH,   FG_VALID_END_DAY)
@@ -239,19 +124,38 @@ def is_fg_valid_window():
 
 def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
     """
-    Evaluate the three-leg FG team total under signal for one matchup.
+    Evaluate the two-leg FG team total under signal for one matchup.
+
+    Signal: starter_z ≤ -0.5 AND opp_bp_weak_z in [0.5, 1.0]
+    off_z is passed through for display only — not a signal gate (noise, May 2026).
+    BP ceiling (1.0) is a hard cap — bp_z > 1.0 confirmed blowup risk.
+
+    Parameters:
+        batting_team      — short code e.g. 'LAD'
+        opp_team          — short code e.g. 'SF' (the team pitching in innings 6-9)
+        blend_70_30_score — raw blend_70_30 overlap score (NOT z-scored yet)
+
+    Returns dict with:
+        fg_under_signal   — True if both legs pass and in valid window
+        starter_z         — z-scored blend_70_30
+        opp_bp_weak_z     — opposing bullpen weakness z (from Apr-May profile)
+        off_z             — batting team offense z (display only, not gating)
+        bp_in_band        — True if opp_bp_weak_z is in [0.5, 1.0]
+        in_valid_window   — True if today is June 1 – July 31
+        reason            — human-readable explanation
     """
     in_window = is_fg_valid_window()
+
     starter_z = round((blend_70_30_score - FG_BLEND_MEAN) / FG_BLEND_STD, 3)
 
     off_z         = _FG_OFF_Z.get(batting_team)
     opp_bp_weak_z = _FG_BP_WEAK_Z.get(opp_team)
 
-    if off_z is None or opp_bp_weak_z is None:
+    if opp_bp_weak_z is None:
         return {
             'fg_under_signal': False,
             'starter_z':       starter_z,
-            'opp_bp_weak_z':   opp_bp_weak_z,
+            'opp_bp_weak_z':   None,
             'off_z':           off_z,
             'bp_in_band':      False,
             'in_valid_window': in_window,
@@ -260,8 +164,7 @@ def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
 
     starter_flag = starter_z <= FG_STARTER_Z_THRESH
     bp_band_flag = FG_BP_BAND_LOW <= opp_bp_weak_z <= FG_BP_BAND_HIGH
-    offense_flag = off_z >= FG_OFF_Z_THRESH
-    signal       = in_window and starter_flag and bp_band_flag and offense_flag
+    signal       = in_window and starter_flag and bp_band_flag
 
     if signal:
         reason = 'all_conditions_met'
@@ -269,24 +172,20 @@ def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
         reason = 'outside_valid_window'
     elif not starter_flag:
         reason = f'starter_not_suppressed (z={starter_z:.2f}, need ≤{FG_STARTER_Z_THRESH})'
-    elif not bp_band_flag:
+    else:
         reason = (f'bp_outside_band (z={opp_bp_weak_z:.2f}, '
                   f'need {FG_BP_BAND_LOW}–{FG_BP_BAND_HIGH})')
-    else:
-        reason = f'offense_below_avg (off_z={off_z:.2f}, need ≥{FG_OFF_Z_THRESH})'
 
     return {
         'fg_under_signal': signal,
         'starter_z':       starter_z,
         'opp_bp_weak_z':   round(opp_bp_weak_z, 3),
-        'off_z':           round(off_z, 3),
+        'off_z':           round(off_z, 3) if off_z is not None else None,
         'bp_in_band':      bp_band_flag,
         'in_valid_window': in_window,
         'reason':          reason,
     }
 
-
-# ── Model loading ─────────────────────────────────────────────────────────────
 
 def download_pkl(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -499,6 +398,7 @@ def get_f5_fair_odds(expected_runs):
     """
     Given expected F5 runs (NegBin point estimate), use Poisson CDF to
     compute fair implied odds for under 1.5 and under 2.5 F5 team totals.
+    Returns dict of fair American odds (no vig) for both lines.
     """
     if expected_runs is None:
         return {
@@ -517,6 +417,35 @@ def get_f5_fair_odds(expected_runs):
         'fair_over_1_5':  prob_to_american(1 - p_under_1_5),
         'fair_under_2_5': prob_to_american(p_under_2_5),
         'fair_over_2_5':  prob_to_american(1 - p_under_2_5),
+    }
+
+
+def get_f5_tier(std_from_mean):
+    """
+    Classify F5 under flag into signal strength tier.
+    Tiers validated May 2026 backtest vs Pinnacle fixed lines.
+
+    Tier 1: ≤ -2.0σ  — n=102, 86.3% hit, +0.640 ROI
+    Tier 2: -1.5→-2.0σ — n=125, 81.5% hit, +0.550 ROI
+    Tier 3: -1.0→-1.5σ — n=250, 79.0% hit, +0.502 ROI
+
+    Minimum odds (break-even based, uniform across tiers):
+      U1.5: +100  (break-evens -103 to -119)
+      U2.5: -200  (break-evens -205 to -386)
+      U3.5: -350  (break-evens -372 to -827)
+    """
+    if std_from_mean <= -2.0:
+        tier = 1
+    elif std_from_mean <= -1.5:
+        tier = 2
+    else:
+        tier = 3
+    return {
+        'tier':    tier,
+        'label':   f'Tier {tier}',
+        'min_u15': '+100',
+        'min_u25': '-200',
+        'min_u35': '-350',
     }
 
 
@@ -639,10 +568,14 @@ def get_heatmap_flags(games, model):
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
+                # Not an F5 flag — but still compute FG signal for display
+                # Only include in output if FG signal fires
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
                 else:
                     continue
+
+            tier_info = get_f5_tier(std_from_mean) if signal == 'under' else None
 
             flags.append({
                 'game':             game_str,
@@ -661,7 +594,13 @@ def get_heatmap_flags(games, model):
                 'fair_over_1_5':    fair_odds['fair_over_1_5'],
                 'fair_under_2_5':   fair_odds['fair_under_2_5'],
                 'fair_over_2_5':    fair_odds['fair_over_2_5'],
-                # FG three-leg under signal
+                # Tier classification and minimum odds
+                'tier':             tier_info['tier']    if tier_info else None,
+                'tier_label':       tier_info['label']   if tier_info else None,
+                'min_u15':          tier_info['min_u15'] if tier_info else None,
+                'min_u25':          tier_info['min_u25'] if tier_info else None,
+                'min_u35':          tier_info['min_u35'] if tier_info else None,
+                # FG two-leg under signal
                 'fg_under_signal':  fg_flag['fg_under_signal'],
                 'fg_starter_z':     fg_flag['starter_z'],
                 'fg_opp_bp_weak_z': fg_flag['opp_bp_weak_z'],
@@ -743,8 +682,6 @@ def get_hr_picks(games, model):
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
-
 @app.route('/')
 def index():
     if not session.get('authenticated'):
@@ -783,58 +720,19 @@ def api_picks():
 
         heatmap_flags = get_heatmap_flags(games, model)
 
+        # Separate FG signals for UI — flags where FG under fired
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
 
         return jsonify({
-            'date':           today,
-            'complete':       complete,
-            'total':          len(games),
-            'picks':          picks,
-            'heatmap_flags':  heatmap_flags,
-            'fg_under_flags': fg_under_flags,
-            'fg_in_window':   is_fg_valid_window(),
-            'games':          games_out,
+            'date':            today,
+            'complete':        complete,
+            'total':           len(games),
+            'picks':           picks,
+            'heatmap_flags':   heatmap_flags,
+            'fg_under_flags':  fg_under_flags,
+            'fg_in_window':    is_fg_valid_window(),
+            'games':           games_out,
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/notify')
-def api_notify():
-    """
-    Called by cron-job.org on a schedule.
-    Sends a Telegram notification ONLY when picks have changed since last run.
-    Uses Upstash Redis to persist the hash across Render restarts/sleep cycles.
-    """
-    if request.args.get('secret') != NOTIFY_SECRET:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    try:
-        model = load_model()
-        today = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-        games = get_lineups_and_starters(today)
-        picks = get_hr_picks(games, model)
-        flags = get_heatmap_flags(games, model)
-
-        current_hash = picks_hash(picks, flags)
-        last_hash    = redis_get(PICKS_HASH_KEY)
-
-        if current_hash == last_hash:
-            return jsonify({'status': 'no_change', 'hash': current_hash})
-
-        message = format_telegram_message(picks, flags, today)
-        ok, detail = send_telegram(message)
-
-        if ok:
-            redis_set(PICKS_HASH_KEY, current_hash)
-            return jsonify({
-                'status': 'notified',
-                'picks':  len(picks),
-                'flags':  len(flags),
-            })
-        else:
-            return jsonify({'status': 'telegram_error', 'detail': detail}), 500
-
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
