@@ -254,6 +254,11 @@
     color: var(--text);
   }
 
+  .hm-stat-value.highlight {
+    color: var(--blue);
+    font-size: 0.92rem;
+  }
+
   .hm-lineup-tag {
     display: inline-flex;
     align-items: center;
@@ -281,46 +286,66 @@
   }
 
   /* ── Fair Odds Row ────────────────────────────────────────────────── */
-  .fair-odds-row {
-    display: grid;
-    gap: 6px;
+  .fair-odds-section {
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid var(--border);
   }
 
+  .fair-odds-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .fair-odds-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .fair-odds-note {
+    font-size: 0.50rem;
+    letter-spacing: 0.06em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .fair-odds-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
   .fair-odds-cell {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 3px;
+    justify-content: space-between;
     background: var(--surface2);
     border: 1px solid var(--dim);
     border-radius: 6px;
-    padding: 7px 4px;
+    padding: 8px 10px;
   }
 
-  .fair-odds-line {
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
+  .fair-odds-cell.value {
+    border-color: color-mix(in srgb, var(--green) 30%, transparent);
+    background: rgba(79, 255, 176, 0.04);
+  }
+
+  .fair-odds-line-label {
+    font-size: 0.60rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
   }
 
   .fair-odds-val {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     letter-spacing: 0.06em;
     color: var(--blue);
-  }
-
-  .fair-odds-label {
-    font-size: 0.52rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 8px;
-    margin-bottom: 2px;
   }
 
   /* ── HR Picks ────────────────────────────────────────────────────── */
@@ -465,9 +490,6 @@
       <div class="flags-count" id="heatmap-count"></div>
       <div class="section-label" style="margin:0">F5 Team Total Under</div>
     </div>
-    <div style="font-size:11px;color:var(--text-muted);margin:6px 0 12px 0;letter-spacing:0.03em">
-      Benchmarks &mdash; U2.5: max <strong>-220</strong> &nbsp;&middot;&nbsp; U3.5: max <strong>-400</strong>
-    </div>
     <div id="heatmap-list"></div>
   </div>
 </div>
@@ -519,28 +541,46 @@
   document.getElementById('date-label').textContent =
     new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
 
-  // ── Fair odds HTML helper ─────────────────────────────────────────────────
-  function buildFairOddsHtml(fair_odds, kalshi_line, kalshi_under) {
-    if (!fair_odds || !Object.keys(fair_odds).length) return '';
-    const keys  = Object.keys(fair_odds).sort((a,b) => parseFloat(a)-parseFloat(b));
-    const cells = keys.map(line => `
+  // ── Fair odds block ───────────────────────────────────────────────────────
+  // Builds the U1.5 / U2.5 fair odds display from NegBin model output.
+  // "Fair" = no-vig implied line from the model.
+  // Compare to actual posted line: if book is more generous → value.
+  //   Negative odds: more generous = closer to 0  (e.g. -220 > -247)
+  //   Positive odds: more generous = bigger number (e.g. +130 > +110)
+  function buildFairOddsHtml(f) {
+    const u15 = f.fair_under_1_5;
+    const u25 = f.fair_under_2_5;
+    const exp = f.expected_f5_runs;
+
+    if (!u15 && !u25) return '';
+
+    const cell15 = u15 ? `
       <div class="fair-odds-cell">
-        <div class="fair-odds-line">${line} runs</div>
-        <div class="fair-odds-val">${fair_odds[line] || '—'}</div>
-      </div>`).join('');
-    const kalshiRow = (kalshi_line && kalshi_under) ? `
-      <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
-                  border:1px solid rgba(79,255,176,0.2);border-radius:6px;
-                  display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
-                     color:var(--green)">Kalshi U${kalshi_line}</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
-                     letter-spacing:0.06em;color:var(--green)">${kalshi_under}</span>
+        <span class="fair-odds-line-label">Under 1.5</span>
+        <span class="fair-odds-val">${u15}</span>
       </div>` : '';
+
+    const cell25 = u25 ? `
+      <div class="fair-odds-cell">
+        <span class="fair-odds-line-label">Under 2.5</span>
+        <span class="fair-odds-val">${u25}</span>
+      </div>` : '';
+
+    const expLabel = exp != null
+      ? `<span class="fair-odds-note">Model: ${exp} exp runs</span>`
+      : '';
+
     return `
-      <div class="fair-odds-label">Fair Odds (Under)</div>
-      <div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">${cells}</div>
-      ${kalshiRow}`;
+      <div class="fair-odds-section">
+        <div class="fair-odds-header">
+          <span class="fair-odds-label">Fair Odds (No Vig)</span>
+          ${expLabel}
+        </div>
+        <div class="fair-odds-row">
+          ${cell15}
+          ${cell25}
+        </div>
+      </div>`;
   }
 
   // ── F5 single team card ───────────────────────────────────────────────────
@@ -554,8 +594,7 @@
     const lineupTag  = f.lineup_complete
       ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
       : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-    const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
+    const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
 
     card.innerHTML = `
       <div class="hm-top">
@@ -584,7 +623,7 @@
           <div class="hm-stat-value">${f.batters_scored} / 9</div>
         </div>
       </div>
-      ${fairOddsHtml}
+      ${buildFairOddsHtml(f)}
       ${lineupTag}`;
     return card;
   }
@@ -599,7 +638,6 @@
       ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
       : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
 
-    // Support both new field names (team_1/team_2) and old (team_a/team_b)
     const teamA    = f.team_1    || f.team_a    || '—';
     const teamB    = f.team_2    || f.team_b    || '—';
     const pitcherA = f.pitcher_1 || f.pitcher_a || '—';
@@ -609,8 +647,6 @@
     const scoreA   = f.score_a   || f.avg_score  || '—';
     const scoreB   = f.score_b   || '—';
     const combZ    = f.combined_z || '—';
-
-    const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
 
     card.innerHTML = `
       <div class="hm-top">
@@ -639,7 +675,7 @@
           <div class="hm-stat-value">${scoreB !== '—' ? scoreB : '—'} (${zB}σ)</div>
         </div>
       </div>
-      ${fairOddsHtml}
+      ${buildFairOddsHtml(f)}
       ${lineupTag}`;
     return card;
   }
@@ -665,7 +701,6 @@
 
     fetch('/api/picks')
       .then(r => {
-        // Redirect to login if we get HTML back (unauthenticated)
         const ct = r.headers.get('content-type') || '';
         if (!r.ok || ct.includes('text/html')) {
           window.location.href = '/login';
@@ -691,11 +726,10 @@
         document.getElementById('games-section').style.display = 'block';
 
         // ── F5 Team Total Under ────────────────────────────────────────
-        const hmList  = document.getElementById('heatmap-list');
-        hmList.innerHTML  = '';
-        const underTeams  = new Set();
-        // support both new key (f5_single) and legacy (heatmap_flags)
-        const f5Flags = (data.f5_single || data.heatmap_flags || [])
+        const hmList     = document.getElementById('heatmap-list');
+        hmList.innerHTML = '';
+        const underTeams = new Set();
+        const f5Flags    = (data.f5_single || data.heatmap_flags || [])
           .filter(f => f.signal === 'under');
 
         if (f5Flags.length > 0) {
@@ -709,9 +743,9 @@
         }
 
         // ── F5 Combined Total Under (Kalshi) ──────────────────────────
-        const f5cList  = document.getElementById('f5combined-list');
+        const f5cList      = document.getElementById('f5combined-list');
         f5cList.innerHTML  = '';
-        const f5cFlags = data.f5_combined || data.f5combined_flags || [];
+        const f5cFlags     = data.f5_combined || data.f5combined_flags || [];
 
         if (f5cFlags.length > 0) {
           document.getElementById('f5combined-count').textContent =
