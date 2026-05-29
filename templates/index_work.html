@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ozzie's Picks</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --surface2: #16161f;
+    --border:   #1e1e2e;
+    --accent:   #e8ff47;
+    --green:    #4fffb0;
+    --orange:   #ff9f47;
+    --red:      #ff6b6b;
+    --blue:     #4fb8ff;
+    --text:     #e8e8f0;
+    --muted:    #555570;
+    --dim:      #333348;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .date-badge {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .run-wrap { padding: 20px 20px 0; }
+
+  #run-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    padding: 18px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  #run-btn:active { transform: scale(0.98); }
+  #run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(10,10,15,0.3);
+    border-top-color: #0a0a0f;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #status-bar {
+    margin: 12px 20px 0;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    min-height: 18px;
+  }
+
+  #games-section { padding: 16px 20px 0; display: none; }
+
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .section-label.watchlist {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .watchlist-badge {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--dim);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  .games-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .game-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 0.68rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .dot.ready   { background: var(--green); }
+  .dot.pending { background: var(--muted); }
+
+  /* ── Shared flag card styles ─────────────────────────────────────── */
+  .flags-section { padding: 20px 20px 0; display: none; }
+
+  .flags-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .flags-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .hm-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.25s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hm-card.under {
+    border: 1px solid var(--blue);
+    box-shadow: 0 0 18px rgba(79, 184, 255, 0.08);
+  }
+
+  .hm-card.under::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    opacity: 0.6;
+  }
+
+  .hm-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .hm-team {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .hm-signal-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .hm-signal {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
+  .hm-signal.under { color: var(--blue); }
+
+  .hm-sigma {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-align: right;
+  }
+
+  .hm-sigma.under { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
+
+  .hm-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 10px;
+  }
+
+  .hm-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .hm-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hm-stat-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hm-stat-value {
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+
+  .hm-lineup-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  .hm-lineup-tag.confirmed { color: var(--green); }
+  .hm-lineup-tag.pending   { color: var(--muted); }
+
+  .bp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    margin-left: 8px;
+    color: var(--orange);
+    opacity: 0.7;
+  }
+
+  /* ── Fair Odds Row ────────────────────────────────────────────────── */
+  .fair-odds-row {
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .fair-odds-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--dim);
+    border-radius: 6px;
+    padding: 7px 4px;
+  }
+
+  .fair-odds-line {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .fair-odds-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+  }
+
+  .fair-odds-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
+  /* ── HR Picks ────────────────────────────────────────────────────── */
+  #picks-section { padding: 20px 20px 0; display: none; }
+
+  .picks-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .picks-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .col-labels {
+    display: grid;
+    grid-template-columns: 1fr 72px 60px 60px;
+    gap: 4px;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 14px;
+    margin-bottom: 6px;
+  }
+
+  .pick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 7px;
+    animation: fadeIn 0.25s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pick-main {
+    display: grid;
+    grid-template-columns: 1fr 72px 60px 60px;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .player-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .combined { font-size: 0.82rem; color: var(--accent); text-align: right; }
+  .hr-odds  { font-size: 0.82rem; color: var(--green);  text-align: right; font-weight: 500; }
+  .tb-odds  { font-size: 0.78rem; color: var(--muted);  text-align: right; }
+
+  .pick-sub {
+    margin-top: 7px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--dim);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  .tag.arch     { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tag.team     { color: var(--text);   border-color: color-mix(in srgb, var(--text) 20%, transparent); }
+  .tag.tt-under { color: var(--blue);   border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
+
+  .tier-badge { display:inline-block; font-family:'Bebas Neue',sans-serif; font-size:0.7rem; letter-spacing:0.1em; padding:2px 8px; border-radius:4px; margin-bottom:6px; }
+  .tier-badge.t1 { color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); border:1px solid color-mix(in srgb,var(--accent) 30%,transparent); }
+  .tier-badge.t2 { color:var(--orange); background:color-mix(in srgb,var(--orange) 12%,transparent); border:1px solid color-mix(in srgb,var(--orange) 30%,transparent); }
+  .tier-badge.t3 { color:var(--muted);  background:color-mix(in srgb,var(--muted)  12%,transparent); border:1px solid color-mix(in srgb,var(--muted)  30%,transparent); }
+
+  .min-odds-row  { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .min-odds-cell { flex:1; min-width:60px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:5px 8px; text-align:center; }
+  .min-odds-line { font-size:0.55rem; letter-spacing:0.08em; color:var(--muted); text-transform:uppercase; margin-bottom:2px; }
+  .min-odds-val  { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.06em; color:var(--blue); }
+
+  .fg-signal-row   { margin-top:8px; padding:7px 10px; background:rgba(79,184,255,0.06); border:1px solid rgba(79,184,255,0.2); border-radius:6px; display:flex; justify-content:space-between; align-items:center; }
+  .fg-signal-label { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); }
+  .fg-signal-val   { font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.06em; color:var(--blue); }
+
+  #no-picks {
+    display: none;
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+
+  #error-box {
+    display: none;
+    margin: 14px 20px 0;
+    background: rgba(255,80,80,0.08);
+    border: 1px solid rgba(255,80,80,0.25);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.72rem;
+    color: #ff8080;
+    line-height: 1.6;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 20px 0; }
+
+  footer { margin-top: 32px; text-align: center; font-size: 0.62rem; color: var(--dim); letter-spacing: 0.1em; }
+  footer a { color: var(--muted); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">OZZIE'S PICKS</div>
+  <div class="date-badge" id="date-label">—</div>
+</header>
+
+<div class="run-wrap">
+  <button id="run-btn" onclick="runPicks()">
+    <div class="spinner" id="spinner"></div>
+    <span id="btn-label">GET TODAY'S PICKS</span>
+  </button>
+</div>
+
+<div id="status-bar"></div>
+<div id="error-box"></div>
+
+<!-- Today's Slate -->
+<div id="games-section">
+  <div class="section-label">Today's Slate</div>
+  <div class="games-row" id="games-row"></div>
+</div>
+
+<!-- F5 Team Total Flags -->
+<div id="heatmap-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="heatmap-count"></div>
+      <div class="section-label" style="margin:0">F5 Team Total Under</div>
+    </div>
+    <div id="heatmap-list"></div>
+  </div>
+</div>
+
+<!-- F5 Combined Total Flags (Kalshi) -->
+<div id="f5combined-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="f5combined-count"></div>
+      <div class="section-label" style="margin:0">F5 Combined Total Under
+        <span style="font-size:0.55rem;letter-spacing:0.1em;color:var(--green);
+                     margin-left:8px;text-transform:uppercase">Kalshi</span>
+      </div>
+    </div>
+    <div id="f5combined-list"></div>
+  </div>
+</div>
+
+<!-- HR Picks (Watchlist) -->
+<div id="picks-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="picks-header">
+      <div class="picks-count" id="picks-count"></div>
+      <div class="section-label watchlist" style="margin:0">
+        HR Watchlist
+        <span class="watchlist-badge">Unconfirmed</span>
+      </div>
+    </div>
+    <div class="col-labels">
+      <div>Player</div>
+      <div style="text-align:right">Comb%</div>
+      <div style="text-align:right">HR</div>
+      <div style="text-align:right">3TB</div>
+    </div>
+    <div id="picks-list"></div>
+  </div>
+</div>
+
+<div id="no-picks">
+  No picks yet.<br>
+  Check back closer to game time.
+</div>
+
+<footer><a href="/logout">sign out</a></footer>
+
+<script>
+  document.getElementById('date-label').textContent =
+    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
+
+  // ── Fair odds HTML helper ─────────────────────────────────────────────────
+  function buildFairOddsHtml(fair_odds, kalshi_line, kalshi_under) {
+    if (!fair_odds || !Object.keys(fair_odds).length) return '';
+    const keys  = Object.keys(fair_odds).sort((a,b) => parseFloat(a)-parseFloat(b));
+    const cells = keys.map(line => `
+      <div class="fair-odds-cell">
+        <div class="fair-odds-line">${line} runs</div>
+        <div class="fair-odds-val">${fair_odds[line] || '—'}</div>
+      </div>`).join('');
+    const kalshiRow = (kalshi_line && kalshi_under) ? `
+      <div style="margin-top:8px;padding:7px 10px;background:rgba(79,255,176,0.06);
+                  border:1px solid rgba(79,255,176,0.2);border-radius:6px;
+                  display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
+                     color:var(--green)">Kalshi U${kalshi_line}</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+                     letter-spacing:0.06em;color:var(--green)">${kalshi_under}</span>
+      </div>` : '';
+    return `
+      <div class="fair-odds-label">Fair Odds (Under)</div>
+      <div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">${cells}</div>
+      ${kalshiRow}`;
+  }
+
+  // ── F5 single team card ───────────────────────────────────────────────────
+  function buildFlagCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
+    const sigmaLabel = `${sigmaSign}${f.std_from_mean}σ from mean`;
+    const lineupTag  = f.lineup_complete
+      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
+    const handLabel  = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
+    const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
+
+    const tierNum   = f.tier || 3;
+    const tierLabel = f.tier_label || '';
+    const tierClass = tierNum === 1 ? 't1' : tierNum === 2 ? 't2' : 't3';
+    const tierBadge = tierLabel ? `<div class="tier-badge ${tierClass}">${tierLabel}</div>` : '';
+
+    const minOddsHtml = (f.min_u15 || f.min_u25 || f.min_u35) ? `
+      <div style="font-size:0.55rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px">Min Odds to Bet</div>
+      <div class="min-odds-row">
+        <div class="min-odds-cell"><div class="min-odds-line">U 1.5</div><div class="min-odds-val">${f.min_u15 || '—'}</div></div>
+        <div class="min-odds-cell"><div class="min-odds-line">U 2.5</div><div class="min-odds-val">${f.min_u25 || '—'}</div></div>
+        <div class="min-odds-cell"><div class="min-odds-line">U 3.5</div><div class="min-odds-val">${f.min_u35 || '—'}</div></div>
+      </div>` : '';
+
+    const fgHtml = f.fg_under_signal ? `
+      <div class="fg-signal-row">
+        <span class="fg-signal-label">FG Team Total Under ✓</span>
+        <span class="fg-signal-val">BP ${f.fg_opp_bp_weak_z}z</span>
+      </div>` : '';
+
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal under">UNDER</div>
+          <div class="hm-sigma under">${sigmaLabel}</div>
+        </div>
+      </div>
+      ${tierBadge}
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div class="hm-stat">
+          <div class="hm-stat-label">vs Pitcher</div>
+          <div class="hm-stat-value">${f.pitcher_name}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Throws</div>
+          <div class="hm-stat-value">${handLabel}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Overlap Score</div>
+          <div class="hm-stat-value">${f.overlap_score}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Batters Scored</div>
+          <div class="hm-stat-value">${f.batters_scored} / 9</div>
+        </div>
+      </div>
+      ${fairOddsHtml}
+      ${minOddsHtml}
+      ${fgHtml}
+      ${lineupTag}`;
+    return card;
+  }
+
+  // ── Combined F5 card ─────────────────────────────────────────────────────
+  function buildGtCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const lineupTag = f.lineup_complete
+      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
+
+    // Support both new field names (team_1/team_2) and old (team_a/team_b)
+    const teamA    = f.team_1    || f.team_a    || '—';
+    const teamB    = f.team_2    || f.team_b    || '—';
+    const pitcherA = f.pitcher_1 || f.pitcher_a || '—';
+    const pitcherB = f.pitcher_2 || f.pitcher_b || '—';
+    const zA       = f.z_team_1  || f.z_a       || '—';
+    const zB       = f.z_team_2  || f.z_b       || '—';
+    const scoreA   = f.score_a   || f.avg_score  || '—';
+    const scoreB   = f.score_b   || '—';
+    const combZ    = f.combined_z || '—';
+
+    const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
+
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${teamA} @ ${teamB}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal under">UNDER</div>
+          <div class="hm-sigma under">${combZ}σ combined</div>
+        </div>
+      </div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div class="hm-stat">
+          <div class="hm-stat-label">${teamA} vs</div>
+          <div class="hm-stat-value">${pitcherB}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Score / σ</div>
+          <div class="hm-stat-value">${scoreA} (${zA}σ)</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">${teamB} vs</div>
+          <div class="hm-stat-value">${pitcherA}</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-label">Score / σ</div>
+          <div class="hm-stat-value">${scoreB !== '—' ? scoreB : '—'} (${zB}σ)</div>
+        </div>
+      </div>
+      ${fairOddsHtml}
+      ${lineupTag}`;
+    return card;
+  }
+
+  function runPicks() {
+    const btn     = document.getElementById('run-btn');
+    const spinner = document.getElementById('spinner');
+    const label   = document.getElementById('btn-label');
+    const status  = document.getElementById('status-bar');
+    const errBox  = document.getElementById('error-box');
+
+    btn.disabled          = true;
+    spinner.style.display = 'block';
+    label.textContent     = 'LOADING…';
+    status.textContent    = 'Fetching lineups and model data…';
+    errBox.style.display  = 'none';
+
+    document.getElementById('games-section').style.display      = 'none';
+    document.getElementById('heatmap-section').style.display    = 'none';
+    document.getElementById('f5combined-section').style.display = 'none';
+    document.getElementById('picks-section').style.display      = 'none';
+    document.getElementById('no-picks').style.display           = 'none';
+
+    fetch('/api/picks')
+      .then(r => {
+        // Redirect to login if we get HTML back (unauthenticated)
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok || ct.includes('text/html')) {
+          window.location.href = '/login';
+          return Promise.reject('redirect');
+        }
+        return r.json();
+      })
+      .then(data => {
+        btn.disabled          = false;
+        spinner.style.display = 'none';
+        label.textContent     = 'REFRESH PICKS';
+        status.textContent    = `${data.complete}/${data.total} games with complete lineups`;
+
+        // ── Today's Slate ──────────────────────────────────────────────
+        const row = document.getElementById('games-row');
+        row.innerHTML = '';
+        (data.games || []).forEach(g => {
+          const chip = document.createElement('div');
+          chip.className = 'game-chip';
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
+          row.appendChild(chip);
+        });
+        document.getElementById('games-section').style.display = 'block';
+
+        // ── F5 Team Total Under ────────────────────────────────────────
+        const hmList  = document.getElementById('heatmap-list');
+        hmList.innerHTML  = '';
+        const underTeams  = new Set();
+        // support both new key (f5_single) and legacy (heatmap_flags)
+        const f5Flags = (data.f5_single || data.heatmap_flags || [])
+          .filter(f => f.signal === 'under');
+
+        if (f5Flags.length > 0) {
+          document.getElementById('heatmap-count').textContent =
+            `${f5Flags.length} Flag${f5Flags.length !== 1 ? 's' : ''}`;
+          f5Flags.forEach((f, i) => {
+            underTeams.add(f.batting_team);
+            hmList.appendChild(buildFlagCard(f, i));
+          });
+          document.getElementById('heatmap-section').style.display = 'block';
+        }
+
+        // ── F5 Combined Total Under (Kalshi) ──────────────────────────
+        const f5cList  = document.getElementById('f5combined-list');
+        f5cList.innerHTML  = '';
+        const f5cFlags = data.f5_combined || data.f5combined_flags || [];
+
+        if (f5cFlags.length > 0) {
+          document.getElementById('f5combined-count').textContent =
+            `${f5cFlags.length} Flag${f5cFlags.length !== 1 ? 's' : ''}`;
+          f5cFlags.forEach((f, i) => f5cList.appendChild(buildGtCard(f, i)));
+          document.getElementById('f5combined-section').style.display = 'block';
+        }
+
+        // ── HR Watchlist ───────────────────────────────────────────────
+        const picks = data.hr_picks || data.picks || [];
+        if (picks.length === 0) {
+          document.getElementById('no-picks').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('picks-count').textContent =
+          `${picks.length} HR Pick${picks.length !== 1 ? 's' : ''}`;
+        const list = document.getElementById('picks-list');
+        list.innerHTML = '';
+
+        picks.forEach((p, i) => {
+          const card = document.createElement('div');
+          card.className = 'pick-card';
+          card.style.animationDelay = `${i * 0.04}s`;
+
+          const hrClass = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
+          const tbClass = p.hr_odds_num <= 1000 ? 'tb-odds' : 'hr-odds';
+
+          let teamTagClass = 'tag team';
+          let teamTagExtra = '';
+          if (underTeams.has(p.batting_team)) {
+            teamTagClass = 'tag tt-under';
+            teamTagExtra = ' ▼';
+          }
+
+          card.innerHTML = `
+            <div class="pick-main">
+              <div class="player-name">${p.player_name}</div>
+              <div class="combined">${p.combined}%</div>
+              <div class="${hrClass}">${p.hr_fair}</div>
+              <div class="${tbClass}">${p.tb3_fair}</div>
+            </div>
+            <div class="pick-sub">
+              <span class="${teamTagClass}">${p.batting_team}${teamTagExtra}</span>
+              <span class="tag">vs ${p.pitcher_name}</span>
+              <span class="tag arch">${p.arch_name}</span>
+            </div>`;
+          list.appendChild(card);
+        });
+
+        document.getElementById('picks-section').style.display = 'block';
+      })
+      .catch(err => {
+        if (err === 'redirect') return;
+        btn.disabled          = false;
+        spinner.style.display = 'none';
+        label.textContent     = 'GET TODAY\'S PICKS';
+        status.textContent    = '';
+        errBox.style.display  = 'block';
+        errBox.textContent    = 'Error: ' + err.message;
+      });
+  }
+</script>
+</body>
+</html>
