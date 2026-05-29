@@ -39,8 +39,8 @@ TB3_MULTIPLIER  = 1.3
 # Heat map thresholds (validated on full MLB 2025, out-of-sample)
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -193,15 +193,13 @@ def get_park_factor(fielding_team, batter_hand, model):
         return 1.0
 
 
-# ── NegBin expected runs (Script S) ──────────────────────────────────────────
+# ── NegBin expected runs + fair odds (Script S) ───────────────────────────────
 
 def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
     """
     Predict bias-corrected expected F5 runs for one team-game matchup.
-    Uses league avg defaults for lineup_walk_rate and bp_overlap_prob
-    since those aren't available per-game in the live app yet.
-
-    Returns float (expected runs) or None if model unavailable.
+    Uses league avg defaults for lineup_walk_rate and bp_overlap_prob.
+    Returns float or None if model unavailable.
     """
     if model_bundle is None:
         return None
@@ -233,11 +231,69 @@ def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
         return None
 
 
+def poisson_cdf(k, lam):
+    """P(X <= k) for Poisson(lam). Pure math, no scipy needed."""
+    if lam <= 0:
+        return 1.0
+    total = 0.0
+    term  = math.exp(-lam)
+    for i in range(k + 1):
+        total += term
+        if i < k:
+            term *= lam / (i + 1)
+    return min(total, 1.0)
+
+
+def prob_to_american(p):
+    """Convert win probability to American odds string (no vig)."""
+    if p is None or p <= 0 or p >= 1:
+        return None
+    if p >= 0.5:
+        odds = round(-100 * p / (1 - p))
+    else:
+        odds = round(100 * (1 - p) / p)
+    return f'+{odds}' if odds > 0 else str(odds)
+
+
+def get_f5_fair_odds(expected_runs):
+    """
+    Given expected F5 runs (NegBin point estimate), use Poisson CDF to
+    compute fair implied odds for under 1.5 and under 2.5 F5 team totals.
+
+    Returns dict of fair American odds (no vig) for both lines.
+    Compare to actual posted lines — edge exists where posted > fair.
+
+    Example:
+      expected_runs = 1.87
+      fair_under_1_5 = +122  (model says 44.8% chance)
+      fair_under_2_5 = -238  (model says 70.4% chance)
+
+      If book is offering under 1.5 at +110 → no value (book is stingier than fair)
+      If book is offering under 1.5 at +130 → value (book is more generous than fair)
+    """
+    if expected_runs is None:
+        return {
+            'fair_under_1_5': None,
+            'fair_over_1_5':  None,
+            'fair_under_2_5': None,
+            'fair_over_2_5':  None,
+        }
+
+    lam = expected_runs
+
+    p_under_1_5 = poisson_cdf(1, lam)   # P(runs in {0, 1})
+    p_under_2_5 = poisson_cdf(2, lam)   # P(runs in {0, 1, 2})
+
+    return {
+        'fair_under_1_5': prob_to_american(p_under_1_5),
+        'fair_over_1_5':  prob_to_american(1 - p_under_1_5),
+        'fair_under_2_5': prob_to_american(p_under_2_5),
+        'fair_over_2_5':  prob_to_american(1 - p_under_2_5),
+    }
+
+
 def compute_run_edge(expected_f5_runs, f5_tt_line):
-    """
-    Positive = under value. Negative = over value.
-    Bet threshold: run_edge >= 0.40
-    """
+    """Positive = under value. Bet threshold: run_edge >= 0.40."""
     if expected_f5_runs is None or f5_tt_line is None:
         return None
     return round(f5_tt_line - expected_f5_runs, 3)
@@ -284,9 +340,16 @@ def get_heatmap_flags(games, model):
     Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std)
     Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std)
 
-    Each flag now includes expected_f5_runs from the NegBin model (Script S).
-    When F5 TT lines are available, pass to compute_run_edge() to get
-    run_edge in absolute runs — bet when run_edge >= 0.40.
+    Each flag includes:
+      expected_f5_runs  — NegBin point estimate (bias-corrected)
+      fair_under_1_5    — fair American odds for F5 team total under 1.5
+      fair_over_1_5     — fair American odds for F5 team total over 1.5
+      fair_under_2_5    — fair American odds for F5 team total under 2.5
+      fair_over_2_5     — fair American odds for F5 team total over 2.5
+
+    To find value: compare fair_under_X_5 to actual posted line.
+    Posted line more generous than fair = value.
+    e.g. fair_under_1_5 = +122, book offers +130 = +8 cents of edge.
     """
     pitcher_scores = model.get('all_pitcher_arch_scores', {})
     nb_bundle      = model.get('negbin_model_params')
@@ -331,11 +394,12 @@ def get_heatmap_flags(games, model):
             team_score    = sum(scores) / len(scores)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
 
-            # NegBin expected F5 runs
+            # NegBin expected runs + fair odds
             expected_f5 = get_expected_f5_runs(
                 overlap_k_mod = team_score,
                 model_bundle  = nb_bundle,
             )
+            fair_odds = get_f5_fair_odds(expected_f5)
 
             if team_score >= HEATMAP_OVER_THRESHOLD:
                 signal = 'over'
@@ -357,6 +421,10 @@ def get_heatmap_flags(games, model):
                 'batters_scored':   scored_batters,
                 'lineup_complete':  len(lineup) >= 8,
                 'expected_f5_runs': expected_f5,
+                'fair_under_1_5':   fair_odds['fair_under_1_5'],
+                'fair_over_1_5':    fair_odds['fair_over_1_5'],
+                'fair_under_2_5':   fair_odds['fair_under_2_5'],
+                'fair_over_2_5':    fair_odds['fair_over_2_5'],
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
