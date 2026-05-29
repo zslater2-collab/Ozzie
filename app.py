@@ -1,4 +1,5 @@
 import os
+import math
 import pickle
 import requests
 import pandas as pd
@@ -20,9 +21,10 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    # ── Heat map models ──────────────────────────────────────────────────
+    # Heat map models
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
+    # NegBin expected runs model (Script S)
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
 }
 
@@ -34,11 +36,11 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# ── Heat map thresholds (validated on full MLB 2025, out-of-sample) ───────────
+# Heat map thresholds (validated on full MLB 2025, out-of-sample)
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # 1.0228
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.5 * HEATMAP_STD   # 1.0038
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 2.0 * HEATMAP_STD   # 1.0007
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -70,7 +72,11 @@ def load_model():
         return _model_cache
     model = {}
     for name, fid in FILE_IDS.items():
-        model[name] = download_pkl(fid)
+        try:
+            model[name] = download_pkl(fid)
+        except Exception as e:
+            print(f"Warning: could not load {name}: {e}")
+            model[name] = None
     model['arch_hitter_map'] = model['arch_hitter_map_combined']
     model['archetypes']      = model['archetypes_combined']
     _model_cache      = model
@@ -186,6 +192,57 @@ def get_park_factor(fielding_team, batter_hand, model):
     except Exception:
         return 1.0
 
+
+# ── NegBin expected runs (Script S) ──────────────────────────────────────────
+
+def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
+    """
+    Predict bias-corrected expected F5 runs for one team-game matchup.
+    Uses league avg defaults for lineup_walk_rate and bp_overlap_prob
+    since those aren't available per-game in the live app yet.
+
+    Returns float (expected runs) or None if model unavailable.
+    """
+    if model_bundle is None:
+        return None
+    try:
+        mb     = model_bundle
+        coeffs = mb['coefficients']
+        sp     = mb['scaler_params']
+        feats  = [f for f in mb['feature_raw_names'][1:] if f in sp]
+
+        defaults = {
+            'overlap_k_mod':    overlap_k_mod,
+            'lineup_walk_rate': sp['lineup_walk_rate']['mean']
+                                if 'lineup_walk_rate' in sp else 0.09,
+            'bp_overlap_prob':  sp['bp_overlap_prob']['mean']
+                                if 'bp_overlap_prob' in sp else 1.00,
+            'avg_ip':           avg_ip if avg_ip is not None
+                                else mb.get('league_avg_ip', 5.43),
+        }
+
+        z_vals = [
+            (defaults[f] - sp[f]['mean']) / sp[f]['std']
+            for f in feats
+        ]
+        X      = [1.0] + z_vals
+        log_mu = sum(c * x for c, x in zip(coeffs, X))
+        raw    = math.exp(log_mu)
+        return round(raw + mb.get('bias_correction', 0.0), 3)
+    except Exception:
+        return None
+
+
+def compute_run_edge(expected_f5_runs, f5_tt_line):
+    """
+    Positive = under value. Negative = over value.
+    Bet threshold: run_edge >= 0.40
+    """
+    if expected_f5_runs is None or f5_tt_line is None:
+        return None
+    return round(f5_tt_line - expected_f5_runs, 3)
+
+
 # ── Heat map scoring ──────────────────────────────────────────────────────────
 
 def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
@@ -195,9 +252,9 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
     Score > 1.0 = pitcher tends to throw to batter's preferred zones.
     Score < 1.0 = pitcher avoids batter's preferred zones.
     """
-    batter_profiles = model.get('batter_ev_profiles_lr', {})
+    batter_profiles    = model.get('batter_ev_profiles_lr', {})
     pitcher_tendencies = model.get('pitcher_tendency_map', {})
-    archetypes = model.get('archetypes', {})
+    archetypes         = model.get('archetypes', {})
 
     if batter_id not in batter_profiles: return None
     if pitcher_id not in pitcher_tendencies: return None
@@ -224,11 +281,16 @@ def get_heatmap_flags(games, model):
     For each game with a confirmed lineup, compute team overlap scores
     and flag games exceeding validated thresholds.
 
-    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std, p=0.023)
-    Under: score < HEATMAP_UNDER_THRESHOLD (-1.5 std, p=0.067)
+    Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std)
+    Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std)
+
+    Each flag now includes expected_f5_runs from the NegBin model (Script S).
+    When F5 TT lines are available, pass to compute_run_edge() to get
+    run_edge in absolute runs — bet when run_edge >= 0.40.
     """
     pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    flags = []
+    nb_bundle      = model.get('negbin_model_params')
+    flags          = []
 
     for game in games:
         matchups = [
@@ -244,12 +306,11 @@ def get_heatmap_flags(games, model):
             if not lineup or not pitcher_id:
                 continue
 
-            # Get pitcher handedness from existing pitcher scores
-            pitcher_hand = 'R'  # default
+            pitcher_hand = 'R'
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
 
-            scores = []
+            scores         = []
             scored_batters = 0
 
             for batter in lineup:
@@ -267,31 +328,37 @@ def get_heatmap_flags(games, model):
             if scored_batters < 3:
                 continue
 
-            team_score = sum(scores) / len(scores)
+            team_score    = sum(scores) / len(scores)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
+
+            # NegBin expected F5 runs
+            expected_f5 = get_expected_f5_runs(
+                overlap_k_mod = team_score,
+                model_bundle  = nb_bundle,
+            )
 
             if team_score >= HEATMAP_OVER_THRESHOLD:
                 signal = 'over'
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
-                continue  # no flag — middle of distribution
+                continue
 
             flags.append({
-                'game':           game_str,
-                'batting_team':   batting_team,
-                'fielding_team':  fielding_team,
-                'pitcher_name':   pitcher_name,
-                'pitcher_hand':   pitcher_hand,
-                'pitcher_id':     pitcher_id,
-                'overlap_score':  round(team_score, 4),
-                'std_from_mean':  round(std_from_mean, 2),
-                'signal':         signal,
-                'batters_scored': scored_batters,
-                'lineup_complete': len(lineup) >= 8,
+                'game':             game_str,
+                'batting_team':     batting_team,
+                'fielding_team':    fielding_team,
+                'pitcher_name':     pitcher_name,
+                'pitcher_hand':     pitcher_hand,
+                'pitcher_id':       pitcher_id,
+                'overlap_score':    round(team_score, 4),
+                'std_from_mean':    round(std_from_mean, 2),
+                'signal':           signal,
+                'batters_scored':   scored_batters,
+                'lineup_complete':  len(lineup) >= 8,
+                'expected_f5_runs': expected_f5,
             })
 
-    # Sort: strongest signals first (furthest from mean)
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
     return flags
 
@@ -342,18 +409,18 @@ def get_hr_picks(games, model):
                     hr_odds_str = pa_rate_to_game_odds(hr_adjusted)
                     hr_odds_num = int(hr_odds_str.replace('+', ''))
                     picks.append({
-                        'player_name':  batter['name'],
-                        'player_id':    batter_id,
-                        'pitcher_name': pitcher_name,
-                        'pitcher_id':   pitcher_id,
-                        'game':         game_str,
-                        'batting_team': batting_team,
+                        'player_name':   batter['name'],
+                        'player_id':     batter_id,
+                        'pitcher_name':  pitcher_name,
+                        'pitcher_id':    pitcher_id,
+                        'game':          game_str,
+                        'batting_team':  batting_team,
                         'fielding_team': fielding_team,
-                        'combined':     round(combined, 2),
-                        'hr_fair':      hr_odds_str,
-                        'hr_odds_num':  hr_odds_num,
-                        'tb3_fair':     pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
-                        'arch_name':    archetypes[arch_key]['name'],
+                        'combined':      round(combined, 2),
+                        'hr_fair':       hr_odds_str,
+                        'hr_odds_num':   hr_odds_num,
+                        'tb3_fair':      pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
+                        'arch_name':     archetypes[arch_key]['name'],
                     })
 
     seen = {}
@@ -362,6 +429,7 @@ def get_hr_picks(games, model):
         if pid not in seen or p['combined'] > seen[pid]['combined']:
             seen[pid] = p
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
+
 
 @app.route('/')
 def index():
@@ -399,16 +467,15 @@ def api_picks():
                       'complete': bool(g['home_lineup'] and g['away_lineup'])}
                      for g in games]
 
-        # ── Heat map TT flags (primary signal) ───────────────────────────
         heatmap_flags = get_heatmap_flags(games, model)
 
         return jsonify({
-            'date':           today,
-            'complete':       complete,
-            'total':          len(games),
-            'picks':          picks,
-            'heatmap_flags':  heatmap_flags,
-            'games':          games_out,
+            'date':          today,
+            'complete':      complete,
+            'total':         len(games),
+            'picks':         picks,
+            'heatmap_flags': heatmap_flags,
+            'games':         games_out,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
