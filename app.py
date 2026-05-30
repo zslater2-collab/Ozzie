@@ -25,7 +25,7 @@ FILE_IDS = {
     # Heat map models
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
-    'pitcher_contact_rates':    '1OzWCA_NviSwLLzh1ZtgLildwFQwRk6ly',  # pitcher_contact_rates.pkl
+    'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',  # pitcher_contact_rates_2026.pkl (2022-2025 weighted 1:2:3:4)
     # NegBin expected runs model (Script S)
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
 }
