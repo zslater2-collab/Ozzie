@@ -457,7 +457,7 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     """
     q_sigma = 1 if std_from_mean <= -1.5 else 0
     q_away  = 1 if is_away else 0
-    q_line  = 1 if (line_point is not None and line_point <= 2.5) else 0
+    q_line  = 1 if (line_point is not None and line_point <= 4.5) else 0  # full game TT proxy for F5 ≤ 2.5
     q_krate = 1 if (k_rate is not None and k_rate >= 0.28) else 0
 
     total = q_sigma + q_away + q_line + q_krate
@@ -625,7 +625,7 @@ def get_heatmap_flags(games, model):
                 confidence = get_confidence_tier(
                     std_from_mean = std_from_mean,
                     is_away       = is_away,
-                    line_point    = None,   # line not available at scoring time
+                    line_point    = live_lines.get(batting_team, {}).get('line'),
                     k_rate        = pitcher_k_rate,
                 )
                 if confidence is None:
@@ -668,6 +668,8 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
+                'f5_line':          live_lines.get(batting_team, {}).get('line'),
+                'f5_line_book':     live_lines.get(batting_team, {}).get('book'),
                 'game_time':        game.get('game_time'),
             })
 
