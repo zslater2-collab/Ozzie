@@ -172,10 +172,10 @@
     overflow: hidden;
   }
 
-  .hm-card.under {
-    border: 1px solid var(--blue);
-    box-shadow: 0 0 18px rgba(79, 184, 255, 0.08);
-  }
+  .hm-card.under        { border: 1px solid var(--blue);  box-shadow: 0 0 18px rgba(79,184,255,0.08); }
+  .hm-card.under.gold   { border: 1px solid #FFD700;      box-shadow: 0 0 14px rgba(255,215,0,0.18); }
+  .hm-card.under.silver { border: 1px solid #C0C0C0;      box-shadow: 0 0 10px rgba(192,192,192,0.14); }
+  .hm-card.under.bronze { border: 1px solid #CD7F32;      box-shadow: 0 0 8px rgba(205,127,50,0.12); }
 
   .hm-card.under::before {
     content: '';
@@ -359,20 +359,6 @@
     padding: 12px 14px;
     margin-bottom: 7px;
     animation: fadeIn 0.25s ease both;
-  }
-
-  .pick-card.gold   { border-color: rgba(255,215,0,0.55);   box-shadow: 0 0 14px rgba(255,215,0,0.07); }
-  .pick-card.silver { border-color: rgba(192,192,192,0.45); box-shadow: 0 0 14px rgba(192,192,192,0.06); }
-  .pick-card.bronze { border-color: rgba(205,127,50,0.45);  box-shadow: 0 0 14px rgba(205,127,50,0.06); }
-
-  .game-time-tag {
-    font-size: 0.58rem;
-    letter-spacing: 0.07em;
-    color: var(--muted);
-    background: var(--bg);
-    border: 1px solid var(--dim);
-    border-radius: 4px;
-    padding: 2px 6px;
   }
 
   @keyframes fadeIn {
@@ -576,7 +562,7 @@
   // ── F5 single team card ───────────────────────────────────────────────────
   function buildFlagCard(f, i) {
     const card = document.createElement('div');
-    card.className = 'hm-card under';
+    card.className = 'hm-card under ' + (f.confidence_color || '');
     card.style.animationDelay = `${i * 0.06}s`;
 
     const sigmaSign  = f.std_from_mean >= 0 ? '+' : '';
@@ -623,6 +609,7 @@
           <div class="hm-sigma under">${sigmaLabel}</div>
         </div>
       </div>
+      <div style="font-size:0.6rem;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px">${f.game_time || ''}</div>
       ${confBadge}
       ${qualsHtml}
       <div class="hm-divider"></div>
@@ -747,7 +734,7 @@
         (data.games || []).forEach(g => {
           const chip = document.createElement('div');
           chip.className = 'game-chip';
-          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}${g.game_time ? ' · ' + g.game_time : ''}`;
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
           row.appendChild(chip);
         });
         document.getElementById('games-section').style.display = 'block';
@@ -796,11 +783,7 @@
 
         picks.forEach((p, i) => {
           const card = document.createElement('div');
-          // Tier border by combined score
-          let tier = 'bronze';
-          if (p.combined >= 6.0)      tier = 'gold';
-          else if (p.combined >= 5.5) tier = 'silver';
-          card.className = `pick-card ${tier}`;
+          card.className = 'pick-card';
           card.style.animationDelay = `${i * 0.04}s`;
 
           const hrClass = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
@@ -813,8 +796,6 @@
             teamTagExtra = ' ▼';
           }
 
-          const timeTag = p.game_time ? `<span class="game-time-tag">${p.game_time}</span>` : '';
-
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
@@ -826,7 +807,6 @@
               <span class="${teamTagClass}">${p.batting_team}${teamTagExtra}</span>
               <span class="tag">vs ${p.pitcher_name}</span>
               <span class="tag arch">${p.arch_name}</span>
-              ${timeTag}
             </div>`;
           list.appendChild(card);
         });
