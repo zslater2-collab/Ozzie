@@ -420,32 +420,54 @@ def get_f5_fair_odds(expected_runs):
     }
 
 
-def get_f5_tier(std_from_mean):
+def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     """
-    Classify F5 under flag into signal strength tier.
-    Tiers validated May 2026 backtest vs Pinnacle fixed lines.
+    Qualifier-based confidence tier for F5 under flags.
+    Validated May 2026 on full 2025 Pinnacle fixed lines backtest (n=504).
 
-    Tier 1: ≤ -2.0σ  — n=102, 86.3% hit, +0.640 ROI
-    Tier 2: -1.5→-2.0σ — n=125, 81.5% hit, +0.550 ROI
-    Tier 3: -1.0→-1.5σ — n=250, 79.0% hit, +0.502 ROI
+    Qualifiers (0-4):
+      q_sigma: std_from_mean ≤ -1.5          (+1)
+      q_away:  batting team is away           (+1)
+      q_line:  market line ≤ 2.5             (+1)
+      q_krate: pitcher K rate ≥ 28%          (+1)
 
-    Minimum odds (break-even based, uniform across tiers):
-      U1.5: +100  (break-evens -103 to -119)
-      U2.5: -200  (break-evens -205 to -386)
-      U3.5: -350  (break-evens -372 to -827)
+    Outcomes:
+      0-1 qualifiers: GATED — not shown      (n=181, 73-74% hit)
+      2 qualifiers:   BRONZE                 (n=168, 77.4% hit, +0.468 ROI)
+      3 qualifiers:   SILVER                 (n=115, 86.1% hit, +0.628 ROI)
+      4 qualifiers:   GOLD                   (n=40,  87.5% hit, +0.766 ROI)
+
+    Minimum odds (break-even based, uniform):
+      U1.5: +100  |  U2.5: -200  |  U3.5: -350
     """
-    if std_from_mean <= -2.0:
-        tier = 1
-    elif std_from_mean <= -1.5:
-        tier = 2
+    q_sigma = 1 if std_from_mean <= -1.5 else 0
+    q_away  = 1 if is_away else 0
+    q_line  = 1 if (line_point is not None and line_point <= 2.5) else 0
+    q_krate = 1 if (k_rate is not None and k_rate >= 0.28) else 0
+
+    total = q_sigma + q_away + q_line + q_krate
+
+    if total <= 1:
+        return None  # gated
+
+    if total == 2:
+        label, color = 'Bronze', 'bronze'
+    elif total == 3:
+        label, color = 'Silver', 'silver'
     else:
-        tier = 3
+        label, color = 'Gold', 'gold'
+
     return {
-        'tier':    tier,
-        'label':   f'Tier {tier}',
-        'min_u15': '+100',
-        'min_u25': '-200',
-        'min_u35': '-350',
+        'qualifier_count': total,
+        'label':           label,
+        'color':           color,
+        'q_sigma':         bool(q_sigma),
+        'q_away':          bool(q_away),
+        'q_line':          bool(q_line),
+        'q_krate':         bool(q_krate),
+        'min_u15':         '+100',
+        'min_u25':         '-200',
+        'min_u35':         '-350',
     }
 
 
@@ -575,7 +597,18 @@ def get_heatmap_flags(games, model):
                 else:
                     continue
 
-            tier_info = get_f5_tier(std_from_mean) if signal == 'under' else None
+            # Qualifier-based confidence tier (gates 0-1 qualifiers)
+            confidence = None
+            is_away    = (batting_team == game['away_team'])
+            if signal == 'under':
+                confidence = get_confidence_tier(
+                    std_from_mean = std_from_mean,
+                    is_away       = is_away,
+                    line_point    = None,   # line not available at scoring time
+                    k_rate        = None,   # k_rate not available at scoring time
+                )
+                if confidence is None:
+                    continue  # gated — 0-1 qualifiers
 
             flags.append({
                 'game':             game_str,
@@ -594,12 +627,17 @@ def get_heatmap_flags(games, model):
                 'fair_over_1_5':    fair_odds['fair_over_1_5'],
                 'fair_under_2_5':   fair_odds['fair_under_2_5'],
                 'fair_over_2_5':    fair_odds['fair_over_2_5'],
-                # Tier classification and minimum odds
-                'tier':             tier_info['tier']    if tier_info else None,
-                'tier_label':       tier_info['label']   if tier_info else None,
-                'min_u15':          tier_info['min_u15'] if tier_info else None,
-                'min_u25':          tier_info['min_u25'] if tier_info else None,
-                'min_u35':          tier_info['min_u35'] if tier_info else None,
+                # Qualifier-based confidence tier
+                'confidence_label':   confidence['label']           if confidence else None,
+                'confidence_color':   confidence['color']           if confidence else None,
+                'qualifier_count':    confidence['qualifier_count'] if confidence else 0,
+                'q_sigma':            confidence['q_sigma']         if confidence else False,
+                'q_away':             confidence['q_away']          if confidence else False,
+                'q_line':             confidence['q_line']          if confidence else False,
+                'q_krate':            confidence['q_krate']         if confidence else False,
+                'min_u15':            confidence['min_u15']         if confidence else None,
+                'min_u25':            confidence['min_u25']         if confidence else None,
+                'min_u35':            confidence['min_u35']         if confidence else None,
                 # FG two-leg under signal
                 'fg_under_signal':  fg_flag['fg_under_signal'],
                 'fg_starter_z':     fg_flag['starter_z'],
