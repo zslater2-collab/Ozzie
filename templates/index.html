@@ -741,7 +741,8 @@
         (data.games || []).forEach(g => {
           const chip = document.createElement('div');
           chip.className = 'game-chip';
-          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
+          const timeStr = g.game_time ? `<span style="font-size:0.6rem;color:var(--muted);margin-left:5px">${g.game_time}</span>` : '';
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}${timeStr}`;
           row.appendChild(chip);
         });
         document.getElementById('games-section').style.display = 'block';
