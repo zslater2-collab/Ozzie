@@ -272,6 +272,19 @@ def get_lineups_and_starters(game_date):
                         })
             except Exception:
                 pass
+            # Parse game time — convert UTC to ET
+            game_time = None
+            try:
+                raw_time = g.get('gameDate', '')
+                if raw_time:
+                    utc_dt   = datetime.strptime(raw_time, '%Y-%m-%dT%H:%M:%SZ')
+                    utc_dt   = utc_dt.replace(tzinfo=pytz.utc)
+                    et_dt    = utc_dt.astimezone(pytz.timezone('America/New_York'))
+                    game_time = et_dt.strftime('%-I:%M %p ET').replace('AM', 'AM ET').replace('PM', 'PM ET')
+                    game_time = et_dt.strftime('%-I:%M %p') + ' ET'
+            except Exception:
+                pass
+
             games.append({
                 'game_id':           gid,
                 'home_team':         home,
@@ -282,6 +295,7 @@ def get_lineups_and_starters(game_date):
                 'away_pitcher_name': ap.get('fullName', 'TBD'),
                 'home_lineup':       home_lineup,
                 'away_lineup':       away_lineup,
+                'game_time':         game_time,
             })
     return games
 
@@ -654,9 +668,49 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
+                'game_time':        game.get('game_time'),
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
+
+    # ── Combined F5 game total signal ─────────────────────────────────────────
+    # Signal: either starter ≤ -2.0σ + away suppressed (≤-1.5σ)
+    #         + home NOT suppressed (>-1.5σ) + home K rate < 28%
+    # Validated: n=72, 69.4% U4.5 hit, be=-227
+    # Min odds: U4.5 -200, U5.5 -300
+    game_flags = {}
+    for f in flags:
+        if f['signal'] != 'under':
+            continue
+        g = f['game']
+        if g not in game_flags:
+            game_flags[g] = []
+        game_flags[g].append(f)
+
+    for f in flags:
+        f['combined_f5_signal'] = False
+
+    for game_str, gflags in game_flags.items():
+        if len(gflags) < 2:
+            continue
+        away_flag = next((f for f in gflags if f['q_away']), None)
+        home_flag = next((f for f in gflags if not f['q_away']), None)
+        if not away_flag or not home_flag:
+            continue
+
+        away_std     = away_flag['std_from_mean']
+        home_std     = home_flag['std_from_mean']
+        home_k_rate  = home_flag.get('pitcher_k_rate') or 1.0
+
+        either_sigma_20  = away_std <= -2.0 or home_std <= -2.0
+        away_suppressed  = away_std <= -1.5
+        home_not_sup     = home_std > -1.5
+        home_low_k       = home_k_rate < 0.28
+
+        if either_sigma_20 and away_suppressed and home_not_sup and home_low_k:
+            away_flag['combined_f5_signal'] = True
+            home_flag['combined_f5_signal'] = True
+
     return flags
 
 
@@ -897,10 +951,14 @@ def api_notify():
             sigma = f.get('std_from_mean', 0)
             medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '📌')
             fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
+            comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
+            time  = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(
                 f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"({tier}, {sigma:+.2f}σ){fg}"
+                f"({tier}, {sigma:+.2f}σ){fg}{comb}{time}"
             )
+            if f.get('combined_f5_signal'):
+                lines.append(f"   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
             lines.append(
                 f"   U1.5 {f.get('min_u15','—')} | U2.5 {f.get('min_u25','—')} | U3.5 {f.get('min_u35','—')}"
             )
