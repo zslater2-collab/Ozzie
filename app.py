@@ -812,15 +812,34 @@ def redis_get(key):
 def redis_set(key, value, ex=86400):
     """Set a key in Upstash Redis with TTL in seconds (default 24h)."""
     try:
-        requests.post(
-            f"{UPSTASH_URL}/set/{key}",
-            headers={'Authorization': f'Bearer {UPSTASH_TOKEN}',
-                     'Content-Type': 'application/json'},
-            json={'value': value, 'ex': ex},
+        from urllib.parse import quote
+        encoded_key   = quote(key,   safe='')
+        encoded_value = quote(value, safe='')
+        r = requests.post(
+            f"{UPSTASH_URL}/set/{encoded_key}/{encoded_value}?ex={ex}",
+            headers={'Authorization': f'Bearer {UPSTASH_TOKEN}'},
             timeout=5
         )
+        print(f"Redis SET {key}: {r.status_code} {r.text}")
     except Exception as e:
         print(f"Redis SET error: {e}")
+
+
+def redis_get(key):
+    """Fetch a key from Upstash Redis REST API. Returns value string or None."""
+    try:
+        from urllib.parse import quote
+        encoded_key = quote(key, safe='')
+        r = requests.get(
+            f"{UPSTASH_URL}/get/{encoded_key}",
+            headers={'Authorization': f'Bearer {UPSTASH_TOKEN}'},
+            timeout=5
+        )
+        data = r.json()
+        return data.get('result')
+    except Exception as e:
+        print(f"Redis GET error: {e}")
+        return None
 
 
 def send_telegram(message):
