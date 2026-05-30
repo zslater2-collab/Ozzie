@@ -579,11 +579,12 @@
 
     const qualChip = (met, label) =>
       `<span class="qual-chip ${met ? 'met' : 'miss'}">${label}</span>`;
+    const lineLabel = f.f5_line ? `Line ≤ ${f.f5_line} (${f.f5_line_book || ''})` : 'Line ≤ 2.5';
     const qualsHtml = `
       <div class="qualifiers-row">
         ${qualChip(f.q_sigma, 'σ ≤ -1.5')}
         ${qualChip(f.q_away,  'Away')}
-        ${qualChip(f.q_line,  'Line ≤ 2.5')}
+        ${qualChip(f.q_line,  lineLabel)}
         ${qualChip(f.q_krate, 'K ≥ 28%')}
       </div>`;
 
