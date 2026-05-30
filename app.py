@@ -546,6 +546,7 @@ def get_heatmap_flags(games, model):
     nb_bundle         = model.get('negbin_model_params')
     contact_rates     = model.get('pitcher_contact_rates', {})  # {pitcher_id: {k_rate: float}}
     fg_in_window      = is_fg_valid_window()
+    live_lines        = pull_f5_team_total_lines()  # {team_code: {line, book}} — cached 60 min
     flags             = []
 
     for game in games:
@@ -849,21 +850,10 @@ TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
 UPSTASH_URL         = os.environ.get('UPSTASH_REDIS_REST_URL', '')
 UPSTASH_TOKEN       = os.environ.get('UPSTASH_REDIS_REST_TOKEN', '')
+ODDS_API_KEY        = os.environ.get('ODDS_API_KEY', '')
+ODDS_API_BOOKMAKERS = 'draftkings'   # DK for line detection; bet TheScore/Fanatics
+ODDS_LINE_THRESHOLD = 4.5            # full game TT proxy for F5 ≤ 2.5
 
-
-def redis_get(key):
-    """Fetch a key from Upstash Redis REST API. Returns value string or None."""
-    try:
-        r = requests.get(
-            f"{UPSTASH_URL}/get/{key}",
-            headers={'Authorization': f'Bearer {UPSTASH_TOKEN}'},
-            timeout=5
-        )
-        data = r.json()
-        return data.get('result')
-    except Exception as e:
-        print(f"Redis GET error: {e}")
-        return None
 
 
 def redis_set(key, value, ex=86400):
@@ -897,6 +887,100 @@ def redis_get(key):
     except Exception as e:
         print(f"Redis GET error: {e}")
         return None
+
+
+def pull_f5_team_total_lines():
+    """
+    Pull live team total lines from DraftKings via Odds API.
+    Cached in Redis for 60 min — one pull covers all games.
+    Returns dict: {team_code: {'line': float, 'book': str}}
+    q_line fires when batting team line ≤ 4.5 (full game proxy for F5 ≤ 2.5).
+    Validated: q_line fires at 4.5 threshold, DK-only to minimize credit burn.
+    """
+    if not ODDS_API_KEY:
+        return {}
+
+    import json as _json
+    today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+    redis_key = f"ozzie:lines:{today}"
+
+    cached = redis_get(redis_key)
+    if cached:
+        try:
+            return _json.loads(cached)
+        except Exception:
+            pass
+
+    NAME_MAP = {
+        "Arizona Diamondbacks": "AZ", "Atlanta Braves": "ATL",
+        "Baltimore Orioles": "BAL", "Boston Red Sox": "BOS",
+        "Chicago Cubs": "CHC", "Chicago White Sox": "CWS",
+        "Cincinnati Reds": "CIN", "Cleveland Guardians": "CLE",
+        "Colorado Rockies": "COL", "Detroit Tigers": "DET",
+        "Houston Astros": "HOU", "Kansas City Royals": "KC",
+        "Los Angeles Angels": "LAA", "Los Angeles Dodgers": "LAD",
+        "Miami Marlins": "MIA", "Milwaukee Brewers": "MIL",
+        "Minnesota Twins": "MIN", "New York Mets": "NYM",
+        "New York Yankees": "NYY", "Oakland Athletics": "OAK",
+        "Philadelphia Phillies": "PHI", "Pittsburgh Pirates": "PIT",
+        "San Diego Padres": "SD", "San Francisco Giants": "SF",
+        "Seattle Mariners": "SEA", "St. Louis Cardinals": "STL",
+        "Tampa Bay Rays": "TB", "Texas Rangers": "TEX",
+        "Toronto Blue Jays": "TOR", "Washington Nationals": "WSH",
+        "Athletics": "OAK",
+    }
+
+    try:
+        r = requests.get(
+            "https://api.the-odds-api.com/v4/sports/baseball_mlb/odds",
+            params={'apiKey': ODDS_API_KEY, 'regions': 'us',
+                    'markets': 'h2h', 'oddsFormat': 'american'},
+            timeout=10
+        )
+        if r.status_code != 200:
+            print(f"Odds API events error: {r.status_code}")
+            return {}
+        events = r.json()
+    except Exception as e:
+        print(f"Odds API fetch error: {e}")
+        return {}
+
+    lines = {}
+    for ev in events:
+        try:
+            r2 = requests.get(
+                f"https://api.the-odds-api.com/v4/sports/baseball_mlb/events/{ev['id']}/odds",
+                params={
+                    'apiKey':     ODDS_API_KEY,
+                    'regions':    'us',
+                    'markets':    'team_totals',
+                    'bookmakers': ODDS_API_BOOKMAKERS,
+                    'oddsFormat': 'american',
+                },
+                timeout=10
+            )
+            if r2.status_code != 200:
+                continue
+            data = r2.json()
+            for bm in data.get('bookmakers', []):
+                for mkt in bm.get('markets', []):
+                    if mkt.get('key') != 'team_totals':
+                        continue
+                    for o in mkt.get('outcomes', []):
+                        if o['name'] == 'Under' and o.get('description'):
+                            code = NAME_MAP.get(o['description'])
+                            if code and code not in lines:
+                                lines[code] = {'line': o['point'], 'book': bm['key']}
+                break
+        except Exception as e:
+            print(f"Odds API per-event error: {e}")
+            continue
+
+    if lines:
+        redis_set(redis_key, _json.dumps(lines), ex=3600)
+        print(f"Odds API: cached {len(lines)} team lines")
+
+    return lines
 
 
 def send_telegram(message):
