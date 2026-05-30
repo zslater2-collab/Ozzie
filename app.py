@@ -815,7 +815,8 @@ def api_picks():
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
-                      'complete': bool(g['home_lineup'] and g['away_lineup'])}
+                      'complete': bool(g['home_lineup'] and g['away_lineup']),
+                      'game_time': g.get('game_time')}
                      for g in games]
 
         heatmap_flags = get_heatmap_flags(games, model)
