@@ -361,6 +361,20 @@
     animation: fadeIn 0.25s ease both;
   }
 
+  .pick-card.gold   { border-color: rgba(255,215,0,0.55);   box-shadow: 0 0 14px rgba(255,215,0,0.07); }
+  .pick-card.silver { border-color: rgba(192,192,192,0.45); box-shadow: 0 0 14px rgba(192,192,192,0.06); }
+  .pick-card.bronze { border-color: rgba(205,127,50,0.45);  box-shadow: 0 0 14px rgba(205,127,50,0.06); }
+
+  .game-time-tag {
+    font-size: 0.58rem;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--dim);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -733,7 +747,7 @@
         (data.games || []).forEach(g => {
           const chip = document.createElement('div');
           chip.className = 'game-chip';
-          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}`;
+          chip.innerHTML = `<div class="dot ${g.complete ? 'ready' : 'pending'}"></div>${g.away} @ ${g.home}${g.game_time ? ' · ' + g.game_time : ''}`;
           row.appendChild(chip);
         });
         document.getElementById('games-section').style.display = 'block';
@@ -782,7 +796,11 @@
 
         picks.forEach((p, i) => {
           const card = document.createElement('div');
-          card.className = 'pick-card';
+          // Tier border by combined score
+          let tier = 'bronze';
+          if (p.combined >= 6.0)      tier = 'gold';
+          else if (p.combined >= 5.5) tier = 'silver';
+          card.className = `pick-card ${tier}`;
           card.style.animationDelay = `${i * 0.04}s`;
 
           const hrClass = p.hr_odds_num <= 1000 ? 'hr-odds' : 'tb-odds';
@@ -795,6 +813,8 @@
             teamTagExtra = ' ▼';
           }
 
+          const timeTag = p.game_time ? `<span class="game-time-tag">${p.game_time}</span>` : '';
+
           card.innerHTML = `
             <div class="pick-main">
               <div class="player-name">${p.player_name}</div>
@@ -806,6 +826,7 @@
               <span class="${teamTagClass}">${p.batting_team}${teamTagExtra}</span>
               <span class="tag">vs ${p.pitcher_name}</span>
               <span class="tag arch">${p.arch_name}</span>
+              ${timeTag}
             </div>`;
           list.appendChild(card);
         });
