@@ -579,20 +579,23 @@
 
     const qualChip = (met, label) =>
       `<span class="qual-chip ${met ? 'met' : 'miss'}">${label}</span>`;
-    const lineLabel = f.f5_line ? `Line ≤ ${f.f5_line} (${f.f5_line_book || ''})` : 'Line ≤ 2.5';
     const qualsHtml = `
       <div class="qualifiers-row">
         ${qualChip(f.q_sigma, 'σ ≤ -1.5')}
         ${qualChip(f.q_away,  'Away')}
-        ${qualChip(f.q_line,  lineLabel)}
         ${qualChip(f.q_krate, 'K ≥ 28%')}
       </div>`;
 
+    const upgradeLabel = f.confidence_label === 'Bronze' ? 'Silver if U2.5 available' : f.confidence_label === 'Silver' ? 'Gold if U2.5 available' : '';
     const minOddsHtml = (f.min_u15 || f.min_u25 || f.min_u35) ? `
       <div style="font-size:0.55rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px">Min Odds to Bet</div>
       <div class="min-odds-row">
         <div class="min-odds-cell"><div class="min-odds-line">U 1.5</div><div class="min-odds-val">${f.min_u15 || '—'}</div></div>
-        <div class="min-odds-cell"><div class="min-odds-line">U 2.5</div><div class="min-odds-val">${f.min_u25 || '—'}</div></div>
+        <div class="min-odds-cell" style="border-color:rgba(79,184,255,0.4);background:rgba(79,184,255,0.08)">
+          <div class="min-odds-line" style="color:var(--blue)">U 2.5 ★</div>
+          <div class="min-odds-val">${f.min_u25 || '—'}</div>
+          ${upgradeLabel ? `<div style="font-size:0.5rem;color:var(--blue);margin-top:2px">${upgradeLabel}</div>` : ''}
+        </div>
         <div class="min-odds-cell"><div class="min-odds-line">U 3.5</div><div class="min-odds-val">${f.min_u35 || '—'}</div></div>
       </div>` : '';
 
