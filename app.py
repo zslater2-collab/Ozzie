@@ -940,7 +940,7 @@ def api_notify():
         for f in new_flags:
             tier  = f.get('confidence_label', '—')
             sigma = f.get('std_from_mean', 0)
-            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '📌')
+            medal = {'Gold': '🔥🔥🔥', 'Silver': '🔥🔥', 'Bronze': '🔥'}.get(tier, '🔥')
             fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
             comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
             time  = f" — {f['game_time']}" if f.get('game_time') else ''
