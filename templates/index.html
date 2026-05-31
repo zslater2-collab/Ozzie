@@ -586,17 +586,35 @@
         ${qualChip(f.q_krate, 'K ≥ 28%')}
       </div>`;
 
-    const upgradeLabel = f.confidence_label === 'Bronze' ? 'Silver if U2.5 available' : f.confidence_label === 'Silver' ? 'Gold if U2.5 available' : '';
+    // Tier color map
+    const tierColors = {
+      bronze:   { border: '#CD7F32', bg: 'rgba(205,127,50,0.10)',  text: '#CD7F32' },
+      silver:   { border: '#C0C0C0', bg: 'rgba(192,192,192,0.10)', text: '#C0C0C0' },
+      gold:     { border: '#FFD700', bg: 'rgba(255,215,0,0.10)',   text: '#FFD700' },
+      platinum: { border: '#888',    bg: 'rgba(136,136,136,0.06)', text: '#888'    },
+    };
+    // U1.5 = current tier, U2.5 = one tier up, U3.5 = platinum/reference
+    const u15tier  = f.confidence_color || 'bronze';
+    const u25tier  = u15tier === 'bronze' ? 'silver' : u15tier === 'silver' ? 'gold' : 'gold';
+    const u35tier  = 'platinum';
+    const cellStyle = (t) => `border-color:${tierColors[t].border};background:${tierColors[t].bg}`;
+    const labelStyle = (t) => `color:${tierColors[t].text}`;
+
     const minOddsHtml = (f.min_u15 || f.min_u25 || f.min_u35) ? `
       <div style="font-size:0.55rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px">Min Odds to Bet</div>
       <div class="min-odds-row">
-        <div class="min-odds-cell"><div class="min-odds-line">U 1.5</div><div class="min-odds-val">${f.min_u15 || '—'}</div></div>
-        <div class="min-odds-cell" style="border-color:rgba(79,184,255,0.4);background:rgba(79,184,255,0.08)">
-          <div class="min-odds-line" style="color:var(--blue)">U 2.5 ★</div>
-          <div class="min-odds-val">${f.min_u25 || '—'}</div>
-          ${upgradeLabel ? `<div style="font-size:0.5rem;color:var(--blue);margin-top:2px">${upgradeLabel}</div>` : ''}
+        <div class="min-odds-cell" style="${cellStyle(u15tier)}">
+          <div class="min-odds-line" style="${labelStyle(u15tier)}">U 1.5</div>
+          <div class="min-odds-val" style="${labelStyle(u15tier)}">${f.min_u15 || '—'}</div>
         </div>
-        <div class="min-odds-cell"><div class="min-odds-line">U 3.5</div><div class="min-odds-val">${f.min_u35 || '—'}</div></div>
+        <div class="min-odds-cell" style="${cellStyle(u25tier)}">
+          <div class="min-odds-line" style="${labelStyle(u25tier)}">U 2.5</div>
+          <div class="min-odds-val" style="${labelStyle(u25tier)}">${f.min_u25 || '—'}</div>
+        </div>
+        <div class="min-odds-cell" style="${cellStyle(u35tier)}">
+          <div class="min-odds-line" style="${labelStyle(u35tier)}">U 3.5</div>
+          <div class="min-odds-val" style="${labelStyle(u35tier)}">${f.min_u35 || '—'}</div>
+        </div>
       </div>` : '';
 
     const fgHtml = f.fg_under_signal ? `
