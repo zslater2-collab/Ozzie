@@ -525,9 +525,18 @@
 </div>
 
 <div id="no-picks">
-  No picks yet.<br>
-  Check back closer to game time.
+  <span id="no-picks-msg">No picks yet.<br>Check back closer to game time.</span>
 </div>
+<script>
+  // Update message based on time of day
+  (function() {
+    const hr = new Date().getHours();
+    const msg = document.getElementById('no-picks-msg');
+    if (msg && hr >= 20) {
+      msg.innerHTML = "Today\'s slate is complete.<br>Check back tomorrow morning.";
+    }
+  })();
+</script>
 
 <footer><a href="/logout">sign out</a></footer>
 
