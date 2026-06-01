@@ -251,6 +251,12 @@ def get_lineups_and_starters(game_date):
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
             gid  = g['gamePk']
+
+            # Pregame lock — only score games not yet started
+            game_status = g.get('status', {}).get('abstractGameState', '')
+            if game_status not in ('Preview', ''):
+                continue  # skip In Progress, Final, etc.
+
             home = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
             away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
             hp   = g['teams']['home'].get('probablePitcher', {})
@@ -441,36 +447,39 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     Validated May 2026 on full 2025 Pinnacle fixed lines backtest (n=504).
 
     Qualifiers (0-4):
-      q_sigma: std_from_mean ≤ -1.5          (+1)
-      q_away:  batting team is away           (+1)
-      q_line:  market line ≤ 2.5             (+1)
-      q_krate: pitcher K rate ≥ 28%          (+1)
+      q_sigma:    std_from_mean ≤ -1.5        (+1)
+      q_away:     batting team is away         (+1)
+      q_krate_lo: pitcher K rate ≥ 26%        (+1)
+      q_krate_hi: pitcher K rate ≥ 28%        (+1)
 
+    Bronze promotion: 0-2 qualifiers but K≥26% or line=2.5 → Bronze
+    
     Outcomes:
-      0-1 qualifiers: GATED — not shown      (n=181, 73-74% hit)
-      2 qualifiers:   BRONZE                 (n=168, 77.4% hit, +0.468 ROI)
-      3 qualifiers:   SILVER                 (n=115, 86.1% hit, +0.628 ROI)
-      4 qualifiers:   GOLD                   (n=40,  87.5% hit, +0.766 ROI)
+      Gated:   no K≥26% and no line=2.5      (n=107, 67.3% hit)
+      Bronze:  K≥26% or line=2.5 (0-2 quals) (n=141, 77.3% hit, +0.480 ROI)
+      Silver:  3 qualifiers                   (n=157, 81.5% hit, +0.554 ROI)
+      Gold:    4 qualifiers                   (n=99,  89.9% hit, +0.699 ROI)
 
-    Minimum odds (break-even based, uniform):
-      U1.5: +100  |  U2.5: -200  |  U3.5: -350
+    U2.5 overlay (manual): Bronze→Silver confidence, Silver→Gold confidence
+    Minimum odds: U1.5 +100 | U2.5 -200 | U3.5 -350
     """
-    q_sigma = 1 if std_from_mean <= -1.5 else 0
-    q_away  = 1 if is_away else 0
-    q_line  = 0  # retired — U2.5 checked manually; Bronze→Silver, Silver→Gold
-    q_krate = 1 if (k_rate is not None and k_rate >= 0.28) else 0
+    q_sigma    = 1 if std_from_mean <= -1.5 else 0
+    q_away     = 1 if is_away else 0
+    q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
+    q_krate_hi = 1 if (k_rate is not None and k_rate >= 0.28) else 0
+    q_line     = 1 if (line_point is not None and line_point <= 2.5) else 0
 
-    total = q_sigma + q_away + q_line + q_krate
+    total = q_sigma + q_away + q_krate_lo + q_krate_hi
 
-    if total <= 1:
-        return None  # gated
-
-    if total == 2:
-        label, color = 'Bronze', 'bronze'
+    # Tier assignment
+    if total == 4:
+        label, color = 'Gold', 'gold'
     elif total == 3:
         label, color = 'Silver', 'silver'
+    elif total <= 2 and (q_krate_lo or q_line):
+        label, color = 'Bronze', 'bronze'
     else:
-        label, color = 'Gold', 'gold'
+        return None  # gated — no K≥26% and no line=2.5
 
     return {
         'qualifier_count': total,
@@ -478,8 +487,8 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
         'color':           color,
         'q_sigma':         bool(q_sigma),
         'q_away':          bool(q_away),
-        'q_line':          bool(q_line),
-        'q_krate':         bool(q_krate),
+        'q_krate_lo':      bool(q_krate_lo),
+        'q_krate_hi':      bool(q_krate_hi),
         'min_u15':         '+100',
         'min_u25':         '-200',
         'min_u35':         '-350',
@@ -654,8 +663,8 @@ def get_heatmap_flags(games, model):
                 'qualifier_count':    confidence['qualifier_count'] if confidence else 0,
                 'q_sigma':            confidence['q_sigma']         if confidence else False,
                 'q_away':             confidence['q_away']          if confidence else False,
-                'q_line':             confidence['q_line']          if confidence else False,
-                'q_krate':            confidence['q_krate']         if confidence else False,
+                'q_krate_lo':         confidence['q_krate_lo']      if confidence else False,
+                'q_krate_hi':         confidence['q_krate_hi']      if confidence else False,
                 'min_u15':            confidence['min_u15']         if confidence else None,
                 'min_u25':            confidence['min_u25']         if confidence else None,
                 'min_u35':            confidence['min_u35']         if confidence else None,
@@ -940,7 +949,7 @@ def api_notify():
         for f in new_flags:
             tier  = f.get('confidence_label', '—')
             sigma = f.get('std_from_mean', 0)
-            medal = {'Gold': '🔥🔥🔥', 'Silver': '🔥🔥', 'Bronze': '🔥'}.get(tier, '🔥')
+            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
             fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
             comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
             time  = f" — {f['game_time']}" if f.get('game_time') else ''
