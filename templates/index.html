@@ -606,10 +606,12 @@
         <div class="min-odds-cell" style="${cellStyle(u15tier)}">
           <div class="min-odds-line" style="${labelStyle(u15tier)}">U 1.5</div>
           <div class="min-odds-val" style="${labelStyle(u15tier)}">${f.min_u15 || '—'}</div>
+          <div style="font-size:0.55rem;${labelStyle(u15tier)};margin-top:2px;opacity:0.8">${f.unit_u15 || ''}</div>
         </div>
         <div class="min-odds-cell" style="${cellStyle(u25tier)}">
           <div class="min-odds-line" style="${labelStyle(u25tier)}">U 2.5</div>
           <div class="min-odds-val" style="${labelStyle(u25tier)}">${f.min_u25 || '—'}</div>
+          <div style="font-size:0.55rem;${labelStyle(u25tier)};margin-top:2px;opacity:0.8">${f.unit_u25 || ''}</div>
         </div>
       </div>` : '';
 
