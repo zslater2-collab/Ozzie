@@ -426,6 +426,38 @@
   .fg-signal-label { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); }
   .fg-signal-val   { font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.06em; color:var(--blue); }
 
+  /* ── DFS Section ─────────────────────────────────────────────────── */
+  #dfs-section { padding: 20px 20px 0; display: none; }
+
+  .dfs-sub-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .dfs-batter-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 6px;
+  }
+
+  .dfs-slot {
+    font-size: 0.6rem;
+    color: var(--muted);
+    width: 22px;
+    flex-shrink: 0;
+  }
+
+  .dfs-name {
+    font-size: 0.78rem;
+    flex: 1;
+  }
+
   #no-picks {
     display: none;
     text-align: center;
@@ -503,6 +535,28 @@
   </div>
 </div>
 
+<!-- DFS Picks -->
+<div id="dfs-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="dfs-count"></div>
+      <div class="section-label" style="margin:0">DFS
+        <span style="font-size:0.55rem;letter-spacing:0.1em;color:var(--accent);
+                     margin-left:8px;text-transform:uppercase">Beta</span>
+      </div>
+    </div>
+    <div id="dfs-pitchers-wrap" style="display:none">
+      <div class="dfs-sub-label" style="margin-top:0">Pitcher Plays</div>
+      <div id="dfs-pitchers"></div>
+    </div>
+    <div id="dfs-stacks-wrap" style="display:none">
+      <div class="dfs-sub-label">Stack Targets</div>
+      <div id="dfs-stacks"></div>
+    </div>
+  </div>
+</div>
+
 <!-- HR Picks (Watchlist) -->
 <div id="picks-section">
   <div class="divider"></div>
@@ -528,7 +582,6 @@
   <span id="no-picks-msg">No picks yet.<br>Check back closer to game time.</span>
 </div>
 <script>
-  // Update message based on time of day
   (function() {
     const hr = new Date().getHours();
     const msg = document.getElementById('no-picks-msg');
@@ -596,31 +649,29 @@
         ${qualChip(f.q_krate_hi, 'K ≥ 28%')}
       </div>`;
 
-    // Tier color map
     const tierColors = {
       bronze:   { border: '#CD7F32', bg: 'rgba(205,127,50,0.10)',  text: '#CD7F32' },
       silver:   { border: '#C0C0C0', bg: 'rgba(192,192,192,0.10)', text: '#C0C0C0' },
       gold:     { border: '#FFD700', bg: 'rgba(255,215,0,0.10)',   text: '#FFD700' },
       platinum: { border: '#E5E4E2', bg: 'rgba(229,228,226,0.08)', text: '#E5E4E2' },
     };
-    // Both cells match card tier — no cascade
     const u15tier  = f.confidence_color || 'bronze';
-    const u25tier  = u15tier;
-    const cellStyle = (t) => `border-color:${tierColors[t].border};background:${tierColors[t].bg}`;
+    const u25tier  = u15tier === 'bronze' ? 'silver' : u15tier === 'silver' ? 'gold' : 'platinum';
+    const cellStyle  = (t) => `border-color:${tierColors[t].border};background:${tierColors[t].bg}`;
     const labelStyle = (t) => `color:${tierColors[t].text}`;
 
-    const minOddsHtml = (f.min_u15 || f.min_u25 || f.min_u35) ? `
+    const minOddsHtml = (f.min_u15 || f.min_u25) ? `
       <div style="font-size:0.55rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px">Min Odds to Bet</div>
       <div class="min-odds-row">
         <div class="min-odds-cell" style="${cellStyle(u15tier)}">
           <div class="min-odds-line" style="${labelStyle(u15tier)}">U 1.5</div>
           <div class="min-odds-val" style="${labelStyle(u15tier)}">${f.min_u15 || '—'}</div>
-          <div style="font-size:0.52rem;${labelStyle(u15tier)};margin-top:2px;opacity:0.75">${f.unit_u15 || ''}</div>
+          <div style="font-size:0.55rem;${labelStyle(u15tier)};margin-top:2px;opacity:0.8">${f.unit_u15 || ''}</div>
         </div>
         <div class="min-odds-cell" style="${cellStyle(u25tier)}">
           <div class="min-odds-line" style="${labelStyle(u25tier)}">U 2.5</div>
           <div class="min-odds-val" style="${labelStyle(u25tier)}">${f.min_u25 || '—'}</div>
-          <div style="font-size:0.52rem;${labelStyle(u25tier)};margin-top:2px;opacity:0.75">${f.unit_u25 || ''}</div>
+          <div style="font-size:0.55rem;${labelStyle(u25tier)};margin-top:2px;opacity:0.8">${f.unit_u25 || ''}</div>
         </div>
       </div>` : '';
 
@@ -657,7 +708,6 @@
           <div class="hm-stat-label">Throws</div>
           <div class="hm-stat-value">${handLabel}</div>
         </div>
-
         <div class="hm-stat">
           <div class="hm-stat-label">Batters Scored</div>
           <div class="hm-stat-value">${f.batters_scored} / 9</div>
@@ -681,7 +731,6 @@
       ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
       : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
 
-    // Support both new field names (team_1/team_2) and old (team_a/team_b)
     const teamA    = f.team_1    || f.team_a    || '—';
     const teamB    = f.team_2    || f.team_b    || '—';
     const pitcherA = f.pitcher_1 || f.pitcher_a || '—';
@@ -691,7 +740,6 @@
     const scoreA   = f.score_a   || f.avg_score  || '—';
     const scoreB   = f.score_b   || '—';
     const combZ    = f.combined_z || '—';
-
     const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
 
     card.innerHTML = `
@@ -742,12 +790,12 @@
     document.getElementById('games-section').style.display      = 'none';
     document.getElementById('heatmap-section').style.display    = 'none';
     document.getElementById('f5combined-section').style.display = 'none';
+    document.getElementById('dfs-section').style.display        = 'none';
     document.getElementById('picks-section').style.display      = 'none';
     document.getElementById('no-picks').style.display           = 'none';
 
     fetch('/api/picks')
       .then(r => {
-        // Redirect to login if we get HTML back (unauthenticated)
         const ct = r.headers.get('content-type') || '';
         if (!r.ok || ct.includes('text/html')) {
           window.location.href = '/login';
@@ -777,7 +825,6 @@
         const hmList  = document.getElementById('heatmap-list');
         hmList.innerHTML  = '';
         const underTeams  = new Set();
-        // support both new key (f5_single) and legacy (heatmap_flags)
         const f5Flags = (data.f5_single || data.heatmap_flags || [])
           .filter(f => f.signal === 'under');
 
@@ -801,6 +848,120 @@
             `${f5cFlags.length} Flag${f5cFlags.length !== 1 ? 's' : ''}`;
           f5cFlags.forEach((f, i) => f5cList.appendChild(buildGtCard(f, i)));
           document.getElementById('f5combined-section').style.display = 'block';
+        }
+
+        // ── DFS Picks ──────────────────────────────────────────────────
+        const dfs = data.dfs_picks || { pitcher_plays: [], stack_targets: [] };
+
+        const dfsTierStyle = {
+          'Ace':     { border: '#FFD700', text: '#FFD700', bg: 'rgba(255,215,0,0.06)'    },
+          'Value':   { border: '#C0C0C0', text: '#C0C0C0', bg: 'rgba(192,192,192,0.06)' },
+          'Fade':    { border: '#ff6b6b', text: '#ff6b6b', bg: 'rgba(255,107,107,0.06)' },
+          'Neutral': { border: '#333348', text: '#555570', bg: 'transparent'              },
+        };
+
+        const dfsPitchersEl = document.getElementById('dfs-pitchers');
+        const dfsStacksEl   = document.getElementById('dfs-stacks');
+        dfsPitchersEl.innerHTML = '';
+        dfsStacksEl.innerHTML   = '';
+
+        const visiblePitchers = (dfs.pitcher_plays || []).filter(p => p.tier !== 'Neutral');
+
+        if (visiblePitchers.length > 0) {
+          visiblePitchers.forEach(p => {
+            const s = dfsTierStyle[p.tier] || dfsTierStyle['Neutral'];
+            const card = document.createElement('div');
+            card.className = 'hm-card';
+            card.style.cssText = `border:1px solid ${s.border};background:${s.bg};margin-bottom:8px`;
+            const zColor = p.overlap_z <= -1 ? 'var(--green)' : p.overlap_z >= 0.5 ? 'var(--red)' : 'var(--text)';
+            const zStr   = (p.overlap_z > 0 ? '+' : '') + p.overlap_z;
+            card.innerHTML = `
+              <div class="hm-top">
+                <div class="hm-team" style="font-size:0.95rem">${p.pitcher_name}</div>
+                <div class="hm-signal-wrap">
+                  <div class="hm-signal" style="color:${s.text};font-size:1.1rem">${p.tier.toUpperCase()}</div>
+                </div>
+              </div>
+              <div style="font-size:0.6rem;letter-spacing:0.08em;color:var(--muted);margin-top:-6px;margin-bottom:6px">${p.game_time || ''}</div>
+              <div class="hm-divider"></div>
+              <div class="hm-bottom">
+                <div class="hm-stat">
+                  <div class="hm-stat-label">Opp</div>
+                  <div class="hm-stat-value">${p.batting_team}</div>
+                </div>
+                <div class="hm-stat">
+                  <div class="hm-stat-label">K%</div>
+                  <div class="hm-stat-value">${p.k_rate !== null ? p.k_rate + '%' : '—'}</div>
+                </div>
+                <div class="hm-stat">
+                  <div class="hm-stat-label">Overlap z</div>
+                  <div class="hm-stat-value" style="color:${zColor}">${zStr}</div>
+                </div>
+              </div>`;
+            dfsPitchersEl.appendChild(card);
+          });
+          document.getElementById('dfs-pitchers-wrap').style.display = 'block';
+        }
+
+        if ((dfs.stack_targets || []).length > 0) {
+          dfs.stack_targets.forEach(s => {
+            const isHot  = s.is_hot;
+            const border = isHot ? '#f0c040' : 'var(--blue)';
+            const hotBadge = isHot
+              ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:0.7rem;
+                              letter-spacing:0.1em;color:#f0c040;
+                              background:rgba(240,192,64,0.1);
+                              border:1px solid rgba(240,192,64,0.3);
+                              border-radius:4px;padding:2px 8px;margin-left:8px">🔥 HOT</span>`
+              : '';
+
+            const zStr = '+' + s.overlap_z;
+            const batterRows = s.batters.map(b => {
+              const priorityDot = b.slot <= 4
+                ? `<span style="color:var(--green);font-size:0.65rem">●</span>`
+                : `<span style="color:var(--dim);font-size:0.65rem">○</span>`;
+              const nameColor  = b.slot <= 4 ? 'var(--text)' : 'var(--muted)';
+              const archBadge  = b.arch_match
+                ? `<span style="font-size:0.55rem;color:var(--accent);letter-spacing:0.06em">★</span>`
+                : '';
+              return `
+                <div class="dfs-batter-row">
+                  ${priorityDot}
+                  <span class="dfs-slot">#${b.slot}</span>
+                  <span class="dfs-name" style="color:${nameColor}">${b.name}</span>
+                  ${archBadge}
+                </div>`;
+            }).join('');
+
+            const card = document.createElement('div');
+            card.className = 'hm-card';
+            card.style.cssText = `border:1px solid ${border};margin-bottom:10px`;
+            card.innerHTML = `
+              <div class="hm-top">
+                <div class="hm-team">${s.batting_team}${hotBadge}</div>
+                <div class="hm-signal-wrap">
+                  <div class="hm-signal" style="color:var(--blue);font-size:1.1rem">STACK</div>
+                  <div class="hm-sigma" style="color:var(--blue)">${zStr}σ vs mean</div>
+                </div>
+              </div>
+              <div style="font-size:0.6rem;letter-spacing:0.08em;color:var(--muted);margin-top:-6px;margin-bottom:8px">
+                ${s.game_time || ''} · vs ${s.pitcher_name}
+              </div>
+              <div class="hm-divider"></div>
+              <div style="padding:2px 0">${batterRows}</div>
+              <div style="margin-top:8px;font-size:0.55rem;color:var(--muted);letter-spacing:0.05em">
+                ● slots 1–4 priority &nbsp;|&nbsp; ★ arch match = tiebreaker
+              </div>`;
+            dfsStacksEl.appendChild(card);
+          });
+          document.getElementById('dfs-stacks-wrap').style.display = 'block';
+        }
+
+        const dfsTotal = visiblePitchers.length + (dfs.stack_targets || []).length;
+        if (dfsTotal > 0) {
+          document.getElementById('dfs-count').textContent =
+            `${(dfs.stack_targets||[]).length} Stack${(dfs.stack_targets||[]).length !== 1 ? 's' : ''} · ${visiblePitchers.length} Pitcher${visiblePitchers.length !== 1 ? 's' : ''}`;
+          document.getElementById('dfs-section').style.display = 'block';
         }
 
         // ── HR Watchlist ───────────────────────────────────────────────
