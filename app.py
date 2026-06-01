@@ -899,6 +899,9 @@ TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
 UPSTASH_URL         = os.environ.get('UPSTASH_REDIS_REST_URL', '')
 UPSTASH_TOKEN       = os.environ.get('UPSTASH_REDIS_REST_TOKEN', '')
+SHEETS_CREDS        = os.environ.get('GOOGLE_SHEETS_CREDENTIALS', '')
+SHEETS_ID           = '1AKalzsMqSDmLe5j26de3R6_YVrpptJVZY9tWrZNCbHs'
+SHEETS_TAB          = 'Sheet1'
 
 
 
@@ -953,6 +956,66 @@ def send_telegram(message):
 def flag_key(flag):
     """Unique identifier for a flag — game + batting team."""
     return f"{flag['game']}|{flag['batting_team']}"
+
+
+def append_to_sheet(flags):
+    """
+    Append new flag rows to Google Sheet.
+    Deduplicates on date+game+team before writing.
+    Auto-fills columns A-O; leaves P-U for manual entry + formulas.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        ws     = gc.open_by_key(SHEETS_ID).worksheet(SHEETS_TAB)
+
+        existing      = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+
+        for f in flags:
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            ws.append_row([
+                today,
+                f.get('game', ''),
+                f.get('batting_team', ''),
+                f.get('pitcher_name', ''),
+                f.get('confidence_label', ''),
+                f.get('std_from_mean', ''),
+                'Y' if f.get('q_away')      else 'N',
+                'Y' if f.get('q_krate_lo')  else 'N',
+                'Y' if f.get('q_krate_hi')  else 'N',
+                'Y' if f.get('q_sigma')     else 'N',
+                'Y' if f.get('fg_under_signal')   else 'N',
+                'Y' if f.get('combined_f5_signal') else 'N',
+                f.get('game_time', ''),
+                f.get('unit_u15', ''),
+                f.get('unit_u25', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+
+        print(f"Google Sheets: {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping sheet append")
+    except Exception as e:
+        print(f"Google Sheets error: {e}")
 
 
 @app.route('/api/notify')
@@ -1010,6 +1073,9 @@ def api_notify():
             )
 
         send_telegram('\n'.join(lines))
+
+        # Append to Google Sheet
+        append_to_sheet(new_flags)
 
         # Update Redis — add new flag keys, keep TTL 24h
         all_sent = already_sent | {flag_key(f) for f in new_flags}
