@@ -828,8 +828,21 @@ def api_picks():
     if not session.get('authenticated'):
         return jsonify({'error': 'Not authenticated'}), 401
     try:
+        import json as _json
+        et_now    = datetime.now(pytz.timezone('America/New_York'))
+        today     = et_now.strftime('%Y-%m-%d')
+        cache_key = f"ozzie:picks:{today}"
+
+        # Try Redis cache first (30-min TTL during day, expires 1 AM ET)
+        cached = redis_get(cache_key)
+        if cached:
+            try:
+                return jsonify(_json.loads(cached))
+            except Exception:
+                pass
+
+        # Score fresh
         model    = load_model()
-        today    = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games    = get_lineups_and_starters(today)
         picks    = get_hr_picks(games, model)
         complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
@@ -840,11 +853,9 @@ def api_picks():
                      for g in games]
 
         heatmap_flags = get_heatmap_flags(games, model)
-
-        # Separate FG signals for UI — flags where FG under fired
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
 
-        return jsonify({
+        payload = {
             'date':            today,
             'complete':        complete,
             'total':           len(games),
@@ -853,7 +864,18 @@ def api_picks():
             'fg_under_flags':  fg_under_flags,
             'fg_in_window':    is_fg_valid_window(),
             'games':           games_out,
-        })
+        }
+
+        # Cache with 30-min TTL — but expire at 1 AM ET regardless
+        now_et       = datetime.now(pytz.timezone('America/New_York'))
+        expire_et    = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
+        if now_et >= expire_et:
+            expire_et = expire_et.replace(day=expire_et.day + 1)
+        ttl = min(1800, int((expire_et - now_et).total_seconds()))
+        if ttl > 0 and heatmap_flags:
+            redis_set(cache_key, _json.dumps(payload), ex=ttl)
+
+        return jsonify(payload)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
