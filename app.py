@@ -481,6 +481,14 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     else:
         return None  # gated — no K≥26% and no line=2.5
 
+    # Unit sizing by tier
+    unit_map = {
+        'bronze': {'u15': '0.5u', 'u25': '1u'},
+        'silver': {'u15': '1u',   'u25': '1.5u'},
+        'gold':   {'u15': '1.5u', 'u25': '2u'},
+    }
+    units = unit_map.get(color, {'u15': '0.5u', 'u25': '1u'})
+
     return {
         'qualifier_count': total,
         'label':           label,
@@ -491,7 +499,8 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
         'q_krate_hi':      bool(q_krate_hi),
         'min_u15':         '+100',
         'min_u25':         '-200',
-        'min_u35':         '-350',
+        'unit_u15':        units['u15'],
+        'unit_u25':        units['u25'],
     }
 
 
@@ -667,7 +676,8 @@ def get_heatmap_flags(games, model):
                 'q_krate_hi':         confidence['q_krate_hi']      if confidence else False,
                 'min_u15':            confidence['min_u15']         if confidence else None,
                 'min_u25':            confidence['min_u25']         if confidence else None,
-                'min_u35':            confidence['min_u35']         if confidence else None,
+                'unit_u15':           confidence['unit_u15']        if confidence else None,
+                'unit_u25':           confidence['unit_u25']        if confidence else None,
                 # FG two-leg under signal
                 'fg_under_signal':  fg_flag['fg_under_signal'],
                 'fg_starter_z':     fg_flag['starter_z'],
@@ -959,8 +969,12 @@ def api_notify():
             )
             if f.get('combined_f5_signal'):
                 lines.append(f"   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
+            u15 = f.get('min_u15','—')
+            u25 = f.get('min_u25','—')
+            uu15 = f.get('unit_u15','')
+            uu25 = f.get('unit_u25','')
             lines.append(
-                f"   U1.5 {f.get('min_u15','—')} | U2.5 {f.get('min_u25','—')} | U3.5 {f.get('min_u35','—')}"
+                f"   U1.5 {u15} ({uu15}) | U2.5 {u25} ({uu25})"
             )
 
         send_telegram('\n'.join(lines))
