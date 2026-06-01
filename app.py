@@ -489,6 +489,16 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     }
     units = unit_map.get(color, {'u15': '0.5u', 'u25': '1u'})
 
+    # Tier-specific minimum odds (break-even based with cushion)
+    # U1.5 break-evens: Bronze -114, Silver -104, Gold -175
+    # U2.5 break-evens: Bronze -205, Silver -227, Gold -386
+    odds_map = {
+        'bronze': {'min_u15': '+100', 'min_u25': '-180'},
+        'silver': {'min_u15': '+100', 'min_u25': '-200'},
+        'gold':   {'min_u15': '-150', 'min_u25': '-350'},
+    }
+    odds = odds_map.get(color, {'min_u15': '+100', 'min_u25': '-200'})
+
     return {
         'qualifier_count': total,
         'label':           label,
@@ -497,8 +507,8 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
         'q_away':          bool(q_away),
         'q_krate_lo':      bool(q_krate_lo),
         'q_krate_hi':      bool(q_krate_hi),
-        'min_u15':         '+100',
-        'min_u25':         '-200',
+        'min_u15':         odds['min_u15'],
+        'min_u25':         odds['min_u25'],
         'unit_u15':        units['u15'],
         'unit_u25':        units['u25'],
     }
