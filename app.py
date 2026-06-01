@@ -25,7 +25,7 @@ FILE_IDS = {
     # Heat map models
     'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
     'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
-    'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',
+    'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',  # pitcher_contact_rates_2026.pkl (2022-2025 weighted 1:2:3:4)
     # NegBin expected runs model (Script S)
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
 }
@@ -42,7 +42,7 @@ TB3_MULTIPLIER  = 1.3
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD  # Lowered from -2.0 (May 2026)
 
 # F5 fair odds by pitcher category (from backtest)
 F5_FAIR_ODDS = {
@@ -54,26 +54,22 @@ F5_FAIR_ODDS = {
 }
 
 # ── FG Team Total Under — two-leg signal constants (revised May 2026) ─────────
-FG_BLEND_MEAN        = 0.9984
-FG_BLEND_STD         = 0.0353
-FG_STARTER_Z_THRESH  = -0.5
-FG_BP_BAND_LOW       =  0.5
-FG_BP_BAND_HIGH      =  1.0
-FG_VALID_START_MONTH =  6
+# Filter: blend_70_30 z ≤ -0.5 AND opp_bp_weak_z 0.5→1.0
+# off_z dropped — shown to be noise in full 2025 backtest (May 29 2026 session)
+# Valid window: June 1 – July 31 ONLY (signal degrades in August, confirmed)
+# Validated: n=33 (≤-0.5 threshold), 69.7% hit rate, +0.295 ROI vs Pinnacle
+# Prior n=11 (≤-1.0): 90.9% hit, +0.675 ROI — threshold loosened for volume
+# Static Apr-May profiles only — do NOT update mid-season
+# Profiles: bullpen_profile_2026.csv, team_offense_baseline_2026.csv
+FG_BLEND_MEAN        = 0.9984   # 2025 validated distribution mean
+FG_BLEND_STD         = 0.0353   # 2025 validated distribution std
+FG_STARTER_Z_THRESH  = -0.5     # blend_70_30 z-score threshold (loosened from -1.0)
+FG_BP_BAND_LOW       =  0.5     # opposing BP weakness band — floor
+FG_BP_BAND_HIGH      =  1.0     # opposing BP weakness band — ceiling (hard cap)
+FG_VALID_START_MONTH =  6       # June
 FG_VALID_START_DAY   =  1
 FG_VALID_END_MONTH   =  7
-FG_VALID_END_DAY     = 31
-
-# ── DFS validated thresholds (June 2026 — 2025 OOS backtest) ─────────────────
-# overlap_z >= +1.5 → hot stack: slot1 avg 9.70 DK pts, 21.3% hit 8+ FG runs
-# overlap_z <= -1.5 → hard fade: slot1 avg 7.40 DK pts, 7.9% ceiling events
-# Arch match in hot games, slots 1-4: +1.62 DK pts, p=0.015
-DFS_HOT_Z      =  1.5
-DFS_FADE_Z     = -1.5
-DFS_STACK_MIN_Z =  0.0   # minimum z to show as stack target
-DFS_ACE_K      =  0.28   # K rate >= 28% + overlap_z <= -1.0 → Ace tier
-DFS_VALUE_K    =  0.22   # K rate >= 22% + overlap_z <=  0.0 → Value tier
-DFS_FADE_PITCH =  0.5    # overlap_z >= +0.5 → Fade tier
+FG_VALID_END_DAY     = 31       # Extended from July 15 — Jul signal confirmed clean
 
 _model_cache      = None
 _model_cache_time = None
@@ -86,11 +82,19 @@ _FG_PROFILES_LOADED = False
 
 
 def load_fg_profiles():
+    """
+    Load static Apr-May offense and bullpen profiles from CSV.
+    Tries current year first, falls back to prior year.
+    Populates module-level _FG_OFF_Z and _FG_BP_WEAK_Z dicts.
+    Files must be in same directory as app.py.
+    """
     global _FG_OFF_Z, _FG_BP_WEAK_Z, _FG_PROFILES_LOADED
     if _FG_PROFILES_LOADED:
         return
+
     base = os.path.dirname(os.path.abspath(__file__))
     year = datetime.now().year
+
     for y in [year, year - 1]:
         off_path = os.path.join(base, f"team_offense_baseline_{y}.csv")
         bp_path  = os.path.join(base, f"bullpen_profile_{y}.csv")
@@ -107,10 +111,12 @@ def load_fg_profiles():
                 return
             except Exception as e:
                 print(f"Warning: FG profile load failed for {y}: {e}")
+
     print("Warning: FG profiles not found — FG three-leg signal disabled")
 
 
 def is_fg_valid_window():
+    """Returns True if today is within the June 1 – July 31 valid window."""
     today = _date.today()
     start = _date(today.year, FG_VALID_START_MONTH, FG_VALID_START_DAY)
     end   = _date(today.year, FG_VALID_END_MONTH,   FG_VALID_END_DAY)
@@ -118,33 +124,67 @@ def is_fg_valid_window():
 
 
 def compute_fg_under_flag(batting_team, opp_team, blend_70_30_score):
+    """
+    Evaluate the two-leg FG team total under signal for one matchup.
+
+    Signal: starter_z ≤ -0.5 AND opp_bp_weak_z in [0.5, 1.0]
+    off_z is passed through for display only — not a signal gate (noise, May 2026).
+    BP ceiling (1.0) is a hard cap — bp_z > 1.0 confirmed blowup risk.
+
+    Parameters:
+        batting_team      — short code e.g. 'LAD'
+        opp_team          — short code e.g. 'SF' (the team pitching in innings 6-9)
+        blend_70_30_score — raw blend_70_30 overlap score (NOT z-scored yet)
+
+    Returns dict with:
+        fg_under_signal   — True if both legs pass and in valid window
+        starter_z         — z-scored blend_70_30
+        opp_bp_weak_z     — opposing bullpen weakness z (from Apr-May profile)
+        off_z             — batting team offense z (display only, not gating)
+        bp_in_band        — True if opp_bp_weak_z is in [0.5, 1.0]
+        in_valid_window   — True if today is June 1 – July 31
+        reason            — human-readable explanation
+    """
     in_window = is_fg_valid_window()
+
     starter_z = round((blend_70_30_score - FG_BLEND_MEAN) / FG_BLEND_STD, 3)
+
     off_z         = _FG_OFF_Z.get(batting_team)
     opp_bp_weak_z = _FG_BP_WEAK_Z.get(opp_team)
+
     if opp_bp_weak_z is None:
         return {
-            'fg_under_signal': False, 'starter_z': starter_z,
-            'opp_bp_weak_z': None, 'off_z': off_z,
-            'bp_in_band': False, 'in_valid_window': in_window,
-            'reason': 'missing_profile_data',
+            'fg_under_signal': False,
+            'starter_z':       starter_z,
+            'opp_bp_weak_z':   None,
+            'off_z':           off_z,
+            'bp_in_band':      False,
+            'in_valid_window': in_window,
+            'reason':          'missing_profile_data',
         }
+
     starter_flag = starter_z <= FG_STARTER_Z_THRESH
     bp_band_flag = FG_BP_BAND_LOW <= opp_bp_weak_z <= FG_BP_BAND_HIGH
     signal       = in_window and starter_flag and bp_band_flag
+
     if signal:
         reason = 'all_conditions_met'
     elif not in_window:
         reason = 'outside_valid_window'
     elif not starter_flag:
-        reason = f'starter_not_suppressed (z={starter_z:.2f}, need <={FG_STARTER_Z_THRESH})'
+        reason = f'starter_not_suppressed (z={starter_z:.2f}, need ≤{FG_STARTER_Z_THRESH})'
     else:
-        reason = f'bp_outside_band (z={opp_bp_weak_z:.2f}, need {FG_BP_BAND_LOW}-{FG_BP_BAND_HIGH})'
+        reason = (f'bp_outside_band (z={opp_bp_weak_z:.2f}, '
+                  f'need {FG_BP_BAND_LOW}–{FG_BP_BAND_HIGH})')
+
     return {
-        'fg_under_signal': signal, 'starter_z': starter_z,
-        'opp_bp_weak_z': round(opp_bp_weak_z, 3),
-        'off_z': round(off_z, 3) if off_z is not None else None,
-        'bp_in_band': bp_band_flag, 'in_valid_window': in_window, 'reason': reason,
+        'fg_under_signal': signal,
+        'starter_z':       starter_z,
+        'opp_bp_weak_z':   round(opp_bp_weak_z, 3),
+        'off_z':           round(off_z, 3) if off_z is not None else None,
+        'bp_in_band':      bp_band_flag,
+        'in_valid_window': in_window,
+        'reason':          reason,
     }
 
 
@@ -187,11 +227,16 @@ def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
         for ak in archetypes
     ]
     avg = sum(all_scores) / len(all_scores)
-    if avg >= 5.5:   category = 'Very Juicy'
-    elif avg >= 4.5: category = 'Juicy'
-    elif avg >= 3.5: category = 'Average'
-    elif avg >= 3.0: category = 'Safe'
-    else:            category = 'Very Safe'
+    if avg >= 5.5:
+        category = 'Very Juicy'
+    elif avg >= 4.5:
+        category = 'Juicy'
+    elif avg >= 3.5:
+        category = 'Average'
+    elif avg >= 3.0:
+        category = 'Safe'
+    else:
+        category = 'Very Safe'
     return round(avg, 2), category
 
 
@@ -206,9 +251,12 @@ def get_lineups_and_starters(game_date):
     for date_data in data.get('dates', []):
         for g in date_data.get('games', []):
             gid  = g['gamePk']
+
+            # Pregame lock — only score games not yet started
             game_status = g.get('status', {}).get('abstractGameState', '')
             if game_status not in ('Preview', ''):
-                continue
+                continue  # skip In Progress, Final, etc.
+
             home = g['teams']['home']['team'].get('abbreviation') or g['teams']['home']['team'].get('name', 'HOME')
             away = g['teams']['away']['team'].get('abbreviation') or g['teams']['away']['team'].get('name', 'AWAY')
             hp   = g['teams']['home'].get('probablePitcher', {})
@@ -221,16 +269,16 @@ def get_lineups_and_starters(game_date):
                 for team_key, lineup in [('home', home_lineup), ('away', away_lineup)]:
                     td = bs.get('teams', {}).get(team_key, {})
                     batting_order = td.get('battingOrder', [])[:9]
-                    for slot_idx, pid in enumerate(batting_order, start=1):
+                    for pid in batting_order:
                         p = td.get('players', {}).get(f'ID{pid}', {})
                         lineup.append({
-                            'id':            pid,
-                            'name':          p.get('person', {}).get('fullName', ''),
-                            'hand':          p.get('batSide', {}).get('code', 'R'),
-                            'batting_order': slot_idx,
+                            'id':   pid,
+                            'name': p.get('person', {}).get('fullName', ''),
+                            'hand': p.get('batSide', {}).get('code', 'R'),
                         })
             except Exception:
                 pass
+            # Parse game time — convert UTC to ET
             game_time = None
             try:
                 raw_time = g.get('gameDate', '')
@@ -238,9 +286,11 @@ def get_lineups_and_starters(game_date):
                     utc_dt   = datetime.strptime(raw_time, '%Y-%m-%dT%H:%M:%SZ')
                     utc_dt   = utc_dt.replace(tzinfo=pytz.utc)
                     et_dt    = utc_dt.astimezone(pytz.timezone('America/New_York'))
+                    game_time = et_dt.strftime('%-I:%M %p ET').replace('AM', 'AM ET').replace('PM', 'PM ET')
                     game_time = et_dt.strftime('%-I:%M %p') + ' ET'
             except Exception:
                 pass
+
             games.append({
                 'game_id':           gid,
                 'home_team':         home,
@@ -303,7 +353,14 @@ def get_park_factor(fielding_team, batter_hand, model):
         return 1.0
 
 
+# ── NegBin expected runs + fair odds (Script S) ───────────────────────────────
+
 def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
+    """
+    Predict bias-corrected expected F5 runs for one team-game matchup.
+    Uses league avg defaults for lineup_walk_rate and bp_overlap_prob.
+    Returns float or None if model unavailable.
+    """
     if model_bundle is None:
         return None
     try:
@@ -311,13 +368,21 @@ def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
         coeffs = mb['coefficients']
         sp     = mb['scaler_params']
         feats  = [f for f in mb['feature_raw_names'][1:] if f in sp]
+
         defaults = {
             'overlap_k_mod':    overlap_k_mod,
-            'lineup_walk_rate': sp['lineup_walk_rate']['mean'] if 'lineup_walk_rate' in sp else 0.09,
-            'bp_overlap_prob':  sp['bp_overlap_prob']['mean']  if 'bp_overlap_prob'  in sp else 1.00,
-            'avg_ip':           avg_ip if avg_ip is not None else mb.get('league_avg_ip', 5.43),
+            'lineup_walk_rate': sp['lineup_walk_rate']['mean']
+                                if 'lineup_walk_rate' in sp else 0.09,
+            'bp_overlap_prob':  sp['bp_overlap_prob']['mean']
+                                if 'bp_overlap_prob' in sp else 1.00,
+            'avg_ip':           avg_ip if avg_ip is not None
+                                else mb.get('league_avg_ip', 5.43),
         }
-        z_vals = [(defaults[f] - sp[f]['mean']) / sp[f]['std'] for f in feats]
+
+        z_vals = [
+            (defaults[f] - sp[f]['mean']) / sp[f]['std']
+            for f in feats
+        ]
         X      = [1.0] + z_vals
         log_mu = sum(c * x for c, x in zip(coeffs, X))
         raw    = math.exp(log_mu)
@@ -327,6 +392,7 @@ def get_expected_f5_runs(overlap_k_mod, avg_ip=None, model_bundle=None):
 
 
 def poisson_cdf(k, lam):
+    """P(X <= k) for Poisson(lam). Pure math, no scipy needed."""
     if lam <= 0:
         return 1.0
     total = 0.0
@@ -339,6 +405,7 @@ def poisson_cdf(k, lam):
 
 
 def prob_to_american(p):
+    """Convert win probability to American odds string (no vig)."""
     if p is None or p <= 0 or p >= 1:
         return None
     if p >= 0.5:
@@ -349,12 +416,23 @@ def prob_to_american(p):
 
 
 def get_f5_fair_odds(expected_runs):
+    """
+    Given expected F5 runs (NegBin point estimate), use Poisson CDF to
+    compute fair implied odds for under 1.5 and under 2.5 F5 team totals.
+    Returns dict of fair American odds (no vig) for both lines.
+    """
     if expected_runs is None:
-        return {'fair_under_1_5': None, 'fair_over_1_5': None,
-                'fair_under_2_5': None, 'fair_over_2_5': None}
+        return {
+            'fair_under_1_5': None,
+            'fair_over_1_5':  None,
+            'fair_under_2_5': None,
+            'fair_over_2_5':  None,
+        }
+
     lam = expected_runs
     p_under_1_5 = poisson_cdf(1, lam)
     p_under_2_5 = poisson_cdf(2, lam)
+
     return {
         'fair_under_1_5': prob_to_american(p_under_1_5),
         'fair_over_1_5':  prob_to_american(1 - p_under_1_5),
@@ -364,12 +442,36 @@ def get_f5_fair_odds(expected_runs):
 
 
 def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
+    """
+    Qualifier-based confidence tier for F5 under flags.
+    Validated May 2026 on full 2025 Pinnacle fixed lines backtest (n=504).
+
+    Qualifiers (0-4):
+      q_sigma:    std_from_mean ≤ -1.5        (+1)
+      q_away:     batting team is away         (+1)
+      q_krate_lo: pitcher K rate ≥ 26%        (+1)
+      q_krate_hi: pitcher K rate ≥ 28%        (+1)
+
+    Bronze promotion: 0-2 qualifiers but K≥26% or line=2.5 → Bronze
+    
+    Outcomes:
+      Gated:   no K≥26% and no line=2.5      (n=107, 67.3% hit)
+      Bronze:  K≥26% or line=2.5 (0-2 quals) (n=141, 77.3% hit, +0.480 ROI)
+      Silver:  3 qualifiers                   (n=157, 81.5% hit, +0.554 ROI)
+      Gold:    4 qualifiers                   (n=99,  89.9% hit, +0.699 ROI)
+
+    U2.5 overlay (manual): Bronze→Silver confidence, Silver→Gold confidence
+    Minimum odds: U1.5 +100 | U2.5 -200 | U3.5 -350
+    """
     q_sigma    = 1 if std_from_mean <= -1.5 else 0
     q_away     = 1 if is_away else 0
     q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
     q_krate_hi = 1 if (k_rate is not None and k_rate >= 0.28) else 0
     q_line     = 1 if (line_point is not None and line_point <= 2.5) else 0
+
     total = q_sigma + q_away + q_krate_lo + q_krate_hi
+
+    # Tier assignment
     if total == 4:
         label, color = 'Gold', 'gold'
     elif total == 3:
@@ -377,59 +479,102 @@ def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
     elif total <= 2 and (q_krate_lo or q_line):
         label, color = 'Bronze', 'bronze'
     else:
-        return None
+        return None  # gated — no K≥26% and no line=2.5
+
+    # Unit sizing by tier
     unit_map = {
         'bronze': {'u15': '0.5u', 'u25': '1u'},
         'silver': {'u15': '1u',   'u25': '1.5u'},
         'gold':   {'u15': '1.5u', 'u25': '2u'},
     }
     units = unit_map.get(color, {'u15': '0.5u', 'u25': '1u'})
+
+    # Tier-specific minimum odds (break-even based with cushion)
+    # U1.5 break-evens: Bronze -114, Silver -104, Gold -175
+    # U2.5 break-evens: Bronze -205, Silver -227, Gold -386
     odds_map = {
         'bronze': {'min_u15': '+100', 'min_u25': '-180'},
         'silver': {'min_u15': '+100', 'min_u25': '-200'},
         'gold':   {'min_u15': '-150', 'min_u25': '-350'},
     }
     odds = odds_map.get(color, {'min_u15': '+100', 'min_u25': '-200'})
+
     return {
-        'qualifier_count': total, 'label': label, 'color': color,
-        'q_sigma': bool(q_sigma), 'q_away': bool(q_away),
-        'q_krate_lo': bool(q_krate_lo), 'q_krate_hi': bool(q_krate_hi),
-        'min_u15': odds['min_u15'], 'min_u25': odds['min_u25'],
-        'unit_u15': units['u15'], 'unit_u25': units['u25'],
+        'qualifier_count': total,
+        'label':           label,
+        'color':           color,
+        'q_sigma':         bool(q_sigma),
+        'q_away':          bool(q_away),
+        'q_krate_lo':      bool(q_krate_lo),
+        'q_krate_hi':      bool(q_krate_hi),
+        'min_u15':         odds['min_u15'],
+        'min_u25':         odds['min_u25'],
+        'unit_u15':        units['u15'],
+        'unit_u25':        units['u25'],
     }
 
 
 def compute_run_edge(expected_f5_runs, f5_tt_line):
+    """Positive = under value. Bet threshold: run_edge >= 0.40."""
     if expected_f5_runs is None or f5_tt_line is None:
         return None
     return round(f5_tt_line - expected_f5_runs, 3)
 
 
+# ── Heat map scoring ──────────────────────────────────────────────────────────
+
 def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
+    """
+    Compute overlap score for a single batter vs pitcher.
+    Returns float or None if insufficient data.
+    Score > 1.0 = pitcher tends to throw to batter's preferred zones.
+    Score < 1.0 = pitcher avoids batter's preferred zones.
+    """
     batter_profiles    = model.get('batter_ev_profiles_lr', {})
     pitcher_tendencies = model.get('pitcher_tendency_map', {})
     archetypes         = model.get('archetypes', {})
+
     if batter_id not in batter_profiles: return None
     if pitcher_id not in pitcher_tendencies: return None
     if pitcher_hand not in batter_profiles[batter_id]: return None
+
     tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
     if not tends: return None
+
     evs  = batter_profiles[batter_id][pitcher_hand]
     wsum = wtot = 0.0
+
     for ak in archetypes:
         if (ak.endswith('_L')) != (batter_hand == 'L'): continue
         t     = tends.get(ak, 0.0)
         e     = evs.get(ak, 1.0)
         wsum += e * t
         wtot += t
+
     return wsum / wtot if wtot > 0 else None
 
 
 def get_heatmap_flags(games, model):
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    nb_bundle      = model.get('negbin_model_params')
-    contact_rates  = model.get('pitcher_contact_rates', {})
-    flags          = []
+    """
+    For each game with a confirmed lineup, compute team overlap scores
+    and flag games exceeding validated thresholds.
+
+    F5 signal:
+      Over:  score > HEATMAP_OVER_THRESHOLD  (+1.5 std)
+      Under: score < HEATMAP_UNDER_THRESHOLD (-2.0 std)
+
+    FG three-leg under signal (June 1 – July 15 only):
+      blend_70_30 z ≤ -1.0
+      opp_bp_weak_z: 0.5 → 1.0 (band)
+      off_z ≥ 0.0
+
+    Each flag includes NegBin expected F5 runs, fair odds, and FG signal.
+    """
+    pitcher_scores    = model.get('all_pitcher_arch_scores', {})
+    nb_bundle         = model.get('negbin_model_params')
+    contact_rates     = model.get('pitcher_contact_rates', {})  # {pitcher_id: {k_rate: float}}
+    fg_in_window      = is_fg_valid_window()
+    flags             = []
 
     for game in games:
         matchups = [
@@ -440,65 +585,98 @@ def get_heatmap_flags(games, model):
              game['away_pitcher_name'], game['home_team'],
              game['away_team'], f"{game['away_team']}@{game['home_team']}"),
         ]
+
         for lineup, pitcher_id, pitcher_name, batting_team, fielding_team, game_str in matchups:
             if not lineup or not pitcher_id:
                 continue
+
             pitcher_hand = 'R'
             if pitcher_id in pitcher_scores:
                 pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
+
+            # K rate for qualifier — from pitcher_contact_rates
             pitcher_k_rate = None
             if contact_rates and pitcher_id in contact_rates:
                 pitcher_k_rate = contact_rates[pitcher_id].get('k_rate')
-            scores = []
+
+            scores         = []
             scored_batters = 0
+
             for batter in lineup:
+                batter_id   = batter['id']
+                batter_hand = batter.get('hand', 'R')
                 s = compute_batter_overlap(
-                    batter['id'], pitcher_id,
-                    batter.get('hand', 'R'), pitcher_hand, model
+                    batter_id, pitcher_id,
+                    batter_hand, pitcher_hand,
+                    model
                 )
                 if s is not None:
                     scores.append(s)
                     scored_batters += 1
+
             if scored_batters < 3:
                 continue
+
             team_score    = sum(scores) / len(scores)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
-            expected_f5   = get_expected_f5_runs(overlap_k_mod=team_score, model_bundle=nb_bundle)
-            fair_odds     = get_f5_fair_odds(expected_f5)
-            fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
+
+            # NegBin expected runs + fair odds
+            expected_f5 = get_expected_f5_runs(
+                overlap_k_mod = team_score,
+                model_bundle  = nb_bundle,
+            )
+            fair_odds = get_f5_fair_odds(expected_f5)
+
+            # FG three-leg under signal
+            fg_flag = compute_fg_under_flag(
+                batting_team      = batting_team,
+                opp_team          = fielding_team,
+                blend_70_30_score = team_score,
+            )
 
             if team_score >= HEATMAP_OVER_THRESHOLD:
                 signal = 'over'
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
+                # Not an F5 flag — but still compute FG signal for display
+                # Only include in output if FG signal fires
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
                 else:
                     continue
 
+            # Qualifier-based confidence tier (gates 0-1 qualifiers)
             confidence = None
             is_away    = (batting_team == game['away_team'])
             if signal == 'under':
                 confidence = get_confidence_tier(
-                    std_from_mean=std_from_mean, is_away=is_away,
-                    line_point=None, k_rate=pitcher_k_rate)
+                    std_from_mean = std_from_mean,
+                    is_away       = is_away,
+                    line_point    = None,  # q_line retired — check U2.5 manually
+                    k_rate        = pitcher_k_rate,
+                )
                 if confidence is None:
-                    continue
+                    continue  # gated — 0-1 qualifiers
 
             flags.append({
-                'game': game_str, 'batting_team': batting_team,
-                'fielding_team': fielding_team, 'pitcher_name': pitcher_name,
-                'pitcher_hand': pitcher_hand, 'pitcher_id': pitcher_id,
-                'overlap_score': round(team_score, 4),
-                'std_from_mean': round(std_from_mean, 2),
-                'signal': signal, 'batters_scored': scored_batters,
-                'lineup_complete': len(lineup) >= 8,
+                'game':             game_str,
+                'batting_team':     batting_team,
+                'fielding_team':    fielding_team,
+                'pitcher_name':     pitcher_name,
+                'pitcher_hand':     pitcher_hand,
+                'pitcher_id':       pitcher_id,
+                'overlap_score':    round(team_score, 4),
+                'std_from_mean':    round(std_from_mean, 2),
+                'signal':           signal,
+                'batters_scored':   scored_batters,
+                'lineup_complete':  len(lineup) >= 8,
                 'expected_f5_runs': expected_f5,
-                'fair_under_1_5': fair_odds['fair_under_1_5'],
-                'fair_over_1_5':  fair_odds['fair_over_1_5'],
-                'fair_under_2_5': fair_odds['fair_under_2_5'],
-                'fair_over_2_5':  fair_odds['fair_over_2_5'],
+                'fair_under_1_5':   fair_odds['fair_under_1_5'],
+                'fair_over_1_5':    fair_odds['fair_over_1_5'],
+                'fair_under_2_5':   fair_odds['fair_under_2_5'],
+                'fair_over_2_5':    fair_odds['fair_over_2_5'],
+                # Qualifier-based confidence tier
                 'confidence_label':   confidence['label']           if confidence else None,
                 'confidence_color':   confidence['color']           if confidence else None,
                 'qualifier_count':    confidence['qualifier_count'] if confidence else 0,
@@ -510,6 +688,7 @@ def get_heatmap_flags(games, model):
                 'min_u25':            confidence['min_u25']         if confidence else None,
                 'unit_u15':           confidence['unit_u15']        if confidence else None,
                 'unit_u25':           confidence['unit_u25']        if confidence else None,
+                # FG two-leg under signal
                 'fg_under_signal':  fg_flag['fg_under_signal'],
                 'fg_starter_z':     fg_flag['starter_z'],
                 'fg_opp_bp_weak_z': fg_flag['opp_bp_weak_z'],
@@ -518,12 +697,17 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
+
                 'game_time':        game.get('game_time'),
             })
 
     flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
 
-    # Combined F5 game total signal
+    # ── Combined F5 game total signal ─────────────────────────────────────────
+    # Signal: either starter ≤ -2.0σ + away suppressed (≤-1.5σ)
+    #         + home NOT suppressed (>-1.5σ) + home K rate < 28%
+    # Validated: n=72, 69.4% U4.5 hit, be=-227
+    # Min odds: U4.5 -200, U5.5 -300
     game_flags = {}
     for f in flags:
         if f['signal'] != 'under':
@@ -532,8 +716,10 @@ def get_heatmap_flags(games, model):
         if g not in game_flags:
             game_flags[g] = []
         game_flags[g].append(f)
+
     for f in flags:
         f['combined_f5_signal'] = False
+
     for game_str, gflags in game_flags.items():
         if len(gflags) < 2:
             continue
@@ -541,11 +727,17 @@ def get_heatmap_flags(games, model):
         home_flag = next((f for f in gflags if not f['q_away']), None)
         if not away_flag or not home_flag:
             continue
-        away_std    = away_flag['std_from_mean']
-        home_std    = home_flag['std_from_mean']
-        home_k_rate = home_flag.get('pitcher_k_rate') or 1.0
-        if (away_std <= -2.0 or home_std <= -2.0) and \
-           away_std <= -1.5 and home_std > -1.5 and home_k_rate < 0.28:
+
+        away_std     = away_flag['std_from_mean']
+        home_std     = home_flag['std_from_mean']
+        home_k_rate  = home_flag.get('pitcher_k_rate') or 1.0
+
+        either_sigma_20  = away_std <= -2.0 or home_std <= -2.0
+        away_suppressed  = away_std <= -1.5
+        home_not_sup     = home_std > -1.5
+        home_low_k       = home_k_rate < 0.28
+
+        if either_sigma_20 and away_suppressed and home_not_sup and home_low_k:
             away_flag['combined_f5_signal'] = True
             home_flag['combined_f5_signal'] = True
 
@@ -557,6 +749,7 @@ def get_hr_picks(games, model):
     pitcher_scores  = model['all_pitcher_arch_scores']
     archetypes      = model['archetypes']
     picks           = []
+
     for game in games:
         if not game['home_lineup'] or not game['away_lineup']:
             continue
@@ -610,6 +803,7 @@ def get_hr_picks(games, model):
                         'tb3_fair':      pa_rate_to_game_odds(adjusted * TB3_MULTIPLIER),
                         'arch_name':     archetypes[arch_key]['name'],
                     })
+
     seen = {}
     for p in picks:
         pid = p['player_id']
@@ -618,147 +812,11 @@ def get_hr_picks(games, model):
     return sorted(seen.values(), key=lambda x: x['combined'], reverse=True)
 
 
-def get_dfs_picks(games, model):
-    """
-    DFS pitcher plays and stack targets.
-
-    Validated on 2025 OOS data (June 2026):
-      overlap_z >= +1.5 (HOT): slot 1 avg 9.70 DK pts, 21.3% hit 8+ FG runs
-      overlap_z <= -1.5 (FADE): slot 1 avg 7.40 DK pts, 7.9% ceiling events
-      Slots 1-4: 31-41% more DK pts vs suppressed same slot
-      Arch match in hot games slots 1-4: +1.62 DK pts, p=0.015
-
-    Pitcher tiers:
-      Ace:   K rate >= 28% AND overlap_z <= -1.0
-      Value: K rate >= 22% AND overlap_z <=  0.0
-      Fade:  overlap_z >= +0.5
-    """
-    pitcher_scores  = model.get('all_pitcher_arch_scores', {})
-    contact_rates   = model.get('pitcher_contact_rates', {})
-    arch_hitter_map = model.get('arch_hitter_map', {})
-
-    batter_arch_pool = {}
-    for arch_key, pool in arch_hitter_map.items():
-        ids = set(pool['batter_id'].tolist()) if isinstance(pool, pd.DataFrame) else set(pool)
-        for bid in ids:
-            batter_arch_pool.setdefault(bid, []).append(arch_key)
-
-    pitcher_plays = []
-    stack_targets = []
-
-    for game in games:
-        game_str  = f"{game['away_team']}@{game['home_team']}"
-        game_time = game.get('game_time')
-
-        matchups = [
-            (game['away_lineup'], game['home_pitcher_id'],
-             game['home_pitcher_name'], game['away_team'], game['home_team']),
-            (game['home_lineup'], game['away_pitcher_id'],
-             game['away_pitcher_name'], game['home_team'], game['away_team']),
-        ]
-
-        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team in matchups:
-            if not pitcher_id or not lineup:
-                continue
-
-            k_rate = None
-            if contact_rates and pitcher_id in contact_rates:
-                k_rate = contact_rates[pitcher_id].get('k_rate')
-
-            pitcher_hand = 'R'
-            if pitcher_id in pitcher_scores:
-                pitcher_hand = pitcher_scores[pitcher_id].get('p_throws', 'R')
-
-            scores = []
-            for batter in lineup:
-                s = compute_batter_overlap(
-                    batter['id'], pitcher_id,
-                    batter.get('hand', 'R'), pitcher_hand, model
-                )
-                if s is not None:
-                    scores.append(s)
-
-            if len(scores) < 3:
-                continue
-
-            team_score = sum(scores) / len(scores)
-            overlap_z  = round((team_score - HEATMAP_MEAN) / HEATMAP_STD, 2)
-            k_pct      = round(k_rate * 100, 1) if k_rate else None
-
-            # Pitcher tier
-            if k_rate and k_rate >= DFS_ACE_K and overlap_z <= -1.0:
-                tier, tier_color = 'Ace',     'gold'
-            elif k_rate and k_rate >= DFS_VALUE_K and overlap_z <= 0.0:
-                tier, tier_color = 'Value',   'silver'
-            elif overlap_z >= DFS_FADE_PITCH:
-                tier, tier_color = 'Fade',    'red'
-            else:
-                tier, tier_color = 'Neutral', 'gray'
-
-            pitcher_plays.append({
-                'pitcher_name':  pitcher_name,
-                'pitcher_id':    pitcher_id,
-                'fielding_team': fielding_team,
-                'batting_team':  batting_team,
-                'game':          game_str,
-                'game_time':     game_time,
-                'k_rate':        k_pct,
-                'overlap_z':     overlap_z,
-                'tier':          tier,
-                'tier_color':    tier_color,
-            })
-
-            # Stack target — overlap_z >= 0 (neutral or juicy lineup environment)
-            if overlap_z >= DFS_STACK_MIN_Z:
-                stack_batters = []
-                for batter in lineup:
-                    bid   = batter['id']
-                    slot  = batter.get('batting_order', 9)
-                    archs = batter_arch_pool.get(bid, [])
-
-                    arch_match = False
-                    if pitcher_id in pitcher_scores:
-                        p_archs = pitcher_scores[pitcher_id].get('archetypes', {})
-                        for ak in archs:
-                            hand_ok = ak.endswith('_L') == (batter.get('hand') == 'L')
-                            if hand_ok and p_archs.get(ak, {}).get('shrunk_rate', 0) >= JUICY_THRESHOLD:
-                                arch_match = True
-                                break
-
-                    stack_batters.append({
-                        'name':       batter['name'],
-                        'id':         bid,
-                        'slot':       slot,
-                        'arch_match': arch_match,
-                        'priority':   slot <= 4,
-                    })
-
-                stack_batters.sort(key=lambda x: x['slot'])
-
-                stack_targets.append({
-                    'batting_team':  batting_team,
-                    'fielding_team': fielding_team,
-                    'pitcher_name':  pitcher_name,
-                    'game':          game_str,
-                    'game_time':     game_time,
-                    'overlap_z':     overlap_z,
-                    'is_hot':        overlap_z >= DFS_HOT_Z,
-                    'batters':       stack_batters,
-                })
-
-    tier_order = {'Ace': 0, 'Value': 1, 'Neutral': 2, 'Fade': 3}
-    pitcher_plays.sort(key=lambda x: (tier_order.get(x['tier'], 9), x['overlap_z']))
-    stack_targets.sort(key=lambda x: x['overlap_z'], reverse=True)
-
-    return {'pitcher_plays': pitcher_plays, 'stack_targets': stack_targets}
-
-
 @app.route('/')
 def index():
     if not session.get('authenticated'):
         return redirect(url_for('login'))
     return render_template('index.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -785,6 +843,7 @@ def api_picks():
         today     = et_now.strftime('%Y-%m-%d')
         cache_key = f"ozzie:picks:{today}"
 
+        # Try Redis cache first (30-min TTL during day, expires 1 AM ET)
         cached = redis_get(cache_key)
         if cached:
             try:
@@ -792,18 +851,18 @@ def api_picks():
             except Exception:
                 pass
 
-        model     = load_model()
-        games     = get_lineups_and_starters(today)
-        picks     = get_hr_picks(games, model)
-        dfs_picks = get_dfs_picks(games, model)
-        complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+        # Score fresh
+        model    = load_model()
+        games    = get_lineups_and_starters(today)
+        picks    = get_hr_picks(games, model)
+        complete = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
                       'complete': bool(g['home_lineup'] and g['away_lineup']),
                       'game_time': g.get('game_time')}
                      for g in games]
 
-        heatmap_flags  = get_heatmap_flags(games, model)
+        heatmap_flags = get_heatmap_flags(games, model)
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
 
         payload = {
@@ -811,15 +870,15 @@ def api_picks():
             'complete':        complete,
             'total':           len(games),
             'picks':           picks,
-            'dfs_picks':       dfs_picks,
             'heatmap_flags':   heatmap_flags,
             'fg_under_flags':  fg_under_flags,
             'fg_in_window':    is_fg_valid_window(),
             'games':           games_out,
         }
 
-        now_et    = datetime.now(pytz.timezone('America/New_York'))
-        expire_et = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
+        # Cache with 30-min TTL — but expire at 1 AM ET regardless
+        now_et       = datetime.now(pytz.timezone('America/New_York'))
+        expire_et    = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
         if now_et >= expire_et:
             expire_et = expire_et.replace(day=expire_et.day + 1)
         ttl = min(1800, int((expire_et - now_et).total_seconds()))
@@ -829,6 +888,8 @@ def api_picks():
         return jsonify(payload)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
 
 
 # ── Telegram + Redis notify route ─────────────────────────────────────────────
@@ -843,7 +904,10 @@ SHEETS_ID           = '1AKalzsMqSDmLe5j26de3R6_YVrpptJVZY9tWrZNCbHs'
 SHEETS_TAB          = 'Sheet1'
 
 
+
+
 def redis_set(key, value, ex=86400):
+    """Set a key in Upstash Redis with TTL in seconds (default 24h)."""
     try:
         from urllib.parse import quote
         encoded_key   = quote(key,   safe='')
@@ -859,6 +923,7 @@ def redis_set(key, value, ex=86400):
 
 
 def redis_get(key):
+    """Fetch a key from Upstash Redis REST API. Returns value string or None."""
     try:
         from urllib.parse import quote
         encoded_key = quote(key, safe='')
@@ -874,7 +939,10 @@ def redis_get(key):
         return None
 
 
+
+
 def send_telegram(message):
+    """Send a message to the configured Telegram chat."""
     try:
         requests.post(
             f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
@@ -886,47 +954,63 @@ def send_telegram(message):
 
 
 def flag_key(flag):
+    """Unique identifier for a flag — game + batting team."""
     return f"{flag['game']}|{flag['batting_team']}"
 
 
 def append_to_sheet(flags):
+    """
+    Append new flag rows to Google Sheet.
+    Deduplicates on date+game+team before writing.
+    Auto-fills columns A-O; leaves P-U for manual entry + formulas.
+    """
     if not SHEETS_CREDS or not flags:
         return
     try:
         import gspread
         import json as _json
         from google.oauth2.service_account import Credentials
+
         creds_dict = _json.loads(SHEETS_CREDS)
         scopes = ['https://www.googleapis.com/auth/spreadsheets',
                   'https://www.googleapis.com/auth/drive']
         creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
         gc     = gspread.authorize(creds)
         ws     = gc.open_by_key(SHEETS_ID).worksheet(SHEETS_TAB)
+
         existing      = ws.get_all_values()
         existing_keys = set()
         for row in existing[1:]:
             if len(row) >= 3:
                 existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+
         today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         rows_added = 0
+
         for f in flags:
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_keys:
                 continue
             ws.append_row([
-                today, f.get('game', ''), f.get('batting_team', ''),
-                f.get('pitcher_name', ''), f.get('confidence_label', ''),
+                today,
+                f.get('game', ''),
+                f.get('batting_team', ''),
+                f.get('pitcher_name', ''),
+                f.get('confidence_label', ''),
                 f.get('std_from_mean', ''),
                 'Y' if f.get('q_away')      else 'N',
                 'Y' if f.get('q_krate_lo')  else 'N',
                 'Y' if f.get('q_krate_hi')  else 'N',
                 'Y' if f.get('q_sigma')     else 'N',
-                'Y' if f.get('fg_under_signal')    else 'N',
+                'Y' if f.get('fg_under_signal')   else 'N',
                 'Y' if f.get('combined_f5_signal') else 'N',
-                f.get('game_time', ''), f.get('unit_u15', ''), f.get('unit_u25', ''),
+                f.get('game_time', ''),
+                f.get('unit_u15', ''),
+                f.get('unit_u25', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
+
         print(f"Google Sheets: {rows_added} rows added")
     except ImportError:
         print("gspread not installed — skipping sheet append")
@@ -936,23 +1020,36 @@ def append_to_sheet(flags):
 
 @app.route('/api/notify')
 def api_notify():
+    # Validate secret
     secret = request.args.get('secret', '')
     if not NOTIFY_SECRET or secret != NOTIFY_SECRET:
         return jsonify({'error': 'Unauthorized'}), 401
+
     try:
+        # Score today's flags
         model   = load_model()
         today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games   = get_lineups_and_starters(today)
         flags   = get_heatmap_flags(games, model)
+
+        # Only F5 under flags (what the app shows)
         under_flags = [f for f in flags if f.get('signal') == 'under']
+
         if not under_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
+
+        # Check Redis for already-notified flags today
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
+
+        # Find new flags
         new_flags = [f for f in under_flags if flag_key(f) not in already_sent]
+
         if not new_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
+
+        # Build Telegram message
         lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
         for f in new_flags:
             tier  = f.get('confidence_label', '—')
@@ -967,16 +1064,26 @@ def api_notify():
             )
             if f.get('combined_f5_signal'):
                 lines.append(f"   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
+            u15 = f.get('min_u15','—')
+            u25 = f.get('min_u25','—')
+            uu15 = f.get('unit_u15','')
+            uu25 = f.get('unit_u25','')
             lines.append(
-                f"   U1.5 {f.get('min_u15','—')} ({f.get('unit_u15','')}) | "
-                f"U2.5 {f.get('min_u25','—')} ({f.get('unit_u25','')})"
+                f"   U1.5 {u15} ({uu15}) | U2.5 {u25} ({uu25})"
             )
+
         send_telegram('\n'.join(lines))
+
+        # Append to Google Sheet
         append_to_sheet(new_flags)
+
+        # Update Redis — add new flag keys, keep TTL 24h
         all_sent = already_sent | {flag_key(f) for f in new_flags}
         redis_set(redis_key, ','.join(all_sent), ex=86400)
+
         return jsonify({'status': 'ok', 'new': len(new_flags),
                         'flags': [flag_key(f) for f in new_flags]})
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
