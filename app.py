@@ -41,8 +41,12 @@ TB3_MULTIPLIER  = 1.3
 # F5 heat map thresholds
 HEATMAP_MEAN            = 1.0133
 HEATMAP_STD             = 0.0063
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD  # +2.0σ validated
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
+
+# Over signal: ≥+2.0σ AND off_z > -1.0 → O1.5 edge (77.1% hit, BE -336)
+# Hard avoid: off_z < -1.0 (hit rate collapses to 54%)
+OVER_OFF_Z_MIN = -1.0  # below this, skip over signal regardless of sigma
 
 F5_FAIR_ODDS = {
     'Very Juicy':  -126,
@@ -452,8 +456,15 @@ def get_heatmap_flags(games, model):
             fair_odds     = get_f5_fair_odds(expected_f5)
             fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
 
-            if team_score >= HEATMAP_OVER_THRESHOLD:
+            # Over signal: ≥+2.0σ AND batting team off_z > -1.0
+            # Validated: 77.1% O1.5 hit (BE -336), weak offenses (off_z<-1) collapse to 54%
+            batting_off_z = _FG_OFF_Z.get(batting_team)
+            over_off_z_ok = (batting_off_z is None or batting_off_z > OVER_OFF_Z_MIN)
+
+            if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok:
                 signal = 'over'
+            elif team_score >= HEATMAP_OVER_THRESHOLD and not over_off_z_ok:
+                signal = 'over_suppressed'  # skip — weak offense cancels signal
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
@@ -461,6 +472,10 @@ def get_heatmap_flags(games, model):
                     signal = 'fg_under_only'
                 else:
                     continue
+
+            # Skip over_suppressed
+            if signal == 'over_suppressed':
+                continue
 
             confidence = None
             is_away    = (batting_team == game['away_team'])
@@ -484,6 +499,7 @@ def get_heatmap_flags(games, model):
                 'fair_over_1_5':  fair_odds['fair_over_1_5'],
                 'fair_under_2_5': fair_odds['fair_under_2_5'],
                 'fair_over_2_5':  fair_odds['fair_over_2_5'],
+                'over_off_z':     round(batting_off_z, 3) if batting_off_z is not None else None,
                 'confidence_label':   confidence['label']           if confidence else None,
                 'confidence_color':   confidence['color']           if confidence else None,
                 'qualifier_count':    confidence['qualifier_count'] if confidence else 0,
@@ -783,6 +799,7 @@ def api_picks():
 
         heatmap_flags  = get_heatmap_flags(games, model)
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
+        over_flags     = [f for f in heatmap_flags if f.get('signal') == 'over']
 
         # DFS picks — computed separately, excluded from cache if serialization fails
         dfs_picks = {}
@@ -799,6 +816,7 @@ def api_picks():
             'dfs_picks':       dfs_picks,
             'heatmap_flags':   heatmap_flags,
             'fg_under_flags':  fg_under_flags,
+            'over_flags':      over_flags,
             'fg_in_window':    is_fg_valid_window(),
             'games':           games_out,
         }
@@ -941,16 +959,19 @@ def api_notify():
         games   = get_lineups_and_starters(today)
         flags   = get_heatmap_flags(games, model)
         under_flags = [f for f in flags if f.get('signal') == 'under']
-        if not under_flags:
+        over_flags  = [f for f in flags if f.get('signal') == 'over']
+        if not under_flags and not over_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
-        new_flags = [f for f in under_flags if flag_key(f) not in already_sent]
+        new_under = [f for f in under_flags if flag_key(f) not in already_sent]
+        new_over  = [f for f in over_flags  if flag_key(f) not in already_sent]
+        new_flags = new_under + new_over
         if not new_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
         lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
-        for f in new_flags:
+        for f in new_under:
             tier  = f.get('confidence_label', '—')
             sigma = f.get('std_from_mean', 0)
             medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
@@ -967,6 +988,16 @@ def api_notify():
                 f"   U1.5 {f.get('min_u15','—')} ({f.get('unit_u15','')}) | "
                 f"U2.5 {f.get('min_u25','—')} ({f.get('unit_u25','')})"
             )
+        for f in new_over:
+            sigma   = f.get('std_from_mean', 0)
+            off_z   = f.get('over_off_z')
+            off_str = f" off_z={off_z:+.2f}" if off_z is not None else ''
+            time    = f" — {f['game_time']}" if f.get('game_time') else ''
+            lines.append(
+                f"📈 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                f"(OVER, {sigma:+.2f}σ{off_str}){time}"
+            )
+            lines.append("   O1.5 target: better than -300 | 77% hit validated")
         send_telegram('\n'.join(lines))
         append_to_sheet(new_flags)
         all_sent = already_sent | {flag_key(f) for f in new_flags}
