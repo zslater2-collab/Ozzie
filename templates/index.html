@@ -139,6 +139,19 @@
     <div id="f5combined-list"></div>
   </div>
 </div>
+<div id="over-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="over-count"></div>
+      <div class="section-label" style="margin:0">F5 Team Total
+        <span style="color:#ff9f47;margin-left:4px">Over</span>
+      </div>
+    </div>
+    <div id="over-list"></div>
+  </div>
+</div>
+
 <div id="dfs-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -244,7 +257,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true;spinner.style.display='block';label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…';errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','dfs-section','picks-section','no-picks'].forEach(id=>document.getElementById(id).style.display='none');
+    ['games-section','heatmap-section','f5combined-section','over-section','dfs-section','picks-section','no-picks'].forEach(id=>document.getElementById(id).style.display='none');
 
     fetch('/api/picks')
       .then(r=>{
@@ -281,6 +294,60 @@
           document.getElementById('f5combined-count').textContent=`${f5cFlags.length} Flag${f5cFlags.length!==1?'s':''}`;
           f5cFlags.forEach((f,i)=>f5cList.appendChild(buildGtCard(f,i)));
           document.getElementById('f5combined-section').style.display='block';
+        }
+
+        // ── F5 Over Flags ─────────────────────────────────────────────
+        const overFlags = data.over_flags || [];
+        const overList = document.getElementById('over-list');
+        overList.innerHTML = '';
+        if (overFlags.length > 0) {
+          document.getElementById('over-count').textContent =
+            `${overFlags.length} Flag${overFlags.length !== 1 ? 's' : ''}`;
+          overFlags.forEach((f, i) => {
+            const card = document.createElement('div');
+            card.className = 'hm-card';
+            card.style.cssText = 'border:1px solid #ff9f47;box-shadow:0 0 10px rgba(255,159,71,0.12);margin-bottom:8px';
+            card.style.animationDelay = `${i * 0.06}s`;
+            const sigmaSign = f.std_from_mean >= 0 ? '+' : '';
+            const offZStr = f.over_off_z !== null && f.over_off_z !== undefined
+              ? ` · off_z ${f.over_off_z > 0 ? '+' : ''}${f.over_off_z}`
+              : '';
+            const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
+            const lineupTag = f.lineup_complete
+              ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
+              : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
+            card.innerHTML = `
+              <div class="hm-top">
+                <div class="hm-team">${f.batting_team}</div>
+                <div class="hm-signal-wrap">
+                  <div class="hm-signal" style="color:#ff9f47">OVER</div>
+                  <div class="hm-sigma" style="color:#ff9f47">${sigmaSign}${f.std_from_mean}σ from mean</div>
+                </div>
+              </div>
+              <div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">${f.game_time || ''}${offZStr}</div>
+              <div class="hm-divider"></div>
+              <div class="hm-bottom">
+                <div class="hm-stat">
+                  <div class="hm-stat-label">vs Pitcher</div>
+                  <div class="hm-stat-value">${f.pitcher_name}</div>
+                </div>
+                <div class="hm-stat">
+                  <div class="hm-stat-label">Throws</div>
+                  <div class="hm-stat-value">${handLabel}</div>
+                </div>
+                <div class="hm-stat">
+                  <div class="hm-stat-label">Batters Scored</div>
+                  <div class="hm-stat-value">${f.batters_scored} / 9</div>
+                </div>
+              </div>
+              <div style="margin-top:10px;padding:7px 10px;background:rgba(255,159,71,0.06);border:1px solid rgba(255,159,71,0.25);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#ff9f47">O1.5 Target</span>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.06em;color:#ff9f47">Better than -300 · 77% validated</span>
+              </div>
+              ${lineupTag}`;
+            overList.appendChild(card);
+          });
+          document.getElementById('over-section').style.display = 'block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
