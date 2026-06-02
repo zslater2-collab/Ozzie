@@ -213,6 +213,7 @@ def get_lineups_and_starters(game_date):
                             'name':          p.get('person', {}).get('fullName', ''),
                             'hand':          p.get('batSide', {}).get('code', 'R'),
                             'batting_order': slot_idx,
+                            'position':      p.get('position', {}).get('abbreviation', ''),
                         })
             except Exception:
                 pass
@@ -705,6 +706,7 @@ def get_dfs_picks(games, model):
                         'name':       str(batter['name']),
                         'id':         bid,
                         'slot':       slot,
+                        'position':   str(batter.get('position', '')),
                         'arch_match': bool(arch_match),
                         'priority':   bool(slot <= 4),
                     })
