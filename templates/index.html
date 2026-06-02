@@ -313,7 +313,7 @@
               const priorityDot=b.slot<=4?`<span style="color:var(--green);font-size:.65rem">●</span>`:`<span style="color:var(--dim);font-size:.65rem">○</span>`;
               const nameColor=b.slot<=4?'var(--text)':'var(--muted)';
               const archBadge=b.arch_match?`<span style="font-size:.55rem;color:var(--accent);letter-spacing:.06em">★</span>`:'';
-              const posBadge=b.position?`<span style="font-size:.52rem;color:var(--muted);letter-spacing:.05em;background:var(--surface2);border:1px solid var(--dim);border-radius:3px;padding:1px 5px;flex-shrink:0">${b.position}</span>`:'';
+              const posBadge=b.position?`<span style="font-size:.52rem;color:var(--text);letter-spacing:.05em;background:transparent;border:1px solid var(--border);border-radius:3px;padding:1px 5px;flex-shrink:0">${b.position}</span>`:'';
               return`<div class="dfs-batter-row">${priorityDot}<span class="dfs-slot">#${b.slot}</span><span class="dfs-name" style="color:${nameColor}">${b.name}</span>${posBadge}${archBadge}</div>`;
             }).join('');
             const card=document.createElement('div');card.className='hm-card';
