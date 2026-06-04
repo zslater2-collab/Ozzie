@@ -38,7 +38,8 @@ BULLPEN_WEIGHT  = 0.20
 ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
-# F5 heat map thresholds
+# F5 heat map thresholds — validated against ozzie_backtest_2025.csv
+# Gold tier: n=112, 89.3% hit rate, ROI=0.686 (confirmed 2025 OOS)
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD  # +2.0σ validated
@@ -456,15 +457,13 @@ def get_heatmap_flags(games, model):
             fair_odds     = get_f5_fair_odds(expected_f5)
             fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
 
-            # Over signal: ≥+2.0σ AND batting team off_z > -1.0
-            # Validated: 77.1% O1.5 hit (BE -336), weak offenses (off_z<-1) collapse to 54%
             batting_off_z = _FG_OFF_Z.get(batting_team)
             over_off_z_ok = (batting_off_z is None or batting_off_z > OVER_OFF_Z_MIN)
 
             if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok:
                 signal = 'over'
             elif team_score >= HEATMAP_OVER_THRESHOLD and not over_off_z_ok:
-                signal = 'over_suppressed'  # skip — weak offense cancels signal
+                signal = 'over_suppressed'
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
             else:
@@ -473,7 +472,6 @@ def get_heatmap_flags(games, model):
                 else:
                     continue
 
-            # Skip over_suppressed
             if signal == 'over_suppressed':
                 continue
 
@@ -620,18 +618,10 @@ def get_hr_picks(games, model):
 
 
 def get_dfs_picks(games, model):
-    """
-    DFS pitcher plays and stack targets.
-    Pitcher tiers: Ace (K>=28% + overlap_z<=-1.0), Value (K>=22% + overlap_z<=0),
-                   Fade (overlap_z>=+0.5), Neutral (everything else)
-    Stack targets: lineups facing juicy pitchers (overlap_z >= 0)
-    Returns JSON-safe dict only (no sets, no numpy types).
-    """
     pitcher_scores  = model.get('all_pitcher_arch_scores', {})
     contact_rates   = model.get('pitcher_contact_rates', {})
     arch_hitter_map = model.get('arch_hitter_map', {})
 
-    # Build batter → archetype pool (JSON-safe list)
     batter_arch_pool = {}
     for arch_key, pool in arch_hitter_map.items():
         ids = list(pool['batter_id'].tolist()) if isinstance(pool, pd.DataFrame) else list(pool)
@@ -801,7 +791,6 @@ def api_picks():
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_flags     = [f for f in heatmap_flags if f.get('signal') == 'over']
 
-        # DFS picks — computed separately, excluded from cache if serialization fails
         dfs_picks = {}
         try:
             dfs_picks = get_dfs_picks(games, model)
@@ -831,7 +820,6 @@ def api_picks():
                 redis_set(cache_key, _json.dumps(payload), ex=ttl)
             except Exception as cache_err:
                 print(f"Cache write failed: {cache_err}")
-                # Cache without dfs_picks as fallback
                 try:
                     safe_payload = {k: v for k, v in payload.items() if k != 'dfs_picks'}
                     redis_set(cache_key, _json.dumps(safe_payload), ex=ttl)
@@ -926,18 +914,29 @@ def append_to_sheet(flags):
             if key in existing_keys:
                 continue
             ws.append_row([
-                today, f.get('game', ''), f.get('batting_team', ''),
-                f.get('pitcher_name', ''), f.get('confidence_label', ''),
-                f.get('std_from_mean', ''),
-                'Y' if f.get('q_away')             else 'N',
-                'Y' if f.get('q_krate_lo')         else 'N',
-                'Y' if f.get('q_krate_hi')         else 'N',
-                'Y' if f.get('q_sigma')            else 'N',
-                'Y' if f.get('fg_under_signal')    else 'N',
-                'Y' if f.get('combined_f5_signal') else 'N',
-                f.get('game_time', ''),
-                f.get('unit_u15', ''),
-                f.get('unit_u25', ''),
+                today,                                        # A - Date
+                f.get('game', ''),                            # B - Game
+                f.get('batting_team', ''),                    # C - Team
+                f.get('pitcher_name', ''),                    # D - Pitcher
+                f.get('confidence_label', ''),                # E - Tier
+                f.get('std_from_mean', ''),                   # F - Sigma
+                'Y' if f.get('q_away')             else 'N', # G - Away
+                'Y' if f.get('q_krate_lo')         else 'N', # H - K>26
+                'Y' if f.get('q_krate_hi')         else 'N', # I - K>28
+                'Y' if f.get('q_sigma')            else 'N', # J - σ≤-1.5
+                'Y' if f.get('fg_under_signal')    else 'N', # K - FG Signal
+                'Y' if f.get('combined_f5_signal') else 'N', # L - Combined F5
+                f.get('game_time', ''),                       # M - Game Time
+                '',                                           # N - Line U1.5 (manual)
+                '',                                           # O - Units U1.5 (manual)
+                '',                                           # P - Book U1.5 (manual)
+                '',                                           # Q - Line U2.5 (manual)
+                '',                                           # R - Units U2.5 (manual)
+                '',                                           # S - Book U2.5 (manual)
+                '',                                           # T - Actual Runs (manual)
+                '=IF(AND(N{r}<>"",T{r}<>""),IF(T{r}<N{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),  # U - U1.5 Hit
+                '=IF(AND(Q{r}<>"",T{r}<>""),IF(T{r}<Q{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),  # V - U2.5 Hit
+                '=IF(T{r}="","",IF(O{r}<>"",IF(U{r}="Yes",IF(N{r}<0,O{r}*(100/ABS(N{r})),O{r}*(N{r}/100)),-O{r}),0)+IF(R{r}<>"",IF(V{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0))'.format(r=len(existing) + rows_added + 1),  # W - Profit
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
