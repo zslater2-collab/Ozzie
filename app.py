@@ -39,15 +39,18 @@ ASSUMED_PAS     = 4
 TB3_MULTIPLIER  = 1.3
 
 # F5 heat map thresholds — validated against ozzie_backtest_2025.csv
-# Gold tier: n=112, 89.3% hit rate, ROI=0.686 (confirmed 2025 OOS)
+# Under Gold tier: n=112, 89.3% hit rate, ROI=0.686 (confirmed 2025 OOS)
+# Over signal: n=94, O1.5=80.9%, O2.5=62.8% at +2.0σ + off_z>-1.0
+#              Away only: n=45, O1.5=88.9%, O2.5=73.3% — primary bet target
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD  # +2.0σ validated
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
 
-# Over signal: ≥+2.0σ AND off_z > -1.0 → O1.5 edge (77.1% hit, BE -336)
-# Hard avoid: off_z < -1.0 (hit rate collapses to 54%)
-OVER_OFF_Z_MIN = -1.0  # below this, skip over signal regardless of sigma
+# Over signal gates (both required):
+# 1. off_z > -1.0 (weak offenses collapse to 50% O1.5 — exclude)
+# 2. batting team is away (home: 53.1% O2.5, away: 73.3% O2.5 — home not worth betting)
+OVER_OFF_Z_MIN = -1.0
 
 F5_FAIR_ODDS = {
     'Very Juicy':  -126,
@@ -457,12 +460,15 @@ def get_heatmap_flags(games, model):
             fair_odds     = get_f5_fair_odds(expected_f5)
             fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
 
+            is_away       = (batting_team == game['away_team'])
             batting_off_z = _FG_OFF_Z.get(batting_team)
             over_off_z_ok = (batting_off_z is None or batting_off_z > OVER_OFF_Z_MIN)
+            # Away gate: home teams hit O2.5 only 53.1% vs away 73.3% — not worth betting
+            over_away_ok  = is_away
 
-            if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok:
+            if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok and over_away_ok:
                 signal = 'over'
-            elif team_score >= HEATMAP_OVER_THRESHOLD and not over_off_z_ok:
+            elif team_score >= HEATMAP_OVER_THRESHOLD and (not over_off_z_ok or not over_away_ok):
                 signal = 'over_suppressed'
             elif team_score <= HEATMAP_UNDER_THRESHOLD:
                 signal = 'under'
@@ -476,7 +482,6 @@ def get_heatmap_flags(games, model):
                 continue
 
             confidence = None
-            is_away    = (batting_team == game['away_team'])
             if signal == 'under':
                 confidence = get_confidence_tier(
                     std_from_mean=std_from_mean, is_away=is_away,
@@ -996,7 +1001,7 @@ def api_notify():
                 f"📈 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
                 f"(OVER, {sigma:+.2f}σ{off_str}){time}"
             )
-            lines.append("   O1.5 target: better than -300 | 77% hit validated")
+            lines.append("   O2.5 target: better than -275 | 73.3% hit (away + off_z>-1.0, 2025 OOS)")
         send_telegram('\n'.join(lines))
         append_to_sheet(new_flags)
         all_sent = already_sent | {flag_key(f) for f in new_flags}
