@@ -30,21 +30,24 @@ FILE_IDS = {
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
 }
 
-LEAGUE_AVG      = 3.88
-JUICY_THRESHOLD = 5.0
-MIN_SENSOR_PA   = 20
-STARTER_WEIGHT  = 0.80
-BULLPEN_WEIGHT  = 0.20
-ASSUMED_PAS     = 4
-TB3_MULTIPLIER  = 1.3
+LEAGUE_AVG        = 3.88
+JUICY_THRESHOLD   = 5.0
+MIN_SENSOR_PA     = 20
+STARTER_WEIGHT    = 0.80
+BULLPEN_WEIGHT    = 0.20
+ASSUMED_PAS       = 4
+TB3_MULTIPLIER    = 1.3
+LEAGUE_AVG_KRATE  = 0.229  # K rate modifier denominator
 
 # F5 heat map thresholds — validated against ozzie_backtest_2025.csv
 # Under Gold tier: n=112, 89.3% hit rate, ROI=0.686 (confirmed 2025 OOS)
-# Over signal: n=94, O1.5=80.9%, O2.5=62.8% at +2.0σ + off_z>-1.0
-#              Away only: n=45, O1.5=88.9%, O2.5=73.3% — primary bet target
+# Over signal: away + off_z>-1.0, n=45, O2.5=73.3% (confirmed 2025 OOS)
+# Constants source: implied from backtest std_from_mean column (mean=0.9989, std=0.0549)
+# K rate modifier: overlap_k_mod = overlap_raw * (1 - k_rate) / (1 - 0.229)
+# Corrected June 4 2026 — prior constants 1.0133/0.0063 were wrong (over signal artifact)
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD  # +2.0σ validated
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
 
 # Over signal gates (both required):
@@ -403,7 +406,7 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
     batter_profiles    = model.get('batter_ev_profiles_lr', {})
     pitcher_tendencies = model.get('pitcher_tendency_map', {})
     archetypes         = model.get('archetypes', {})
-    if batter_id not in batter_profiles:    return None
+    if batter_id not in batter_profiles:     return None
     if pitcher_id not in pitcher_tendencies: return None
     if pitcher_hand not in batter_profiles[batter_id]: return None
     tends = pitcher_tendencies[pitcher_id].get(batter_hand, {})
@@ -417,6 +420,15 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
         wsum += e * t
         wtot += t
     return wsum / wtot if wtot > 0 else None
+
+
+def apply_k_modifier(overlap_raw, pitcher_k_rate):
+    """Apply K rate modifier: overlap_k_mod = overlap_raw * (1 - k_rate) / (1 - league_avg_k)
+    This is the key transformation that spreads the raw score distribution
+    from std~0.006 to std~0.055, matching the backtest validation data."""
+    if pitcher_k_rate is None:
+        return overlap_raw
+    return overlap_raw * (1 - pitcher_k_rate) / (1 - LEAGUE_AVG_KRATE)
 
 
 def get_heatmap_flags(games, model):
@@ -454,8 +466,13 @@ def get_heatmap_flags(games, model):
                     scored_batters += 1
             if scored_batters < 3:
                 continue
-            team_score    = sum(scores) / len(scores)
+
+            # Apply K rate modifier — transforms raw overlap (std~0.006)
+            # to k-modified score (std~0.055) matching backtest distribution
+            overlap_raw   = sum(scores) / len(scores)
+            team_score    = apply_k_modifier(overlap_raw, pitcher_k_rate)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
+
             expected_f5   = get_expected_f5_runs(overlap_k_mod=team_score, model_bundle=nb_bundle)
             fair_odds     = get_f5_fair_odds(expected_f5)
             fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
@@ -463,7 +480,6 @@ def get_heatmap_flags(games, model):
             is_away       = (batting_team == game['away_team'])
             batting_off_z = _FG_OFF_Z.get(batting_team)
             over_off_z_ok = (batting_off_z is None or batting_off_z > OVER_OFF_Z_MIN)
-            # Away gate: home teams hit O2.5 only 53.1% vs away 73.3% — not worth betting
             over_away_ok  = is_away
 
             if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok and over_away_ok:
@@ -671,9 +687,11 @@ def get_dfs_picks(games, model):
             if len(scores) < 3:
                 continue
 
-            team_score = sum(scores) / len(scores)
-            overlap_z  = round((team_score - HEATMAP_MEAN) / HEATMAP_STD, 2)
-            k_pct      = round(float(k_rate) * 100, 1) if k_rate else None
+            # Apply K rate modifier for DFS scoring too
+            overlap_raw = sum(scores) / len(scores)
+            team_score  = apply_k_modifier(overlap_raw, k_rate)
+            overlap_z   = round((team_score - HEATMAP_MEAN) / HEATMAP_STD, 2)
+            k_pct       = round(float(k_rate) * 100, 1) if k_rate else None
 
             if k_rate and k_rate >= DFS_ACE_K and overlap_z <= -1.0:
                 tier, tier_color = 'Ace',     'gold'
@@ -939,9 +957,9 @@ def append_to_sheet(flags):
                 '',                                           # R - Units U2.5 (manual)
                 '',                                           # S - Book U2.5 (manual)
                 '',                                           # T - Actual Runs (manual)
-                '=IF(AND(N{r}<>"",T{r}<>""),IF(T{r}<N{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),  # U - U1.5 Hit
-                '=IF(AND(Q{r}<>"",T{r}<>""),IF(T{r}<Q{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),  # V - U2.5 Hit
-                '=IF(T{r}="","",IF(O{r}<>"",IF(U{r}="Yes",IF(N{r}<0,O{r}*(100/ABS(N{r})),O{r}*(N{r}/100)),-O{r}),0)+IF(R{r}<>"",IF(V{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0))'.format(r=len(existing) + rows_added + 1),  # W - Profit
+                '=IF(AND(N{r}<>"",T{r}<>""),IF(T{r}<N{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
+                '=IF(AND(Q{r}<>"",T{r}<>""),IF(T{r}<Q{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
+                '=IF(T{r}="","",IF(O{r}<>"",IF(U{r}="Yes",IF(N{r}<0,O{r}*(100/ABS(N{r})),O{r}*(N{r}/100)),-O{r}),0)+IF(R{r}<>"",IF(V{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0))'.format(r=len(existing) + rows_added + 1),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
