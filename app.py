@@ -28,6 +28,8 @@ FILE_IDS = {
     'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',
     # NegBin expected runs model (Script S)
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
+    # DFS hitter splits (2022-2025, career vs LHP/RHP)
+    'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
 }
 
 LEAGUE_AVG        = 3.88
@@ -75,12 +77,13 @@ FG_VALID_END_MONTH   =  7
 FG_VALID_END_DAY     = 31
 
 # DFS thresholds
-DFS_HOT_Z       =  1.5
-DFS_FADE_Z      = -1.5
-DFS_STACK_MIN_Z =  0.0
-DFS_ACE_K       =  0.28
-DFS_VALUE_K     =  0.22
-DFS_FADE_PITCH  =  0.5
+DFS_HOT_Z           =  1.5
+DFS_FADE_Z          = -1.5
+DFS_STACK_MIN_Z     =  0.0
+DFS_ACE_K           =  0.28
+DFS_VALUE_K         =  0.22
+DFS_FADE_PITCH      =  0.5
+DFS_SPLIT_THRESHOLD =  0.5  # min |split_diff| to display split badge
 
 _model_cache      = None
 _model_cache_time = None
@@ -171,6 +174,25 @@ def load_model():
             model[name] = None
     model['arch_hitter_map'] = model['arch_hitter_map_combined']
     model['archetypes']      = model['archetypes_combined']
+
+    # Build hitter splits lookup: {batter_id: {'diff': float, 'flag': str}}
+    # flag = 'favors_RHP' (performs better vs RHP) or 'favors_LHP' (performs better vs LHP)
+    splits_lookup = {}
+    try:
+        splits_df = model.get('hitter_splits')
+        if splits_df is not None and isinstance(splits_df, pd.DataFrame):
+            for _, row in splits_df.iterrows():
+                diff = float(row['split_diff']) if pd.notna(row['split_diff']) else 0.0
+                if abs(diff) >= DFS_SPLIT_THRESHOLD:
+                    splits_lookup[int(row['batter'])] = {
+                        'diff': round(diff, 2),
+                        'flag': 'favors_RHP' if diff > 0 else 'favors_LHP',
+                    }
+    except Exception as e:
+        print(f"Warning: hitter splits build failed: {e}")
+    model['splits_lookup'] = splits_lookup
+    print(f"Hitter splits loaded: {len(splits_lookup)} players with |diff| >= {DFS_SPLIT_THRESHOLD}")
+
     _model_cache      = model
     _model_cache_time = now
     return model
@@ -467,8 +489,6 @@ def get_heatmap_flags(games, model):
             if scored_batters < 3:
                 continue
 
-            # Apply K rate modifier — transforms raw overlap (std~0.006)
-            # to k-modified score (std~0.055) matching backtest distribution
             overlap_raw   = sum(scores) / len(scores)
             team_score    = apply_k_modifier(overlap_raw, pitcher_k_rate)
             std_from_mean = (team_score - HEATMAP_MEAN) / HEATMAP_STD
@@ -642,6 +662,7 @@ def get_dfs_picks(games, model):
     pitcher_scores  = model.get('all_pitcher_arch_scores', {})
     contact_rates   = model.get('pitcher_contact_rates', {})
     arch_hitter_map = model.get('arch_hitter_map', {})
+    splits_lookup   = model.get('splits_lookup', {})  # NEW: hitter splits
 
     batter_arch_pool = {}
     for arch_key, pool in arch_hitter_map.items():
@@ -687,7 +708,6 @@ def get_dfs_picks(games, model):
             if len(scores) < 3:
                 continue
 
-            # Apply K rate modifier for DFS scoring too
             overlap_raw = sum(scores) / len(scores)
             team_score  = apply_k_modifier(overlap_raw, k_rate)
             overlap_z   = round((team_score - HEATMAP_MEAN) / HEATMAP_STD, 2)
@@ -731,13 +751,30 @@ def get_dfs_picks(games, model):
                                 arch_match = True
                                 break
 
+                    # NEW: look up split differential for this batter vs today's pitcher hand
+                    split_info = splits_lookup.get(bid)
+                    split_diff = None
+                    split_favorable = None
+                    if split_info:
+                        diff = split_info['diff']
+                        flag = split_info['flag']
+                        # favors_RHP means better vs RHP — favorable if pitcher is RHP
+                        # favors_LHP means better vs LHP — favorable if pitcher is LHP
+                        if flag == 'favors_RHP':
+                            split_favorable = (pitcher_hand == 'R')
+                        else:
+                            split_favorable = (pitcher_hand == 'L')
+                        split_diff = diff
+
                     stack_batters.append({
-                        'name':       str(batter['name']),
-                        'id':         bid,
-                        'slot':       slot,
-                        'position':   str(batter.get('position', '')),
-                        'arch_match': bool(arch_match),
-                        'priority':   bool(slot <= 4),
+                        'name':           str(batter['name']),
+                        'id':             bid,
+                        'slot':           slot,
+                        'position':       str(batter.get('position', '')),
+                        'arch_match':     bool(arch_match),
+                        'priority':       bool(slot <= 4),
+                        'split_diff':     split_diff,      # None if no meaningful split
+                        'split_favorable': split_favorable, # True=green, False=red, None=no badge
                     })
 
                 stack_batters.sort(key=lambda x: x['slot'])
@@ -937,26 +974,26 @@ def append_to_sheet(flags):
             if key in existing_keys:
                 continue
             ws.append_row([
-                today,                                        # A - Date
-                f.get('game', ''),                            # B - Game
-                f.get('batting_team', ''),                    # C - Team
-                f.get('pitcher_name', ''),                    # D - Pitcher
-                f.get('confidence_label', ''),                # E - Tier
-                f.get('std_from_mean', ''),                   # F - Sigma
-                'Y' if f.get('q_away')             else 'N', # G - Away
-                'Y' if f.get('q_krate_lo')         else 'N', # H - K>26
-                'Y' if f.get('q_krate_hi')         else 'N', # I - K>28
-                'Y' if f.get('q_sigma')            else 'N', # J - σ≤-1.5
-                'Y' if f.get('fg_under_signal')    else 'N', # K - FG Signal
-                'Y' if f.get('combined_f5_signal') else 'N', # L - Combined F5
-                f.get('game_time', ''),                       # M - Game Time
-                '',                                           # N - Line U1.5 (manual)
-                '',                                           # O - Units U1.5 (manual)
-                '',                                           # P - Book U1.5 (manual)
-                '',                                           # Q - Line U2.5 (manual)
-                '',                                           # R - Units U2.5 (manual)
-                '',                                           # S - Book U2.5 (manual)
-                '',                                           # T - Actual Runs (manual)
+                today,
+                f.get('game', ''),
+                f.get('batting_team', ''),
+                f.get('pitcher_name', ''),
+                f.get('confidence_label', ''),
+                f.get('std_from_mean', ''),
+                'Y' if f.get('q_away')             else 'N',
+                'Y' if f.get('q_krate_lo')         else 'N',
+                'Y' if f.get('q_krate_hi')         else 'N',
+                'Y' if f.get('q_sigma')            else 'N',
+                'Y' if f.get('fg_under_signal')    else 'N',
+                'Y' if f.get('combined_f5_signal') else 'N',
+                f.get('game_time', ''),
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
                 '=IF(AND(N{r}<>"",T{r}<>""),IF(T{r}<N{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
                 '=IF(AND(Q{r}<>"",T{r}<>""),IF(T{r}<Q{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
                 '=IF(T{r}="","",IF(O{r}<>"",IF(U{r}="Yes",IF(N{r}<0,O{r}*(100/ABS(N{r})),O{r}*(N{r}/100)),-O{r}),0)+IF(R{r}<>"",IF(V{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0))'.format(r=len(existing) + rows_added + 1),
