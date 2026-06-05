@@ -139,19 +139,6 @@
     <div id="f5combined-list"></div>
   </div>
 </div>
-<div id="over-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="over-count"></div>
-      <div class="section-label" style="margin:0">F5 Team Total
-        <span style="color:#ff9f47;margin-left:4px">Over</span>
-      </div>
-    </div>
-    <div id="over-list"></div>
-  </div>
-</div>
-
 <div id="dfs-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -257,7 +244,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true;spinner.style.display='block';label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…';errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','over-section','dfs-section','picks-section','no-picks'].forEach(id=>document.getElementById(id).style.display='none');
+    ['games-section','heatmap-section','f5combined-section','dfs-section','picks-section','no-picks'].forEach(id=>document.getElementById(id).style.display='none');
 
     fetch('/api/picks')
       .then(r=>{
@@ -296,60 +283,6 @@
           document.getElementById('f5combined-section').style.display='block';
         }
 
-        // ── F5 Over Flags ─────────────────────────────────────────────
-        const overFlags = data.over_flags || [];
-        const overList = document.getElementById('over-list');
-        overList.innerHTML = '';
-        if (overFlags.length > 0) {
-          document.getElementById('over-count').textContent =
-            `${overFlags.length} Flag${overFlags.length !== 1 ? 's' : ''}`;
-          overFlags.forEach((f, i) => {
-            const card = document.createElement('div');
-            card.className = 'hm-card';
-            card.style.cssText = 'border:1px solid #ff9f47;box-shadow:0 0 10px rgba(255,159,71,0.12);margin-bottom:8px';
-            card.style.animationDelay = `${i * 0.06}s`;
-            const sigmaSign = f.std_from_mean >= 0 ? '+' : '';
-            const offZStr = f.over_off_z !== null && f.over_off_z !== undefined
-              ? ` · off_z ${f.over_off_z > 0 ? '+' : ''}${f.over_off_z}`
-              : '';
-            const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-            const lineupTag = f.lineup_complete
-              ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-              : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-            card.innerHTML = `
-              <div class="hm-top">
-                <div class="hm-team">${f.batting_team}</div>
-                <div class="hm-signal-wrap">
-                  <div class="hm-signal" style="color:#ff9f47">OVER</div>
-                  <div class="hm-sigma" style="color:#ff9f47">${sigmaSign}${f.std_from_mean}σ from mean</div>
-                </div>
-              </div>
-              <div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">${f.game_time || ''}${offZStr}</div>
-              <div class="hm-divider"></div>
-              <div class="hm-bottom">
-                <div class="hm-stat">
-                  <div class="hm-stat-label">vs Pitcher</div>
-                  <div class="hm-stat-value">${f.pitcher_name}</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Throws</div>
-                  <div class="hm-stat-value">${handLabel}</div>
-                </div>
-                <div class="hm-stat">
-                  <div class="hm-stat-label">Batters Scored</div>
-                  <div class="hm-stat-value">${f.batters_scored} / 9</div>
-                </div>
-              </div>
-              <div style="margin-top:10px;padding:7px 10px;background:rgba(255,159,71,0.06);border:1px solid rgba(255,159,71,0.25);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#ff9f47">O1.5 Target</span>
-                <span style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.06em;color:#ff9f47">Better than -300 · 77% validated</span>
-              </div>
-              ${lineupTag}`;
-            overList.appendChild(card);
-          });
-          document.getElementById('over-section').style.display = 'block';
-        }
-
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
         const dfsTierStyle={'Ace':{border:'#FFD700',text:'#FFD700',bg:'rgba(255,215,0,0.06)'},'Value':{border:'#C0C0C0',text:'#C0C0C0',bg:'rgba(192,192,192,0.06)'},'Fade':{border:'#ff6b6b',text:'#ff6b6b',bg:'rgba(255,107,107,0.06)'},'Neutral':{border:'#333348',text:'#555570',bg:'transparent'}};
         const dfsPitchersEl=document.getElementById('dfs-pitchers');
@@ -380,12 +313,19 @@
               const priorityDot=b.slot<=4?`<span style="color:var(--green);font-size:.65rem">●</span>`:`<span style="color:var(--dim);font-size:.65rem">○</span>`;
               const nameColor=b.slot<=4?'var(--text)':'var(--muted)';
               const archBadge=b.arch_match?`<span style="font-size:.55rem;color:var(--accent);letter-spacing:.06em">★</span>`:'';
-              const posBadge=b.position?`<span style="font-size:.52rem;color:var(--text);letter-spacing:.05em;background:transparent;border:1px solid var(--border);border-radius:3px;padding:1px 5px;flex-shrink:0">${b.position}</span>`:'';
-              return`<div class="dfs-batter-row">${priorityDot}<span class="dfs-slot">#${b.slot}</span><span class="dfs-name" style="color:${nameColor}">${b.name}</span>${posBadge}${archBadge}</div>`;
+              const posBadge=b.position?`<span style="font-size:.52rem;color:var(--muted);letter-spacing:.05em;background:var(--surface2);border:1px solid var(--dim);border-radius:3px;padding:1px 5px;flex-shrink:0">${b.position}</span>`:'';
+              let splitBadge='';
+              if(b.split_diff!==null&&b.split_diff!==undefined){
+                const favorable=b.split_favorable;
+                const color=favorable?'#4fffb0':'#ff6b6b';
+                const sign=b.split_diff>0?'+':'';
+                splitBadge=`<span style="font-size:.5rem;color:${color};letter-spacing:.04em;border:1px solid ${color};border-radius:3px;padding:1px 4px;flex-shrink:0;opacity:.85">${sign}${b.split_diff.toFixed(1)}</span>`;
+              }
+              return`<div class="dfs-batter-row">${priorityDot}<span class="dfs-slot">#${b.slot}</span><span class="dfs-name" style="color:${nameColor}">${b.name}</span>${posBadge}${archBadge}${splitBadge}</div>`;
             }).join('');
             const card=document.createElement('div');card.className='hm-card';
             card.style.cssText=`border:1px solid ${border};margin-bottom:10px`;
-            card.innerHTML=`<div class="hm-top"><div class="hm-team">${s.batting_team}${hotBadge}</div><div class="hm-signal-wrap"><div class="hm-signal" style="color:var(--blue);font-size:1.1rem">STACK</div><div class="hm-sigma" style="color:var(--blue)">${zStr}σ vs mean</div></div></div><div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-top:-6px;margin-bottom:8px">${s.game_time||''} · vs ${s.pitcher_name}</div><div class="hm-divider"></div><div style="padding:2px 0">${batterRows}</div><div style="margin-top:8px;font-size:.55rem;color:var(--muted);letter-spacing:.05em">● slots 1–4 priority &nbsp;|&nbsp; ★ arch match = tiebreaker</div>`;
+            card.innerHTML=`<div class="hm-top"><div class="hm-team">${s.batting_team}${hotBadge}</div><div class="hm-signal-wrap"><div class="hm-signal" style="color:var(--blue);font-size:1.1rem">STACK</div><div class="hm-sigma" style="color:var(--blue)">${zStr}σ vs mean</div></div></div><div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-top:-6px;margin-bottom:8px">${s.game_time||''} · vs ${s.pitcher_name}</div><div class="hm-divider"></div><div style="padding:2px 0">${batterRows}</div><div style="margin-top:8px;font-size:.55rem;color:var(--muted);letter-spacing:.05em">● slots 1–4 priority &nbsp;|&nbsp; ★ arch match = tiebreaker &nbsp;|&nbsp; <span style="color:#4fffb0">+#.#</span>/<span style="color:#ff6b6b">-#.#</span> split edge</div>`;
             dfsStacksEl.appendChild(card);
           });
           document.getElementById('dfs-stacks-wrap').style.display='block';
