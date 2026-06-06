@@ -30,6 +30,8 @@ FILE_IDS = {
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
     # DFS hitter splits (2022-2025, career vs LHP/RHP)
     'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
+    # BB/GB rates per pitcher (2025-2026 weighted)
+    'pitcher_bb_gb_rates':      '1kaCr_b0Zw9_4nAYMk84kCh8mTbOE5chC',
 }
 
 LEAGUE_AVG        = 3.88
@@ -39,22 +41,16 @@ STARTER_WEIGHT    = 0.80
 BULLPEN_WEIGHT    = 0.20
 ASSUMED_PAS       = 4
 TB3_MULTIPLIER    = 1.3
-LEAGUE_AVG_KRATE  = 0.229  # K rate modifier denominator
+LEAGUE_AVG_KRATE  = 0.229
 
-# F5 heat map thresholds — validated against ozzie_backtest_2025.csv
-# Under Gold tier: n=112, 89.3% hit rate, ROI=0.686 (confirmed 2025 OOS)
-# Over signal: away + off_z>-1.0, n=45, O2.5=73.3% (confirmed 2025 OOS)
-# Constants source: implied from backtest std_from_mean column (mean=0.9989, std=0.0549)
+# F5 heat map constants — validated June 4 2026
 # K rate modifier: overlap_k_mod = overlap_raw * (1 - k_rate) / (1 - 0.229)
-# Corrected June 4 2026 — prior constants 1.0133/0.0063 were wrong (over signal artifact)
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD
-HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
+HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD  # -1.0 sigma gate
 
-# Over signal gates (both required):
-# 1. off_z > -1.0 (weak offenses collapse to 50% O1.5 — exclude)
-# 2. batting team is away (home: 53.1% O2.5, away: 73.3% O2.5 — home not worth betting)
+# Over signal gates
 OVER_OFF_Z_MIN = -1.0
 
 F5_FAIR_ODDS = {
@@ -63,6 +59,34 @@ F5_FAIR_ODDS = {
     'Average':     +133,
     'Safe':        +143,
     'Very Safe':   +191,
+}
+
+# ── OZZIE SCORING SYSTEM v2 ───────────────────────────────────────────────
+# Validated: 2024 OOS + 2025 OOS + 2026 YTD, n=1034 Silver+Gold games
+# Gate: std_from_mean <= -1.0 sigma AND >= 2 original qualifiers
+
+# Park tiers (by U2.5 hit rate, Silver+Gold, min n=5, 2024-2026)
+PARK_GOOD    = {'TEX', 'BAL', 'MIL', 'CIN', 'DET', 'COL', 'LAD', 'NYY', 'CWS'}
+PARK_BAD     = {'ATH', 'CHC', 'MIA', 'NYM', 'SF', 'HOU', 'TB', 'STL', 'BOS', 'SEA', 'PIT', 'MIN', 'CLE'}
+# Neutral = everything else
+
+# Scoring weights (max = 10)
+# park_good=3, q_bb_vlo=2, park_neutral=1, q_gb_mid=1, q_krate_hi=1, q_away=1, q_sigma_20=1
+
+# Tier thresholds and betting rules:
+# Elite   >=8: U2.5 any to -1000 | U1.5 at +100 or better
+# High    6-7: U2.5 any to -280  | Score 6 only U1.5 at +100 or better
+# Standard  5: U2.5 any to -280  | U1.5 at +100 or better
+# Skip High 4: U2.5 at -180 or better | U1.5 at +110 or better
+# Skip Mid  3: U2.5 pass | U1.5 at +120 or better
+# Skip Low 1-2: pass entirely
+
+SCORE_TIERS = {
+    'Elite':    {'min_score': 8, 'color': 'elite',    'min_u25': '-1000', 'min_u15': '+100',  'unit_u25': '3u',   'unit_u15': '1.5u'},
+    'High':     {'min_score': 6, 'color': 'high',     'min_u25': '-280',  'min_u15': '+100',  'unit_u25': '2u',   'unit_u15': '1u'},
+    'Standard': {'min_score': 5, 'color': 'standard', 'min_u25': '-280',  'min_u15': '+100',  'unit_u25': '1.5u', 'unit_u15': '0.5u'},
+    'Skip4':    {'min_score': 4, 'color': 'skip',     'min_u25': '-180',  'min_u15': '+110',  'unit_u25': '0.5u', 'unit_u15': '0.5u'},
+    'Skip3':    {'min_score': 3, 'color': 'skip',     'min_u25': None,    'min_u15': '+120',  'unit_u25': None,   'unit_u15': '0.5u'},
 }
 
 # FG Team Total Under constants
@@ -83,7 +107,7 @@ DFS_STACK_MIN_Z     =  0.0
 DFS_ACE_K           =  0.28
 DFS_VALUE_K         =  0.22
 DFS_FADE_PITCH      =  0.5
-DFS_SPLIT_THRESHOLD =  0.5  # min |split_diff| to display split badge
+DFS_SPLIT_THRESHOLD =  0.5
 
 _model_cache      = None
 _model_cache_time = None
@@ -175,8 +199,7 @@ def load_model():
     model['arch_hitter_map'] = model['arch_hitter_map_combined']
     model['archetypes']      = model['archetypes_combined']
 
-    # Build hitter splits lookup: {batter_id: {'diff': float, 'flag': str}}
-    # flag = 'favors_RHP' (performs better vs RHP) or 'favors_LHP' (performs better vs LHP)
+    # Build hitter splits lookup
     splits_lookup = {}
     try:
         splits_df = model.get('hitter_splits')
@@ -382,39 +405,92 @@ def get_f5_fair_odds(expected_runs):
     }
 
 
-def get_confidence_tier(std_from_mean, is_away, line_point, k_rate):
-    q_sigma    = 1 if std_from_mean <= -1.5 else 0
+def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
+    """
+    Ozzie Scoring System v2 — validated June 2026
+    Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
+    Returns None if game does not meet minimum gate requirements.
+    """
+    # ── ORIGINAL QUALIFIERS (gate) ─────────────────────────────────────────
     q_away     = 1 if is_away else 0
     q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
     q_krate_hi = 1 if (k_rate is not None and k_rate >= 0.28) else 0
-    q_line     = 1 if (line_point is not None and line_point <= 2.5) else 0
-    total = q_sigma + q_away + q_krate_lo + q_krate_hi
-    if total == 4:
-        label, color = 'Gold', 'gold'
-    elif total == 3:
-        label, color = 'Silver', 'silver'
-    elif total <= 2 and (q_krate_lo or q_line):
-        label, color = 'Bronze', 'bronze'
-    else:
+
+    # Must have sigma <= -1.0 AND at least 2 original qualifiers to score
+    if std_from_mean > -1.0:
         return None
-    unit_map = {
-        'bronze': {'u15': '0.5u', 'u25': '1u'},
-        'silver': {'u15': '1u',   'u25': '1.5u'},
-        'gold':   {'u15': '1.5u', 'u25': '2u'},
-    }
-    odds_map = {
-        'bronze': {'min_u15': '+100', 'min_u25': '-180'},
-        'silver': {'min_u15': '+100', 'min_u25': '-200'},
-        'gold':   {'min_u15': '-150', 'min_u25': '-350'},
-    }
-    units = unit_map.get(color, {'u15': '0.5u', 'u25': '1u'})
-    odds  = odds_map.get(color, {'min_u15': '+100', 'min_u25': '-200'})
+    original_quals = q_away + q_krate_lo + q_krate_hi
+    if original_quals < 2:
+        return None
+
+    # ── POINT SYSTEM ──────────────────────────────────────────────────────
+    # Park (3/1/0)
+    if park in PARK_GOOD:
+        park_pts = 3
+        park_tier = 'good'
+    elif park in PARK_BAD:
+        park_pts = 0
+        park_tier = 'bad'
+    else:
+        park_pts = 1
+        park_tier = 'neutral'
+
+    # BB rate < 6% = 2pts (command signal)
+    bb_rate   = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
+    q_bb_vlo  = 1 if (bb_rate is not None and bb_rate < 0.06) else 0
+    bb_pts    = 2 if q_bb_vlo else 0
+
+    # GB rate 42-48% = 1pt (groundball tendency)
+    gb_rate   = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
+    q_gb_mid  = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
+
+    # K rate >= 28% = 1pt
+    q_krate_hi_pts = q_krate_hi
+
+    # Away = 1pt
+    q_away_pts = q_away
+
+    # Sigma <= -2.0 = 1pt bonus
+    q_sigma_20 = 1 if std_from_mean <= -2.0 else 0
+
+    total_score = park_pts + bb_pts + q_gb_mid + q_krate_hi_pts + q_away_pts + q_sigma_20
+
+    # ── ASSIGN TIER ───────────────────────────────────────────────────────
+    if total_score >= 8:
+        tier_name = 'Elite'
+    elif total_score >= 6:
+        tier_name = 'High'
+    elif total_score == 5:
+        tier_name = 'Standard'
+    elif total_score == 4:
+        tier_name = 'Skip4'
+    elif total_score == 3:
+        tier_name = 'Skip3'
+    else:
+        # Score 1-2: no bet
+        return None
+
+    tier = SCORE_TIERS[tier_name]
+
     return {
-        'qualifier_count': total, 'label': label, 'color': color,
-        'q_sigma': bool(q_sigma), 'q_away': bool(q_away),
-        'q_krate_lo': bool(q_krate_lo), 'q_krate_hi': bool(q_krate_hi),
-        'min_u15': odds['min_u15'], 'min_u25': odds['min_u25'],
-        'unit_u15': units['u15'],   'unit_u25': units['u25'],
+        'ozzie_score':     total_score,
+        'tier_name':       tier_name,
+        'confidence_label': tier_name,
+        'confidence_color': tier['color'],
+        'park_tier':       park_tier,
+        'park_pts':        park_pts,
+        'q_away':          bool(q_away),
+        'q_krate_lo':      bool(q_krate_lo),
+        'q_krate_hi':      bool(q_krate_hi),
+        'q_bb_vlo':        bool(q_bb_vlo),
+        'q_gb_mid':        bool(q_gb_mid),
+        'q_sigma_20':      bool(q_sigma_20),
+        'bb_rate':         round(bb_rate, 4) if bb_rate is not None else None,
+        'gb_rate':         round(gb_rate, 4) if gb_rate is not None else None,
+        'min_u15':         tier['min_u15'],
+        'min_u25':         tier['min_u25'],
+        'unit_u15':        tier['unit_u15'],
+        'unit_u25':        tier['unit_u25'],
     }
 
 
@@ -445,19 +521,18 @@ def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, mod
 
 
 def apply_k_modifier(overlap_raw, pitcher_k_rate):
-    """Apply K rate modifier: overlap_k_mod = overlap_raw * (1 - k_rate) / (1 - league_avg_k)
-    This is the key transformation that spreads the raw score distribution
-    from std~0.006 to std~0.055, matching the backtest validation data."""
+    """Apply K rate modifier: overlap_k_mod = overlap_raw * (1 - k_rate) / (1 - league_avg_k)"""
     if pitcher_k_rate is None:
         return overlap_raw
     return overlap_raw * (1 - pitcher_k_rate) / (1 - LEAGUE_AVG_KRATE)
 
 
 def get_heatmap_flags(games, model):
-    pitcher_scores = model.get('all_pitcher_arch_scores', {})
-    nb_bundle      = model.get('negbin_model_params')
-    contact_rates  = model.get('pitcher_contact_rates', {})
-    flags          = []
+    pitcher_scores  = model.get('all_pitcher_arch_scores', {})
+    nb_bundle       = model.get('negbin_model_params')
+    contact_rates   = model.get('pitcher_contact_rates', {})
+    bb_gb_rates_all = model.get('pitcher_bb_gb_rates', {}) or {}
+    flags           = []
 
     for game in games:
         matchups = [
@@ -477,6 +552,10 @@ def get_heatmap_flags(games, model):
             pitcher_k_rate = None
             if contact_rates and pitcher_id in contact_rates:
                 pitcher_k_rate = contact_rates[pitcher_id].get('k_rate')
+
+            # BB/GB rates for new scoring system
+            bb_gb_rates = bb_gb_rates_all.get(pitcher_id) if pitcher_id else None
+
             scores = []
             scored_batters = 0
             for batter in lineup:
@@ -517,53 +596,68 @@ def get_heatmap_flags(games, model):
             if signal == 'over_suppressed':
                 continue
 
+            # New scoring system — replaces Bronze/Silver/Gold
             confidence = None
             if signal == 'under':
-                confidence = get_confidence_tier(
-                    std_from_mean=std_from_mean, is_away=is_away,
-                    line_point=None, k_rate=pitcher_k_rate)
+                # Park = fielding team (where the batting team is playing)
+                confidence = get_ozzie_score(
+                    std_from_mean=std_from_mean,
+                    is_away=is_away,
+                    k_rate=pitcher_k_rate,
+                    park=fielding_team,
+                    bb_gb_rates=bb_gb_rates)
                 if confidence is None:
                     continue
 
             flags.append({
-                'game': game_str, 'batting_team': batting_team,
-                'fielding_team': fielding_team, 'pitcher_name': pitcher_name,
-                'pitcher_hand': pitcher_hand, 'pitcher_id': pitcher_id,
-                'overlap_score': round(team_score, 4),
-                'std_from_mean': round(std_from_mean, 2),
-                'signal': signal, 'batters_scored': scored_batters,
-                'lineup_complete': len(lineup) >= 8,
-                'expected_f5_runs': expected_f5,
-                'fair_under_1_5': fair_odds['fair_under_1_5'],
-                'fair_over_1_5':  fair_odds['fair_over_1_5'],
-                'fair_under_2_5': fair_odds['fair_under_2_5'],
-                'fair_over_2_5':  fair_odds['fair_over_2_5'],
-                'over_off_z':     round(batting_off_z, 3) if batting_off_z is not None else None,
-                'confidence_label':   confidence['label']           if confidence else None,
-                'confidence_color':   confidence['color']           if confidence else None,
-                'qualifier_count':    confidence['qualifier_count'] if confidence else 0,
-                'q_sigma':            confidence['q_sigma']         if confidence else False,
-                'q_away':             confidence['q_away']          if confidence else False,
-                'q_krate_lo':         confidence['q_krate_lo']      if confidence else False,
-                'q_krate_hi':         confidence['q_krate_hi']      if confidence else False,
-                'min_u15':            confidence['min_u15']         if confidence else None,
-                'min_u25':            confidence['min_u25']         if confidence else None,
-                'unit_u15':           confidence['unit_u15']        if confidence else None,
-                'unit_u25':           confidence['unit_u25']        if confidence else None,
-                'fg_under_signal':  fg_flag['fg_under_signal'],
-                'fg_starter_z':     fg_flag['starter_z'],
-                'fg_opp_bp_weak_z': fg_flag['opp_bp_weak_z'],
-                'fg_off_z':         fg_flag['off_z'],
-                'fg_bp_in_band':    fg_flag['bp_in_band'],
-                'fg_in_window':     fg_flag['in_valid_window'],
-                'fg_reason':        fg_flag['reason'],
-                'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
-                'game_time':        game.get('game_time'),
+                'game':              game_str,
+                'batting_team':      batting_team,
+                'fielding_team':     fielding_team,
+                'pitcher_name':      pitcher_name,
+                'pitcher_hand':      pitcher_hand,
+                'pitcher_id':        pitcher_id,
+                'overlap_score':     round(team_score, 4),
+                'std_from_mean':     round(std_from_mean, 2),
+                'signal':            signal,
+                'batters_scored':    scored_batters,
+                'lineup_complete':   len(lineup) >= 8,
+                'expected_f5_runs':  expected_f5,
+                'fair_under_1_5':    fair_odds['fair_under_1_5'],
+                'fair_over_1_5':     fair_odds['fair_over_1_5'],
+                'fair_under_2_5':    fair_odds['fair_under_2_5'],
+                'fair_over_2_5':     fair_odds['fair_over_2_5'],
+                'over_off_z':        round(batting_off_z, 3) if batting_off_z is not None else None,
+                # New scoring fields
+                'ozzie_score':          confidence['ozzie_score']       if confidence else None,
+                'confidence_label':     confidence['confidence_label']  if confidence else None,
+                'confidence_color':     confidence['confidence_color']  if confidence else None,
+                'park_tier':            confidence['park_tier']         if confidence else None,
+                'q_away':               confidence['q_away']            if confidence else False,
+                'q_krate_lo':           confidence['q_krate_lo']        if confidence else False,
+                'q_krate_hi':           confidence['q_krate_hi']        if confidence else False,
+                'q_bb_vlo':             confidence['q_bb_vlo']          if confidence else False,
+                'q_gb_mid':             confidence['q_gb_mid']          if confidence else False,
+                'q_sigma_20':           confidence['q_sigma_20']        if confidence else False,
+                'bb_rate':              confidence['bb_rate']           if confidence else None,
+                'gb_rate':              confidence['gb_rate']           if confidence else None,
+                'pitcher_k_rate':       round(pitcher_k_rate, 3)        if pitcher_k_rate else None,
+                'min_u15':              confidence['min_u15']           if confidence else None,
+                'min_u25':              confidence['min_u25']           if confidence else None,
+                'unit_u15':             confidence['unit_u15']          if confidence else None,
+                'unit_u25':             confidence['unit_u25']          if confidence else None,
+                'fg_under_signal':      fg_flag['fg_under_signal'],
+                'fg_starter_z':         fg_flag['starter_z'],
+                'fg_opp_bp_weak_z':     fg_flag['opp_bp_weak_z'],
+                'fg_off_z':             fg_flag['off_z'],
+                'fg_bp_in_band':        fg_flag['bp_in_band'],
+                'fg_in_window':         fg_flag['in_valid_window'],
+                'fg_reason':            fg_flag['reason'],
+                'game_time':            game.get('game_time'),
             })
 
-    flags.sort(key=lambda x: abs(x['std_from_mean']), reverse=True)
+    flags.sort(key=lambda x: (x.get('ozzie_score') or 0), reverse=True)
 
-    # Combined F5 signal
+    # Combined F5 signal — unchanged logic
     game_flags = {}
     for f in flags:
         if f['signal'] != 'under':
@@ -662,7 +756,7 @@ def get_dfs_picks(games, model):
     pitcher_scores  = model.get('all_pitcher_arch_scores', {})
     contact_rates   = model.get('pitcher_contact_rates', {})
     arch_hitter_map = model.get('arch_hitter_map', {})
-    splits_lookup   = model.get('splits_lookup', {})  # NEW: hitter splits
+    splits_lookup   = model.get('splits_lookup', {})
 
     batter_arch_pool = {}
     for arch_key, pool in arch_hitter_map.items():
@@ -751,15 +845,12 @@ def get_dfs_picks(games, model):
                                 arch_match = True
                                 break
 
-                    # NEW: look up split differential for this batter vs today's pitcher hand
                     split_info = splits_lookup.get(bid)
                     split_diff = None
                     split_favorable = None
                     if split_info:
                         diff = split_info['diff']
                         flag = split_info['flag']
-                        # favors_RHP means better vs RHP — favorable if pitcher is RHP
-                        # favors_LHP means better vs LHP — favorable if pitcher is LHP
                         if flag == 'favors_RHP':
                             split_favorable = (pitcher_hand == 'R')
                         else:
@@ -767,14 +858,14 @@ def get_dfs_picks(games, model):
                         split_diff = diff
 
                     stack_batters.append({
-                        'name':           str(batter['name']),
-                        'id':             bid,
-                        'slot':           slot,
-                        'position':       str(batter.get('position', '')),
-                        'arch_match':     bool(arch_match),
-                        'priority':       bool(slot <= 4),
-                        'split_diff':     split_diff,      # None if no meaningful split
-                        'split_favorable': split_favorable, # True=green, False=red, None=no badge
+                        'name':            str(batter['name']),
+                        'id':              bid,
+                        'slot':            slot,
+                        'position':        str(batter.get('position', '')),
+                        'arch_match':      bool(arch_match),
+                        'priority':        bool(slot <= 4),
+                        'split_diff':      split_diff,
+                        'split_favorable': split_favorable,
                     })
 
                 stack_batters.sort(key=lambda x: x['slot'])
@@ -973,30 +1064,34 @@ def append_to_sheet(flags):
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_keys:
                 continue
+            r = len(existing) + rows_added + 1
             ws.append_row([
-                today,
-                f.get('game', ''),
-                f.get('batting_team', ''),
-                f.get('pitcher_name', ''),
-                f.get('confidence_label', ''),
-                f.get('std_from_mean', ''),
-                'Y' if f.get('q_away')             else 'N',
-                'Y' if f.get('q_krate_lo')         else 'N',
-                'Y' if f.get('q_krate_hi')         else 'N',
-                'Y' if f.get('q_sigma')            else 'N',
-                'Y' if f.get('fg_under_signal')    else 'N',
-                'Y' if f.get('combined_f5_signal') else 'N',
-                f.get('game_time', ''),
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '=IF(AND(N{r}<>"",T{r}<>""),IF(T{r}<N{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
-                '=IF(AND(Q{r}<>"",T{r}<>""),IF(T{r}<Q{r},"Yes","No"),"")'.format(r=len(existing) + rows_added + 1),
-                '=IF(T{r}="","",IF(O{r}<>"",IF(U{r}="Yes",IF(N{r}<0,O{r}*(100/ABS(N{r})),O{r}*(N{r}/100)),-O{r}),0)+IF(R{r}<>"",IF(V{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0))'.format(r=len(existing) + rows_added + 1),
+                today,                                              # A - Date
+                f.get('game', ''),                                  # B - Game
+                f.get('batting_team', ''),                          # C - Team
+                f.get('pitcher_name', ''),                          # D - Pitcher
+                f.get('confidence_label', ''),                      # E - Tier
+                f.get('ozzie_score', ''),                           # F - Ozzie Score
+                f.get('std_from_mean', ''),                         # G - Sigma
+                f.get('park_tier', ''),                             # H - Park Tier
+                'Y' if f.get('q_away')      else 'N',              # I - Away
+                'Y' if f.get('q_krate_hi')  else 'N',              # J - K>28%
+                'Y' if f.get('q_bb_vlo')    else 'N',              # K - BB<6%
+                'Y' if f.get('q_gb_mid')    else 'N',              # L - GB 42-48%
+                'Y' if f.get('q_sigma_20')  else 'N',              # M - Sigma<-2.0
+                'Y' if f.get('fg_under_signal')    else 'N',       # N - FG Signal
+                'Y' if f.get('combined_f5_signal') else 'N',       # O - Combined F5
+                f.get('game_time', ''),                             # P - Game Time
+                '',                                                 # Q - Line U1.5 (manual)
+                '',                                                 # R - Units U1.5 (manual)
+                '',                                                 # S - Book U1.5 (manual)
+                '',                                                 # T - Line U2.5 (manual)
+                '',                                                 # U - Units U2.5 (manual)
+                '',                                                 # V - Book U2.5 (manual)
+                '',                                                 # W - Actual Runs (manual)
+                f'=IF(AND(Q{r}<>"",W{r}<>""),IF(W{r}<Q{r},"Yes","No"),"")'.format(r=r),  # X - U1.5 Hit
+                f'=IF(AND(T{r}<>"",W{r}<>""),IF(W{r}<T{r},"Yes","No"),"")'.format(r=r),  # Y - U2.5 Hit
+                f'=IF(W{r}="","",IF(R{r}<>"",IF(X{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0)+IF(U{r}<>"",IF(Y{r}="Yes",IF(T{r}<0,U{r}*(100/ABS(T{r})),U{r}*(T{r}/100)),-U{r}),0))'.format(r=r),  # Z - Profit
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -1032,21 +1127,29 @@ def api_notify():
         lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
         for f in new_under:
             tier  = f.get('confidence_label', '—')
+            score = f.get('ozzie_score', '—')
             sigma = f.get('std_from_mean', 0)
-            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
-            fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
-            comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
-            time  = f" — {f['game_time']}" if f.get('game_time') else ''
+            park  = f.get('park_tier', '')
+            # Tier emoji
+            medal = {
+                'Elite':    '💎',
+                'High':     '🥇',
+                'Standard': '🥈',
+                'Skip4':    '🔵',
+                'Skip3':    '⚪',
+            }.get(tier, '⚪')
+            fg   = ' + FG ✅' if f.get('fg_under_signal') else ''
+            comb = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
+            time = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(
                 f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"({tier}, {sigma:+.2f}σ){fg}{comb}{time}"
+                f"({tier} #{score}, {sigma:+.2f}σ, {park}){fg}{comb}{time}"
             )
             if f.get('combined_f5_signal'):
                 lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
-            lines.append(
-                f"   U1.5 {f.get('min_u15','—')} ({f.get('unit_u15','')}) | "
-                f"U2.5 {f.get('min_u25','—')} ({f.get('unit_u25','')})"
-            )
+            u25_str = f"U2.5 {f.get('min_u25','—')} ({f.get('unit_u25','')})" if f.get('min_u25') else "U2.5 pass"
+            u15_str = f"U1.5 {f.get('min_u15','—')} ({f.get('unit_u15','')})"
+            lines.append(f"   {u15_str} | {u25_str}")
         for f in new_over:
             sigma   = f.get('std_from_mean', 0)
             off_z   = f.get('over_off_z')
