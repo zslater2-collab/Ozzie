@@ -74,31 +74,28 @@
   .tag.arch{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 25%,transparent)}
   .tag.team{color:var(--text);border-color:color-mix(in srgb,var(--text) 20%,transparent)}
   .tag.tt-under{color:var(--blue);border-color:color-mix(in srgb,var(--blue) 35%,transparent)}
-  /* Confidence badges — Diamond/Gold/Silver/Bronze */
   .conf-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.1em;padding:3px 10px;border-radius:4px;margin-bottom:6px}
   .conf-badge.diamond{color:#b9f2ff;background:rgba(185,242,255,.10);border:1px solid rgba(185,242,255,.40)}
   .conf-badge.gold{color:#FFD700;background:rgba(255,215,0,.10);border:1px solid rgba(255,215,0,.35)}
   .conf-badge.silver{color:#C0C0C0;background:rgba(192,192,192,.10);border:1px solid rgba(192,192,192,.30)}
   .conf-badge.bronze{color:#CD7F32;background:rgba(205,127,50,.10);border:1px solid rgba(205,127,50,.28)}
-  /* Score badge */
-  .score-badge{font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-left:4px;opacity:.8}
-  /* Park badge */
   .park-badge{font-size:.55rem;letter-spacing:.08em;padding:2px 6px;border-radius:3px;text-transform:uppercase}
   .park-badge.good{color:var(--green);background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
   .park-badge.neutral{color:var(--muted);background:transparent;border:1px solid var(--dim)}
   .park-badge.bad{color:var(--red);background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25)}
-  /* Qualifier chips */
   .qualifiers-row{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
   .qual-chip{font-size:.55rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase}
   .qual-chip.met{color:var(--green);background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
   .qual-chip.miss{color:var(--dim);background:transparent;border:1px solid var(--dim);opacity:.5}
-  /* Min odds */
-  .min-odds-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-  .min-odds-cell{flex:1;min-width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;text-align:center}
-  .min-odds-line{font-size:.55rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
-  .min-odds-val{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--blue)}
-  .min-odds-pass{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.06em;color:var(--dim)}
-  /* FG / Combined signal rows */
+  /* Bet sizing table */
+  .bet-table{width:100%;margin-top:10px;border-collapse:collapse}
+  .bet-table th{font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 8px;text-align:center;border-bottom:1px solid var(--border)}
+  .bet-table td{font-size:.75rem;padding:6px 8px;text-align:center;border-bottom:1px solid var(--dim)}
+  .bet-table tr:last-child td{border-bottom:none}
+  .bet-odds{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.06em}
+  .bet-units{font-size:.62rem;color:var(--muted);margin-top:1px}
+  .bet-nobet{font-size:.7rem;color:var(--dim);letter-spacing:.05em}
+  .bet-caution{font-size:.6rem;color:var(--orange);margin-left:3px}
   .fg-signal-row{margin-top:8px;padding:7px 10px;background:rgba(79,184,255,.06);border:1px solid rgba(79,184,255,.2);border-radius:6px;display:flex;justify-content:space-between;align-items:center}
   .fg-signal-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
   .fg-signal-val{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.06em;color:var(--blue)}
@@ -201,7 +198,6 @@
 <script>
   document.getElementById('date-label').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
 
-  // Tier color palette
   const TIER_COLORS = {
     diamond: {border:'#b9f2ff', bg:'rgba(185,242,255,0.10)', text:'#b9f2ff'},
     gold:    {border:'#FFD700', bg:'rgba(255,215,0,0.10)',   text:'#FFD700'},
@@ -222,6 +218,53 @@
     return `<div class="fair-odds-label">Fair Odds (Under)</div><div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">${cells}</div>${kalshiRow}`;
   }
 
+  function buildBetTable(f) {
+    const color = f.confidence_color || 'bronze';
+    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
+
+    // U2.5 cell
+    let u25cell;
+    if (f.min_u25) {
+      u25cell = `<div class="bet-odds" style="color:${tc.text}">${f.min_u25}</div><div class="bet-units">${f.unit_u25 || ''}</div>`;
+    } else {
+      u25cell = `<div class="bet-nobet">No Bet</div>`;
+    }
+
+    // U1.5 cell
+    let u15cell;
+    if (f.min_u15) {
+      const caution = f.u15_caution ? `<span class="bet-caution">⚠️</span>` : '';
+      u15cell = `<div class="bet-odds" style="color:${tc.text}">${f.min_u15}${caution}</div><div class="bet-units">${f.unit_u15 || ''}</div>`;
+    } else {
+      u15cell = `<div class="bet-nobet">No Bet</div>`;
+    }
+
+    return `
+      <div style="font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px;margin-bottom:4px">Bet When Odds Are At Least</div>
+      <table class="bet-table" style="border:1px solid ${tc.border};border-radius:6px;overflow:hidden">
+        <thead style="background:${tc.bg}">
+          <tr>
+            <th style="color:${tc.text}">Line</th>
+            <th style="color:${tc.text}">Min Odds</th>
+            <th style="color:${tc.text}">Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--muted);font-size:.65rem">U 2.5</td>
+            <td>${f.min_u25 ? `<span class="bet-odds" style="color:${tc.text}">${f.min_u25}</span>` : '<span class="bet-nobet">No Bet</span>'}</td>
+            <td>${f.min_u25 ? `<span class="bet-units" style="color:var(--text)">${f.unit_u25}</span>` : '—'}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.65rem">U 1.5</td>
+            <td>${f.min_u15 ? `<span class="bet-odds" style="color:${tc.text}">${f.min_u15}</span>${f.u15_caution ? '<span class="bet-caution"> ⚠️</span>' : ''}` : '<span class="bet-nobet">No Bet</span>'}</td>
+            <td>${f.min_u15 ? `<span class="bet-units" style="color:var(--text)">${f.unit_u15}</span>` : '—'}</td>
+          </tr>
+        </tbody>
+      </table>
+      ${f.u15_caution ? '<div style="font-size:.52rem;color:var(--orange);margin-top:4px;letter-spacing:.05em">⚠️ U1.5 caution: structural weakness at this score — small size only</div>' : ''}`;
+  }
+
   function buildFlagCard(f, i) {
     const card = document.createElement('div');
     const color = f.confidence_color || 'bronze';
@@ -236,20 +279,16 @@
     const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
     const fairOddsHtml = buildFairOddsHtml(f.fair_odds, f.kalshi_line, f.kalshi_under);
 
-    // Confidence badge with score
     const label = f.confidence_label || '';
     const emoji = TIER_EMOJI[label] || '';
     const score = f.ozzie_score != null ? f.ozzie_score : '';
     const confBadge = label
-      ? `<div class="conf-badge ${color}">${emoji} ${label}<span class="score-badge">#${score}</span></div>`
-      : '';
+      ? `<div class="conf-badge ${color}">${emoji} ${label} · Score ${score}</div>` : '';
 
-    // Park badge
     const parkTier = f.park_tier || 'neutral';
     const parkLabel = {good:'✓ Good Park', neutral:'Neutral Park', bad:'✗ Bad Park'}[parkTier] || parkTier;
     const parkBadge = `<span class="park-badge ${parkTier}">${parkLabel}</span>`;
 
-    // Qualifier chips — new system
     const qualChip = (met, label) => `<span class="qual-chip ${met ? 'met' : 'miss'}">${label}</span>`;
     const qualsHtml = `<div class="qualifiers-row">
       ${qualChip(f.q_away, 'Away')}
@@ -259,23 +298,7 @@
       ${qualChip(f.q_sigma_20, 'σ ≤ -2.0')}
     </div>`;
 
-    // Min odds — handle null u25 for Bronze3
-    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
-    const cellStyle = `border-color:${tc.border};background:${tc.bg}`;
-    const labelStyle = `color:${tc.text}`;
-    const u25Cell = f.min_u25
-      ? `<div class="min-odds-cell" style="${cellStyle}"><div class="min-odds-line" style="${labelStyle}">U 2.5</div><div class="min-odds-val" style="${labelStyle}">${f.min_u25}</div><div style="font-size:.55rem;${labelStyle};margin-top:2px;opacity:.8">${f.unit_u25||''}</div></div>`
-      : `<div class="min-odds-cell" style="border-color:var(--dim);background:transparent"><div class="min-odds-line">U 2.5</div><div class="min-odds-pass">Pass</div></div>`;
-    const minOddsHtml = (f.min_u15 || f.min_u25)
-      ? `<div style="font-size:.55rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px">Min Odds to Bet</div>
-         <div class="min-odds-row">
-           <div class="min-odds-cell" style="${cellStyle}">
-             <div class="min-odds-line" style="${labelStyle}">U 1.5</div>
-             <div class="min-odds-val" style="${labelStyle}">${f.min_u15||'—'}</div>
-             <div style="font-size:.55rem;${labelStyle};margin-top:2px;opacity:.8">${f.unit_u15||''}</div>
-           </div>
-           ${u25Cell}
-         </div>` : '';
+    const betTableHtml = buildBetTable(f);
 
     const fgHtml = f.fg_under_signal
       ? `<div class="fg-signal-row"><span class="fg-signal-label">FG Team Total Under ✓</span><span class="fg-signal-val">BP ${f.fg_opp_bp_weak_z}z</span></div>` : '';
@@ -290,8 +313,8 @@
           <div class="hm-sigma under">${sigmaLabel}</div>
         </div>
       </div>
-      <div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-bottom:4px">${f.game_time||''}</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">${confBadge}${parkBadge}</div>
+      <div style="font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">${f.game_time||''}</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">${confBadge}${parkBadge}</div>
       ${qualsHtml}
       <div class="hm-divider"></div>
       <div class="hm-bottom">
@@ -300,7 +323,7 @@
         <div class="hm-stat"><div class="hm-stat-label">Batters Scored</div><div class="hm-stat-value">${f.batters_scored} / 9</div></div>
       </div>
       ${fairOddsHtml}
-      ${minOddsHtml}
+      ${betTableHtml}
       ${fgHtml}
       ${combHtml}
       ${lineupTag}`;
@@ -391,7 +414,7 @@
           'Neutral': {border:'#333348', text:'#555570', bg:'transparent'},
         };
         const dfsPitchersEl = document.getElementById('dfs-pitchers');
-        const dfsStacksEl = document.getElementById('dfs-stacks');
+        const dfsStacksEl   = document.getElementById('dfs-stacks');
         dfsPitchersEl.innerHTML = ''; dfsStacksEl.innerHTML = '';
 
         const visiblePitchers = (dfs.pitcher_plays || []).filter(p => p.tier !== 'Neutral');
