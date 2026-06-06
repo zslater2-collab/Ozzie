@@ -56,7 +56,7 @@ F5_FAIR_ODDS = {
 
 # ── OZZIE SCORING SYSTEM v2 ───────────────────────────────────────────────
 # Validated: 2024 OOS + 2025 OOS + 2026 YTD, n=1034 games
-# Gate: std_from_mean <= -1.0 sigma AND >= 2 original qualifiers (away + k_rate)
+# Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
 #
 # POINT SYSTEM (max 10):
 #   Park good    +3  (TEX,BAL,MIL,CIN,DET,COL,LAD,NYY,CWS)
@@ -67,22 +67,21 @@ F5_FAIR_ODDS = {
 #   K rate >=28% +1
 #   Away team    +1
 #   Sigma <=-2.0 +1
-#
-# TIERS:
-#   Diamond (>=8): U2.5 91.7% | U1.5 60.0%  break-even U2.5 -1100, U1.5 -150
-#   Gold    (6-7): U2.5 76.2% | U1.5 56.3%  break-even U2.5  -315, U1.5 -123
-#   Silver    (5): U2.5 75.7% | U1.5 58.7%  break-even U2.5  -311, U1.5 -142
-#   Bronze   (3-4): conditional bets only — see min odds below
 
 PARK_GOOD = {'TEX', 'BAL', 'MIL', 'CIN', 'DET', 'COL', 'LAD', 'NYY', 'CWS'}
 PARK_BAD  = {'ATH', 'CHC', 'MIA', 'NYM', 'SF', 'HOU', 'TB', 'STL', 'BOS', 'SEA', 'PIT', 'MIN', 'CLE'}
 
-SCORE_TIERS = {
-    'Diamond': {'min_score': 8, 'color': 'diamond', 'min_u25': '-1000', 'min_u15': '+100',  'unit_u25': '3u',   'unit_u15': '1.5u'},
-    'Gold':    {'min_score': 6, 'color': 'gold',    'min_u25': '-280',  'min_u15': '+100',  'unit_u25': '2u',   'unit_u15': '1u'},
-    'Silver':  {'min_score': 5, 'color': 'silver',  'min_u25': '-280',  'min_u15': '+100',  'unit_u25': '1.5u', 'unit_u15': '0.5u'},
-    'Bronze4': {'min_score': 4, 'color': 'bronze',  'min_u25': '-180',  'min_u15': '+110',  'unit_u25': '0.5u', 'unit_u15': '0.5u'},
-    'Bronze3': {'min_score': 3, 'color': 'bronze',  'min_u25': None,    'min_u15': '+120',  'unit_u25': None,   'unit_u15': '0.5u'},
+# Per-score betting rules
+# u25_min / u15_min: None = No Bet
+# u15_caution: show warning symbol
+SCORE_RULES = {
+    9: {'color': 'diamond', 'u25_min': '-500', 'u25_units': '2u',   'u15_min': '-150', 'u15_units': '0.5u', 'u15_caution': False},
+    8: {'color': 'diamond', 'u25_min': '-500', 'u25_units': '3u',   'u15_min': '-150', 'u15_units': '1.5u', 'u15_caution': False},
+    7: {'color': 'gold',    'u25_min': '-300', 'u25_units': '2u',   'u15_min': '-150', 'u15_units': '0.5u', 'u15_caution': True},
+    6: {'color': 'gold',    'u25_min': '-300', 'u25_units': '2u',   'u15_min': '-150', 'u15_units': '1u',   'u15_caution': False},
+    5: {'color': 'silver',  'u25_min': '-300', 'u25_units': '1.5u', 'u15_min': '-150', 'u15_units': '1u',   'u15_caution': False},
+    4: {'color': 'bronze',  'u25_min': '-210', 'u25_units': '0.5u', 'u15_min': None,   'u15_units': None,   'u15_caution': False},
+    3: {'color': 'bronze',  'u25_min': None,   'u25_units': None,   'u15_min': None,   'u15_units': None,   'u15_caution': False},
 }
 
 FG_BLEND_MEAN        = 0.9984
@@ -207,7 +206,6 @@ def load_model():
     except Exception as e:
         print(f"Warning: hitter splits build failed: {e}")
     model['splits_lookup'] = splits_lookup
-    print(f"Hitter splits loaded: {len(splits_lookup)} players with |diff| >= {DFS_SPLIT_THRESHOLD}")
 
     _model_cache      = model
     _model_cache_time = now
@@ -421,44 +419,32 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     else:
         park_pts, park_tier = 1, 'neutral'
 
-    # BB rate < 6%
     bb_rate  = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
     q_bb_vlo = 1 if (bb_rate is not None and bb_rate < 0.06) else 0
 
-    # GB rate 42-48%
     gb_rate  = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
     q_gb_mid = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
 
-    # Deep sigma bonus
     q_sigma_20 = 1 if std_from_mean <= -2.0 else 0
 
     total_score = park_pts + (q_bb_vlo * 2) + q_gb_mid + q_krate_hi + q_away + q_sigma_20
 
-    # Assign tier
-    if total_score >= 8:
-        tier_name = 'Diamond'
-    elif total_score >= 6:
-        tier_name = 'Gold'
-    elif total_score == 5:
-        tier_name = 'Silver'
-    elif total_score == 4:
-        tier_name = 'Bronze4'
-    elif total_score == 3:
-        tier_name = 'Bronze3'
-    else:
-        return None  # Score 1-2: no bet
+    # Gate out scores 1-2 and 3 with no u25
+    if total_score < 3:
+        return None
 
-    tier = SCORE_TIERS[tier_name]
-    # Display label — Bronze4 and Bronze3 both show as "Bronze"
-    display_label = tier_name if tier_name not in ('Bronze4', 'Bronze3') else 'Bronze'
+    rules = SCORE_RULES.get(total_score, SCORE_RULES[3])
+    color = rules['color']
+
+    # Label for display
+    label_map = {'diamond': 'Diamond', 'gold': 'Gold', 'silver': 'Silver', 'bronze': 'Bronze'}
+    label = label_map.get(color, 'Bronze')
 
     return {
         'ozzie_score':      total_score,
-        'tier_name':        tier_name,
-        'confidence_label': display_label,
-        'confidence_color': tier['color'],
+        'confidence_label': label,
+        'confidence_color': color,
         'park_tier':        park_tier,
-        'park_pts':         park_pts,
         'q_away':           bool(q_away),
         'q_krate_lo':       bool(q_krate_lo),
         'q_krate_hi':       bool(q_krate_hi),
@@ -467,10 +453,11 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'q_sigma_20':       bool(q_sigma_20),
         'bb_rate':          round(bb_rate, 4) if bb_rate is not None else None,
         'gb_rate':          round(gb_rate, 4) if gb_rate is not None else None,
-        'min_u15':          tier['min_u15'],
-        'min_u25':          tier['min_u25'],
-        'unit_u15':         tier['unit_u15'],
-        'unit_u25':         tier['unit_u25'],
+        'min_u25':          rules['u25_min'],
+        'unit_u25':         rules['u25_units'],
+        'min_u15':          rules['u15_min'],
+        'unit_u15':         rules['u15_units'],
+        'u15_caution':      rules['u15_caution'],
     }
 
 
@@ -620,6 +607,7 @@ def get_heatmap_flags(games, model):
                 'min_u25':              confidence['min_u25']           if confidence else None,
                 'unit_u15':             confidence['unit_u15']          if confidence else None,
                 'unit_u25':             confidence['unit_u25']          if confidence else None,
+                'u15_caution':          confidence['u15_caution']       if confidence else False,
                 'fg_under_signal':      fg_flag['fg_under_signal'],
                 'fg_starter_z':         fg_flag['starter_z'],
                 'fg_opp_bp_weak_z':     fg_flag['opp_bp_weak_z'],
@@ -1041,25 +1029,25 @@ def append_to_sheet(flags):
                 continue
             r = len(existing) + rows_added + 1
             ws.append_row([
-                today,                                          # A
-                f.get('game', ''),                              # B
-                f.get('batting_team', ''),                      # C
-                f.get('pitcher_name', ''),                      # D
-                f.get('confidence_label', ''),                  # E - Tier label
-                f.get('ozzie_score', ''),                       # F - Score
-                f.get('std_from_mean', ''),                     # G - Sigma
-                f.get('park_tier', ''),                         # H - Park tier
-                'Y' if f.get('q_away')             else 'N',   # I
-                'Y' if f.get('q_krate_hi')         else 'N',   # J
-                'Y' if f.get('q_bb_vlo')           else 'N',   # K
-                'Y' if f.get('q_gb_mid')           else 'N',   # L
-                'Y' if f.get('q_sigma_20')         else 'N',   # M
-                'Y' if f.get('fg_under_signal')    else 'N',   # N
-                'Y' if f.get('combined_f5_signal') else 'N',   # O
-                f.get('game_time', ''),                         # P
-                '', '', '',                                     # Q R S - manual U1.5
-                '', '', '',                                     # T U V - manual U2.5
-                '',                                             # W - actual runs
+                today,
+                f.get('game', ''),
+                f.get('batting_team', ''),
+                f.get('pitcher_name', ''),
+                f.get('confidence_label', ''),
+                f.get('ozzie_score', ''),
+                f.get('std_from_mean', ''),
+                f.get('park_tier', ''),
+                'Y' if f.get('q_away')             else 'N',
+                'Y' if f.get('q_krate_hi')         else 'N',
+                'Y' if f.get('q_bb_vlo')           else 'N',
+                'Y' if f.get('q_gb_mid')           else 'N',
+                'Y' if f.get('q_sigma_20')         else 'N',
+                'Y' if f.get('fg_under_signal')    else 'N',
+                'Y' if f.get('combined_f5_signal') else 'N',
+                f.get('game_time', ''),
+                '', '', '',
+                '', '', '',
+                '',
                 f'=IF(AND(Q{r}<>"",W{r}<>""),IF(W{r}<Q{r},"Yes","No"),"")'.format(r=r),
                 f'=IF(AND(T{r}<>"",W{r}<>""),IF(W{r}<T{r},"Yes","No"),"")'.format(r=r),
                 f'=IF(W{r}="","",IF(R{r}<>"",IF(X{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0)+IF(U{r}<>"",IF(Y{r}="Yes",IF(T{r}<0,U{r}*(100/ABS(T{r})),U{r}*(T{r}/100)),-U{r}),0))'.format(r=r),
@@ -1097,23 +1085,32 @@ def api_notify():
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
         lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
         for f in new_under:
-            tier  = f.get('confidence_label', '—')
-            score = f.get('ozzie_score', '—')
-            sigma = f.get('std_from_mean', 0)
-            park  = f.get('park_tier', '')
-            medal = {'Diamond': '💎', 'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
-            fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
-            comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
-            time  = f" — {f['game_time']}" if f.get('game_time') else ''
+            label   = f.get('confidence_label', '—')
+            score   = f.get('ozzie_score', '—')
+            sigma   = f.get('std_from_mean', 0)
+            park    = f.get('park_tier', '')
+            medal   = {'Diamond': '💎', 'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
+            fg      = ' + FG ✅' if f.get('fg_under_signal') else ''
+            comb    = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
+            time    = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(
                 f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"({tier} #{score}, {sigma:+.2f}σ, {park}){fg}{comb}{time}"
+                f"(#{score}, {sigma:+.2f}σ, {park}){fg}{comb}{time}"
             )
             if f.get('combined_f5_signal'):
                 lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
-            u25_str = f"U2.5 {f.get('min_u25','—')} ({f.get('unit_u25','')})" if f.get('min_u25') else "U2.5 pass"
-            u15_str = f"U1.5 {f.get('min_u15','—')} ({f.get('unit_u15','')})"
-            lines.append(f"   {u15_str} | {u25_str}")
+            # U2.5 line
+            if f.get('min_u25'):
+                u25_str = f"U2.5 {f['min_u25']} / {f.get('unit_u25','')}"
+            else:
+                u25_str = "U2.5 No Bet"
+            # U1.5 line
+            if f.get('min_u15'):
+                caution = ' ⚠️' if f.get('u15_caution') else ''
+                u15_str = f"U1.5 {f['min_u15']} / {f.get('unit_u15','')}{caution}"
+            else:
+                u15_str = "U1.5 No Bet"
+            lines.append(f"   {u25_str} | {u15_str}")
         for f in new_over:
             sigma   = f.get('std_from_mean', 0)
             off_z   = f.get('over_off_z')
