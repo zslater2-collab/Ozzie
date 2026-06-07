@@ -44,11 +44,12 @@ HEATMAP_STD             = 0.0549
 HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # lowered from +2.0 to +1.5
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
 
-# ── UNDER SIGNAL — Ozzie Scoring System v2 ───────────────────────────────
+# ── UNDER SIGNAL — Ozzie Scoring System v3 ───────────────────────────────
 # Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
-# Tiers: Gold (8-9), Silver (5-7), Bronze (4)
+# Tiers: Gold (6), Silver (4-5), Bronze (3) — max score 6
+# BB rate removed (p=0.810 across 1,248 games). GB rate: U1.5 gate only.
 # U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
-# Validated: 2024+2025+2026 YTD
+# Validated: walk-forward 2023/2024/2025, Silver U2.5 74-77%
 
 PARK_GOOD = {'TEX', 'BAL', 'MIL', 'CIN', 'DET', 'COL', 'LAD', 'NYY', 'CWS'}
 PARK_BAD  = {'ATH', 'CHC', 'MIA', 'NYM', 'SF', 'HOU', 'TB', 'STL', 'BOS', 'SEA', 'PIT', 'MIN', 'CLE'}
@@ -416,9 +417,15 @@ def get_over_tier(std_from_mean, k_rate):
 
 def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     """
-    Under signal scoring system v2.
+    Under signal scoring system v3.
+    Change from v2: BB rate (+2 pts) removed — p=0.810 across 1,248 flagged
+    games, no continuous signal. Thresholds recalibrated: Gold 6-7, Silver 4-5,
+    Bronze 3. Max score drops from 10 to 8. All other signals unchanged.
+    GB rate retained for U1.5 eligibility gate only (not scoring).
+    BB rate still tracked in return dict for Google Sheets column L continuity.
     Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
     U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
+    Validated: walk-forward 2023/2024/2025, Silver U2.5 74-77%
     """
     q_away     = 1 if is_away else 0
     q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
@@ -436,20 +443,27 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     else:
         park_pts, park_tier = 1, 'neutral'
 
-    bb_rate    = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
-    q_bb_vlo   = 1 if (bb_rate is not None and bb_rate < 0.06) else 0
-    gb_rate    = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
-    q_gb_mid   = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
+    # BB rate: tracked for logging only — NOT included in score (p=0.810, no signal)
+    bb_rate  = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
+    q_bb_vlo = 1 if (bb_rate is not None and bb_rate < 0.06) else 0  # logged only
+
+    # GB rate: U1.5 eligibility gate only — NOT included in score
+    gb_rate  = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
+    q_gb_mid = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
+
     q_sigma_20 = 1 if std_from_mean <= -2.0 else 0
 
-    total_score = park_pts + (q_bb_vlo * 2) + q_gb_mid + q_krate_hi + q_away + q_sigma_20
+    # Score: park (0/1/3) + K≥28% (1) + away (1) + sigma≤-2.0 (1) = max 6
+    # BB removed: was +2, now 0. GB removed from score: was +1, now 0.
+    total_score = park_pts + q_krate_hi + q_away + q_sigma_20
 
-    if total_score < 4:
+    if total_score < 3:
         return None
 
-    if total_score >= 8:
+    # Recalibrated thresholds (max score = 6 with good park + K + away + deep sigma)
+    if total_score >= 6:
         tier, color = 'Gold', 'gold'
-    elif total_score >= 5:
+    elif total_score >= 4:
         tier, color = 'Silver', 'silver'
     else:
         tier, color = 'Bronze', 'bronze'
@@ -476,7 +490,7 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'q_away':           bool(q_away),
         'q_krate_lo':       bool(q_krate_lo),
         'q_krate_hi':       bool(q_krate_hi),
-        'q_bb_vlo':         bool(q_bb_vlo),
+        'q_bb_vlo':         bool(q_bb_vlo),   # logged for Sheets col L, not scored
         'q_gb_mid':         bool(q_gb_mid),
         'q_sigma_20':       bool(q_sigma_20),
         'u15_eligible':     u15_eligible,
