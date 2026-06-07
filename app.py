@@ -41,41 +41,37 @@ LEAGUE_AVG_KRATE  = 0.229
 
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 2.0 * HEATMAP_STD
+HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # lowered from +2.0 to +1.5
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
 
-OVER_OFF_Z_MIN = -1.0
-
-# ── OZZIE SCORING SYSTEM v2 ───────────────────────────────────────────────
+# ── UNDER SIGNAL — Ozzie Scoring System v2 ───────────────────────────────
 # Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
-# POINT SYSTEM (max 10):
-#   Park good    +3  (TEX,BAL,MIL,CIN,DET,COL,LAD,NYY,CWS)
-#   Park neutral +1
-#   Park bad      0  (ATH,CHC,MIA,NYM,SF,HOU,TB,STL,BOS,SEA,PIT,MIN,CLE)
-#   BB rate <6%  +2
-#   GB rate 42-48% +1
-#   K rate >=28% +1
-#   Away team    +1
-#   Sigma <=-2.0 +1
-#
-# TIERS:
-#   Gold   (8-9): U2.5 ~92% | U1.5 eligible gate below
-#   Silver (5-7): U2.5 ~76% | U1.5 eligible gate below
-#   Bronze   (4): U2.5 ~69% | U1.5 never
-#   Gated  (1-3): never shown
-#
-# U1.5 ELIGIBLE GATE (both required):
-#   sigma > -2.0 (i.e. q_sigma_20 == 0, between -1.0 and -2.0)
-#   AND GB rate 42-48% (q_gb_mid == 1)
-#   Gold eligible: 73.7% U1.5 | Silver eligible: 65.0% U1.5
-#
-# BET SIZING:
-#   Gold   U2.5: -500 / 3u  | Gold   U1.5 (eligible): -150 / 2u
-#   Silver U2.5: -300 / 1.5u | Silver U1.5 (eligible): -150 / 1u
-#   Bronze U2.5: -210 / 0.5u | U1.5: never
+# Tiers: Gold (8-9), Silver (5-7), Bronze (4)
+# U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
+# Validated: 2024+2025+2026 YTD
 
 PARK_GOOD = {'TEX', 'BAL', 'MIL', 'CIN', 'DET', 'COL', 'LAD', 'NYY', 'CWS'}
 PARK_BAD  = {'ATH', 'CHC', 'MIA', 'NYM', 'SF', 'HOU', 'TB', 'STL', 'BOS', 'SEA', 'PIT', 'MIN', 'CLE'}
+
+# ── OVER SIGNAL — Contact Pitcher + Favored Lineup ───────────────────────
+# Gate: std_from_mean >= +1.5 AND k_rate < 0.20
+# Validated: 2024 (n=606, 82p) + 2025 (n=216, 44p), cross-year stable
+#
+# TIERS:
+#   Gold   (>=+2.5σ): O1.5 80.0% | O2.5 57.5%
+#   Silver (+2.0-2.5σ): O1.5 72.2% | O2.5 55.1%
+#   Bronze (+1.5-2.0σ): O1.5 66.7% | O2.5 skip
+#
+# BET SIZING:
+#   Gold   O1.5: -350/2u  | O2.5: -120/1u
+#   Silver O1.5: -230/1.5u | O2.5: -110/0.5u
+#   Bronze O1.5: -180/1u  | O2.5: skip
+
+OVER_TIER_RULES = {
+    'Gold':   {'color': 'gold',   'o15_min': '-350', 'o15_units': '2u',   'o25_min': '-120', 'o25_units': '1u'},
+    'Silver': {'color': 'silver', 'o15_min': '-230', 'o15_units': '1.5u', 'o25_min': '-110', 'o25_units': '0.5u'},
+    'Bronze': {'color': 'bronze', 'o15_min': '-180', 'o15_units': '1u',   'o25_min': None,   'o25_units': None},
+}
 
 FG_BLEND_MEAN        = 0.9984
 FG_BLEND_STD         = 0.0353
@@ -389,20 +385,40 @@ def get_f5_fair_odds(expected_runs):
     }
 
 
+def get_over_tier(std_from_mean, k_rate):
+    """
+    Over signal: contact pitcher (K<20%) facing favored lineup (sigma >= +1.5)
+    Validated 2024+2025: Gold 80% O1.5, Silver 72%, Bronze 67%
+    Returns None if game does not qualify.
+    """
+    if k_rate is None or k_rate >= 0.20:
+        return None
+    if std_from_mean < 1.5:
+        return None
+
+    if std_from_mean >= 2.5:
+        tier_name = 'Gold'
+    elif std_from_mean >= 2.0:
+        tier_name = 'Silver'
+    else:
+        tier_name = 'Bronze'
+
+    rules = OVER_TIER_RULES[tier_name]
+    return {
+        'over_tier':    tier_name,
+        'over_color':   rules['color'],
+        'o15_min':      rules['o15_min'],
+        'o15_units':    rules['o15_units'],
+        'o25_min':      rules['o25_min'],
+        'o25_units':    rules['o25_units'],
+    }
+
+
 def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     """
-    Ozzie Scoring System v2 — June 2026
-    Gate: std_from_mean <= -1.0 AND >= 2 of (away, k>=26%, k>=28%)
-    Returns None if game does not meet minimum requirements.
-
-    Tiers:
-      Gold   (8-9): U2.5 -500/3u | U1.5 -150/2u if eligible
-      Silver (5-7): U2.5 -300/1.5u | U1.5 -150/1u if eligible
-      Bronze   (4): U2.5 -210/0.5u | U1.5 never
-      Gated  (<4):  None — never shown
-
-    U1.5 eligibility: sigma > -2.0 (q_sigma_20==0) AND GB rate 42-48% (q_gb_mid==1)
-    Validated: Gold eligible 73.7% U1.5 | Silver eligible 65.0% U1.5
+    Under signal scoring system v2.
+    Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
+    U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
     """
     q_away     = 1 if is_away else 0
     q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
@@ -413,7 +429,6 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     if (q_away + q_krate_lo + q_krate_hi) < 2:
         return None
 
-    # Park points
     if park in PARK_GOOD:
         park_pts, park_tier = 3, 'good'
     elif park in PARK_BAD:
@@ -423,19 +438,15 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
 
     bb_rate    = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
     q_bb_vlo   = 1 if (bb_rate is not None and bb_rate < 0.06) else 0
-
     gb_rate    = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
     q_gb_mid   = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
-
     q_sigma_20 = 1 if std_from_mean <= -2.0 else 0
 
     total_score = park_pts + (q_bb_vlo * 2) + q_gb_mid + q_krate_hi + q_away + q_sigma_20
 
-    # Gate out scores below 4
     if total_score < 4:
         return None
 
-    # Assign tier
     if total_score >= 8:
         tier, color = 'Gold', 'gold'
     elif total_score >= 5:
@@ -443,10 +454,8 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     else:
         tier, color = 'Bronze', 'bronze'
 
-    # U1.5 eligibility: sigma between -1.0 and -2.0 AND GB met
     u15_eligible = (q_sigma_20 == 0) and (q_gb_mid == 1)
 
-    # Bet sizing by tier
     if tier == 'Gold':
         u25_min, u25_units = '-500', '3u'
         u15_min = '-150' if u15_eligible else None
@@ -455,7 +464,7 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         u25_min, u25_units = '-300', '1.5u'
         u15_min = '-150' if u15_eligible else None
         u15_units = '1u' if u15_eligible else None
-    else:  # Bronze
+    else:
         u25_min, u25_units = '-210', '0.5u'
         u15_min, u15_units = None, None
 
@@ -478,12 +487,6 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'min_u15':          u15_min,
         'unit_u15':         u15_units,
     }
-
-
-def compute_run_edge(expected_f5_runs, f5_tt_line):
-    if expected_f5_runs is None or f5_tt_line is None:
-        return None
-    return round(f5_tt_line - expected_f5_runs, 3)
 
 
 def compute_batter_overlap(batter_id, pitcher_id, batter_hand, pitcher_hand, model):
@@ -562,36 +565,40 @@ def get_heatmap_flags(games, model):
 
             is_away       = (batting_team == game['away_team'])
             batting_off_z = _FG_OFF_Z.get(batting_team)
-            over_off_z_ok = (batting_off_z is None or batting_off_z > OVER_OFF_Z_MIN)
-            over_away_ok  = is_away
 
-            if team_score >= HEATMAP_OVER_THRESHOLD and over_off_z_ok and over_away_ok:
-                signal = 'over'
-            elif team_score >= HEATMAP_OVER_THRESHOLD and (not over_off_z_ok or not over_away_ok):
-                signal = 'over_suppressed'
-            elif team_score <= HEATMAP_UNDER_THRESHOLD:
-                signal = 'under'
-            else:
-                if fg_flag['fg_under_signal']:
-                    signal = 'fg_under_only'
+            # ── SIGNAL DETERMINATION ──────────────────────────────────────
+            signal = None
+            over_confidence = None
+            under_confidence = None
+
+            if team_score >= HEATMAP_OVER_THRESHOLD:
+                # Over signal: requires K<20% contact pitcher
+                over_confidence = get_over_tier(std_from_mean, pitcher_k_rate)
+                if over_confidence:
+                    signal = 'over'
                 else:
-                    continue
+                    signal = None  # over threshold but not a contact pitcher — skip
 
-            if signal == 'over_suppressed':
-                continue
-
-            confidence = None
-            if signal == 'under':
-                confidence = get_ozzie_score(
+            elif team_score <= HEATMAP_UNDER_THRESHOLD:
+                under_confidence = get_ozzie_score(
                     std_from_mean=std_from_mean,
                     is_away=is_away,
                     k_rate=pitcher_k_rate,
                     park=fielding_team,
                     bb_gb_rates=bb_gb_rates)
-                if confidence is None:
-                    continue
+                if under_confidence:
+                    signal = 'under'
+                else:
+                    signal = None
 
-            flags.append({
+            else:
+                if fg_flag['fg_under_signal']:
+                    signal = 'fg_under_only'
+
+            if signal is None:
+                continue
+
+            flag = {
                 'game':             game_str,
                 'batting_team':     batting_team,
                 'fielding_team':    fielding_team,
@@ -609,35 +616,59 @@ def get_heatmap_flags(games, model):
                 'fair_under_2_5':   fair_odds['fair_under_2_5'],
                 'fair_over_2_5':    fair_odds['fair_over_2_5'],
                 'over_off_z':       round(batting_off_z, 3) if batting_off_z is not None else None,
-                'ozzie_score':          confidence['ozzie_score']       if confidence else None,
-                'confidence_label':     confidence['confidence_label']  if confidence else None,
-                'confidence_color':     confidence['confidence_color']  if confidence else None,
-                'park_tier':            confidence['park_tier']         if confidence else None,
-                'q_away':               confidence['q_away']            if confidence else False,
-                'q_krate_lo':           confidence['q_krate_lo']        if confidence else False,
-                'q_krate_hi':           confidence['q_krate_hi']        if confidence else False,
-                'q_bb_vlo':             confidence['q_bb_vlo']          if confidence else False,
-                'q_gb_mid':             confidence['q_gb_mid']          if confidence else False,
-                'q_sigma_20':           confidence['q_sigma_20']        if confidence else False,
-                'u15_eligible':         confidence['u15_eligible']      if confidence else False,
-                'bb_rate':              confidence['bb_rate']           if confidence else None,
-                'gb_rate':              confidence['gb_rate']           if confidence else None,
-                'pitcher_k_rate':       round(pitcher_k_rate, 3)        if pitcher_k_rate else None,
-                'min_u15':              confidence['min_u15']           if confidence else None,
-                'min_u25':              confidence['min_u25']           if confidence else None,
-                'unit_u15':             confidence['unit_u15']          if confidence else None,
-                'unit_u25':             confidence['unit_u25']          if confidence else None,
-                'fg_under_signal':      fg_flag['fg_under_signal'],
-                'fg_starter_z':         fg_flag['starter_z'],
-                'fg_opp_bp_weak_z':     fg_flag['opp_bp_weak_z'],
-                'fg_off_z':             fg_flag['off_z'],
-                'fg_bp_in_band':        fg_flag['bp_in_band'],
-                'fg_in_window':         fg_flag['in_valid_window'],
-                'fg_reason':            fg_flag['reason'],
-                'game_time':            game.get('game_time'),
-            })
+                'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
+                'fg_under_signal':  fg_flag['fg_under_signal'],
+                'fg_starter_z':     fg_flag['starter_z'],
+                'fg_opp_bp_weak_z': fg_flag['opp_bp_weak_z'],
+                'fg_off_z':         fg_flag['off_z'],
+                'fg_bp_in_band':    fg_flag['bp_in_band'],
+                'fg_in_window':     fg_flag['in_valid_window'],
+                'fg_reason':        fg_flag['reason'],
+                'game_time':        game.get('game_time'),
+            }
 
-    flags.sort(key=lambda x: (x.get('ozzie_score') or 0), reverse=True)
+            # Add over-specific fields
+            if signal == 'over' and over_confidence:
+                flag.update({
+                    'over_tier':    over_confidence['over_tier'],
+                    'over_color':   over_confidence['over_color'],
+                    'o15_min':      over_confidence['o15_min'],
+                    'o15_units':    over_confidence['o15_units'],
+                    'o25_min':      over_confidence['o25_min'],
+                    'o25_units':    over_confidence['o25_units'],
+                })
+
+            # Add under-specific fields
+            if signal == 'under' and under_confidence:
+                flag.update({
+                    'ozzie_score':      under_confidence['ozzie_score'],
+                    'confidence_label': under_confidence['confidence_label'],
+                    'confidence_color': under_confidence['confidence_color'],
+                    'park_tier':        under_confidence['park_tier'],
+                    'q_away':           under_confidence['q_away'],
+                    'q_krate_lo':       under_confidence['q_krate_lo'],
+                    'q_krate_hi':       under_confidence['q_krate_hi'],
+                    'q_bb_vlo':         under_confidence['q_bb_vlo'],
+                    'q_gb_mid':         under_confidence['q_gb_mid'],
+                    'q_sigma_20':       under_confidence['q_sigma_20'],
+                    'u15_eligible':     under_confidence['u15_eligible'],
+                    'bb_rate':          under_confidence['bb_rate'],
+                    'gb_rate':          under_confidence['gb_rate'],
+                    'min_u25':          under_confidence['min_u25'],
+                    'unit_u25':         under_confidence['unit_u25'],
+                    'min_u15':          under_confidence['min_u15'],
+                    'unit_u15':         under_confidence['unit_u15'],
+                })
+
+            flags.append(flag)
+
+    # Sort: unders by ozzie_score desc, overs by sigma desc
+    under_flags = sorted([f for f in flags if f['signal'] == 'under'],
+                         key=lambda x: x.get('ozzie_score', 0), reverse=True)
+    over_flags  = sorted([f for f in flags if f['signal'] == 'over'],
+                         key=lambda x: x.get('std_from_mean', 0), reverse=True)
+    other_flags = [f for f in flags if f['signal'] not in ('under', 'over')]
+    flags = under_flags + over_flags + other_flags
 
     # Combined F5 signal
     game_flags = {}
@@ -653,8 +684,8 @@ def get_heatmap_flags(games, model):
     for game_str, gflags in game_flags.items():
         if len(gflags) < 2:
             continue
-        away_flag = next((f for f in gflags if f['q_away']), None)
-        home_flag = next((f for f in gflags if not f['q_away']), None)
+        away_flag = next((f for f in gflags if f.get('q_away')), None)
+        home_flag = next((f for f in gflags if not f.get('q_away')), None)
         if not away_flag or not home_flag:
             continue
         away_std    = away_flag['std_from_mean']
@@ -1045,15 +1076,23 @@ def append_to_sheet(flags):
             if key in existing_keys:
                 continue
             r = len(existing) + rows_added + 1
+            signal = f.get('signal','')
+            if signal == 'over':
+                tier_label = f.get('over_tier','')
+                score_val  = f.get('std_from_mean','')
+            else:
+                tier_label = f.get('confidence_label','')
+                score_val  = f.get('ozzie_score','')
             ws.append_row([
                 today,
                 f.get('game', ''),
                 f.get('batting_team', ''),
                 f.get('pitcher_name', ''),
-                f.get('confidence_label', ''),
-                f.get('ozzie_score', ''),
+                signal,
+                tier_label,
+                score_val,
                 f.get('std_from_mean', ''),
-                f.get('park_tier', ''),
+                f.get('pitcher_k_rate', ''),
                 'Y' if f.get('q_away')             else 'N',
                 'Y' if f.get('q_krate_hi')         else 'N',
                 'Y' if f.get('q_bb_vlo')           else 'N',
@@ -1066,9 +1105,9 @@ def append_to_sheet(flags):
                 '', '', '',
                 '', '', '',
                 '',
-                f'=IF(AND(Q{r}<>"",W{r}<>""),IF(W{r}<Q{r},"Yes","No"),"")'.format(r=r),
-                f'=IF(AND(T{r}<>"",W{r}<>""),IF(W{r}<T{r},"Yes","No"),"")'.format(r=r),
-                f'=IF(W{r}="","",IF(R{r}<>"",IF(X{r}="Yes",IF(Q{r}<0,R{r}*(100/ABS(Q{r})),R{r}*(Q{r}/100)),-R{r}),0)+IF(U{r}<>"",IF(Y{r}="Yes",IF(T{r}<0,U{r}*(100/ABS(T{r})),U{r}*(T{r}/100)),-U{r}),0))'.format(r=r),
+                f'=IF(AND(S{r}<>"",W{r}<>""),IF(W{r}<S{r},"Yes","No"),"")'.format(r=r),
+                f'=IF(AND(V{r}<>"",W{r}<>""),IF(W{r}<V{r},"Yes","No"),"")'.format(r=r),
+                f'=IF(W{r}="","",IF(T{r}<>"",IF(X{r}="Yes",IF(S{r}<0,T{r}*(100/ABS(S{r})),T{r}*(S{r}/100)),-T{r}),0)+IF(U{r}<>"",IF(Y{r}="Yes",IF(V{r}<0,U{r}*(100/ABS(V{r})),U{r}*(V{r}/100)),-U{r}),0))'.format(r=r),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -1101,43 +1140,47 @@ def api_notify():
         new_flags = new_under + new_over
         if not new_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
+
         lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
+
         for f in new_under:
-            label   = f.get('confidence_label', '—')
-            score   = f.get('ozzie_score', '—')
-            sigma   = f.get('std_from_mean', 0)
-            park    = f.get('park_tier', '')
-            medal   = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
-            fg      = ' + FG ✅' if f.get('fg_under_signal') else ''
-            comb    = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
-            time    = f" — {f['game_time']}" if f.get('game_time') else ''
+            label = f.get('confidence_label', '—')
+            score = f.get('ozzie_score', '—')
+            sigma = f.get('std_from_mean', 0)
+            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
+            fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
+            comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
+            time  = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(
                 f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"(#{score}, {sigma:+.2f}σ, {park}){fg}{comb}{time}"
+                f"(UNDER #{score}, {sigma:+.2f}σ){fg}{comb}{time}"
             )
             if f.get('combined_f5_signal'):
                 lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
-            # U2.5 always shown
-            u25_str = f"🥇 U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if label == 'Gold' else \
-                      f"🥈 U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if label == 'Silver' else \
-                      f"🥉 U2.5 {f['min_u25']} / {f.get('unit_u25','')}"
-            # U1.5 only if eligible
+            u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
             if f.get('u15_eligible') and f.get('min_u15'):
-                u15_medal = '🥇' if label == 'Gold' else '🥈' if label == 'Silver' else '🥉'
-                u15_str = f"{u15_medal} U1.5 {f['min_u15']} / {f.get('unit_u15','')}"
+                u15_str = f"{medal} U1.5 {f['min_u15']} / {f.get('unit_u15','')}"
                 lines.append(f"   {u25_str} | {u15_str}")
             else:
                 lines.append(f"   {u25_str}")
+
         for f in new_over:
-            sigma   = f.get('std_from_mean', 0)
-            off_z   = f.get('over_off_z')
-            off_str = f" off_z={off_z:+.2f}" if off_z is not None else ''
-            time    = f" — {f['game_time']}" if f.get('game_time') else ''
+            tier  = f.get('over_tier', '—')
+            sigma = f.get('std_from_mean', 0)
+            krate = f.get('pitcher_k_rate', 0)
+            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
+            time  = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(
-                f"📈 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"(OVER, {sigma:+.2f}σ{off_str}){time}"
+                f"📈 {medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                f"(OVER {tier}, {sigma:+.2f}σ, K={krate:.0%}){time}"
             )
-            lines.append("   O2.5 target: better than -275 | 73.3% hit rate")
+            o15_str = f"{medal} O1.5 {f['o15_min']} / {f.get('o15_units','')}"
+            if f.get('o25_min'):
+                o25_str = f"{medal} O2.5 {f['o25_min']} / {f.get('o25_units','')}"
+                lines.append(f"   {o15_str} | {o25_str}")
+            else:
+                lines.append(f"   {o15_str}")
+
         send_telegram('\n'.join(lines))
         append_to_sheet(new_flags)
         all_sent = already_sent | {flag_key(f) for f in new_flags}
