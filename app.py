@@ -386,6 +386,53 @@ def get_f5_fair_odds(expected_runs):
     }
 
 
+def get_fair_odds(std_from_mean, signal_type):
+    """
+    Empirical fair odds from flagged population walk-forward backtest.
+    Built from 17,603 half-games across 2022-2025.
+    signal_type: 'under' or 'over'
+    Under: fair U2.5 and U1.5 for flagged games at this sigma depth.
+    Over:  fair O1.5 and O2.5 for K<20% flagged games at this sigma.
+    Uses PCHIP monotone interpolation through empirical data points.
+    Note: U1.5 reflects general flagged population — GB gate produces
+    higher live hit rates (65-74%) than shown here.
+    """
+    try:
+        from scipy.interpolate import PchipInterpolator
+        import numpy as np
+
+        if signal_type == 'under':
+            data   = [(-3.50,0.227,0.694),(-2.50,0.230,0.706),
+                      (-1.75,0.195,0.672),(-1.25,0.180,0.644)]
+            sigmas = [d[0] for d in data]
+            f_u15  = PchipInterpolator(sigmas, [d[1] for d in data])
+            f_u25  = PchipInterpolator(sigmas, [d[2] for d in data])
+            sigma  = float(max(-3.8, min(-1.0, std_from_mean)))
+            p_u15  = float(np.clip(f_u15(sigma), 0.01, 0.99))
+            p_u25  = float(np.clip(f_u25(sigma), 0.01, 0.99))
+            def _am(p):
+                return round(-100*p/(1-p)) if p >= 0.5 else round(100*(1-p)/p)
+            return {'fair_u15':_am(p_u15),'fair_u25':_am(p_u25),
+                    'fair_o15':None,'fair_o25':None}
+
+        elif signal_type == 'over':
+            data   = [(1.75,0.641,0.475),(2.25,0.722,0.517),(2.75,0.800,0.575)]
+            sigmas = [d[0] for d in data]
+            f_o15  = PchipInterpolator(sigmas, [d[1] for d in data])
+            f_o25  = PchipInterpolator(sigmas, [d[2] for d in data])
+            sigma  = float(max(1.5, min(3.5, std_from_mean)))
+            p_o15  = float(np.clip(f_o15(sigma), 0.01, 0.99))
+            p_o25  = float(np.clip(f_o25(sigma), 0.01, 0.99))
+            def _am(p):
+                return round(-100*p/(1-p)) if p >= 0.5 else round(100*(1-p)/p)
+            return {'fair_u15':None,'fair_u25':None,
+                    'fair_o15':_am(p_o15),'fair_o25':_am(p_o25)}
+
+    except Exception as e:
+        print(f"Fair odds calculation error: {e}")
+    return {'fair_u15':None,'fair_u25':None,'fair_o15':None,'fair_o25':None}
+
+
 def get_over_tier(std_from_mean, k_rate):
     """
     Over signal: contact pitcher (K<20%) facing favored lineup (sigma >= +1.5)
@@ -404,7 +451,8 @@ def get_over_tier(std_from_mean, k_rate):
     else:
         tier_name = 'Bronze'
 
-    rules = OVER_TIER_RULES[tier_name]
+    rules     = OVER_TIER_RULES[tier_name]
+    fair_odds = get_fair_odds(std_from_mean, 'over')
     return {
         'over_tier':    tier_name,
         'over_color':   rules['color'],
@@ -412,6 +460,8 @@ def get_over_tier(std_from_mean, k_rate):
         'o15_units':    rules['o15_units'],
         'o25_min':      rules['o25_min'],
         'o25_units':    rules['o25_units'],
+        'fair_o15':     fair_odds['fair_o15'],
+        'fair_o25':     fair_odds['fair_o25'],
     }
 
 
@@ -482,6 +532,7 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         u25_min, u25_units = '-210', '0.5u'
         u15_min, u15_units = None, None
 
+    fair_odds = get_fair_odds(std_from_mean, 'under')
     return {
         'ozzie_score':      total_score,
         'confidence_label': tier,
@@ -490,7 +541,7 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'q_away':           bool(q_away),
         'q_krate_lo':       bool(q_krate_lo),
         'q_krate_hi':       bool(q_krate_hi),
-        'q_bb_vlo':         bool(q_bb_vlo),   # logged for Sheets col L, not scored
+        'q_bb_vlo':         bool(q_bb_vlo),
         'q_gb_mid':         bool(q_gb_mid),
         'q_sigma_20':       bool(q_sigma_20),
         'u15_eligible':     u15_eligible,
@@ -500,6 +551,8 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'unit_u25':         u25_units,
         'min_u15':          u15_min,
         'unit_u15':         u15_units,
+        'fair_u25':         fair_odds['fair_u25'],
+        'fair_u15':         fair_odds['fair_u15'],
     }
 
 
@@ -650,13 +703,25 @@ def get_heatmap_flags(games, model):
                     'o15_units':    over_confidence['o15_units'],
                     'o25_min':      over_confidence['o25_min'],
                     'o25_units':    over_confidence['o25_units'],
+                    'fair_o15':     over_confidence.get('fair_o15'),
+                    'fair_o25':     over_confidence.get('fair_o25'),
                 })
 
             # Add under-specific fields
             if signal == 'under' and under_confidence:
+                tier_label = under_confidence['confidence_label']
+                # off_z warning: Bronze under + strong offense = historically weak signal
+                # Shallow sigma (-1.0→-1.5) + off_z > +0.5 → hit rate drops to 56.7%
+                # Deep sigma (≤-2.0) → off_z doesn't matter, bet regardless
+                off_z_warn = (
+                    tier_label == 'Bronze' and
+                    batting_off_z is not None and
+                    batting_off_z > 0.5 and
+                    std_from_mean > -2.0
+                )
                 flag.update({
                     'ozzie_score':      under_confidence['ozzie_score'],
-                    'confidence_label': under_confidence['confidence_label'],
+                    'confidence_label': tier_label,
                     'confidence_color': under_confidence['confidence_color'],
                     'park_tier':        under_confidence['park_tier'],
                     'q_away':           under_confidence['q_away'],
@@ -672,6 +737,10 @@ def get_heatmap_flags(games, model):
                     'unit_u25':         under_confidence['unit_u25'],
                     'min_u15':          under_confidence['min_u15'],
                     'unit_u15':         under_confidence['unit_u15'],
+                    'fair_u25':         under_confidence.get('fair_u25'),
+                    'fair_u15':         under_confidence.get('fair_u15'),
+                    'off_z_warning':    off_z_warn,
+                    'batting_off_z':    round(batting_off_z, 3) if batting_off_z is not None else None,
                 })
 
             flags.append(flag)
@@ -1090,35 +1159,38 @@ def append_to_sheet(flags):
             if key in existing_keys:
                 continue
             r = len(existing) + rows_added + 1
-            signal = f.get('signal','')
+            signal = f.get('signal', '')
+
+            # Tier and score vary by signal type
             if signal == 'over':
-                tier_label = f.get('over_tier','')
-                score_val  = f.get('std_from_mean','')
+                tier_label = f.get('over_tier', '')
+                score_val  = ''   # no ozzie score for overs
             else:
-                tier_label = f.get('confidence_label','')
-                score_val  = f.get('ozzie_score','')
+                tier_label = f.get('confidence_label', '')
+                score_val  = f.get('ozzie_score', '')
+
+            # Columns match header exactly:
+            # Date|Game|Team|Pitcher|Tier|Score|Sigma|Park|Away|K>28%|BB<6%|GB42-48%|Sig<-2.0|FG|CombF5|Time
             ws.append_row([
-                today,
-                f.get('game', ''),
-                f.get('batting_team', ''),
-                f.get('pitcher_name', ''),
-                signal,
-                tier_label,
-                score_val,
-                f.get('std_from_mean', ''),
-                f.get('pitcher_k_rate', ''),
-                'Y' if f.get('q_away')             else 'N',
-                'Y' if f.get('q_krate_hi')         else 'N',
-                'Y' if f.get('q_bb_vlo')           else 'N',
-                'Y' if f.get('q_gb_mid')           else 'N',
-                'Y' if f.get('q_sigma_20')         else 'N',
-                'Y' if f.get('u15_eligible')       else 'N',
-                'Y' if f.get('fg_under_signal')    else 'N',
-                'Y' if f.get('combined_f5_signal') else 'N',
-                f.get('game_time', ''),
-                '', '', '',
-                '', '', '',
-                '',
+                today,                                          # A Date
+                f.get('game', ''),                             # B Game
+                f.get('batting_team', ''),                     # C Team
+                f.get('pitcher_name', ''),                     # D Pitcher
+                tier_label,                                    # E Tier
+                score_val,                                     # F Score
+                f.get('std_from_mean', ''),                    # G Sigma
+                f.get('park_tier', ''),                        # H Park
+                'Y' if f.get('q_away')          else 'N',    # I Away
+                'Y' if f.get('q_krate_hi')      else 'N',    # J K>28%
+                'Y' if f.get('q_bb_vlo')        else 'N',    # K BB<6%
+                'Y' if f.get('q_gb_mid')        else 'N',    # L GB42-48%
+                'Y' if f.get('q_sigma_20')      else 'N',    # M Sig<-2.0
+                'Y' if f.get('fg_under_signal') else 'N',    # N FG
+                'Y' if f.get('combined_f5_signal') else 'N', # O CombF5
+                f.get('game_time', ''),                       # P Time
+                '', '', '',                                   # Q R S (result cols)
+                '', '', '',                                   # T U V
+                '',                                           # W
                 f'=IF(AND(S{r}<>"",W{r}<>""),IF(W{r}<S{r},"Yes","No"),"")'.format(r=r),
                 f'=IF(AND(V{r}<>"",W{r}<>""),IF(W{r}<V{r},"Yes","No"),"")'.format(r=r),
                 f'=IF(W{r}="","",IF(T{r}<>"",IF(X{r}="Yes",IF(S{r}<0,T{r}*(100/ABS(S{r})),T{r}*(S{r}/100)),-T{r}),0)+IF(U{r}<>"",IF(Y{r}="Yes",IF(V{r}<0,U{r}*(100/ABS(V{r})),U{r}*(V{r}/100)),-U{r}),0))'.format(r=r),
