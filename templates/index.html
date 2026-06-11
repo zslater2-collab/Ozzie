@@ -83,13 +83,8 @@
   .fair-odds-line{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .fair-odds-val{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--blue)}
   .fair-odds-label{font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px;margin-bottom:2px}
-  /* Joint total informational card */
-  .joint-card{background:var(--surface);border:1px solid rgba(240,192,64,.35);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both}
-  .joint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(240,192,64,.6),transparent)}
-  .p-xwoba-badge{display:inline-flex;align-items:center;gap:4px;font-size:.52rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}
-  .p-xwoba-badge.elite{color:#4fffb0;background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
-  .p-xwoba-badge.agrees{color:#f0c040;background:rgba(240,192,64,.10);border:1px solid rgba(240,192,64,.35)}
-
+  /* Picks / DFS */
+  #picks-section{padding:20px 20px 0;display:none}
   .picks-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
   .picks-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--accent)}
   .col-labels{display:grid;grid-template-columns:1fr 72px 60px 60px;gap:4px;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 14px;margin-bottom:6px}
@@ -115,6 +110,11 @@
   .divider{height:1px;background:var(--border);margin:20px 20px 0}
   footer{margin-top:32px;text-align:center;font-size:.62rem;color:var(--dim);letter-spacing:.1em}
   footer a{color:var(--muted);text-decoration:none}
+  /* Joint total informational card */
+  .joint-card{background:var(--surface);border:1px solid rgba(240,192,64,.35);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .p-xwoba-badge{display:inline-flex;align-items:center;gap:4px;font-size:.52rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}
+  .p-xwoba-badge.elite{color:#4fffb0;background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
+  .p-xwoba-badge.agrees{color:#f0c040;background:rgba(240,192,64,.10);border:1px solid rgba(240,192,64,.35)}
 </style>
 </head>
 <body>
@@ -168,6 +168,7 @@
     <div id="joint-total-list"></div>
   </div>
 </div>
+<div id="dfs-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
     <div class="flags-header">
@@ -317,7 +318,6 @@
   function buildJointCard(f, i) {
     const card = document.createElement('div');
     card.className = 'joint-card';
-    card.style.cssText = 'position:relative;overflow:hidden';
     card.style.animationDelay = `${i * 0.06}s`;
 
     const lineupTag = f.lineup_complete
@@ -331,8 +331,8 @@
     const sigmaHtml = f.sigma_agrees
       ? `<span class="p-xwoba-badge agrees">σ confirms suppression</span>` : '';
 
-    const hSigStr = f.home_sigma !== null ? `${f.home_sigma > 0 ? '+' : ''}${f.home_sigma}σ` : '—';
-    const aSigStr = f.away_sigma !== null ? `${f.away_sigma > 0 ? '+' : ''}${f.away_sigma}σ` : '—';
+    const hSigStr = f.home_sigma !== null && f.home_sigma !== undefined ? `${f.home_sigma > 0 ? '+' : ''}${f.home_sigma}σ` : '—';
+    const aSigStr = f.away_sigma !== null && f.away_sigma !== undefined ? `${f.away_sigma > 0 ? '+' : ''}${f.away_sigma}σ` : '—';
 
     card.innerHTML = `
       <div class="hm-top">
@@ -402,7 +402,7 @@
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
     ['games-section','heatmap-section','f5combined-section','joint-total-section','dfs-section','picks-section','no-picks']
-      .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});});
+      .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
       .then(r=>{
@@ -411,7 +411,6 @@
         return r.json();
       })
       .then(data=>{
-        try {
         btn.disabled=false; spinner.style.display='none'; label.textContent='REFRESH PICKS';
         status.textContent=`${data.complete}/${data.total} games with complete lineups`;
 
@@ -441,15 +440,15 @@
           document.getElementById('f5combined-section').style.display='block';
         }
 
-        const jtList=document.getElementById('joint-total-list'); jtList.innerHTML='';
-        const jtFlags=data.joint_total_flags||[];
         try {
+          const jtList=document.getElementById('joint-total-list'); jtList.innerHTML='';
+          const jtFlags=data.joint_total_flags||[];
           if(jtFlags.length>0){
             document.getElementById('joint-total-count').textContent=`${jtFlags.length} Game${jtFlags.length!==1?'s':''}`;
             jtFlags.forEach((f,i)=>jtList.appendChild(buildJointCard(f,i)));
             document.getElementById('joint-total-section').style.display='block';
           }
-        } catch(e) { console.error('Joint total render error:', e); }
+        } catch(e) { console.error('Joint total render error:',e); }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
         const dfsTierStyle={'Ace':{border:'#FFD700',text:'#FFD700',bg:'rgba(255,215,0,0.06)'},'Value':{border:'#C0C0C0',text:'#C0C0C0',bg:'rgba(192,192,192,0.06)'},'Fade':{border:'#ff6b6b',text:'#ff6b6b',bg:'rgba(255,107,107,0.06)'},'Neutral':{border:'#333348',text:'#555570',bg:'transparent'}};
@@ -518,10 +517,6 @@
           list.appendChild(card);
         });
         document.getElementById('picks-section').style.display='block';
-        } catch(renderErr) {
-          btn.disabled=false; spinner.style.display='none'; label.textContent='REFRESH PICKS';
-          errBox.style.display='block'; errBox.textContent='Render error: '+renderErr.message+' | '+renderErr.stack;
-        }
       })
       .catch(err=>{
         if(err==='redirect')return;
