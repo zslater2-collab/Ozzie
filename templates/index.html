@@ -275,15 +275,17 @@
 
     // p_xwoba badge
     let pxwobaHtml = '';
-    if (f.p_xwoba !== null && f.p_xwoba !== undefined) {
-      if (f.p_xwoba_agrees) {
-        pxwobaHtml = `<span class="p-xwoba-badge agrees">★ p_xwoba ${f.p_xwoba} · σ+xwOBA agree</span>`;
-      } else if (f.p_xwoba_elite) {
-        pxwobaHtml = `<span class="p-xwoba-badge elite">p_xwoba ${f.p_xwoba} · elite</span>`;
-      } else {
-        pxwobaHtml = `<span class="p-xwoba-badge" style="color:var(--muted);border:1px solid var(--dim)">p_xwoba ${f.p_xwoba}</span>`;
+    try {
+      if (f.p_xwoba !== null && f.p_xwoba !== undefined) {
+        if (f.p_xwoba_agrees) {
+          pxwobaHtml = `<span class="p-xwoba-badge agrees">★ p_xwoba ${f.p_xwoba} · σ+xwOBA agree</span>`;
+        } else if (f.p_xwoba_elite) {
+          pxwobaHtml = `<span class="p-xwoba-badge elite">p_xwoba ${f.p_xwoba} · elite</span>`;
+        } else {
+          pxwobaHtml = `<span class="p-xwoba-badge" style="color:var(--muted);border:1px solid var(--dim)">p_xwoba ${f.p_xwoba}</span>`;
+        }
       }
-    }
+    } catch(e) { pxwobaHtml = ''; }
 
     const fairOddsHtml = buildFairOddsHtml(f.fair_odds);
 
@@ -440,11 +442,13 @@
 
         const jtList=document.getElementById('joint-total-list'); jtList.innerHTML='';
         const jtFlags=data.joint_total_flags||[];
-        if(jtFlags.length>0){
-          document.getElementById('joint-total-count').textContent=`${jtFlags.length} Game${jtFlags.length!==1?'s':''}`;
-          jtFlags.forEach((f,i)=>jtList.appendChild(buildJointCard(f,i)));
-          document.getElementById('joint-total-section').style.display='block';
-        }
+        try {
+          if(jtFlags.length>0){
+            document.getElementById('joint-total-count').textContent=`${jtFlags.length} Game${jtFlags.length!==1?'s':''}`;
+            jtFlags.forEach((f,i)=>jtList.appendChild(buildJointCard(f,i)));
+            document.getElementById('joint-total-section').style.display='block';
+          }
+        } catch(e) { console.error('Joint total render error:', e); }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
         const dfsTierStyle={'Ace':{border:'#FFD700',text:'#FFD700',bg:'rgba(255,215,0,0.06)'},'Value':{border:'#C0C0C0',text:'#C0C0C0',bg:'rgba(192,192,192,0.06)'},'Fade':{border:'#ff6b6b',text:'#ff6b6b',bg:'rgba(255,107,107,0.06)'},'Neutral':{border:'#333348',text:'#555570',bg:'transparent'}};
