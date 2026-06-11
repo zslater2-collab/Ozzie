@@ -32,26 +32,16 @@
   .flags-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
   .flags-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--accent)}
   .hm-card{background:var(--surface);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
-  /* Under card borders */
+  .hm-card.under{border:1px solid var(--blue)}
   .hm-card.under.gold{border:1px solid #FFD700;box-shadow:0 0 14px rgba(255,215,0,.18)}
   .hm-card.under.silver{border:1px solid #C0C0C0;box-shadow:0 0 10px rgba(192,192,192,.14)}
   .hm-card.under.bronze{border:1px solid #CD7F32;box-shadow:0 0 8px rgba(205,127,50,.12)}
   .hm-card.under::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.6}
-  /* Over card borders */
-  .hm-card.over.gold{border:1px solid #FFD700;box-shadow:0 0 14px rgba(255,215,0,.18)}
-  .hm-card.over.silver{border:1px solid #C0C0C0;box-shadow:0 0 10px rgba(192,192,192,.14)}
-  .hm-card.over.bronze{border:1px solid #CD7F32;box-shadow:0 0 8px rgba(205,127,50,.12)}
-  .hm-card.over::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:.7}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
   .hm-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
   .hm-team{font-size:1.05rem;font-weight:500;color:var(--text)}
   .hm-signal-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-  .hm-signal{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;line-height:1}
-  .hm-signal.under{color:var(--blue)}
-  .hm-signal.over{color:var(--orange)}
-  .hm-sigma{font-size:.65rem;text-align:right}
-  .hm-sigma.under{color:color-mix(in srgb,var(--blue) 70%,var(--muted))}
-  .hm-sigma.over{color:color-mix(in srgb,var(--orange) 70%,var(--muted))}
+  .hm-signal{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;line-height:1;color:var(--blue)}
+  .hm-sigma{font-size:.65rem;color:color-mix(in srgb,var(--blue) 70%,var(--muted));text-align:right}
   .hm-divider{height:1px;background:var(--border);margin:10px 0}
   .hm-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
   .hm-stat-label{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -93,12 +83,18 @@
   .fair-odds-line{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .fair-odds-val{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--blue)}
   .fair-odds-label{font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px;margin-bottom:2px}
-  /* Picks / DFS */
-  #picks-section{padding:20px 20px 0;display:none}
+  /* Joint total informational card */
+  .joint-card{background:var(--surface);border:1px solid rgba(240,192,64,.35);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both}
+  .joint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(240,192,64,.6),transparent)}
+  .p-xwoba-badge{display:inline-flex;align-items:center;gap:4px;font-size:.52rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}
+  .p-xwoba-badge.elite{color:#4fffb0;background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
+  .p-xwoba-badge.agrees{color:#f0c040;background:rgba(240,192,64,.10);border:1px solid rgba(240,192,64,.35)}
+
   .picks-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
   .picks-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--accent)}
   .col-labels{display:grid;grid-template-columns:1fr 72px 60px 60px;gap:4px;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 14px;margin-bottom:6px}
   .pick-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:7px;animation:fadeIn .25s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
   .pick-main{display:grid;grid-template-columns:1fr 72px 60px 60px;gap:4px;align-items:center}
   .player-name{font-size:.85rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .combined{font-size:.82rem;color:var(--accent);text-align:right}
@@ -143,7 +139,7 @@
   <div style="padding-top:20px">
     <div class="flags-header">
       <div class="flags-count" id="heatmap-count"></div>
-      <div class="section-label" style="margin:0">F5 Team Total</div>
+      <div class="section-label" style="margin:0">F5 Team Total Under</div>
     </div>
     <div id="heatmap-list"></div>
   </div>
@@ -160,7 +156,18 @@
     <div id="f5combined-list"></div>
   </div>
 </div>
-<div id="dfs-section">
+<div id="joint-total-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="joint-total-count"></div>
+      <div class="section-label" style="margin:0">Joint F5 Total Edge
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0c040;margin-left:8px;text-transform:uppercase">Informational</span>
+      </div>
+    </div>
+    <div id="joint-total-list"></div>
+  </div>
+</div>
   <div class="divider"></div>
   <div style="padding-top:20px">
     <div class="flags-header">
@@ -203,21 +210,21 @@
     bronze: {text:'#CD7F32', border:'rgba(205,127,50,.20)',  bg:'rgba(205,127,50,.06)'},
   };
 
-  function betRow(medal, line, odds, units, color) {
-    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
-    return `<div class="bet-row ${color}-row">
-      <span class="bet-medal">${medal}</span>
-      <span class="bet-line">${line}</span>
-      <span class="bet-odds ${color}">${odds}</span>
-      <span class="bet-units">${units}</span>
-    </div>`;
+  function buildFairOddsHtml(fair_odds) {
+    if (!fair_odds || !Object.keys(fair_odds).length) return '';
+    const keys = Object.keys(fair_odds).sort((a,b)=>parseFloat(a)-parseFloat(b));
+    const cells = keys.map(line =>
+      `<div class="fair-odds-cell"><div class="fair-odds-line">${line} runs</div><div class="fair-odds-val">${fair_odds[line]||'—'}</div></div>`
+    ).join('');
+    return `<div class="fair-odds-label">Fair Odds (Under)</div><div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">${cells}</div>`;
   }
 
-  function buildUnderCard(f, i) {
+  function buildFlagCard(f, i) {
     const card = document.createElement('div');
     const color = f.confidence_color || 'bronze';
     const label = f.confidence_label || 'Bronze';
     const medal = MEDALS[label] || '🥉';
+    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
     card.className = `hm-card under ${color}`;
     card.style.animationDelay = `${i * 0.06}s`;
 
@@ -227,8 +234,10 @@
       : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
     const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
 
+    // Tier badge with score
     const tierBadge = `<div class="tier-badge ${color}">${medal} ${label} · Score ${f.ozzie_score}</div>`;
 
+    // Qualifier chips
     const chip = (met, lbl) => `<span class="chip ${met?'met':'miss'}">${lbl}</span>`;
     const chips = `<div class="chips">
       ${chip(f.q_away,'Away')}
@@ -238,8 +247,22 @@
       ${chip(f.q_sigma_20,'σ≤-2.0')}
     </div>`;
 
-    const u25row = f.min_u25 ? betRow(medal, 'U 2.5', f.min_u25, f.unit_u25, color) : '';
-    const u15row = f.u15_eligible && f.min_u15 ? betRow(medal, 'U 1.5', f.min_u15, f.unit_u15, color) : '';
+    // Bet rows — U2.5 always, U1.5 only if eligible
+    const rowClass = `${color}-row`;
+    const u25row = `<div class="bet-row ${rowClass}">
+      <span class="bet-medal">${medal}</span>
+      <span class="bet-line">U 2.5</span>
+      <span class="bet-odds ${color}">${f.min_u25}</span>
+      <span class="bet-units">${f.unit_u25}</span>
+    </div>`;
+
+    const u15row = f.u15_eligible && f.min_u15 ? `<div class="bet-row ${rowClass}">
+      <span class="bet-medal">${medal}</span>
+      <span class="bet-line">U 1.5</span>
+      <span class="bet-odds ${color}">${f.min_u15}</span>
+      <span class="bet-units">${f.unit_u15}</span>
+    </div>` : '';
+
     const betSection = `<div class="bet-section">
       <div class="bet-label">Bet when odds are at least</div>
       ${u25row}${u15row}
@@ -250,12 +273,26 @@
     const combHtml = f.combined_f5_signal
       ? `<div class="fg-signal-row" style="border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.06)"><span class="fg-signal-label" style="color:#FFD700">⚡ F5 Combined Under</span><span class="fg-signal-val" style="color:#FFD700;font-size:.75rem">U4.5 @ -200 | U5.5 @ -300</span></div>` : '';
 
+    // p_xwoba badge
+    let pxwobaHtml = '';
+    if (f.p_xwoba !== null && f.p_xwoba !== undefined) {
+      if (f.p_xwoba_agrees) {
+        pxwobaHtml = `<span class="p-xwoba-badge agrees">★ p_xwoba ${f.p_xwoba} · σ+xwOBA agree</span>`;
+      } else if (f.p_xwoba_elite) {
+        pxwobaHtml = `<span class="p-xwoba-badge elite">p_xwoba ${f.p_xwoba} · elite</span>`;
+      } else {
+        pxwobaHtml = `<span class="p-xwoba-badge" style="color:var(--muted);border:1px solid var(--dim)">p_xwoba ${f.p_xwoba}</span>`;
+      }
+    }
+
+    const fairOddsHtml = buildFairOddsHtml(f.fair_odds);
+
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal under">UNDER</div>
-          <div class="hm-sigma under">${sigmaSign}${f.std_from_mean}σ</div>
+          <div class="hm-signal">UNDER</div>
+          <div class="hm-sigma">${sigmaSign}${f.std_from_mean}σ from mean</div>
         </div>
       </div>
       <div style="font-size:.6rem;color:var(--muted);margin-bottom:6px">${f.game_time||''}</div>
@@ -268,60 +305,60 @@
         <div><div class="hm-stat-label">Batters</div><div class="hm-stat-value">${f.batters_scored} / 9</div></div>
       </div>
       ${betSection}
+      ${fairOddsHtml}
       ${fgHtml}${combHtml}
+      ${pxwobaHtml}
       ${lineupTag}`;
     return card;
   }
 
-  function buildOverCard(f, i) {
+  function buildJointCard(f, i) {
     const card = document.createElement('div');
-    const color = f.over_color || 'bronze';
-    const tier  = f.over_tier  || 'Bronze';
-    const medal = MEDALS[tier] || '🥉';
-    card.className = `hm-card over ${color}`;
+    card.className = 'joint-card';
+    card.style.cssText = 'position:relative;overflow:hidden';
     card.style.animationDelay = `${i * 0.06}s`;
 
-    const sigmaSign = f.std_from_mean >= 0 ? '+' : '';
     const lineupTag = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
-    const kPct = f.pitcher_k_rate ? (f.pitcher_k_rate * 100).toFixed(1) + '%' : '—';
+      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
+      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
 
-    const tierBadge = `<div class="tier-badge ${color}">${medal} ${tier} · K ${kPct}</div>`;
+    const bothBadge = f.both_elite
+      ? `<span class="p-xwoba-badge agrees" style="margin-right:4px">Both pitchers elite</span>`
+      : `<span class="p-xwoba-badge elite" style="margin-right:4px">One pitcher elite</span>`;
 
-    // Chips for over signal
-    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
-    const overChips = `<div class="chips">
-      <span class="chip met">K &lt; 20%</span>
-      <span class="chip met">${sigmaSign}${f.std_from_mean}σ</span>
-    </div>`;
+    const sigmaHtml = f.sigma_agrees
+      ? `<span class="p-xwoba-badge agrees">σ confirms suppression</span>` : '';
 
-    const o15row = betRow(medal, 'O 1.5', f.o15_min, f.o15_units, color);
-    const o25row = f.o25_min ? betRow(medal, 'O 2.5', f.o25_min, f.o25_units, color) : '';
-    const betSection = `<div class="bet-section">
-      <div class="bet-label">Bet when odds are at least</div>
-      ${o15row}${o25row}
-    </div>`;
+    const hSigStr = f.home_sigma !== null ? `${f.home_sigma > 0 ? '+' : ''}${f.home_sigma}σ` : '—';
+    const aSigStr = f.away_sigma !== null ? `${f.away_sigma > 0 ? '+' : ''}${f.away_sigma}σ` : '—';
 
     card.innerHTML = `
       <div class="hm-top">
-        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-team">${f.away_team} @ ${f.home_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal over">OVER</div>
-          <div class="hm-sigma over">${sigmaSign}${f.std_from_mean}σ</div>
+          <div class="hm-signal" style="color:#f0c040;font-size:1.1rem">JOINT</div>
+          <div class="hm-sigma" style="color:rgba(240,192,64,.7)">Check line = 4.5</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:6px">${f.game_time||''}</div>
-      ${tierBadge}
-      ${overChips}
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div style="margin-bottom:8px">${bothBadge}${sigmaHtml}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
-        <div><div class="hm-stat-label">vs Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
-        <div><div class="hm-stat-label">Throws</div><div class="hm-stat-value">${handLabel}</div></div>
-        <div><div class="hm-stat-label">Batters</div><div class="hm-stat-value">${f.batters_scored} / 9</div></div>
+        <div><div class="hm-stat-label">${f.home_team} pitcher</div><div class="hm-stat-value" style="font-size:.72rem">${f.home_pitcher}</div></div>
+        <div><div class="hm-stat-label">p_xwoba</div><div class="hm-stat-value" style="color:${f.home_p_xwoba<=0.280?'#4fffb0':'var(--text)'}">${f.home_p_xwoba}</div></div>
+        <div><div class="hm-stat-label">σ</div><div class="hm-stat-value">${hSigStr}</div></div>
       </div>
-      ${betSection}
+      <div class="hm-bottom" style="margin-top:6px">
+        <div><div class="hm-stat-label">${f.away_team} pitcher</div><div class="hm-stat-value" style="font-size:.72rem">${f.away_pitcher}</div></div>
+        <div><div class="hm-stat-label">p_xwoba</div><div class="hm-stat-value" style="color:${f.away_p_xwoba<=0.280?'#4fffb0':'var(--text)'}">${f.away_p_xwoba}</div></div>
+        <div><div class="hm-stat-label">σ</div><div class="hm-stat-value">${aSigStr}</div></div>
+      </div>
+      <div class="hm-divider"></div>
+      <div style="padding:8px 0;font-size:.58rem;color:#f0c040;line-height:1.6">
+        <div>📋 If Pinnacle line = 4.5: bet Under</div>
+        <div style="color:var(--muted)">2025 validated: 70% under · +0.334 ROI · n=49</div>
+        <div style="color:var(--muted)">One year only — not cross-year validated</div>
+      </div>
       ${lineupTag}`;
     return card;
   }
@@ -329,7 +366,6 @@
   function buildGtCard(f, i) {
     const card = document.createElement('div');
     card.className = 'hm-card under';
-    card.style.cssText = 'border:1px solid var(--blue);';
     card.style.animationDelay = `${i * 0.06}s`;
     const lineupTag = f.lineup_complete
       ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
@@ -342,7 +378,7 @@
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${teamA} @ ${teamB}</div>
-        <div class="hm-signal-wrap"><div class="hm-signal under">UNDER</div><div class="hm-sigma under">${combZ}σ combined</div></div>
+        <div class="hm-signal-wrap"><div class="hm-signal">UNDER</div><div class="hm-sigma">${combZ}σ combined</div></div>
       </div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
@@ -363,7 +399,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','joint-total-section','dfs-section','picks-section','no-picks']
       .forEach(id=>document.getElementById(id).style.display='none');
 
     fetch('/api/picks')
@@ -385,27 +421,12 @@
         });
         document.getElementById('games-section').style.display='block';
 
-        // All under + over flags in one section
         const hmList=document.getElementById('heatmap-list'); hmList.innerHTML='';
         const underTeams=new Set();
-        const allFlags=(data.heatmap_flags||[]).filter(f=>f.signal==='under'||f.signal==='over');
-
-        if(allFlags.length>0){
-          const underCount=allFlags.filter(f=>f.signal==='under').length;
-          const overCount=allFlags.filter(f=>f.signal==='over').length;
-          let countStr = '';
-          if(underCount>0) countStr += `${underCount} Under`;
-          if(overCount>0) countStr += (countStr?', ':'')+`${overCount} Over`;
-          document.getElementById('heatmap-count').textContent=countStr;
-
-          allFlags.forEach((f,i)=>{
-            if(f.signal==='under'){
-              underTeams.add(f.batting_team);
-              hmList.appendChild(buildUnderCard(f,i));
-            } else {
-              hmList.appendChild(buildOverCard(f,i));
-            }
-          });
+        const f5Flags=(data.f5_single||data.heatmap_flags||[]).filter(f=>f.signal==='under');
+        if(f5Flags.length>0){
+          document.getElementById('heatmap-count').textContent=`${f5Flags.length} Flag${f5Flags.length!==1?'s':''}`;
+          f5Flags.forEach((f,i)=>{underTeams.add(f.batting_team);hmList.appendChild(buildFlagCard(f,i));});
           document.getElementById('heatmap-section').style.display='block';
         }
 
@@ -415,6 +436,14 @@
           document.getElementById('f5combined-count').textContent=`${f5cFlags.length} Flag${f5cFlags.length!==1?'s':''}`;
           f5cFlags.forEach((f,i)=>f5cList.appendChild(buildGtCard(f,i)));
           document.getElementById('f5combined-section').style.display='block';
+        }
+
+        const jtList=document.getElementById('joint-total-list'); jtList.innerHTML='';
+        const jtFlags=data.joint_total_flags||[];
+        if(jtFlags.length>0){
+          document.getElementById('joint-total-count').textContent=`${jtFlags.length} Game${jtFlags.length!==1?'s':''}`;
+          jtFlags.forEach((f,i)=>jtList.appendChild(buildJointCard(f,i)));
+          document.getElementById('joint-total-section').style.display='block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
@@ -431,7 +460,7 @@
             card.style.cssText=`border:1px solid ${s.border};background:${s.bg};margin-bottom:8px`;
             const zColor=p.overlap_z<=-1?'var(--green)':p.overlap_z>=0.5?'var(--red)':'var(--text)';
             const zStr=(p.overlap_z>0?'+':'')+p.overlap_z;
-            card.innerHTML=`<div class="hm-top"><div class="hm-team" style="font-size:.95rem">${p.pitcher_name}</div><div class="hm-signal-wrap"><div class="hm-signal under" style="color:${s.text};font-size:1.1rem">${p.tier.toUpperCase()}</div></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:-6px;margin-bottom:6px">${p.game_time||''}</div><div class="hm-divider"></div><div class="hm-bottom"><div><div class="hm-stat-label">Opp</div><div class="hm-stat-value">${p.batting_team}</div></div><div><div class="hm-stat-label">K%</div><div class="hm-stat-value">${p.k_rate!==null?p.k_rate+'%':'—'}</div></div><div><div class="hm-stat-label">Overlap z</div><div class="hm-stat-value" style="color:${zColor}">${zStr}</div></div></div>`;
+            card.innerHTML=`<div class="hm-top"><div class="hm-team" style="font-size:.95rem">${p.pitcher_name}</div><div class="hm-signal-wrap"><div class="hm-signal" style="color:${s.text};font-size:1.1rem">${p.tier.toUpperCase()}</div></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:-6px;margin-bottom:6px">${p.game_time||''}</div><div class="hm-divider"></div><div class="hm-bottom"><div><div class="hm-stat-label">Opp</div><div class="hm-stat-value">${p.batting_team}</div></div><div><div class="hm-stat-label">K%</div><div class="hm-stat-value">${p.k_rate!==null?p.k_rate+'%':'—'}</div></div><div><div class="hm-stat-label">Overlap z</div><div class="hm-stat-value" style="color:${zColor}">${zStr}</div></div></div>`;
             dfsPitchersEl.appendChild(card);
           });
           document.getElementById('dfs-pitchers-wrap').style.display='block';
@@ -458,7 +487,7 @@
             }).join('');
             const card=document.createElement('div'); card.className='hm-card';
             card.style.cssText=`border:1px solid ${border};margin-bottom:10px`;
-            card.innerHTML=`<div class="hm-top"><div class="hm-team">${s.batting_team}${hotBadge}</div><div class="hm-signal-wrap"><div class="hm-signal under" style="color:var(--blue);font-size:1.1rem">STACK</div><div class="hm-sigma under">${zStr}σ vs mean</div></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:-6px;margin-bottom:8px">${s.game_time||''} · vs ${s.pitcher_name}</div><div class="hm-divider"></div><div style="padding:2px 0">${batterRows}</div><div style="margin-top:8px;font-size:.55rem;color:var(--muted)">● slots 1–4 priority &nbsp;|&nbsp; ★ arch match &nbsp;|&nbsp; <span style="color:#4fffb0">+#.#</span>/<span style="color:#ff6b6b">-#.#</span> split edge</div>`;
+            card.innerHTML=`<div class="hm-top"><div class="hm-team">${s.batting_team}${hotBadge}</div><div class="hm-signal-wrap"><div class="hm-signal" style="color:var(--blue);font-size:1.1rem">STACK</div><div class="hm-sigma">${zStr}σ vs mean</div></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:-6px;margin-bottom:8px">${s.game_time||''} · vs ${s.pitcher_name}</div><div class="hm-divider"></div><div style="padding:2px 0">${batterRows}</div><div style="margin-top:8px;font-size:.55rem;color:var(--muted)">● slots 1–4 priority &nbsp;|&nbsp; ★ arch match &nbsp;|&nbsp; <span style="color:#4fffb0">+#.#</span>/<span style="color:#ff6b6b">-#.#</span> split edge</div>`;
             dfsStacksEl.appendChild(card);
           });
           document.getElementById('dfs-stacks-wrap').style.display='block';
