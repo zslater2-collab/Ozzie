@@ -402,7 +402,7 @@
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
     ['games-section','heatmap-section','f5combined-section','joint-total-section','dfs-section','picks-section','no-picks']
-      .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+      .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});});
 
     fetch('/api/picks')
       .then(r=>{
