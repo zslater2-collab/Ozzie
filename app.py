@@ -22,8 +22,8 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
-    'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
+    'pitcher_tendency_map':     '1XMpyYVlHvwfd5YC3NCwP_C5JoPotNxRK',  # rebuilt 2022-2025 June 2026
+    'batter_ev_profiles_lr':    '1wzLpm1vPRpxW3TEmfqL_5HAR4RFbks49',  # rebuilt 2022-2025 June 2026
     'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
     'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
