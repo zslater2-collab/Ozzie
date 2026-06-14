@@ -28,7 +28,6 @@ FILE_IDS = {
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
     'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
     'pitcher_bb_gb_rates':      '1kaCr_b0Zw9_4nAYMk84kCh8mTbOE5chC',
-    'pitcher_p_xwoba':          '1eteo4JUkjF3fjewQI_PxzBV92bTSB_Kt',
 }
 
 LEAGUE_AVG        = 3.88
@@ -42,38 +41,18 @@ LEAGUE_AVG_KRATE  = 0.229
 
 HEATMAP_MEAN            = 0.9984
 HEATMAP_STD             = 0.0549
-HEATMAP_OVER_THRESHOLD  = HEATMAP_MEAN + 1.5 * HEATMAP_STD   # lowered from +2.0 to +1.5
 HEATMAP_UNDER_THRESHOLD = HEATMAP_MEAN - 1.0 * HEATMAP_STD
 
 # ── UNDER SIGNAL — Ozzie Scoring System v3 ───────────────────────────────
-# Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
-# Tiers: Gold (6), Silver (4-5), Bronze (3) — max score 6
-# BB rate removed (p=0.810 across 1,248 games). GB rate: U1.5 gate only.
-# U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
-# Validated: walk-forward 2023/2024/2025, Silver U2.5 74-77%
+# Gate: std_from_mean <= -1.0 AND (away + K>=26%) >= 2
+# Score: park (0/1/3) + K>=28% (1) + away (1) + sigma<=-2.0 (1) = max 6
+# Tiers: Gold >=6, Silver 4-5, Bronze 3
+# BB rate removed (p=0.810, no signal). U1.5 removed (no market edge on real lines).
+# Validated 2025 Pinnacle U2.5: all flagged ROI +0.552, Silver +0.551, Gold +0.664
+# Sigma alone: sigma<=0.0 n=258 ROI +0.215, sigma<=-0.5 n=172 ROI +0.263
 
 PARK_GOOD = {'TEX', 'BAL', 'MIL', 'CIN', 'DET', 'COL', 'LAD', 'NYY', 'CWS'}
 PARK_BAD  = {'ATH', 'CHC', 'MIA', 'NYM', 'SF', 'HOU', 'TB', 'STL', 'BOS', 'SEA', 'PIT', 'MIN', 'CLE'}
-
-# ── OVER SIGNAL — Contact Pitcher + Favored Lineup ───────────────────────
-# Gate: std_from_mean >= +1.5 AND k_rate < 0.20
-# Validated: 2024 (n=606, 82p) + 2025 (n=216, 44p), cross-year stable
-#
-# TIERS:
-#   Gold   (>=+2.5σ): O1.5 80.0% | O2.5 57.5%
-#   Silver (+2.0-2.5σ): O1.5 72.2% | O2.5 55.1%
-#   Bronze (+1.5-2.0σ): O1.5 66.7% | O2.5 skip
-#
-# BET SIZING:
-#   Gold   O1.5: -350/2u  | O2.5: -120/1u
-#   Silver O1.5: -230/1.5u | O2.5: -110/0.5u
-#   Bronze O1.5: -180/1u  | O2.5: skip
-
-OVER_TIER_RULES = {
-    'Gold':   {'color': 'gold',   'o15_min': '-350', 'o15_units': '2u',   'o25_min': '-120', 'o25_units': '1u'},
-    'Silver': {'color': 'silver', 'o15_min': '-230', 'o15_units': '1.5u', 'o25_min': '-110', 'o25_units': '0.5u'},
-    'Bronze': {'color': 'bronze', 'o15_min': '-180', 'o15_units': '1u',   'o25_min': None,   'o25_units': None},
-}
 
 FG_BLEND_MEAN        = 0.9984
 FG_BLEND_STD         = 0.0353
@@ -374,59 +353,23 @@ def prob_to_american(p):
 
 def get_f5_fair_odds(expected_runs):
     if expected_runs is None:
-        return {'fair_under_1_5': None, 'fair_over_1_5': None,
-                'fair_under_2_5': None, 'fair_over_2_5': None}
+        return {'fair_under_2_5': None, 'fair_over_2_5': None}
     lam = expected_runs
-    p_under_1_5 = poisson_cdf(1, lam)
     p_under_2_5 = poisson_cdf(2, lam)
     return {
-        'fair_under_1_5': prob_to_american(p_under_1_5),
-        'fair_over_1_5':  prob_to_american(1 - p_under_1_5),
         'fair_under_2_5': prob_to_american(p_under_2_5),
         'fair_over_2_5':  prob_to_american(1 - p_under_2_5),
-    }
-
-
-def get_over_tier(std_from_mean, k_rate):
-    """
-    Over signal: contact pitcher (K<20%) facing favored lineup (sigma >= +1.5)
-    Validated 2024+2025: Gold 80% O1.5, Silver 72%, Bronze 67%
-    Returns None if game does not qualify.
-    """
-    if k_rate is None or k_rate >= 0.20:
-        return None
-    if std_from_mean < 1.5:
-        return None
-
-    if std_from_mean >= 2.5:
-        tier_name = 'Gold'
-    elif std_from_mean >= 2.0:
-        tier_name = 'Silver'
-    else:
-        tier_name = 'Bronze'
-
-    rules = OVER_TIER_RULES[tier_name]
-    return {
-        'over_tier':    tier_name,
-        'over_color':   rules['color'],
-        'o15_min':      rules['o15_min'],
-        'o15_units':    rules['o15_units'],
-        'o25_min':      rules['o25_min'],
-        'o25_units':    rules['o25_units'],
     }
 
 
 def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     """
     Under signal scoring system v3.
-    Change from v2: BB rate (+2 pts) removed — p=0.810 across 1,248 flagged
-    games, no continuous signal. Thresholds recalibrated: Gold 6-7, Silver 4-5,
-    Bronze 3. Max score drops from 10 to 8. All other signals unchanged.
-    GB rate retained for U1.5 eligibility gate only (not scoring).
-    BB rate still tracked in return dict for Google Sheets column L continuity.
-    Gate: std_from_mean <= -1.0 AND >= 2 original qualifiers
-    U1.5 eligible: sigma -1.0 to -2.0 AND GB 42-48%
-    Validated: walk-forward 2023/2024/2025, Silver U2.5 74-77%
+    Gate: std_from_mean <= -1.0 AND (away + K>=26%) >= 2
+    Score: park (0/1/3) + K>=28% (1) + away (1) + sigma<=-2.0 (1) = max 6
+    Tiers: Gold >=6, Silver 4-5, Bronze 3
+    BB rate removed (p=0.810, no signal). U1.5 removed (no market edge on real lines).
+    Validated 2025 Pinnacle U2.5: all flagged ROI +0.552, Silver +0.551, Gold +0.664
     """
     q_away     = 1 if is_away else 0
     q_krate_lo = 1 if (k_rate is not None and k_rate >= 0.26) else 0
@@ -446,22 +389,19 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
 
     # BB rate: tracked for logging only — NOT included in score (p=0.810, no signal)
     bb_rate  = bb_gb_rates.get('bb_rate') if bb_gb_rates else None
-    q_bb_vlo = 1 if (bb_rate is not None and bb_rate < 0.06) else 0  # logged only
+    q_bb_vlo = 1 if (bb_rate is not None and bb_rate < 0.06) else 0
 
-    # GB rate: U1.5 eligibility gate only — NOT included in score
+    # GB rate: tracked for logging only
     gb_rate  = bb_gb_rates.get('gb_rate') if bb_gb_rates else None
     q_gb_mid = 1 if (gb_rate is not None and 0.42 <= gb_rate < 0.48) else 0
 
     q_sigma_20 = 1 if std_from_mean <= -2.0 else 0
 
-    # Score: park (0/1/3) + K≥28% (1) + away (1) + sigma≤-2.0 (1) = max 6
-    # BB removed: was +2, now 0. GB removed from score: was +1, now 0.
     total_score = park_pts + q_krate_hi + q_away + q_sigma_20
 
     if total_score < 3:
         return None
 
-    # Recalibrated thresholds (max score = 6 with good park + K + away + deep sigma)
     if total_score >= 6:
         tier, color = 'Gold', 'gold'
     elif total_score >= 4:
@@ -469,19 +409,12 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
     else:
         tier, color = 'Bronze', 'bronze'
 
-    u15_eligible = (q_sigma_20 == 0) and (q_gb_mid == 1)
-
     if tier == 'Gold':
         u25_min, u25_units = '-500', '3u'
-        u15_min = '-150' if u15_eligible else None
-        u15_units = '2u' if u15_eligible else None
     elif tier == 'Silver':
         u25_min, u25_units = '-300', '1.5u'
-        u15_min = '-150' if u15_eligible else None
-        u15_units = '1u' if u15_eligible else None
     else:
         u25_min, u25_units = '-210', '0.5u'
-        u15_min, u15_units = None, None
 
     return {
         'ozzie_score':      total_score,
@@ -491,16 +424,13 @@ def get_ozzie_score(std_from_mean, is_away, k_rate, park, bb_gb_rates):
         'q_away':           bool(q_away),
         'q_krate_lo':       bool(q_krate_lo),
         'q_krate_hi':       bool(q_krate_hi),
-        'q_bb_vlo':         bool(q_bb_vlo),   # logged for Sheets col L, not scored
+        'q_bb_vlo':         bool(q_bb_vlo),
         'q_gb_mid':         bool(q_gb_mid),
         'q_sigma_20':       bool(q_sigma_20),
-        'u15_eligible':     u15_eligible,
         'bb_rate':          round(bb_rate, 4) if bb_rate is not None else None,
         'gb_rate':          round(gb_rate, 4) if gb_rate is not None else None,
         'min_u25':          u25_min,
         'unit_u25':         u25_units,
-        'min_u15':          u15_min,
-        'unit_u15':         u15_units,
     }
 
 
@@ -530,14 +460,11 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
     return overlap_raw * (1 - pitcher_k_rate) / (1 - LEAGUE_AVG_KRATE)
 
 
-P_XWOBA_ELITE_THRESHOLD = 0.280
-
 def get_heatmap_flags(games, model):
     pitcher_scores  = model.get('all_pitcher_arch_scores', {})
     nb_bundle       = model.get('negbin_model_params')
     contact_rates   = model.get('pitcher_contact_rates', {})
     bb_gb_rates_all = model.get('pitcher_bb_gb_rates', {}) or {}
-    p_xwoba_lookup  = model.get('pitcher_p_xwoba', {}) or {}
     flags           = []
 
     for game in games:
@@ -561,10 +488,6 @@ def get_heatmap_flags(games, model):
 
             bb_gb_rates = bb_gb_rates_all.get(pitcher_id) if pitcher_id else None
 
-            # p_xwoba: prior-year weighted wOBA allowed (clean pregame signal)
-            p_xwoba_val  = p_xwoba_lookup.get(pitcher_id) if pitcher_id else None
-            p_xwoba_elite = (p_xwoba_val is not None and p_xwoba_val <= P_XWOBA_ELITE_THRESHOLD)
-
             scores = []
             scored_batters = 0
             for batter in lineup:
@@ -586,22 +509,12 @@ def get_heatmap_flags(games, model):
             fg_flag       = compute_fg_under_flag(batting_team, fielding_team, team_score)
 
             is_away       = (batting_team == game['away_team'])
-            batting_off_z = _FG_OFF_Z.get(batting_team)
 
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
-            over_confidence = None
             under_confidence = None
 
-            if team_score >= HEATMAP_OVER_THRESHOLD:
-                # Over signal: requires K<20% contact pitcher
-                over_confidence = get_over_tier(std_from_mean, pitcher_k_rate)
-                if over_confidence:
-                    signal = 'over'
-                else:
-                    signal = None  # over threshold but not a contact pitcher — skip
-
-            elif team_score <= HEATMAP_UNDER_THRESHOLD:
+            if team_score <= HEATMAP_UNDER_THRESHOLD:
                 under_confidence = get_ozzie_score(
                     std_from_mean=std_from_mean,
                     is_away=is_away,
@@ -610,10 +523,8 @@ def get_heatmap_flags(games, model):
                     bb_gb_rates=bb_gb_rates)
                 if under_confidence:
                     signal = 'under'
-                else:
-                    signal = None
 
-            else:
+            if signal is None:
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
 
@@ -633,11 +544,8 @@ def get_heatmap_flags(games, model):
                 'batters_scored':   scored_batters,
                 'lineup_complete':  len(lineup) >= 8,
                 'expected_f5_runs': expected_f5,
-                'fair_under_1_5':   fair_odds['fair_under_1_5'],
-                'fair_over_1_5':    fair_odds['fair_over_1_5'],
                 'fair_under_2_5':   fair_odds['fair_under_2_5'],
                 'fair_over_2_5':    fair_odds['fair_over_2_5'],
-                'over_off_z':       round(batting_off_z, 3) if batting_off_z is not None else None,
                 'pitcher_k_rate':   round(pitcher_k_rate, 3) if pitcher_k_rate else None,
                 'fg_under_signal':  fg_flag['fg_under_signal'],
                 'fg_starter_z':     fg_flag['starter_z'],
@@ -647,21 +555,7 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'game_time':        game.get('game_time'),
-                'p_xwoba':          round(p_xwoba_val, 4) if p_xwoba_val is not None else None,
-                'p_xwoba_elite':    p_xwoba_elite,
-                'p_xwoba_agrees':   p_xwoba_elite and std_from_mean <= -1.0,
             }
-
-            # Add over-specific fields
-            if signal == 'over' and over_confidence:
-                flag.update({
-                    'over_tier':    over_confidence['over_tier'],
-                    'over_color':   over_confidence['over_color'],
-                    'o15_min':      over_confidence['o15_min'],
-                    'o15_units':    over_confidence['o15_units'],
-                    'o25_min':      over_confidence['o25_min'],
-                    'o25_units':    over_confidence['o25_units'],
-                })
 
             # Add under-specific fields
             if signal == 'under' and under_confidence:
@@ -676,24 +570,19 @@ def get_heatmap_flags(games, model):
                     'q_bb_vlo':         under_confidence['q_bb_vlo'],
                     'q_gb_mid':         under_confidence['q_gb_mid'],
                     'q_sigma_20':       under_confidence['q_sigma_20'],
-                    'u15_eligible':     under_confidence['u15_eligible'],
                     'bb_rate':          under_confidence['bb_rate'],
                     'gb_rate':          under_confidence['gb_rate'],
                     'min_u25':          under_confidence['min_u25'],
                     'unit_u25':         under_confidence['unit_u25'],
-                    'min_u15':          under_confidence['min_u15'],
-                    'unit_u15':         under_confidence['unit_u15'],
                 })
 
             flags.append(flag)
 
-    # Sort: unders by ozzie_score desc, overs by sigma desc
+    # Sort unders by ozzie_score desc
     under_flags = sorted([f for f in flags if f['signal'] == 'under'],
                          key=lambda x: x.get('ozzie_score', 0), reverse=True)
-    over_flags  = sorted([f for f in flags if f['signal'] == 'over'],
-                         key=lambda x: x.get('std_from_mean', 0), reverse=True)
-    other_flags = [f for f in flags if f['signal'] not in ('under', 'over')]
-    flags = under_flags + over_flags + other_flags
+    other_flags = [f for f in flags if f['signal'] != 'under']
+    flags = under_flags + other_flags
 
     # Combined F5 signal
     game_flags = {}
@@ -721,108 +610,7 @@ def get_heatmap_flags(games, model):
             away_flag['combined_f5_signal'] = True
             home_flag['combined_f5_signal'] = True
 
-    # ── JOINT TOTAL FLAG ─────────────────────────────────────────────────────
-    # Both pitchers p_xwoba ≤ 0.280: inform user to check if Pinnacle line = 4.5
-    # 2025: 69.4% under, +0.334 ROI at line=4.5. One year only — informational.
-    joint_total_flags = []
-    game_pitcher_map = {}
-    for f in flags:
-        g = f['game']
-        if g not in game_pitcher_map:
-            game_pitcher_map[g] = []
-        game_pitcher_map[g].append(f)
-
-    seen_joint = set()
-    for game_str, gflags in game_pitcher_map.items():
-        if game_str in seen_joint:
-            continue
-        # Need both sides of the game to have p_xwoba data
-        elite_flags = [f for f in gflags if f.get('p_xwoba_elite')]
-        all_flags   = gflags
-
-        # Find home and away pitcher p_xwoba from all flags in this game
-        home_p_xwoba = None
-        away_p_xwoba = None
-        home_pitcher = None
-        away_pitcher = None
-        home_sigma   = None
-        away_sigma   = None
-        lineup_complete = False
-
-        for f in all_flags:
-            if f.get('p_xwoba') is not None:
-                if f.get('batting_team') == f.get('game', '').split('@')[0]:
-                    # away team batting = home pitcher
-                    home_p_xwoba = f['p_xwoba']
-                    home_pitcher = f['pitcher_name']
-                    home_sigma   = f.get('std_from_mean')
-                else:
-                    away_p_xwoba = f['p_xwoba']
-                    away_pitcher = f['pitcher_name']
-                    away_sigma   = f.get('std_from_mean')
-                if f.get('lineup_complete'):
-                    lineup_complete = True
-
-        # Also check games where flags may not have fired (pitcher p_xwoba below threshold
-        # but game didn't qualify for under signal)
-        # Rebuild from all games data
-        for game in games:
-            if f"{game['away_team']}@{game['home_team']}" != game_str:
-                continue
-            hp_id = game.get('home_pitcher_id')
-            ap_id = game.get('away_pitcher_id')
-            if hp_id and home_p_xwoba is None:
-                home_p_xwoba = p_xwoba_lookup.get(hp_id)
-                home_pitcher = game.get('home_pitcher_name', 'TBD')
-            if ap_id and away_p_xwoba is None:
-                away_p_xwoba = p_xwoba_lookup.get(ap_id)
-                away_pitcher = game.get('away_pitcher_name', 'TBD')
-            lineup_complete = bool(game.get('home_lineup') and game.get('away_lineup'))
-            break
-
-        if home_p_xwoba is None or away_p_xwoba is None:
-            continue
-
-        min_p_xwoba = min(home_p_xwoba, away_p_xwoba)
-        if min_p_xwoba > P_XWOBA_ELITE_THRESHOLD:
-            continue
-
-        seen_joint.add(game_str)
-
-        # Determine agreement level
-        both_elite  = home_p_xwoba <= P_XWOBA_ELITE_THRESHOLD and away_p_xwoba <= P_XWOBA_ELITE_THRESHOLD
-        sigma_agree = (home_sigma is not None and home_sigma <= -1.0) or \
-                      (away_sigma is not None and away_sigma <= -1.0)
-
-        parts = game_str.split('@')
-        away_team = parts[0] if len(parts) == 2 else '?'
-        home_team = parts[1] if len(parts) == 2 else '?'
-
-        game_time = None
-        for game in games:
-            if f"{game['away_team']}@{game['home_team']}" == game_str:
-                game_time = game.get('game_time')
-                break
-
-        joint_total_flags.append({
-            'signal':          'joint_total',
-            'game':            game_str,
-            'away_team':       away_team,
-            'home_team':       home_team,
-            'home_pitcher':    home_pitcher or 'TBD',
-            'away_pitcher':    away_pitcher or 'TBD',
-            'home_p_xwoba':    round(home_p_xwoba, 4),
-            'away_p_xwoba':    round(away_p_xwoba, 4),
-            'min_p_xwoba':     round(min_p_xwoba, 4),
-            'both_elite':      both_elite,
-            'sigma_agrees':    sigma_agree,
-            'home_sigma':      round(home_sigma, 2) if home_sigma is not None else None,
-            'away_sigma':      round(away_sigma, 2) if away_sigma is not None else None,
-            'lineup_complete': lineup_complete,
-            'game_time':       game_time,
-        })
-
-    return flags + joint_total_flags
+    return flags
 
 
 def get_hr_picks(games, model):
@@ -1079,8 +867,6 @@ def api_picks():
 
         heatmap_flags  = get_heatmap_flags(games, model)
         fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
-        over_flags     = [f for f in heatmap_flags if f.get('signal') == 'over']
-        joint_total_flags = [f for f in heatmap_flags if f.get('signal') == 'joint_total']
 
         dfs_picks = {}
         try:
@@ -1089,17 +875,15 @@ def api_picks():
             print(f"DFS picks error: {e}")
 
         payload = {
-            'date':              today,
-            'complete':          complete,
-            'total':             len(games),
-            'picks':             picks,
-            'dfs_picks':         dfs_picks,
-            'heatmap_flags':     heatmap_flags,
-            'fg_under_flags':    fg_under_flags,
-            'over_flags':        over_flags,
-            'joint_total_flags': joint_total_flags,
-            'fg_in_window':      is_fg_valid_window(),
-            'games':             games_out,
+            'date':            today,
+            'complete':        complete,
+            'total':           len(games),
+            'picks':           picks,
+            'dfs_picks':       dfs_picks,
+            'heatmap_flags':   heatmap_flags,
+            'fg_under_flags':  fg_under_flags,
+            'fg_in_window':    is_fg_valid_window(),
+            'games':           games_out,
         }
 
         now_et    = datetime.now(pytz.timezone('America/New_York'))
@@ -1200,23 +984,20 @@ def append_to_sheet(flags):
         today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         rows_added = 0
         for f in flags:
+            if f.get('signal') not in ('under', 'fg_under_only'):
+                continue
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_keys:
                 continue
             r = len(existing) + rows_added + 1
-            signal = f.get('signal','')
-            if signal == 'over':
-                tier_label = f.get('over_tier','')
-                score_val  = f.get('std_from_mean','')
-            else:
-                tier_label = f.get('confidence_label','')
-                score_val  = f.get('ozzie_score','')
+            tier_label = f.get('confidence_label', '')
+            score_val  = f.get('ozzie_score', '')
             ws.append_row([
                 today,
                 f.get('game', ''),
                 f.get('batting_team', ''),
                 f.get('pitcher_name', ''),
-                signal,
+                f.get('signal', ''),
                 tier_label,
                 score_val,
                 f.get('std_from_mean', ''),
@@ -1226,7 +1007,6 @@ def append_to_sheet(flags):
                 'Y' if f.get('q_bb_vlo')           else 'N',
                 'Y' if f.get('q_gb_mid')           else 'N',
                 'Y' if f.get('q_sigma_20')         else 'N',
-                'Y' if f.get('u15_eligible')       else 'N',
                 'Y' if f.get('fg_under_signal')    else 'N',
                 'Y' if f.get('combined_f5_signal') else 'N',
                 f.get('game_time', ''),
@@ -1257,19 +1037,16 @@ def api_notify():
         games   = get_lineups_and_starters(today)
         flags   = get_heatmap_flags(games, model)
         under_flags = [f for f in flags if f.get('signal') == 'under']
-        over_flags  = [f for f in flags if f.get('signal') == 'over']
-        if not under_flags and not over_flags:
+        if not under_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
         new_under = [f for f in under_flags if flag_key(f) not in already_sent]
-        new_over  = [f for f in over_flags  if flag_key(f) not in already_sent]
-        new_flags = new_under + new_over
-        if not new_flags:
+        if not new_under:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
-        lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_flags)} new flag(s)\n"]
+        lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_under)} new flag(s)\n"]
 
         for f in new_under:
             label = f.get('confidence_label', '—')
@@ -1286,35 +1063,14 @@ def api_notify():
             if f.get('combined_f5_signal'):
                 lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
             u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
-            if f.get('u15_eligible') and f.get('min_u15'):
-                u15_str = f"{medal} U1.5 {f['min_u15']} / {f.get('unit_u15','')}"
-                lines.append(f"   {u25_str} | {u15_str}")
-            else:
-                lines.append(f"   {u25_str}")
-
-        for f in new_over:
-            tier  = f.get('over_tier', '—')
-            sigma = f.get('std_from_mean', 0)
-            krate = f.get('pitcher_k_rate', 0)
-            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '🥉')
-            time  = f" — {f['game_time']}" if f.get('game_time') else ''
-            lines.append(
-                f"📈 {medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"(OVER {tier}, {sigma:+.2f}σ, K={krate:.0%}){time}"
-            )
-            o15_str = f"{medal} O1.5 {f['o15_min']} / {f.get('o15_units','')}"
-            if f.get('o25_min'):
-                o25_str = f"{medal} O2.5 {f['o25_min']} / {f.get('o25_units','')}"
-                lines.append(f"   {o15_str} | {o25_str}")
-            else:
-                lines.append(f"   {o15_str}")
+            lines.append(f"   {u25_str}")
 
         send_telegram('\n'.join(lines))
-        append_to_sheet(new_flags)
-        all_sent = already_sent | {flag_key(f) for f in new_flags}
+        append_to_sheet(new_under)
+        all_sent = already_sent | {flag_key(f) for f in new_under}
         redis_set(redis_key, ','.join(all_sent), ex=86400)
-        return jsonify({'status': 'ok', 'new': len(new_flags),
-                        'flags': [flag_key(f) for f in new_flags]})
+        return jsonify({'status': 'ok', 'new': len(new_under),
+                        'flags': [flag_key(f) for f in new_under]})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
