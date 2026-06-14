@@ -317,6 +317,43 @@
     return card;
   }
 
+  function buildCombinedCard(homeFlag, awayFlag, i) {
+    const card = document.createElement('div');
+    card.className = 'hm-card under';
+    card.style.cssText = 'border:1px solid rgba(255,215,0,.35);box-shadow:0 0 12px rgba(255,215,0,.1)';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const away = awayFlag || {};
+    const homeZ  = (homeFlag.std_from_mean >= 0 ? '+' : '') + homeFlag.std_from_mean;
+    const awayZ  = away.std_from_mean !== undefined ? (away.std_from_mean >= 0 ? '+' : '') + away.std_from_mean : '—';
+    const homeK  = homeFlag.pitcher_k_rate ? (homeFlag.pitcher_k_rate*100).toFixed(1)+'%' : '—';
+    const awayK  = away.pitcher_k_rate    ? (away.pitcher_k_rate*100).toFixed(1)+'%'    : '—';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${away.batting_team||'—'} @ ${homeFlag.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="color:#FFD700;font-size:1.1rem">⚡ COMB</div>
+          <div class="hm-sigma" style="color:rgba(255,215,0,.7)">F5 Combined Under</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">${homeFlag.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">${away.batting_team||'Away'} vs</div><div class="hm-stat-value" style="font-size:.75rem">${homeFlag.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">σ / K%</div><div class="hm-stat-value">${awayZ} / ${homeK}</div></div>
+        <div><div class="hm-stat-label">${homeFlag.batting_team} vs</div><div class="hm-stat-value" style="font-size:.75rem">${away.pitcher_name||'—'}</div></div>
+      </div>
+      <div class="hm-bottom" style="margin-top:4px">
+        <div></div>
+        <div><div class="hm-stat-label">σ / K%</div><div class="hm-stat-value">${homeZ} / ${awayK}</div></div>
+        <div></div>
+      </div>
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.25);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#FFD700">Bet when available</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#FFD700">U4.5 @ -200 · U5.5 @ -300</span>
+      </div>`;
+    return card;
+  }
+
   function buildArchCard(f, i) {
     const card = document.createElement('div');
     const signals = f.arch_signals || {};
@@ -425,10 +462,14 @@
         }
 
         const f5cList=document.getElementById('f5combined-list'); f5cList.innerHTML='';
-        const f5cFlags=data.f5_combined||data.f5combined_flags||[];
+        const f5cFlags=(data.heatmap_flags||[]).filter(f=>f.combined_f5_signal&&f.signal==='under'&&!f.q_away);
         if(f5cFlags.length>0){
-          document.getElementById('f5combined-count').textContent=`${f5cFlags.length} Flag${f5cFlags.length!==1?'s':''}`;
-          f5cFlags.forEach((f,i)=>f5cList.appendChild(buildGtCard(f,i)));
+          document.getElementById('f5combined-count').textContent=`${f5cFlags.length} Game${f5cFlags.length!==1?'s':''}`;
+          f5cFlags.forEach((f,i)=>{
+            // Find the matching away flag for this game
+            const awayFlag=(data.heatmap_flags||[]).find(af=>af.game===f.game&&af.signal==='under'&&af.q_away);
+            f5cList.appendChild(buildCombinedCard(f,awayFlag,i));
+          });
           document.getElementById('f5combined-section').style.display='block';
         }
 
