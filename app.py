@@ -22,12 +22,13 @@ FILE_IDS = {
     'all_parks':                '1Wch81FIHxpoJXboFOV3p3C_06PFnUNB7',
     'team_bullpen_scores':      '1-W_hgheeGdMeSDA6enW2EJgvXLXtzqlP',
     'batter_power_map':         '1ZHGuGMmkjd-uW2sbKq1wMMq3p4zSMJbg',
-    'pitcher_tendency_map':     '1XMpyYVlHvwfd5YC3NCwP_C5JoPotNxRK',  # rebuilt 2022-2025 June 2026
-    'batter_ev_profiles_lr':    '1wzLpm1vPRpxW3TEmfqL_5HAR4RFbks49',  # rebuilt 2022-2025 June 2026
+    'pitcher_tendency_map':     '1u328HojWnhcQWlgx0SW5DX-WrsThBxon',
+    'batter_ev_profiles_lr':    '1dnFavwW5CPXoJy3IBZueAYOokb3oxXyE',
     'pitcher_contact_rates':    '1DXNF_rvjHBk31Ja6Tle3i8LrjwD5iXec',
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
     'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
     'pitcher_bb_gb_rates':      '1kaCr_b0Zw9_4nAYMk84kCh8mTbOE5chC',
+    'lineup_contact_profiles':  '1jn5sbZtvDt4BfjQWHq832yxD5twMjflo',  # batter HH+K for archetype signals
 }
 
 LEAGUE_AVG        = 3.88
@@ -71,6 +72,112 @@ DFS_ACE_K           =  0.28
 DFS_VALUE_K         =  0.22
 DFS_FADE_PITCH      =  0.5
 DFS_SPLIT_THRESHOLD =  0.5
+
+# ── ARCHETYPE MATCHUP SIGNALS (research / shadow track) ──────────────────────
+# Three signals validated 2025+2026 (rolling pre-game profiles, U2.5 lines):
+#
+# SIGNAL 1 — U1.5 via O1.5 pricing:
+#   Gate: pitcher K rate >= 55th pctile (~0.247) + sigma <= -1.5
+#   2025: 61.0% U1.5, +10.3% ROI (n=41) | 2026: 61.5% U1.5, +10.7% ROI (n=39)
+#   Mechanism: high-K pitchers in deep suppression games rarely allow 2+ runs.
+#   Market prices O1.5 under at ~-70 avg when break-even is -150+.
+#
+# SIGNAL 2 — U2.5 archetype under:
+#   Gate: lineup is hi_hh_lo_k + pitcher K >= 55th pctile + sigma <= -0.5
+#   2025: 75.7% U2.5, +31.4% ROI (n=37) | 2026: 68.4% U2.5, +18.8% ROI (n=19)
+#   Mechanism: free-swinging contact lineups get K rate amplified by high-K pitchers.
+#
+# SIGNAL 3 — O2.5 archetype over:
+#   Gate: lineup is lo_hh_hi_k + pitcher K <= 40th pctile + sigma >= +0.5
+#   2025: 59.1% O2.5, +17.5% ROI (n=44) | 2026: 63.2% O2.5, +25.9% ROI (n=19)
+#   Mechanism: soft-contact high-K lineups score against low-K pitchers;
+#   market prices near even money when over hits 60-65%.
+#
+# ALL THREE: informational only. Shadow track, do not bet until end-of-season validation.
+
+ARCH_HH_CUT        = 0.3869   # lineup hard hit rate median (career profiles 2022-2025)
+ARCH_K_CUT         = 0.2401   # lineup K rate median (career profiles 2022-2025)
+ARCH_PITCHER_K_HI  = 0.247    # ~55th pctile pitcher K rate
+ARCH_PITCHER_K_LO  = 0.193    # ~40th pctile pitcher K rate
+ARCH_SIGMA_UNDER   = -0.5     # Signal 2 sigma gate
+ARCH_SIGMA_DEEP    = -1.5     # Signal 1 sigma gate
+ARCH_SIGMA_OVER    =  0.5     # Signal 3 sigma gate
+
+
+def get_lineup_archetype(lineup, model):
+    """
+    Compute lineup HH rate, K rate, and offensive archetype
+    using career-weighted batter profiles (2022-2025).
+    Returns dict with lineup_hh, lineup_k, arch, coverage, or None if insufficient data.
+    """
+    contact_data = model.get('lineup_contact_profiles')
+    if not contact_data:
+        return None
+    batter_profiles = contact_data.get('batter_profiles', {})
+    hh_vals, k_vals = [], []
+    for batter in lineup:
+        bid = int(batter['id'])
+        if bid in batter_profiles:
+            hh_vals.append(batter_profiles[bid]['hh_rate'])
+            k_vals.append(batter_profiles[bid]['k_rate'])
+    if len(hh_vals) < 3:
+        return None
+    lineup_hh = sum(hh_vals) / len(hh_vals)
+    lineup_k  = sum(k_vals)  / len(k_vals)
+    if lineup_hh > ARCH_HH_CUT and lineup_k <= ARCH_K_CUT:
+        arch = 'hi_hh_lo_k'
+    elif lineup_hh <= ARCH_HH_CUT and lineup_k > ARCH_K_CUT:
+        arch = 'lo_hh_hi_k'
+    elif lineup_hh > ARCH_HH_CUT and lineup_k > ARCH_K_CUT:
+        arch = 'hi_hh_hi_k'
+    else:
+        arch = 'lo_hh_lo_k'
+    return {
+        'lineup_hh': round(lineup_hh, 4),
+        'lineup_k':  round(lineup_k,  4),
+        'arch':      arch,
+        'coverage':  len(hh_vals),
+    }
+
+
+def get_archetype_signals(std_from_mean, pitcher_k_rate, lineup_arch):
+    """
+    Check all three archetype signals. Returns dict of active signals.
+    All informational — shadow track only.
+    """
+    if lineup_arch is None or pitcher_k_rate is None:
+        return {}
+    arch   = lineup_arch['arch']
+    sigma  = std_from_mean
+    p_k    = pitcher_k_rate
+    out    = {}
+
+    # Signal 1: U1.5 via O1.5 — high K pitcher + deep sigma (any lineup)
+    if p_k >= ARCH_PITCHER_K_HI and sigma <= ARCH_SIGMA_DEEP:
+        out['arch_u15'] = {
+            'label':  'U1.5 Archetype (Shadow)',
+            'detail': f'High-K pitcher ({p_k:.3f}) + deep sigma ({sigma:+.2f}) — check O1.5 under price',
+            'basis':  '2025+2026 combined: ~61% U1.5, ~+10% ROI on O1.5 under',
+        }
+
+    # Signal 2: U2.5 — hi_hh_lo_k lineup + high K pitcher + sigma <= -0.5
+    if arch == 'hi_hh_lo_k' and p_k >= ARCH_PITCHER_K_HI and sigma <= ARCH_SIGMA_UNDER:
+        out['arch_u25'] = {
+            'label':  'U2.5 Archetype (Shadow)',
+            'detail': f'hi_hh_lo_k lineup vs high-K pitcher ({p_k:.3f}), sigma={sigma:+.2f}',
+            'basis':  '2025+2026 combined: ~73% U2.5, ~+27% ROI',
+        }
+
+    # Signal 3: O2.5 — lo_hh_hi_k lineup + low K pitcher + sigma >= +0.5
+    if arch == 'lo_hh_hi_k' and p_k <= ARCH_PITCHER_K_LO and sigma >= ARCH_SIGMA_OVER:
+        out['arch_o25'] = {
+            'label':  'O2.5 Archetype (Shadow)',
+            'detail': f'lo_hh_hi_k lineup vs low-K pitcher ({p_k:.3f}), sigma={sigma:+.2f}',
+            'basis':  '2025+2026 combined: ~65% O2.5, ~+32% ROI',
+        }
+
+    return out
+
 
 _model_cache      = None
 _model_cache_time = None
@@ -510,10 +617,13 @@ def get_heatmap_flags(games, model):
 
             is_away       = (batting_team == game['away_team'])
 
+            # ── LINEUP ARCHETYPE ──────────────────────────────────────────
+            lineup_arch      = get_lineup_archetype(lineup, model)
+            arch_signals     = get_archetype_signals(std_from_mean, pitcher_k_rate, lineup_arch)
+
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
             under_confidence = None
-            over_info = None
 
             if team_score <= HEATMAP_UNDER_THRESHOLD:
                 under_confidence = get_ozzie_score(
@@ -525,19 +635,13 @@ def get_heatmap_flags(games, model):
                 if under_confidence:
                     signal = 'under'
 
-            elif std_from_mean >= 1.0:
-                # Over informational signal — shadow track only, not validated cross-year
-                # 2026: sigma>=1.0 → 61.9% O1.5, +0.080 ROI, n=113
-                # 2025: weak (56.7% O1.5, +0.038 ROI) — one year only
-                over_info = {
-                    'sigma': round(std_from_mean, 2),
-                    'k_rate': round(pitcher_k_rate, 3) if pitcher_k_rate else None,
-                }
-                signal = 'over_info'
-
             if signal is None:
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
+
+            # Archetype signals surface even without an Ozzie under flag
+            if signal is None and arch_signals:
+                signal = 'arch_only'
 
             if signal is None:
                 continue
@@ -566,6 +670,15 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'game_time':        game.get('game_time'),
+                # Lineup archetype fields
+                'lineup_hh':        lineup_arch['lineup_hh'] if lineup_arch else None,
+                'lineup_k':         lineup_arch['lineup_k']  if lineup_arch else None,
+                'lineup_arch':      lineup_arch['arch']       if lineup_arch else None,
+                'arch_coverage':    lineup_arch['coverage']   if lineup_arch else 0,
+                'arch_signals':     arch_signals,
+                'arch_u15':         'arch_u15' in arch_signals,
+                'arch_u25':         'arch_u25' in arch_signals,
+                'arch_o25':         'arch_o25' in arch_signals,
             }
 
             # Add under-specific fields
@@ -587,22 +700,15 @@ def get_heatmap_flags(games, model):
                     'unit_u25':         under_confidence['unit_u25'],
                 })
 
-            # Add over informational fields
-            if signal == 'over_info' and over_info:
-                flag.update({
-                    'over_sigma':  over_info['sigma'],
-                    'over_k_rate': over_info['k_rate'],
-                })
-
             flags.append(flag)
 
-    # Sort unders by ozzie_score desc, over_info by sigma desc
-    under_flags    = sorted([f for f in flags if f['signal'] == 'under'],
-                            key=lambda x: x.get('ozzie_score', 0), reverse=True)
-    over_info_flags = sorted([f for f in flags if f['signal'] == 'over_info'],
-                             key=lambda x: x.get('std_from_mean', 0), reverse=True)
-    other_flags    = [f for f in flags if f['signal'] not in ('under', 'over_info')]
-    flags = under_flags + over_info_flags + other_flags
+    # Sort: unders by ozzie_score desc, arch_only by abs sigma desc, others last
+    under_flags     = sorted([f for f in flags if f['signal'] == 'under'],
+                             key=lambda x: x.get('ozzie_score', 0), reverse=True)
+    arch_only_flags = sorted([f for f in flags if f['signal'] == 'arch_only'],
+                             key=lambda x: abs(x.get('std_from_mean', 0)), reverse=True)
+    other_flags     = [f for f in flags if f['signal'] not in ('under', 'arch_only')]
+    flags = under_flags + arch_only_flags + other_flags
 
     # Combined F5 signal
     game_flags = {}
@@ -888,6 +994,7 @@ def api_picks():
         heatmap_flags   = get_heatmap_flags(games, model)
         fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
+        arch_flags      = [f for f in heatmap_flags if f.get('arch_u15') or f.get('arch_u25') or f.get('arch_o25')]
 
         dfs_picks = {}
         try:
@@ -896,16 +1003,17 @@ def api_picks():
             print(f"DFS picks error: {e}")
 
         payload = {
-            'date':             today,
-            'complete':         complete,
-            'total':            len(games),
-            'picks':            picks,
-            'dfs_picks':        dfs_picks,
-            'heatmap_flags':    heatmap_flags,
-            'fg_under_flags':   fg_under_flags,
-            'over_info_flags':  over_info_flags,
-            'fg_in_window':     is_fg_valid_window(),
-            'games':            games_out,
+            'date':            today,
+            'complete':        complete,
+            'total':           len(games),
+            'picks':           picks,
+            'dfs_picks':       dfs_picks,
+            'heatmap_flags':   heatmap_flags,
+            'fg_under_flags':  fg_under_flags,
+            'over_info_flags': over_info_flags,
+            'arch_flags':      arch_flags,
+            'fg_in_window':    is_fg_valid_window(),
+            'games':           games_out,
         }
 
         now_et    = datetime.now(pytz.timezone('America/New_York'))
