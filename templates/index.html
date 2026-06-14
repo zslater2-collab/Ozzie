@@ -319,38 +319,89 @@
 
   function buildCombinedCard(homeFlag, awayFlag, i) {
     const card = document.createElement('div');
+    const tier = homeFlag.combined_f5_tier || 'watch';
+    const minSigma = homeFlag.combined_f5_min_sigma;
+    const maxSigma = homeFlag.combined_f5_max_sigma;
+    const minStr = minSigma !== null && minSigma !== undefined ? (minSigma>=0?'+':'')+minSigma+'σ' : '—';
+    const maxStr = maxSigma !== null && maxSigma !== undefined ? (maxSigma>=0?'+':'')+maxSigma+'σ' : '—';
+
+    const tierConfig = {
+      diamond_plus: {
+        icon:'💎+', label:'Diamond Plus',
+        color:'#b9f2ff', border:'rgba(185,242,255,.5)', bg:'rgba(185,242,255,.08)',
+        glow:'0 0 18px rgba(185,242,255,.2)',
+        u45:'82% U4.5 · BE -460', u55:'89% U5.5 · BE -833',
+        bet:'Bet U4.5 aggressively · U5.5 if available',
+        basis:'Both pitchers deep — strongest combined signal',
+      },
+      diamond: {
+        icon:'💎', label:'Diamond',
+        color:'#FFD700', border:'rgba(255,215,0,.4)', bg:'rgba(255,215,0,.06)',
+        glow:'0 0 14px rgba(255,215,0,.15)',
+        u45:'74% U4.5 · BE -285', u55:'78% U5.5 · BE -353',
+        bet:'U4.5 @ -200 or better · U5.5 @ -300 or better',
+        basis:'Asymmetric gate — one side elite, other moderate',
+      },
+      watch: {
+        icon:'⚪', label:'Watch',
+        color:'#888899', border:'rgba(136,136,153,.3)', bg:'transparent',
+        glow:'none',
+        u45:'61% U4.5 · BE -157', u55:'70% U5.5 · BE -231',
+        bet:'U4.5 only if -130 or better · U5.5 if -185 or better',
+        basis:'min sigma deep — monitor line for value',
+      },
+    };
+    const tc = tierConfig[tier] || tierConfig.watch;
+
     card.className = 'hm-card under';
-    card.style.cssText = 'border:1px solid rgba(255,215,0,.35);box-shadow:0 0 12px rgba(255,215,0,.1)';
+    card.style.cssText = `border:1px solid ${tc.border};box-shadow:${tc.glow}`;
     card.style.animationDelay = `${i * 0.06}s`;
-    const away = awayFlag || {};
-    const homeZ  = (homeFlag.std_from_mean >= 0 ? '+' : '') + homeFlag.std_from_mean;
-    const awayZ  = away.std_from_mean !== undefined ? (away.std_from_mean >= 0 ? '+' : '') + away.std_from_mean : '—';
-    const homeK  = homeFlag.pitcher_k_rate ? (homeFlag.pitcher_k_rate*100).toFixed(1)+'%' : '—';
-    const awayK  = away.pitcher_k_rate    ? (away.pitcher_k_rate*100).toFixed(1)+'%'    : '—';
+
+    const away  = awayFlag || {};
+    const homeZ = (homeFlag.std_from_mean >= 0 ? '+' : '') + homeFlag.std_from_mean;
+    const awayZ = away.std_from_mean !== undefined ? (away.std_from_mean >= 0 ? '+' : '') + away.std_from_mean : '—';
+    const homeK = homeFlag.pitcher_k_rate ? (homeFlag.pitcher_k_rate*100).toFixed(1)+'%' : '—';
+    const awayK = away.pitcher_k_rate    ? (away.pitcher_k_rate*100).toFixed(1)+'%'    : '—';
+
+    const betRow = tier !== 'watch'
+      ? `<div style="margin-top:10px;padding:8px 10px;background:${tc.bg};border:1px solid ${tc.border};border-radius:6px">
+           <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:${tc.color};margin-bottom:4px">Bet when available</div>
+           <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:${tc.color}">${tc.bet}</div>
+         </div>`
+      : `<div style="margin-top:10px;padding:7px 10px;background:var(--surface2);border:1px solid var(--dim);border-radius:6px">
+           <div style="font-size:.55rem;letter-spacing:.08em;color:var(--muted);margin-bottom:3px">Price gate required</div>
+           <div style="font-size:.62rem;color:var(--text)">${tc.bet}</div>
+         </div>`;
+
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${away.batting_team||'—'} @ ${homeFlag.batting_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal" style="color:#FFD700;font-size:1.1rem">⚡ COMB</div>
-          <div class="hm-sigma" style="color:rgba(255,215,0,.7)">F5 Combined Under</div>
+          <div class="hm-signal" style="color:${tc.color};font-size:1.05rem">${tc.icon} COMB</div>
+          <div class="hm-sigma" style="color:${tc.color};opacity:.75">${minStr} min · ${maxStr} max</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:10px">${homeFlag.game_time||''}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.1em;color:${tc.color};background:${tc.bg};border:1px solid ${tc.border};border-radius:4px;padding:2px 8px">${tc.icon} ${tc.label}</span>
+        <span style="font-size:.55rem;color:var(--muted)">${tc.basis}</span>
+      </div>
+      <div style="font-size:.55rem;color:var(--dim);margin-bottom:8px">${homeFlag.game_time||''}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">${away.batting_team||'Away'} vs</div><div class="hm-stat-value" style="font-size:.75rem">${homeFlag.pitcher_name}</div></div>
-        <div><div class="hm-stat-label">σ / K%</div><div class="hm-stat-value">${awayZ} / ${homeK}</div></div>
+        <div><div class="hm-stat-label">Away σ · K%</div><div class="hm-stat-value">${awayZ} · ${homeK}</div></div>
         <div><div class="hm-stat-label">${homeFlag.batting_team} vs</div><div class="hm-stat-value" style="font-size:.75rem">${away.pitcher_name||'—'}</div></div>
       </div>
       <div class="hm-bottom" style="margin-top:4px">
         <div></div>
-        <div><div class="hm-stat-label">σ / K%</div><div class="hm-stat-value">${homeZ} / ${awayK}</div></div>
+        <div><div class="hm-stat-label">Home σ · K%</div><div class="hm-stat-value">${homeZ} · ${awayK}</div></div>
         <div></div>
       </div>
-      <div style="margin-top:10px;padding:8px 10px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.25);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#FFD700">Bet when available</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#FFD700">U4.5 @ -200 · U5.5 @ -300</span>
-      </div>`;
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:.55rem;color:var(--muted);background:var(--surface2);border:1px solid var(--dim);border-radius:3px;padding:2px 7px">${tc.u45}</span>
+        <span style="font-size:.55rem;color:var(--muted);background:var(--surface2);border:1px solid var(--dim);border-radius:3px;padding:2px 7px">${tc.u55}</span>
+      </div>
+      ${betRow}`;
     return card;
   }
 
