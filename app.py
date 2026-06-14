@@ -513,6 +513,7 @@ def get_heatmap_flags(games, model):
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
             under_confidence = None
+            over_info = None
 
             if team_score <= HEATMAP_UNDER_THRESHOLD:
                 under_confidence = get_ozzie_score(
@@ -523,6 +524,16 @@ def get_heatmap_flags(games, model):
                     bb_gb_rates=bb_gb_rates)
                 if under_confidence:
                     signal = 'under'
+
+            elif std_from_mean >= 1.0:
+                # Over informational signal — shadow track only, not validated cross-year
+                # 2026: sigma>=1.0 → 61.9% O1.5, +0.080 ROI, n=113
+                # 2025: weak (56.7% O1.5, +0.038 ROI) — one year only
+                over_info = {
+                    'sigma': round(std_from_mean, 2),
+                    'k_rate': round(pitcher_k_rate, 3) if pitcher_k_rate else None,
+                }
+                signal = 'over_info'
 
             if signal is None:
                 if fg_flag['fg_under_signal']:
@@ -576,13 +587,22 @@ def get_heatmap_flags(games, model):
                     'unit_u25':         under_confidence['unit_u25'],
                 })
 
+            # Add over informational fields
+            if signal == 'over_info' and over_info:
+                flag.update({
+                    'over_sigma':  over_info['sigma'],
+                    'over_k_rate': over_info['k_rate'],
+                })
+
             flags.append(flag)
 
-    # Sort unders by ozzie_score desc
-    under_flags = sorted([f for f in flags if f['signal'] == 'under'],
-                         key=lambda x: x.get('ozzie_score', 0), reverse=True)
-    other_flags = [f for f in flags if f['signal'] != 'under']
-    flags = under_flags + other_flags
+    # Sort unders by ozzie_score desc, over_info by sigma desc
+    under_flags    = sorted([f for f in flags if f['signal'] == 'under'],
+                            key=lambda x: x.get('ozzie_score', 0), reverse=True)
+    over_info_flags = sorted([f for f in flags if f['signal'] == 'over_info'],
+                             key=lambda x: x.get('std_from_mean', 0), reverse=True)
+    other_flags    = [f for f in flags if f['signal'] not in ('under', 'over_info')]
+    flags = under_flags + over_info_flags + other_flags
 
     # Combined F5 signal
     game_flags = {}
@@ -865,8 +885,9 @@ def api_picks():
                       'game_time': g.get('game_time')}
                      for g in games]
 
-        heatmap_flags  = get_heatmap_flags(games, model)
-        fg_under_flags = [f for f in heatmap_flags if f.get('fg_under_signal')]
+        heatmap_flags   = get_heatmap_flags(games, model)
+        fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
+        over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
 
         dfs_picks = {}
         try:
@@ -875,15 +896,16 @@ def api_picks():
             print(f"DFS picks error: {e}")
 
         payload = {
-            'date':            today,
-            'complete':        complete,
-            'total':           len(games),
-            'picks':           picks,
-            'dfs_picks':       dfs_picks,
-            'heatmap_flags':   heatmap_flags,
-            'fg_under_flags':  fg_under_flags,
-            'fg_in_window':    is_fg_valid_window(),
-            'games':           games_out,
+            'date':             today,
+            'complete':         complete,
+            'total':            len(games),
+            'picks':            picks,
+            'dfs_picks':        dfs_picks,
+            'heatmap_flags':    heatmap_flags,
+            'fg_under_flags':   fg_under_flags,
+            'over_info_flags':  over_info_flags,
+            'fg_in_window':     is_fg_valid_window(),
+            'games':            games_out,
         }
 
         now_et    = datetime.now(pytz.timezone('America/New_York'))
