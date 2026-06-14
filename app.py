@@ -710,7 +710,10 @@ def get_heatmap_flags(games, model):
     other_flags     = [f for f in flags if f['signal'] not in ('under', 'arch_only')]
     flags = under_flags + arch_only_flags + other_flags
 
-    # Combined F5 signal
+    # ── Combined F5 signal — two tiers + Diamond+ upgrade ────────────────────
+    # Diamond: asymmetric gate, 74% U4.5, ~51/yr. Bet U4.5 @ -200 or better.
+    # Diamond+: Diamond + both pitchers deep, 82% U4.5, ~28/yr. Bet aggressively.
+    # Watch: min_sigma <= -1.5, 61% U4.5, ~199/yr. BE=-157. Bet only if U4.5 <= -130.
     game_flags = {}
     for f in flags:
         if f['signal'] != 'under':
@@ -719,22 +722,52 @@ def get_heatmap_flags(games, model):
         if g not in game_flags:
             game_flags[g] = []
         game_flags[g].append(f)
+
     for f in flags:
-        f['combined_f5_signal'] = False
+        f['combined_f5_signal']    = False
+        f['combined_f5_tier']      = None
+        f['combined_f5_min_sigma'] = None
+
     for game_str, gflags in game_flags.items():
-        if len(gflags) < 2:
-            continue
         away_flag = next((f for f in gflags if f.get('q_away')), None)
         home_flag = next((f for f in gflags if not f.get('q_away')), None)
         if not away_flag or not home_flag:
             continue
-        away_std    = away_flag['std_from_mean']
-        home_std    = home_flag['std_from_mean']
-        home_k_rate = home_flag.get('pitcher_k_rate') or 1.0
-        if (away_std <= -2.0 or home_std <= -2.0) and \
-           away_std <= -1.5 and home_std > -1.5 and home_k_rate < 0.28:
-            away_flag['combined_f5_signal'] = True
-            home_flag['combined_f5_signal'] = True
+
+        away_std = away_flag['std_from_mean']
+        home_std = home_flag['std_from_mean']
+        away_k   = away_flag.get('pitcher_k_rate') or 1.0
+        home_k   = home_flag.get('pitcher_k_rate') or 1.0
+        min_sigma = min(away_std, home_std)
+        max_sigma = max(away_std, home_std)
+
+        # Diamond gate: asymmetric — one side very deep, other moderate, home low-K
+        diamond = (
+            away_std <= -1.5 and
+            home_std > -1.5 and
+            home_k < 0.28 and
+            (away_std <= -2.0 or home_std <= -2.0)
+        )
+
+        # Diamond+ upgrade: Diamond AND both pitchers suppressed
+        diamond_plus = diamond and (min_sigma <= -2.0) and (max_sigma <= -0.5)
+
+        # Watch gate: either pitcher very deep
+        watch = min_sigma <= -1.5
+
+        if diamond or watch:
+            if diamond_plus:
+                tier = 'diamond_plus'
+            elif diamond:
+                tier = 'diamond'
+            else:
+                tier = 'watch'
+
+            for f in [away_flag, home_flag]:
+                f['combined_f5_signal']    = True
+                f['combined_f5_tier']      = tier
+                f['combined_f5_min_sigma'] = round(min_sigma, 2)
+                f['combined_f5_max_sigma'] = round(max_sigma, 2)
 
     return flags
 
