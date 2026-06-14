@@ -49,17 +49,14 @@
   .hm-lineup-tag{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;margin-top:10px}
   .hm-lineup-tag.confirmed{color:var(--green)}
   .hm-lineup-tag.pending{color:var(--muted)}
-  /* Tier badge */
   .tier-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;padding:3px 10px;border-radius:4px;margin-bottom:8px}
   .tier-badge.gold{color:#FFD700;background:rgba(255,215,0,.10);border:1px solid rgba(255,215,0,.35)}
   .tier-badge.silver{color:#C0C0C0;background:rgba(192,192,192,.10);border:1px solid rgba(192,192,192,.30)}
   .tier-badge.bronze{color:#CD7F32;background:rgba(205,127,50,.10);border:1px solid rgba(205,127,50,.28)}
-  /* Qualifier chips */
   .chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
   .chip{font-size:.52rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase}
   .chip.met{color:var(--green);background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
   .chip.miss{color:var(--dim);background:transparent;border:1px solid var(--dim);opacity:.5}
-  /* Bet rows */
   .bet-section{margin-top:10px}
   .bet-label{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
   .bet-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;margin-bottom:5px}
@@ -73,17 +70,14 @@
   .bet-odds.silver{color:#C0C0C0}
   .bet-odds.bronze{color:#CD7F32}
   .bet-units{font-size:.62rem;color:var(--muted);flex-shrink:0}
-  /* FG / Combined */
   .fg-signal-row{margin-top:8px;padding:7px 10px;background:rgba(79,184,255,.06);border:1px solid rgba(79,184,255,.2);border-radius:6px;display:flex;justify-content:space-between;align-items:center}
   .fg-signal-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
   .fg-signal-val{font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:var(--blue)}
-  /* Fair odds */
   .fair-odds-row{display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
   .fair-odds-cell{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--surface2);border:1px solid var(--dim);border-radius:6px;padding:7px 4px}
   .fair-odds-line{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .fair-odds-val{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--blue)}
   .fair-odds-label{font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px;margin-bottom:2px}
-  /* Picks / DFS */
   #picks-section{padding:20px 20px 0;display:none}
   .picks-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
   .picks-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--accent)}
@@ -110,11 +104,6 @@
   .divider{height:1px;background:var(--border);margin:20px 20px 0}
   footer{margin-top:32px;text-align:center;font-size:.62rem;color:var(--dim);letter-spacing:.1em}
   footer a{color:var(--muted);text-decoration:none}
-  /* Joint total informational card */
-  .joint-card{background:var(--surface);border:1px solid rgba(240,192,64,.35);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
-  .p-xwoba-badge{display:inline-flex;align-items:center;gap:4px;font-size:.52rem;letter-spacing:.07em;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}
-  .p-xwoba-badge.elite{color:#4fffb0;background:rgba(79,255,176,.08);border:1px solid rgba(79,255,176,.25)}
-  .p-xwoba-badge.agrees{color:#f0c040;background:rgba(240,192,64,.10);border:1px solid rgba(240,192,64,.35)}
 </style>
 </head>
 <body>
@@ -154,18 +143,6 @@
       </div>
     </div>
     <div id="f5combined-list"></div>
-  </div>
-</div>
-<div id="joint-total-section" class="flags-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="joint-total-count"></div>
-      <div class="section-label" style="margin:0">Joint F5 Total Edge
-        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0c040;margin-left:8px;text-transform:uppercase">Informational</span>
-      </div>
-    </div>
-    <div id="joint-total-list"></div>
   </div>
 </div>
 <div id="dfs-section">
@@ -211,13 +188,12 @@
     bronze: {text:'#CD7F32', border:'rgba(205,127,50,.20)',  bg:'rgba(205,127,50,.06)'},
   };
 
-  function buildFairOddsHtml(fair_odds) {
-    if (!fair_odds || !Object.keys(fair_odds).length) return '';
-    const keys = Object.keys(fair_odds).sort((a,b)=>parseFloat(a)-parseFloat(b));
-    const cells = keys.map(line =>
-      `<div class="fair-odds-cell"><div class="fair-odds-line">${line} runs</div><div class="fair-odds-val">${fair_odds[line]||'—'}</div></div>`
-    ).join('');
-    return `<div class="fair-odds-label">Fair Odds (Under)</div><div class="fair-odds-row" style="grid-template-columns:repeat(${keys.length},1fr)">${cells}</div>`;
+  function buildFairOddsHtml(f) {
+    const cells = [];
+    if (f.fair_under_2_5) cells.push(`<div class="fair-odds-cell"><div class="fair-odds-line">U 2.5</div><div class="fair-odds-val">${f.fair_under_2_5}</div></div>`);
+    if (f.fair_over_2_5)  cells.push(`<div class="fair-odds-cell"><div class="fair-odds-line">O 2.5</div><div class="fair-odds-val">${f.fair_over_2_5}</div></div>`);
+    if (!cells.length) return '';
+    return `<div class="fair-odds-label">Fair Odds</div><div class="fair-odds-row" style="grid-template-columns:repeat(${cells.length},1fr)">${cells.join('')}</div>`;
   }
 
   function buildFlagCard(f, i) {
@@ -225,7 +201,6 @@
     const color = f.confidence_color || 'bronze';
     const label = f.confidence_label || 'Bronze';
     const medal = MEDALS[label] || '🥉';
-    const tc = TIER_COLORS[color] || TIER_COLORS.bronze;
     card.className = `hm-card under ${color}`;
     card.style.animationDelay = `${i * 0.06}s`;
 
@@ -235,10 +210,8 @@
       : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
     const handLabel = f.pitcher_hand === 'L' ? 'LHP' : 'RHP';
 
-    // Tier badge with score
     const tierBadge = `<div class="tier-badge ${color}">${medal} ${label} · Score ${f.ozzie_score}</div>`;
 
-    // Qualifier chips
     const chip = (met, lbl) => `<span class="chip ${met?'met':'miss'}">${lbl}</span>`;
     const chips = `<div class="chips">
       ${chip(f.q_away,'Away')}
@@ -248,7 +221,6 @@
       ${chip(f.q_sigma_20,'σ≤-2.0')}
     </div>`;
 
-    // Bet rows — U2.5 always, U1.5 only if eligible
     const rowClass = `${color}-row`;
     const u25row = `<div class="bet-row ${rowClass}">
       <span class="bet-medal">${medal}</span>
@@ -257,16 +229,9 @@
       <span class="bet-units">${f.unit_u25}</span>
     </div>`;
 
-    const u15row = f.u15_eligible && f.min_u15 ? `<div class="bet-row ${rowClass}">
-      <span class="bet-medal">${medal}</span>
-      <span class="bet-line">U 1.5</span>
-      <span class="bet-odds ${color}">${f.min_u15}</span>
-      <span class="bet-units">${f.unit_u15}</span>
-    </div>` : '';
-
     const betSection = `<div class="bet-section">
       <div class="bet-label">Bet when odds are at least</div>
-      ${u25row}${u15row}
+      ${u25row}
     </div>`;
 
     const fgHtml = f.fg_under_signal
@@ -274,21 +239,7 @@
     const combHtml = f.combined_f5_signal
       ? `<div class="fg-signal-row" style="border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.06)"><span class="fg-signal-label" style="color:#FFD700">⚡ F5 Combined Under</span><span class="fg-signal-val" style="color:#FFD700;font-size:.75rem">U4.5 @ -200 | U5.5 @ -300</span></div>` : '';
 
-    // p_xwoba badge
-    let pxwobaHtml = '';
-    try {
-      if (f.p_xwoba !== null && f.p_xwoba !== undefined) {
-        if (f.p_xwoba_agrees) {
-          pxwobaHtml = `<span class="p-xwoba-badge agrees">★ p_xwoba ${f.p_xwoba} · σ+xwOBA agree</span>`;
-        } else if (f.p_xwoba_elite) {
-          pxwobaHtml = `<span class="p-xwoba-badge elite">p_xwoba ${f.p_xwoba} · elite</span>`;
-        } else {
-          pxwobaHtml = `<span class="p-xwoba-badge" style="color:var(--muted);border:1px solid var(--dim)">p_xwoba ${f.p_xwoba}</span>`;
-        }
-      }
-    } catch(e) { pxwobaHtml = ''; }
-
-    const fairOddsHtml = buildFairOddsHtml(f.fair_odds);
+    const fairOddsHtml = buildFairOddsHtml(f);
 
     card.innerHTML = `
       <div class="hm-top">
@@ -310,57 +261,6 @@
       ${betSection}
       ${fairOddsHtml}
       ${fgHtml}${combHtml}
-      ${pxwobaHtml}
-      ${lineupTag}`;
-    return card;
-  }
-
-  function buildJointCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'joint-card';
-    card.style.animationDelay = `${i * 0.06}s`;
-
-    const lineupTag = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
-
-    const bothBadge = f.both_elite
-      ? `<span class="p-xwoba-badge agrees" style="margin-right:4px">Both pitchers elite</span>`
-      : `<span class="p-xwoba-badge elite" style="margin-right:4px">One pitcher elite</span>`;
-
-    const sigmaHtml = f.sigma_agrees
-      ? `<span class="p-xwoba-badge agrees">σ confirms suppression</span>` : '';
-
-    const hSigStr = f.home_sigma !== null && f.home_sigma !== undefined ? `${f.home_sigma > 0 ? '+' : ''}${f.home_sigma}σ` : '—';
-    const aSigStr = f.away_sigma !== null && f.away_sigma !== undefined ? `${f.away_sigma > 0 ? '+' : ''}${f.away_sigma}σ` : '—';
-
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.away_team} @ ${f.home_team}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal" style="color:#f0c040;font-size:1.1rem">JOINT</div>
-          <div class="hm-sigma" style="color:rgba(240,192,64,.7)">Check line = 4.5</div>
-        </div>
-      </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
-      <div style="margin-bottom:8px">${bothBadge}${sigmaHtml}</div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div><div class="hm-stat-label">${f.home_team} pitcher</div><div class="hm-stat-value" style="font-size:.72rem">${f.home_pitcher}</div></div>
-        <div><div class="hm-stat-label">p_xwoba</div><div class="hm-stat-value" style="color:${f.home_p_xwoba<=0.280?'#4fffb0':'var(--text)'}">${f.home_p_xwoba}</div></div>
-        <div><div class="hm-stat-label">σ</div><div class="hm-stat-value">${hSigStr}</div></div>
-      </div>
-      <div class="hm-bottom" style="margin-top:6px">
-        <div><div class="hm-stat-label">${f.away_team} pitcher</div><div class="hm-stat-value" style="font-size:.72rem">${f.away_pitcher}</div></div>
-        <div><div class="hm-stat-label">p_xwoba</div><div class="hm-stat-value" style="color:${f.away_p_xwoba<=0.280?'#4fffb0':'var(--text)'}">${f.away_p_xwoba}</div></div>
-        <div><div class="hm-stat-label">σ</div><div class="hm-stat-value">${aSigStr}</div></div>
-      </div>
-      <div class="hm-divider"></div>
-      <div style="padding:8px 0;font-size:.58rem;color:#f0c040;line-height:1.6">
-        <div>📋 If Pinnacle line = 4.5: bet Under</div>
-        <div style="color:var(--muted)">2025 validated: 70% under · +0.334 ROI · n=49</div>
-        <div style="color:var(--muted)">One year only — not cross-year validated</div>
-      </div>
       ${lineupTag}`;
     return card;
   }
@@ -401,7 +301,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','joint-total-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -439,16 +339,6 @@
           f5cFlags.forEach((f,i)=>f5cList.appendChild(buildGtCard(f,i)));
           document.getElementById('f5combined-section').style.display='block';
         }
-
-        try {
-          const jtList=document.getElementById('joint-total-list'); jtList.innerHTML='';
-          const jtFlags=data.joint_total_flags||[];
-          if(jtFlags.length>0){
-            document.getElementById('joint-total-count').textContent=`${jtFlags.length} Game${jtFlags.length!==1?'s':''}`;
-            jtFlags.forEach((f,i)=>jtList.appendChild(buildJointCard(f,i)));
-            document.getElementById('joint-total-section').style.display='block';
-          }
-        } catch(e) { console.error('Joint total render error:',e); }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
         const dfsTierStyle={'Ace':{border:'#FFD700',text:'#FFD700',bg:'rgba(255,215,0,0.06)'},'Value':{border:'#C0C0C0',text:'#C0C0C0',bg:'rgba(192,192,192,0.06)'},'Fade':{border:'#ff6b6b',text:'#ff6b6b',bg:'rgba(255,107,107,0.06)'},'Neutral':{border:'#333348',text:'#555570',bg:'transparent'}};
