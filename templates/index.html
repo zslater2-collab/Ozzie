@@ -133,6 +133,18 @@
     <div id="heatmap-list"></div>
   </div>
 </div>
+<div id="over-info-section" class="flags-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="over-info-count"></div>
+      <div class="section-label" style="margin:0">O1.5 Watch
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0c040;margin-left:8px;text-transform:uppercase">Shadow Track Only</span>
+      </div>
+    </div>
+    <div id="over-info-list"></div>
+  </div>
+</div>
 <div id="f5combined-section" class="flags-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -301,7 +313,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','over-info-section','f5combined-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -339,6 +351,48 @@
           f5cFlags.forEach((f,i)=>f5cList.appendChild(buildGtCard(f,i)));
           document.getElementById('f5combined-section').style.display='block';
         }
+
+        // Over info flags
+        try {
+          const oiList=document.getElementById('over-info-list'); oiList.innerHTML='';
+          const oiFlags=(data.over_info_flags||[]);
+          if(oiFlags.length>0){
+            document.getElementById('over-info-count').textContent=`${oiFlags.length} Flag${oiFlags.length!==1?'s':''}`;
+            oiFlags.forEach((f,i)=>{
+              const card=document.createElement('div');
+              card.className='hm-card';
+              card.style.cssText='border:1px solid rgba(240,192,64,.35);margin-bottom:8px';
+              card.style.animationDelay=`${i*0.06}s`;
+              const sigmaSign=f.std_from_mean>=0?'+':'';
+              const kStr=f.over_k_rate!==null&&f.over_k_rate!==undefined?`K=${(f.over_k_rate*100).toFixed(1)}%`:'';
+              const lineupTag=f.lineup_complete
+                ?`<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
+                :`<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
+              card.innerHTML=`
+                <div class="hm-top">
+                  <div class="hm-team">${f.batting_team}</div>
+                  <div class="hm-signal-wrap">
+                    <div class="hm-signal" style="color:#f0c040;font-size:1.3rem">O 1.5</div>
+                    <div class="hm-sigma" style="color:rgba(240,192,64,.7)">${sigmaSign}${f.std_from_mean}σ</div>
+                  </div>
+                </div>
+                <div style="font-size:.6rem;color:var(--muted);margin-bottom:6px">${f.game_time||''}</div>
+                <div class="hm-divider"></div>
+                <div class="hm-bottom">
+                  <div><div class="hm-stat-label">vs Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+                  <div><div class="hm-stat-label">K Rate</div><div class="hm-stat-value">${kStr||'—'}</div></div>
+                  <div><div class="hm-stat-label">Batters</div><div class="hm-stat-value">${f.batters_scored} / 9</div></div>
+                </div>
+                <div style="margin-top:8px;padding:6px 10px;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:6px;font-size:.55rem;color:#f0c040;line-height:1.6">
+                  ⚠️ Shadow track only — not cross-year validated<br>
+                  <span style="color:var(--muted)">2026: σ≥1.0 → 61.9% O1.5 · +0.080 ROI · n=113 (1 year)</span>
+                </div>
+                ${lineupTag}`;
+              oiList.appendChild(card);
+            });
+            document.getElementById('over-info-section').style.display='block';
+          }
+        } catch(e) { console.error('Over info render error:',e); }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
         const dfsTierStyle={'Ace':{border:'#FFD700',text:'#FFD700',bg:'rgba(255,215,0,0.06)'},'Value':{border:'#C0C0C0',text:'#C0C0C0',bg:'rgba(192,192,192,0.06)'},'Fade':{border:'#ff6b6b',text:'#ff6b6b',bg:'rgba(255,107,107,0.06)'},'Neutral':{border:'#333348',text:'#555570',bg:'transparent'}};
