@@ -238,6 +238,216 @@ def get_pitcher_quality_population():
     return population
 
 
+# ── OFFENSE QUALITY COMPOSITE (research / tracking signal, NOT validated for betting) ──
+# Built June 18, 2026. Lineup-weighted K/BB/SLG composite per batting team, blended the same
+# way as the pitcher composite. Career prior (2022-2025 pooled, batter_offense_prior_2026.csv)
+# Marcel-blended with current-season-to-date stats (phantom-PA/AB constants recovered exactly
+# from the 2025 research file: K=60 PA, BB=120 PA, SLG=320 AB — different stat, different
+# constants than the pitcher side's K=70/BB=170/HR=1320, this is correct, not a typo).
+#   off_z = -k_rate_z + bb_rate_z + slg_z   (higher = stronger offense)
+# Team-game value = each lineup batter's percentile, weighted by LINEUP_SLOT_WEIGHTS (PA-share
+# by batting slot), normalized over available batters — exact formula verified against the 2025
+# research file's off_pctile column to <1e-9 residual before being trusted here.
+#
+# VALIDATION STATUS — read before trusting this:
+#   Found June 18, 2026 testing pitcher/offense quartile interactions. The gate below (mid-tier
+#   off_pctile Q3 AND low o_bb_rate) at the 1.5 F5 line: 2025 n=89, 57.3% U, +17.9% ROI, p=0.026;
+#   2026 OOS n=85, 58.8% U, +17.2% ROI, p=0.016 — tight replication, best OOS result of that
+#   session. Book under odds nearly identical between the high/low o_bb_rate groups (1.059 vs
+#   1.064 decimal) despite the 15-point hit-rate gap — book does not appear to price this split.
+#   Still only 2 years / 1 line level / n~85-90 — same "needs more data before deploying" bar as
+#   every other signal here. Flipped to the over side: hit rate mirrors as expected, but over ROI
+#   is much weaker (+3.0% vs the under side's +17.9%) — inefficiency is concentrated on the under
+#   side specifically, do not assume an equivalent over edge on the patient-offense side.
+#
+# CRITICAL — like the pitcher composite, this ONLY works at the 1.5 F5 line specifically (2.5
+# line: p=0.12 OOS, opposite-signed in 2025). This app does not fetch live odds/lines, so it
+# cannot gate on line level — check the actual posted F5 line yourself before treating this as
+# anything actionable. Independent of the pitcher quality composite — a game can show either,
+# both, or neither flag; they describe different sides of the same matchup.
+
+OFF_PHANTOM        = {'k_rate': 60.0, 'bb_rate': 120.0, 'slg': 320.0}
+OFF_PRIOR_CSV       = 'batter_offense_prior_2026.csv'
+LINEUP_WEIGHTS_CSV  = 'lineup_slot_pa_weights.csv'
+# NOTE: this is NOT a generic "50th-75th percentile" Q3 — it's the actual empirical off_pctile
+# range covered by the Q3 quartile WITHIN 1.5-line games specifically in the research sample
+# (1.5-line games are pre-selected toward certain off_pctile values, same population-selection
+# effect documented for the pitcher composite's line-level splits). Stable across both years:
+# 2025 Q3 band = 66.6-72.6, 2026 OOS Q3 band = 67.7-73.5 — using the union, rounded.
+OFF_Q3_LOW_PCTILE   = 66.5
+OFF_Q3_HIGH_PCTILE  = 73.5
+# o_bb_rate median within that Q3/1.5-line band: 2025=0.0855, 2026=0.0866 — averaged.
+OFF_BB_RATE_MEDIAN  = 0.0860
+OFF_SEASON_TTL      = 21600  # 6h, same cadence as the pitcher composite
+
+_off_prior            = {}
+_off_prior_loaded      = False
+_off_population_cache      = None
+_off_population_cache_time = None
+_lineup_slot_weights   = {}
+_lineup_weights_loaded = False
+
+
+def load_lineup_slot_weights():
+    global _lineup_slot_weights, _lineup_weights_loaded
+    if _lineup_weights_loaded:
+        return
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, LINEUP_WEIGHTS_CSV)
+    if not os.path.exists(path):
+        print(f"Warning: {LINEUP_WEIGHTS_CSV} not found — offense quality composite disabled")
+        return
+    try:
+        with open(path) as f:
+            for row in csv.DictReader(f):
+                _lineup_slot_weights[int(float(row['batting_slot']))] = float(row['weight'])
+        _lineup_weights_loaded = True
+    except Exception as e:
+        print(f"Warning: lineup slot weights load failed: {e}")
+
+
+def load_batter_offense_prior():
+    global _off_prior, _off_prior_loaded
+    if _off_prior_loaded:
+        return
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, OFF_PRIOR_CSV)
+    if not os.path.exists(path):
+        print(f"Warning: {OFF_PRIOR_CSV} not found — offense quality composite disabled")
+        return
+    try:
+        with open(path) as f:
+            for row in csv.DictReader(f):
+                _off_prior[int(row['mlbID'])] = {
+                    'k_rate':  float(row['k_rate']),
+                    'bb_rate': float(row['bb_rate']),
+                    'slg':     float(row['slg']),
+                }
+        _off_prior_loaded = True
+        print(f"Batter offense prior loaded: {len(_off_prior)} batters")
+    except Exception as e:
+        print(f"Warning: batter offense prior load failed: {e}")
+
+
+def _off_fetch_current_season():
+    """Current-season PA/AB/K/BB/TB per batter via pybaseball (Baseball-Reference)."""
+    try:
+        import pybaseball as pb
+        year = datetime.now().year
+        bs = pb.batting_stats_bref(year)
+        bs = bs.sort_values('PA', ascending=False).drop_duplicates('mlbID', keep='first')
+        bs = bs.dropna(subset=['mlbID'])
+        season = {}
+        for _, row in bs.iterrows():
+            pa = row.get('PA', 0) or 0
+            if pa <= 0:
+                continue
+            ab = row.get('AB', 0) or 0
+            tb = (row.get('H', 0) or 0) + (row.get('2B', 0) or 0) + 2 * (row.get('3B', 0) or 0) + 3 * (row.get('HR', 0) or 0)
+            season[int(row['mlbID'])] = {
+                'pa': pa, 'ab': ab, 'so': row.get('SO', 0) or 0,
+                'bb': row.get('BB', 0) or 0, 'tb': tb,
+            }
+        return season
+    except Exception as e:
+        print(f"Warning: offense quality current-season fetch failed: {e}")
+        return {}
+
+
+def get_offense_quality_population():
+    """
+    Returns dict: mlbID -> {score, percentile, k_rate, bb_rate, slg}.
+    Blends career prior with current-season-to-date (Marcel). Cached OFF_SEASON_TTL seconds.
+    """
+    global _off_population_cache, _off_population_cache_time
+    now = datetime.now().timestamp()
+    if _off_population_cache and _off_population_cache_time and \
+            (now - _off_population_cache_time < OFF_SEASON_TTL):
+        return _off_population_cache
+
+    load_batter_offense_prior()
+    if not _off_prior:
+        return {}
+
+    season = _off_fetch_current_season()
+    blended = {}
+    for bid, prior in _off_prior.items():
+        s = season.get(bid, {'pa': 0, 'ab': 0, 'so': 0, 'bb': 0, 'tb': 0})
+        pa, ab = s['pa'], s['ab']
+        season_rates = {
+            'k_rate':  s['so'] / pa if pa > 0 else 0,
+            'bb_rate': s['bb'] / pa if pa > 0 else 0,
+            'slg':     s['tb'] / ab if ab > 0 else 0,
+        }
+        blend = {
+            'k_rate':  (OFF_PHANTOM['k_rate']  * prior['k_rate']  + pa * season_rates['k_rate'])  / (OFF_PHANTOM['k_rate']  + pa),
+            'bb_rate': (OFF_PHANTOM['bb_rate'] * prior['bb_rate'] + pa * season_rates['bb_rate']) / (OFF_PHANTOM['bb_rate'] + pa),
+            'slg':     (OFF_PHANTOM['slg']     * prior['slg']     + ab * season_rates['slg'])     / (OFF_PHANTOM['slg']     + ab),
+        }
+        blended[bid] = blend
+
+    if len(blended) < 10:
+        return {}
+
+    means = {stat: sum(blended[bid][stat] for bid in blended) / len(blended) for stat in ('k_rate', 'bb_rate', 'slg')}
+    stds  = {stat: (sum((blended[bid][stat] - means[stat]) ** 2 for bid in blended) / len(blended)) ** 0.5
+             for stat in ('k_rate', 'bb_rate', 'slg')}
+
+    def compute_score(b):
+        z = {stat: (b[stat] - means[stat]) / stds[stat] if stds[stat] > 0 else 0.0
+             for stat in ('k_rate', 'bb_rate', 'slg')}
+        return -z['k_rate'] + z['bb_rate'] + z['slg']
+
+    scores_sorted = sorted(compute_score(blended[bid]) for bid in blended)
+    n_ref = len(scores_sorted)
+
+    population = {}
+    for bid, b in blended.items():
+        score  = compute_score(b)
+        pctile = 100.0 * bisect.bisect_left(scores_sorted, score) / n_ref if n_ref > 1 else 50.0
+        population[bid] = {
+            'score':      round(score, 4),
+            'percentile': round(pctile, 1),
+            'k_rate':     round(b['k_rate'], 4),
+            'bb_rate':    round(b['bb_rate'], 4),
+            'slg':        round(b['slg'], 4),
+        }
+
+    _off_population_cache      = population
+    _off_population_cache_time = now
+    return population
+
+
+def get_lineup_offense_quality(lineup, population):
+    """
+    PA-weights each lineup batter's percentile and bb_rate by batting slot (lineup_slot_pa_weights),
+    normalized over batters with population data available. Formula verified against the 2025
+    research file's off_pctile column to <1e-9 residual before being trusted live.
+    Returns None if fewer than 5 lineup batters have population data.
+    """
+    load_lineup_slot_weights()
+    if not _lineup_slot_weights or not population:
+        return None
+    wsum_pctile = wsum_bb = wtot = 0.0
+    n_matched = 0
+    for batter in lineup:
+        info = population.get(batter.get('id'))
+        slot = batter.get('batting_order')
+        if info is None or slot not in _lineup_slot_weights:
+            continue
+        w = _lineup_slot_weights[slot]
+        wsum_pctile += info['percentile'] * w
+        wsum_bb     += info['bb_rate']    * w
+        wtot        += w
+        n_matched   += 1
+    if n_matched < 5 or wtot <= 0:
+        return None
+    return {
+        'off_pctile': round(wsum_pctile / wtot, 1),
+        'o_bb_rate':  round(wsum_bb / wtot, 4),
+    }
+
+
 def load_fg_profiles():
     global _FG_OFF_Z, _FG_BP_WEAK_Z, _FG_PROFILES_LOADED
     if _FG_PROFILES_LOADED:
@@ -676,6 +886,19 @@ def get_heatmap_flags(games, model):
                 print(f"Pitcher quality lookup error: {e}")
             pq_q4 = bool(pq_info and pq_info['quartile'] == 'Q4')
 
+            # ── OFFENSE QUALITY COMPOSITE (research/tracking only, see notes above) ──
+            off_info = None
+            try:
+                off_population = get_offense_quality_population()
+                off_info = get_lineup_offense_quality(lineup, off_population) if off_population else None
+            except Exception as e:
+                print(f"Offense quality lookup error: {e}")
+            off_q3_gate = bool(
+                off_info and
+                OFF_Q3_LOW_PCTILE <= off_info['off_pctile'] <= OFF_Q3_HIGH_PCTILE and
+                off_info['o_bb_rate'] < OFF_BB_RATE_MEDIAN
+            )
+
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
             under_confidence = None
@@ -698,6 +921,12 @@ def get_heatmap_flags(games, model):
             # NOT a validated bet signal. Check the actual F5 line is 1.5 before acting on it.
             if signal is None and pq_q4:
                 signal = 'pitcher_quality_only'
+
+            # Offense quality Q3-band+low-BB gate, same tracking-only treatment. Independent of
+            # pq_q4 — both describe different sides of the same matchup and can co-occur (visible
+            # via the off_q3_gate / pq_q4 boolean fields below even when 'signal' picks one).
+            if signal is None and off_q3_gate:
+                signal = 'offense_quality_only'
 
             if signal is None:
                 continue
@@ -741,6 +970,17 @@ def get_heatmap_flags(games, model):
                                       '1.5, this historically favors UNDER (check the line yourself; '
                                       'not yet proven on 2026 — tracking signal only, do not bet)')
                                      if pq_q4 else None,
+                # Offense Quality Composite — tracking only, NOT validated for betting.
+                # Only meaningful if today's actual F5 line for THIS batting team is 1.5 (check
+                # manually). See OFF_PHANTOM comment block above for full validation status.
+                'off_pctile':       off_info['off_pctile'] if off_info else None,
+                'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
+                'off_q3_gate':      off_q3_gate,
+                'off_note':         ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
+                                      'this team is 1.5, this historically favors UNDER (check the line '
+                                      'yourself; 2 years OOS-replicated but still tracking signal only, '
+                                      'do not bet)')
+                                     if off_q3_gate else None,
             }
 
             # Add under-specific fields
@@ -764,13 +1004,16 @@ def get_heatmap_flags(games, model):
 
             flags.append(flag)
 
-    # Sort: unders by ozzie_score desc, pq_only by percentile desc, others last
+    # Sort: unders by ozzie_score desc, pq_only by percentile desc, off_only by off_pctile desc, others last
     under_flags     = sorted([f for f in flags if f['signal'] == 'under'],
                              key=lambda x: x.get('ozzie_score', 0), reverse=True)
     pq_only_flags   = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
                              key=lambda x: x.get('pq_percentile', 0), reverse=True)
-    other_flags     = [f for f in flags if f['signal'] not in ('under', 'pitcher_quality_only')]
-    flags = under_flags + pq_only_flags + other_flags
+    off_only_flags  = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
+                             key=lambda x: x.get('off_pctile', 0), reverse=True)
+    other_flags     = [f for f in flags if f['signal'] not in
+                       ('under', 'pitcher_quality_only', 'offense_quality_only')]
+    flags = under_flags + pq_only_flags + off_only_flags + other_flags
 
     # ── Combined F5 signal — two tiers + Diamond+ upgrade ────────────────────
     # Diamond: asymmetric gate, 74% U4.5, ~51/yr. Bet U4.5 @ -200 or better.
@@ -1090,6 +1333,7 @@ def api_picks():
         fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
         pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
+        off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
 
         dfs_picks = {}
         try:
@@ -1107,6 +1351,7 @@ def api_picks():
             'fg_under_flags':  fg_under_flags,
             'over_info_flags': over_info_flags,
             'pq_flags':        pq_flags,
+            'off_flags':       off_flags,
             'fg_in_window':    is_fg_valid_window(),
             'games':           games_out,
         }
@@ -1312,6 +1557,64 @@ def append_pq_to_sheet(flags):
         print(f"Google Sheets (PitcherQuality) error: {e}")
 
 
+OFF_SHEET_TAB    = 'OffenseQuality'
+OFF_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'pitcher_name', 'off_pctile', 'off_bb_rate',
+    'game_time', 'actual_f5_line', 'actual_f5_runs', 'under_hit',  # fill in by hand
+]
+
+
+def append_off_to_sheet(flags):
+    """
+    Tracking-only log for the Offense Quality Composite (NOT a validated bet signal — see
+    OFF_PHANTOM comment block). Separate tab, same pattern as append_pq_to_sheet.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(OFF_SHEET_TAB)
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=OFF_SHEET_TAB, rows=1000, cols=len(OFF_SHEET_HEADER))
+            ws.append_row(OFF_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if not f.get('off_q3_gate'):
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
+                f.get('off_pctile', ''), f.get('off_bb_rate', ''),
+                f.get('game_time', ''),
+                '', '', '',  # actual_f5_line / actual_f5_runs / under_hit — fill in by hand
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (OffenseQuality): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping Offense Quality sheet append")
+    except Exception as e:
+        print(f"Google Sheets (OffenseQuality) error: {e}")
+
+
 @app.route('/api/notify')
 def api_notify():
     secret = request.args.get('secret', '')
@@ -1324,7 +1627,8 @@ def api_notify():
         flags   = get_heatmap_flags(games, model)
         under_flags = [f for f in flags if f.get('signal') == 'under']
         pq_flags    = [f for f in flags if f.get('pq_q4')]
-        if not under_flags and not pq_flags:
+        off_flags   = [f for f in flags if f.get('off_q3_gate')]
+        if not under_flags and not pq_flags and not off_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
         redis_key    = f"ozzie:notified:{today}"
@@ -1332,7 +1636,8 @@ def api_notify():
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
         new_under = [f for f in under_flags if flag_key(f) not in already_sent]
         new_pq    = [f for f in pq_flags if flag_key(f) not in already_sent]
-        if not new_under and not new_pq:
+        new_off   = [f for f in off_flags if flag_key(f) not in already_sent]
+        if not new_under and not new_pq and not new_off:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
@@ -1370,21 +1675,41 @@ def api_notify():
                     f"HR {f['pq_hr_rate']*100:.1f}%){time}"
                 )
 
+        if new_off:
+            if new_under or new_pq:
+                lines.append("")
+            lines.append(f"⚾ <b>Offense Quality — TRACKING ONLY, not a bet signal</b>")
+            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — check the actual F5 line is 1.5 before it means anything\n")
+            for f in new_off:
+                pct  = f.get('off_pctile')
+                bb   = f.get('off_bb_rate')
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                lines.append(
+                    f"⚾ <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"(off pctile {pct:.0f}, BB {bb*100:.1f}%){time}"
+                )
+
         send_telegram('\n'.join(lines))
         if new_under:
             append_to_sheet(new_under)
         if new_pq:
             append_pq_to_sheet(new_pq)
-        all_sent = already_sent | {flag_key(f) for f in new_under} | {flag_key(f) for f in new_pq}
+        if new_off:
+            append_off_to_sheet(new_off)
+        all_sent = (already_sent | {flag_key(f) for f in new_under}
+                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
-        return jsonify({'status': 'ok', 'new': len(new_under) + len(new_pq),
-                        'flags': [flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]})
+        return jsonify({'status': 'ok', 'new': len(new_under) + len(new_pq) + len(new_off),
+                        'flags': [flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
+                                 + [flag_key(f) for f in new_off]})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
 load_fg_profiles()
 load_pitcher_quality_prior()
+load_batter_offense_prior()
+load_lineup_slot_weights()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

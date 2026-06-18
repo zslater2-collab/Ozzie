@@ -109,6 +109,11 @@
   .pq-card{background:var(--surface);border:1px solid rgba(255,159,71,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
   .pq-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,159,71,.5),transparent)}
   .pq-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
+  /* Offense Quality Composite cards */
+  #off-section{padding:20px 20px 0;display:none}
+  .off-card{background:var(--surface);border:1px solid rgba(79,184,255,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .off-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(79,184,255,.5),transparent)}
+  .off-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
 </style>
 </head>
 <body>
@@ -160,6 +165,18 @@
       </div>
     </div>
     <div id="pq-list"></div>
+  </div>
+</div>
+<div id="off-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="off-count"></div>
+      <div class="section-label" style="margin:0">Offense Quality Composite
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--blue);margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
+      </div>
+    </div>
+    <div id="off-list"></div>
   </div>
 </div>
 <div id="dfs-section">
@@ -422,6 +439,30 @@
     return card;
   }
 
+  function buildOffCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'off-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const pct = f.off_pctile !== null ? f.off_pctile.toFixed(0) + 'th pctile' : '—';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:var(--blue)">Q3 OFFENSE / LOW BB</div>
+          <div class="hm-sigma">${pct}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Opp. Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">Off BB Rate</div><div class="hm-stat-value">${(f.off_bb_rate*100).toFixed(1)}%</div></div>
+        <div><div class="hm-stat-label">Off Pctile</div><div class="hm-stat-value">${pct}</div></div>
+      </div>
+      <div class="off-detail" style="margin-top:8px">${f.off_note||''}</div>`;
+    return card;
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -430,7 +471,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','off-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -480,6 +521,15 @@
           document.getElementById('pq-count').textContent = `${pqFlags.length} Pitcher${pqFlags.length!==1?'s':''}`;
           pqFlags.forEach((f,i) => pqList.appendChild(buildPqCard(f,i)));
           document.getElementById('pq-section').style.display = 'block';
+        }
+
+        // ── Offense Quality Composite (tracking only) ───────────────────
+        const offList = document.getElementById('off-list'); offList.innerHTML='';
+        const offFlags = (data.off_flags||[]).filter(f=>f.off_q3_gate);
+        if (offFlags.length > 0) {
+          document.getElementById('off-count').textContent = `${offFlags.length} Offense${offFlags.length!==1?'s':''}`;
+          offFlags.forEach((f,i) => offList.appendChild(buildOffCard(f,i)));
+          document.getElementById('off-section').style.display = 'block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
