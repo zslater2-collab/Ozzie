@@ -28,7 +28,6 @@ FILE_IDS = {
     'negbin_model_params':      '122sd0M7XFhb-JlU2qE7_wQey9iTntIv9',
     'hitter_splits':            '1mJA898UJaO62azlrw2-l1qeBto5hV_fj',
     'pitcher_bb_gb_rates':      '1kaCr_b0Zw9_4nAYMk84kCh8mTbOE5chC',
-    'lineup_contact_profiles':  '1jn5sbZtvDt4BfjQWHq832yxD5twMjflo',  # batter HH+K for archetype signals
 }
 
 LEAGUE_AVG        = 3.88
@@ -73,111 +72,6 @@ DFS_VALUE_K         =  0.22
 DFS_FADE_PITCH      =  0.5
 DFS_SPLIT_THRESHOLD =  0.5
 
-# ── ARCHETYPE MATCHUP SIGNALS (research / shadow track) ──────────────────────
-# Three signals validated 2025+2026 (rolling pre-game profiles, U2.5 lines):
-#
-# SIGNAL 1 — U1.5 via O1.5 pricing:
-#   Gate: pitcher K rate >= 55th pctile (~0.247) + sigma <= -1.5
-#   2025: 61.0% U1.5, +10.3% ROI (n=41) | 2026: 61.5% U1.5, +10.7% ROI (n=39)
-#   Mechanism: high-K pitchers in deep suppression games rarely allow 2+ runs.
-#   Market prices O1.5 under at ~-70 avg when break-even is -150+.
-#
-# SIGNAL 2 — U2.5 archetype under:
-#   Gate: lineup is hi_hh_lo_k + pitcher K >= 55th pctile + sigma <= -0.5
-#   2025: 75.7% U2.5, +31.4% ROI (n=37) | 2026: 68.4% U2.5, +18.8% ROI (n=19)
-#   Mechanism: free-swinging contact lineups get K rate amplified by high-K pitchers.
-#
-# SIGNAL 3 — O2.5 archetype over:
-#   Gate: lineup is lo_hh_hi_k + pitcher K <= 40th pctile + sigma >= +0.5
-#   2025: 59.1% O2.5, +17.5% ROI (n=44) | 2026: 63.2% O2.5, +25.9% ROI (n=19)
-#   Mechanism: soft-contact high-K lineups score against low-K pitchers;
-#   market prices near even money when over hits 60-65%.
-#
-# ALL THREE: informational only. Shadow track, do not bet until end-of-season validation.
-
-ARCH_HH_CUT        = 0.3869   # lineup hard hit rate median (career profiles 2022-2025)
-ARCH_K_CUT         = 0.2401   # lineup K rate median (career profiles 2022-2025)
-ARCH_PITCHER_K_HI  = 0.247    # ~55th pctile pitcher K rate
-ARCH_PITCHER_K_LO  = 0.193    # ~40th pctile pitcher K rate
-ARCH_SIGMA_UNDER   = -0.5     # Signal 2 sigma gate
-ARCH_SIGMA_DEEP    = -1.5     # Signal 1 sigma gate
-ARCH_SIGMA_OVER    =  0.5     # Signal 3 sigma gate
-
-
-def get_lineup_archetype(lineup, model):
-    """
-    Compute lineup HH rate, K rate, and offensive archetype
-    using career-weighted batter profiles (2022-2025).
-    Returns dict with lineup_hh, lineup_k, arch, coverage, or None if insufficient data.
-    """
-    contact_data = model.get('lineup_contact_profiles')
-    if not contact_data:
-        return None
-    batter_profiles = contact_data.get('batter_profiles', {})
-    hh_vals, k_vals = [], []
-    for batter in lineup:
-        bid = int(batter['id'])
-        if bid in batter_profiles:
-            hh_vals.append(batter_profiles[bid]['hh_rate'])
-            k_vals.append(batter_profiles[bid]['k_rate'])
-    if len(hh_vals) < 3:
-        return None
-    lineup_hh = sum(hh_vals) / len(hh_vals)
-    lineup_k  = sum(k_vals)  / len(k_vals)
-    if lineup_hh > ARCH_HH_CUT and lineup_k <= ARCH_K_CUT:
-        arch = 'hi_hh_lo_k'
-    elif lineup_hh <= ARCH_HH_CUT and lineup_k > ARCH_K_CUT:
-        arch = 'lo_hh_hi_k'
-    elif lineup_hh > ARCH_HH_CUT and lineup_k > ARCH_K_CUT:
-        arch = 'hi_hh_hi_k'
-    else:
-        arch = 'lo_hh_lo_k'
-    return {
-        'lineup_hh': round(lineup_hh, 4),
-        'lineup_k':  round(lineup_k,  4),
-        'arch':      arch,
-        'coverage':  len(hh_vals),
-    }
-
-
-def get_archetype_signals(std_from_mean, pitcher_k_rate, lineup_arch):
-    """
-    Check all three archetype signals. Returns dict of active signals.
-    All informational — shadow track only.
-    """
-    if lineup_arch is None or pitcher_k_rate is None:
-        return {}
-    arch   = lineup_arch['arch']
-    sigma  = std_from_mean
-    p_k    = pitcher_k_rate
-    out    = {}
-
-    # Signal 1: U1.5 via O1.5 — high K pitcher + deep sigma (any lineup)
-    if p_k >= ARCH_PITCHER_K_HI and sigma <= ARCH_SIGMA_DEEP:
-        out['arch_u15'] = {
-            'label':  'U1.5 Archetype (Shadow)',
-            'detail': f'High-K pitcher ({p_k:.3f}) + deep sigma ({sigma:+.2f}) — check O1.5 under price',
-            'basis':  '2025+2026 combined: ~61% U1.5, ~+10% ROI on O1.5 under',
-        }
-
-    # Signal 2: U2.5 — hi_hh_lo_k lineup + high K pitcher + sigma <= -0.5
-    if arch == 'hi_hh_lo_k' and p_k >= ARCH_PITCHER_K_HI and sigma <= ARCH_SIGMA_UNDER:
-        out['arch_u25'] = {
-            'label':  'U2.5 Archetype (Shadow)',
-            'detail': f'hi_hh_lo_k lineup vs high-K pitcher ({p_k:.3f}), sigma={sigma:+.2f}',
-            'basis':  '2025+2026 combined: ~73% U2.5, ~+27% ROI',
-        }
-
-    # Signal 3: O2.5 — lo_hh_hi_k lineup + low K pitcher + sigma >= +0.5
-    if arch == 'lo_hh_hi_k' and p_k <= ARCH_PITCHER_K_LO and sigma >= ARCH_SIGMA_OVER:
-        out['arch_o25'] = {
-            'label':  'O2.5 Archetype (Shadow)',
-            'detail': f'lo_hh_hi_k lineup vs low-K pitcher ({p_k:.3f}), sigma={sigma:+.2f}',
-            'basis':  '2025+2026 combined: ~65% O2.5, ~+32% ROI',
-        }
-
-    return out
-
 
 _model_cache      = None
 _model_cache_time = None
@@ -186,6 +80,149 @@ MODEL_CACHE_TTL   = 3600
 _FG_OFF_Z     = {}
 _FG_BP_WEAK_Z = {}
 _FG_PROFILES_LOADED = False
+
+# ── PITCHER QUALITY COMPOSITE (research / primary tracking signal, NOT validated for betting) ──
+# Built June 17, 2026. K/BB/HR rate only (DIPS-stable inputs — contact-quality-allowed metrics
+# like sigma/PX have ~zero YoY stability for individual pitchers, see CLAUDE.md). Career prior
+# (2022-2025 pooled, pitcher_quality_prior_2026.csv) Marcel-blended with current-season-to-date
+# stats (Carleton phantom-PA constants: K=70 BF, BB=170 BF, HR=1320 BF). Weights fit via logistic
+# regression of under_hit on standardized K/BB/HR at the 1.5 line (2025 sample):
+#   score = 0.1186*k_z - 0.1561*bb_z - 0.1945*hr_z   (higher = better pitcher = more under-favorable)
+#
+# VALIDATION STATUS — read before trusting this:
+#   2025 (where found): top quartile @ 1.5-line -> 61.1% U, +18.1% ROI after juice, n=185, p=0.011
+#   2026 OOS (true forward test): much weaker pooled (gap 0.08-0.12, p=0.35-0.72, NOT significant).
+#   BUT June 2026 specifically: gap=0.251, +22.4% ROI (n=36, p=0.16) — nearly identical to June
+#   2025's gap=0.271. Same weak-April/May -> strong-June seasonal shape replicated independently
+#   in two different years (likely because the Marcel blend itself gets more accurate as more
+#   current-season data accumulates). Promising but underpowered — NOT a proven, deployable edge.
+#
+# CRITICAL — this ONLY works at the 1.5 F5 team-total line specifically. At 2.5 lines, the effect
+# is flat-to-backward. This app does not fetch live odds/lines, so it cannot gate on line level —
+# you must check the actual posted F5 line yourself before treating this as anything actionable.
+# Offense-side K/BB/SLG composites (with and without platoon-matching) were tested extensively and
+# showed ZERO signal anywhere — pitcher-only by design, this is not an oversight.
+
+PQ_WEIGHTS       = {'k': 0.1186068959664584, 'bb': -0.156144018411192, 'hr': -0.1944839999359043}
+PQ_PHANTOM_BF    = {'k_rate': 70, 'bb_rate': 170, 'hr_rate': 1320}
+PQ_PRIOR_CSV     = 'pitcher_quality_prior_2026.csv'
+PQ_Q4_PCTILE     = 75.0
+PQ_SEASON_TTL    = 21600  # 6h — current-season cumulative stats don't need hourly refresh
+
+_pq_prior        = {}
+_pq_prior_loaded = False
+_pq_population_cache      = None
+_pq_population_cache_time = None
+
+
+def load_pitcher_quality_prior():
+    global _pq_prior, _pq_prior_loaded
+    if _pq_prior_loaded:
+        return
+    base = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, PQ_PRIOR_CSV)
+    if not os.path.exists(path):
+        print(f"Warning: {PQ_PRIOR_CSV} not found — pitcher quality composite disabled")
+        return
+    try:
+        with open(path) as f:
+            for row in csv.DictReader(f):
+                _pq_prior[int(row['mlbID'])] = {
+                    'k_rate':  float(row['k_rate']),
+                    'bb_rate': float(row['bb_rate']),
+                    'hr_rate': float(row['hr_rate']),
+                }
+        _pq_prior_loaded = True
+        print(f"Pitcher quality prior loaded: {len(_pq_prior)} pitchers")
+    except Exception as e:
+        print(f"Warning: pitcher quality prior load failed: {e}")
+
+
+def _pq_fetch_current_season():
+    """Current-season K/BB/HR counts per pitcher via pybaseball (Baseball-Reference)."""
+    try:
+        import pybaseball as pb
+        year = datetime.now().year
+        ps = pb.pitching_stats_bref(year)
+        ps = ps.sort_values('IP', ascending=False).drop_duplicates('Name', keep='first')
+        ps = ps.dropna(subset=['mlbID'])
+        season = {}
+        for _, row in ps.iterrows():
+            bf = row.get('BF', 0) or 0
+            if bf <= 0:
+                continue
+            season[int(row['mlbID'])] = {
+                'bf': bf, 'so': row.get('SO', 0) or 0,
+                'bb': row.get('BB', 0) or 0, 'hr': row.get('HR', 0) or 0,
+            }
+        return season
+    except Exception as e:
+        print(f"Warning: pitcher quality current-season fetch failed: {e}")
+        return {}
+
+
+def get_pitcher_quality_population():
+    """
+    Returns dict: mlbID -> {score, percentile, quartile, k_rate, bb_rate, hr_rate}.
+    Blends career prior with current-season-to-date (Marcel, leak-free as of right now).
+    Cached PQ_SEASON_TTL seconds since current-season stats don't change minute to minute.
+    """
+    global _pq_population_cache, _pq_population_cache_time
+    now = datetime.now().timestamp()
+    if _pq_population_cache and _pq_population_cache_time and \
+            (now - _pq_population_cache_time < PQ_SEASON_TTL):
+        return _pq_population_cache
+
+    load_pitcher_quality_prior()
+    if not _pq_prior:
+        return {}
+
+    season = _pq_fetch_current_season()
+    blended = {}
+    for pid, prior in _pq_prior.items():
+        s = season.get(pid, {'bf': 0, 'so': 0, 'bb': 0, 'hr': 0})
+        bf = s['bf']
+        season_rates = {
+            'k_rate':  s['so'] / bf if bf > 0 else 0,
+            'bb_rate': s['bb'] / bf if bf > 0 else 0,
+            'hr_rate': s['hr'] / bf if bf > 0 else 0,
+        }
+        blend = {}
+        for stat in ('k_rate', 'bb_rate', 'hr_rate'):
+            ph = PQ_PHANTOM_BF[stat]
+            blend[stat] = (ph * prior[stat] + bf * season_rates[stat]) / (ph + bf)
+        blended[pid] = blend
+
+    if len(blended) < 10:
+        return {}
+
+    means  = {stat: sum(b[stat] for b in blended.values()) / len(blended) for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+    stds   = {stat: (sum((b[stat] - means[stat]) ** 2 for b in blended.values()) / len(blended)) ** 0.5
+              for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+
+    scores = {}
+    for pid, b in blended.items():
+        z = {stat: (b[stat] - means[stat]) / stds[stat] if stds[stat] > 0 else 0.0
+             for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+        scores[pid] = PQ_WEIGHTS['k'] * z['k_rate'] + PQ_WEIGHTS['bb'] * z['bb_rate'] + PQ_WEIGHTS['hr'] * z['hr_rate']
+
+    ranked = sorted(scores.items(), key=lambda kv: kv[1])
+    n = len(ranked)
+    population = {}
+    for rank, (pid, score) in enumerate(ranked):
+        pctile = 100.0 * rank / (n - 1) if n > 1 else 50.0
+        population[pid] = {
+            'score':      round(score, 4),
+            'percentile': round(pctile, 1),
+            'quartile':   'Q4' if pctile >= PQ_Q4_PCTILE else ('Q1' if pctile < 25 else ('Q2' if pctile < 50 else 'Q3')),
+            'k_rate':     round(blended[pid]['k_rate'], 4),
+            'bb_rate':    round(blended[pid]['bb_rate'], 4),
+            'hr_rate':    round(blended[pid]['hr_rate'], 4),
+        }
+
+    _pq_population_cache      = population
+    _pq_population_cache_time = now
+    return population
 
 
 def load_fg_profiles():
@@ -617,9 +654,14 @@ def get_heatmap_flags(games, model):
 
             is_away       = (batting_team == game['away_team'])
 
-            # ── LINEUP ARCHETYPE ──────────────────────────────────────────
-            lineup_arch      = get_lineup_archetype(lineup, model)
-            arch_signals     = get_archetype_signals(std_from_mean, pitcher_k_rate, lineup_arch)
+            # ── PITCHER QUALITY COMPOSITE (research/tracking only, see notes above) ──
+            pq_info = None
+            try:
+                pq_population = get_pitcher_quality_population()
+                pq_info = pq_population.get(pitcher_id) if pitcher_id else None
+            except Exception as e:
+                print(f"Pitcher quality lookup error: {e}")
+            pq_q4 = bool(pq_info and pq_info['quartile'] == 'Q4')
 
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
@@ -639,9 +681,10 @@ def get_heatmap_flags(games, model):
                 if fg_flag['fg_under_signal']:
                     signal = 'fg_under_only'
 
-            # Archetype signals surface even without an Ozzie under flag
-            if signal is None and arch_signals:
-                signal = 'arch_only'
+            # Pitcher quality Q4 surfaces even without any other signal — tracking only,
+            # NOT a validated bet signal. Check the actual F5 line is 1.5 before acting on it.
+            if signal is None and pq_q4:
+                signal = 'pitcher_quality_only'
 
             if signal is None:
                 continue
@@ -670,15 +713,21 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'game_time':        game.get('game_time'),
-                # Lineup archetype fields
-                'lineup_hh':        lineup_arch['lineup_hh'] if lineup_arch else None,
-                'lineup_k':         lineup_arch['lineup_k']  if lineup_arch else None,
-                'lineup_arch':      lineup_arch['arch']       if lineup_arch else None,
-                'arch_coverage':    lineup_arch['coverage']   if lineup_arch else 0,
-                'arch_signals':     arch_signals,
-                'arch_u15':         'arch_u15' in arch_signals,
-                'arch_u25':         'arch_u25' in arch_signals,
-                'arch_o25':         'arch_o25' in arch_signals,
+                # Pitcher Quality Composite — tracking only, NOT validated for betting.
+                # Only meaningful if today's actual F5 line for this matchup is 1.5 (check manually —
+                # this app does not fetch live lines). 2026 OOS is weak/not significant overall;
+                # see PQ_WEIGHTS comment block above for full validation status.
+                'pq_score':         pq_info['score']      if pq_info else None,
+                'pq_percentile':    pq_info['percentile'] if pq_info else None,
+                'pq_quartile':      pq_info['quartile']   if pq_info else None,
+                'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
+                'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
+                'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
+                'pq_q4':            pq_q4,
+                'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
+                                      '1.5, this historically favors UNDER (check the line yourself; '
+                                      'not yet proven on 2026 — tracking signal only, do not bet)')
+                                     if pq_q4 else None,
             }
 
             # Add under-specific fields
@@ -702,13 +751,13 @@ def get_heatmap_flags(games, model):
 
             flags.append(flag)
 
-    # Sort: unders by ozzie_score desc, arch_only by abs sigma desc, others last
+    # Sort: unders by ozzie_score desc, pq_only by percentile desc, others last
     under_flags     = sorted([f for f in flags if f['signal'] == 'under'],
                              key=lambda x: x.get('ozzie_score', 0), reverse=True)
-    arch_only_flags = sorted([f for f in flags if f['signal'] == 'arch_only'],
-                             key=lambda x: abs(x.get('std_from_mean', 0)), reverse=True)
-    other_flags     = [f for f in flags if f['signal'] not in ('under', 'arch_only')]
-    flags = under_flags + arch_only_flags + other_flags
+    pq_only_flags   = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
+                             key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    other_flags     = [f for f in flags if f['signal'] not in ('under', 'pitcher_quality_only')]
+    flags = under_flags + pq_only_flags + other_flags
 
     # ── Combined F5 signal — two tiers + Diamond+ upgrade ────────────────────
     # Diamond: asymmetric gate, 74% U4.5, ~51/yr. Bet U4.5 @ -200 or better.
@@ -1027,7 +1076,7 @@ def api_picks():
         heatmap_flags   = get_heatmap_flags(games, model)
         fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
-        arch_flags      = [f for f in heatmap_flags if f.get('arch_u15') or f.get('arch_u25') or f.get('arch_o25')]
+        pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
 
         dfs_picks = {}
         try:
@@ -1044,7 +1093,7 @@ def api_picks():
             'heatmap_flags':   heatmap_flags,
             'fg_under_flags':  fg_under_flags,
             'over_info_flags': over_info_flags,
-            'arch_flags':      arch_flags,
+            'pq_flags':        pq_flags,
             'fg_in_window':    is_fg_valid_window(),
             'games':           games_out,
         }
@@ -1189,6 +1238,67 @@ def append_to_sheet(flags):
         print(f"Google Sheets error: {e}")
 
 
+PQ_SHEET_TAB    = 'PitcherQuality'
+PQ_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'pitcher_name', 'pq_score', 'pq_percentile',
+    'pq_k_rate', 'pq_bb_rate', 'pq_hr_rate', 'game_time',
+    'actual_f5_line', 'actual_f5_runs', 'under_hit',  # fill in by hand — app has no live odds feed
+]
+
+
+def append_pq_to_sheet(flags):
+    """
+    Tracking-only log for the Pitcher Quality Composite (NOT a validated bet signal — see
+    PQ_WEIGHTS comment block). Separate tab from the main Under sheet because this signal's
+    fields (and the manual line/outcome columns you'd fill in) don't match that sheet's schema.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(PQ_SHEET_TAB)
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=PQ_SHEET_TAB, rows=1000, cols=len(PQ_SHEET_HEADER))
+            ws.append_row(PQ_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if not f.get('pq_q4'):
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
+                f.get('pq_score', ''), f.get('pq_percentile', ''),
+                f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
+                f.get('game_time', ''),
+                '', '', '',  # actual_f5_line / actual_f5_runs / under_hit — fill in by hand
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (PitcherQuality): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping PQ sheet append")
+    except Exception as e:
+        print(f"Google Sheets (PitcherQuality) error: {e}")
+
+
 @app.route('/api/notify')
 def api_notify():
     secret = request.args.get('secret', '')
@@ -1200,45 +1310,68 @@ def api_notify():
         games   = get_lineups_and_starters(today)
         flags   = get_heatmap_flags(games, model)
         under_flags = [f for f in flags if f.get('signal') == 'under']
-        if not under_flags:
+        pq_flags    = [f for f in flags if f.get('pq_q4')]
+        if not under_flags and not pq_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
+
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
         new_under = [f for f in under_flags if flag_key(f) not in already_sent]
-        if not new_under:
+        new_pq    = [f for f in pq_flags if flag_key(f) not in already_sent]
+        if not new_under and not new_pq:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
-        lines = [f"🎯 <b>Ozzie — {today}</b>", f"{len(new_under)} new flag(s)\n"]
+        lines = [f"🎯 <b>Ozzie — {today}</b>"]
 
-        for f in new_under:
-            label = f.get('confidence_label', '—')
-            score = f.get('ozzie_score', '—')
-            sigma = f.get('std_from_mean', 0)
-            medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
-            fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
-            comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
-            time  = f" — {f['game_time']}" if f.get('game_time') else ''
-            lines.append(
-                f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                f"(UNDER #{score}, {sigma:+.2f}σ){fg}{comb}{time}"
-            )
-            if f.get('combined_f5_signal'):
-                lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
-            u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
-            lines.append(f"   {u25_str}")
+        if new_under:
+            lines.append(f"{len(new_under)} new flag(s)\n")
+            for f in new_under:
+                label = f.get('confidence_label', '—')
+                score = f.get('ozzie_score', '—')
+                sigma = f.get('std_from_mean', 0)
+                medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
+                fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
+                comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
+                time  = f" — {f['game_time']}" if f.get('game_time') else ''
+                lines.append(
+                    f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"(UNDER #{score}, {sigma:+.2f}σ){fg}{comb}{time}"
+                )
+                if f.get('combined_f5_signal'):
+                    lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
+                u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
+                lines.append(f"   {u25_str}")
+
+        if new_pq:
+            if new_under:
+                lines.append("")
+            lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
+            lines.append(f"{len(new_pq)} Q4 pitcher(s) — check the actual F5 line is 1.5 before it means anything\n")
+            for f in new_pq:
+                pct  = f.get('pq_percentile')
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                lines.append(
+                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
+                    f"HR {f['pq_hr_rate']*100:.1f}%){time}"
+                )
 
         send_telegram('\n'.join(lines))
-        append_to_sheet(new_under)
-        all_sent = already_sent | {flag_key(f) for f in new_under}
+        if new_under:
+            append_to_sheet(new_under)
+        if new_pq:
+            append_pq_to_sheet(new_pq)
+        all_sent = already_sent | {flag_key(f) for f in new_under} | {flag_key(f) for f in new_pq}
         redis_set(redis_key, ','.join(all_sent), ex=86400)
-        return jsonify({'status': 'ok', 'new': len(new_under),
-                        'flags': [flag_key(f) for f in new_under]})
+        return jsonify({'status': 'ok', 'new': len(new_under) + len(new_pq),
+                        'flags': [flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
 load_fg_profiles()
+load_pitcher_quality_prior()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

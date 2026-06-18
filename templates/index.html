@@ -104,18 +104,11 @@
   .divider{height:1px;background:var(--border);margin:20px 20px 0}
   footer{margin-top:32px;text-align:center;font-size:.62rem;color:var(--dim);letter-spacing:.1em}
   footer a{color:var(--muted);text-decoration:none}
-  /* Archetype signal cards */
-  #arch-section{padding:20px 20px 0;display:none}
-  .arch-card{background:var(--surface);border:1px solid rgba(79,184,255,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
-  .arch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(79,184,255,.5),transparent)}
-  .arch-card.over{border-color:rgba(255,159,71,.35)}
-  .arch-card.over::before{background:linear-gradient(90deg,transparent,rgba(255,159,71,.6),transparent)}
-  .arch-signal-badge{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif}
-  .arch-signal-badge.under{color:var(--blue);background:rgba(79,184,255,.08);border:1px solid rgba(79,184,255,.3)}
-  .arch-signal-badge.over{color:var(--orange);background:rgba(255,159,71,.08);border:1px solid rgba(255,159,71,.3)}
-  .arch-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
-  .arch-basis{font-size:.55rem;color:var(--dim);margin-top:4px;font-style:italic}
-  .arch-lineup-stat{display:inline-flex;align-items:center;gap:3px;font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border:1px solid var(--dim);border-radius:3px;padding:2px 7px}
+  /* Pitcher Quality Composite cards */
+  #pq-section{padding:20px 20px 0;display:none}
+  .pq-card{background:var(--surface);border:1px solid rgba(255,159,71,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .pq-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,159,71,.5),transparent)}
+  .pq-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
 </style>
 </head>
 <body>
@@ -157,16 +150,16 @@
     <div id="f5combined-list"></div>
   </div>
 </div>
-<div id="arch-section">
+<div id="pq-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
     <div class="flags-header">
-      <div class="flags-count" id="arch-count"></div>
-      <div class="section-label" style="margin:0">Archetype Signals
-        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--muted);margin-left:8px;text-transform:uppercase">Shadow Track</span>
+      <div class="flags-count" id="pq-count"></div>
+      <div class="section-label" style="margin:0">Pitcher Quality Composite
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--orange);margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
       </div>
     </div>
-    <div id="arch-list"></div>
+    <div id="pq-list"></div>
   </div>
 </div>
 <div id="dfs-section">
@@ -405,71 +398,27 @@
     return card;
   }
 
-  function buildArchCard(f, i) {
+  function buildPqCard(f, i) {
     const card = document.createElement('div');
-    const signals = f.arch_signals || {};
-    const sigmaSign = f.std_from_mean >= 0 ? '+' : '';
-    const kPct = f.pitcher_k_rate ? (f.pitcher_k_rate * 100).toFixed(1) + '%' : '—';
-    const lineupTag = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Lineup confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineup pending</span>`;
-    const archLabel = f.lineup_arch || '—';
-    const archColor = archLabel === 'hi_hh_lo_k' ? 'var(--blue)' : archLabel === 'lo_hh_hi_k' ? 'var(--orange)' : 'var(--muted)';
-    const coveragePct = f.arch_coverage ? `${f.arch_coverage}/9` : '—';
-
-    // Determine primary signal type for card styling
-    const hasOver = !!signals.arch_o25;
-    const hasUnder = !!(signals.arch_u15 || signals.arch_u25);
-    card.className = `arch-card ${hasOver && !hasUnder ? 'over' : ''}`;
+    card.className = 'pq-card';
     card.style.animationDelay = `${i * 0.06}s`;
-
-    // Build signal badges
-    let badgesHtml = '';
-    if (signals.arch_u25) {
-      badgesHtml += `<div class="arch-signal-badge under">🔵 U2.5 Signal</div>`;
-    }
-    if (signals.arch_u15) {
-      badgesHtml += `<div class="arch-signal-badge under" style="margin-left:${badgesHtml?'6px':'0'}">🔵 U1.5 Signal</div>`;
-    }
-    if (signals.arch_o25) {
-      badgesHtml += `<div class="arch-signal-badge over" style="margin-left:${badgesHtml?'6px':'0'}">🟠 O2.5 Signal</div>`;
-    }
-
-    // Signal details
-    let detailsHtml = '';
-    if (signals.arch_u25) {
-      detailsHtml += `<div class="arch-detail">${signals.arch_u25.detail}</div><div class="arch-basis">${signals.arch_u25.basis}</div>`;
-    }
-    if (signals.arch_u15) {
-      detailsHtml += `<div class="arch-detail" style="margin-top:${detailsHtml?'8px':'0'}">${signals.arch_u15.detail}</div><div class="arch-basis">${signals.arch_u15.basis}</div>`;
-    }
-    if (signals.arch_o25) {
-      detailsHtml += `<div class="arch-detail" style="margin-top:${detailsHtml?'8px':'0'}">${signals.arch_o25.detail}</div><div class="arch-basis">${signals.arch_o25.basis}</div>`;
-    }
-
+    const pct = f.pq_percentile !== null ? f.pq_percentile.toFixed(0) + 'th pctile' : '—';
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal" style="font-size:1.1rem;color:${hasOver&&!hasUnder?'var(--orange)':'var(--blue)'}">${hasOver&&!hasUnder?'OVER':'UNDER'}</div>
-          <div class="hm-sigma">${sigmaSign}${f.std_from_mean}σ</div>
+          <div class="hm-signal" style="font-size:1rem;color:var(--orange)">Q4 PITCHER</div>
+          <div class="hm-sigma">${pct}</div>
         </div>
       </div>
       <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">${badgesHtml}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
-        <div><div class="hm-stat-label">vs Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
-        <div><div class="hm-stat-label">Pitcher K%</div><div class="hm-stat-value">${kPct}</div></div>
-        <div><div class="hm-stat-label">Lineup Arch</div><div class="hm-stat-value" style="color:${archColor};font-size:.72rem">${archLabel}</div></div>
+        <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
+        <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-        <span class="arch-lineup-stat">HH ${f.lineup_hh!==null?(f.lineup_hh*100).toFixed(1)+'%':'—'}</span>
-        <span class="arch-lineup-stat">K ${f.lineup_k!==null?(f.lineup_k*100).toFixed(1)+'%':'—'}</span>
-        <span class="arch-lineup-stat">Coverage ${coveragePct}</span>
-      </div>
-      ${detailsHtml}
-      <div style="margin-top:10px">${lineupTag}</div>`;
+      <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>`;
     return card;
   }
 
@@ -481,7 +430,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','arch-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -524,13 +473,13 @@
           document.getElementById('f5combined-section').style.display='block';
         }
 
-        // ── Archetype signals ──────────────────────────────────────────
-        const archList = document.getElementById('arch-list'); archList.innerHTML='';
-        const archFlags = (data.arch_flags||[]).filter(f=>f.arch_u15||f.arch_u25||f.arch_o25);
-        if (archFlags.length > 0) {
-          document.getElementById('arch-count').textContent = `${archFlags.length} Signal${archFlags.length!==1?'s':''}`;
-          archFlags.forEach((f,i) => archList.appendChild(buildArchCard(f,i)));
-          document.getElementById('arch-section').style.display = 'block';
+        // ── Pitcher Quality Composite (tracking only) ───────────────────
+        const pqList = document.getElementById('pq-list'); pqList.innerHTML='';
+        const pqFlags = (data.pq_flags||[]).filter(f=>f.pq_q4);
+        if (pqFlags.length > 0) {
+          document.getElementById('pq-count').textContent = `${pqFlags.length} Pitcher${pqFlags.length!==1?'s':''}`;
+          pqFlags.forEach((f,i) => pqList.appendChild(buildPqCard(f,i)));
+          document.getElementById('pq-section').style.display = 'block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
