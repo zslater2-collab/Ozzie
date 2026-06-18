@@ -1,6 +1,7 @@
 import os
 import csv
 import math
+import bisect
 import pickle
 import requests
 import pandas as pd
@@ -128,12 +129,14 @@ def load_pitcher_quality_prior():
         with open(path) as f:
             for row in csv.DictReader(f):
                 _pq_prior[int(row['mlbID'])] = {
-                    'k_rate':  float(row['k_rate']),
-                    'bb_rate': float(row['bb_rate']),
-                    'hr_rate': float(row['hr_rate']),
+                    'k_rate':     float(row['k_rate']),
+                    'bb_rate':    float(row['bb_rate']),
+                    'hr_rate':    float(row['hr_rate']),
+                    'is_starter': row.get('is_starter', 'True').strip().lower() == 'true',
                 }
+        n_starters = sum(1 for v in _pq_prior.values() if v['is_starter'])
         _pq_prior_loaded = True
-        print(f"Pitcher quality prior loaded: {len(_pq_prior)} pitchers")
+        print(f"Pitcher quality prior loaded: {len(_pq_prior)} pitchers ({n_starters} starters)")
     except Exception as e:
         print(f"Warning: pitcher quality prior load failed: {e}")
 
@@ -196,21 +199,31 @@ def get_pitcher_quality_population():
     if len(blended) < 10:
         return {}
 
-    means  = {stat: sum(b[stat] for b in blended.values()) / len(blended) for stat in ('k_rate', 'bb_rate', 'hr_rate')}
-    stds   = {stat: (sum((b[stat] - means[stat]) ** 2 for b in blended.values()) / len(blended)) ** 0.5
+    # Reference distribution (mean/std/percentile ranking) is computed from STARTERS ONLY —
+    # the prior pool is ~60% relievers (different K/BB rate profile), and the validated research
+    # quartile was defined among actual starting pitchers in 1.5-line games, not all of MLB.
+    # Mixing relievers into the reference population measurably shifts the Q4 cutoff (verified
+    # June 2026: ~1.7% of starters flip Q4 status between the two methods). Every pitcher still
+    # gets scored/blended the same way — only the comparison population is restricted here.
+    starter_ids = [pid for pid in blended if _pq_prior.get(pid, {}).get('is_starter')]
+    ref_pool    = starter_ids if len(starter_ids) >= 10 else list(blended.keys())
+
+    means  = {stat: sum(blended[pid][stat] for pid in ref_pool) / len(ref_pool) for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+    stds   = {stat: (sum((blended[pid][stat] - means[stat]) ** 2 for pid in ref_pool) / len(ref_pool)) ** 0.5
               for stat in ('k_rate', 'bb_rate', 'hr_rate')}
 
-    scores = {}
-    for pid, b in blended.items():
+    def compute_score(b):
         z = {stat: (b[stat] - means[stat]) / stds[stat] if stds[stat] > 0 else 0.0
              for stat in ('k_rate', 'bb_rate', 'hr_rate')}
-        scores[pid] = PQ_WEIGHTS['k'] * z['k_rate'] + PQ_WEIGHTS['bb'] * z['bb_rate'] + PQ_WEIGHTS['hr'] * z['hr_rate']
+        return PQ_WEIGHTS['k'] * z['k_rate'] + PQ_WEIGHTS['bb'] * z['bb_rate'] + PQ_WEIGHTS['hr'] * z['hr_rate']
 
-    ranked = sorted(scores.items(), key=lambda kv: kv[1])
-    n = len(ranked)
+    ref_scores_sorted = sorted(compute_score(blended[pid]) for pid in ref_pool)
+    n_ref = len(ref_scores_sorted)
+
     population = {}
-    for rank, (pid, score) in enumerate(ranked):
-        pctile = 100.0 * rank / (n - 1) if n > 1 else 50.0
+    for pid, b in blended.items():
+        score  = compute_score(b)
+        pctile = 100.0 * bisect.bisect_left(ref_scores_sorted, score) / n_ref if n_ref > 1 else 50.0
         population[pid] = {
             'score':      round(score, 4),
             'percentile': round(pctile, 1),
