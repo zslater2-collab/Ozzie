@@ -1647,8 +1647,9 @@ def api_picks():
         et_now    = datetime.now(pytz.timezone('America/New_York'))
         today     = et_now.strftime('%Y-%m-%d')
         cache_key = f"ozzie:picks:{today}"
+        force = request.args.get('refresh') == '1'
 
-        cached = redis_get(cache_key)
+        cached = None if force else redis_get(cache_key)
         if cached:
             try:
                 return jsonify(_json.loads(cached))
