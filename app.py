@@ -722,10 +722,13 @@ def get_lineups_and_starters(game_date):
 # Market key 'team_totals_1st_5_innings' requires the per-event odds endpoint (not the cheaper
 # bulk endpoint), so this costs real API credits: cost = markets x regions per event, now
 # 1 market x 3 regions = 3 credits/game (was 2 before adding Pinnacle's region). regions=us
-# covers DraftKings/Fanatics, regions=us2 covers theScore Bet (formerly ESPN Bet — its bookmaker
-# key may still be 'espnbet' on this API; TARGET_BOOKS below tries both so a rename doesn't
-# silently break this), regions=eu covers Pinnacle. ~45-87 credits/day at a typical 15-29 game
-# slate (was ~30-58 before). Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
+# covers DraftKings/Fanatics/FanDuel/BetMGM/Caesars (all free additions, same region, June 19,
+# 2026 -- the latter three are inconsistent game to game since they don't always post this
+# specific market), regions=us2 covers theScore Bet (formerly ESPN Bet — its bookmaker key may
+# still be 'espnbet' on this API; TARGET_BOOKS below tries both so a rename doesn't silently
+# break this), regions=eu covers Pinnacle. ~45-87 credits/day at a typical 15-29 game slate (was
+# ~30-58 before adding Pinnacle's region -- the FanDuel/BetMGM/Caesars addition itself didn't
+# change this number). Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
 # double-spend credits when both run close together.
 
 ODDS_API_KEY        = os.environ.get('ODDS_API_KEY', '')
@@ -734,12 +737,22 @@ ODDS_F5_MARKET      = 'team_totals_1st_5_innings'
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
+# FanDuel/BetMGM/Caesars added June 19, 2026 per Zach -- zero extra cost, they're already in the
+# same 'us' region response DraftKings/Fanatics come from, just weren't being kept before. He's
+# largely ignored these historically since they don't always post the F5 1st-5-innings team
+# totals market, so expect them to show up inconsistently game to game -- that's the book simply
+# not offering this specific market, not a bug. Caesars' key has changed before (William Hill US
+# rebrand), so both candidates are mapped defensively, same pattern as theScore Bet below.
 TARGET_BOOKS = {
-    'draftkings':  'DraftKings',
-    'fanatics':    'Fanatics',
-    'espnbet':     'theScore Bet',
-    'thescorebet': 'theScore Bet',  # in case the API renames this key
-    'pinnacle':    PINNACLE_BOOK_LABEL,
+    'draftkings':    'DraftKings',
+    'fanatics':      'Fanatics',
+    'espnbet':       'theScore Bet',
+    'thescorebet':   'theScore Bet',   # in case the API renames this key
+    'fanduel':       'FanDuel',
+    'betmgm':        'BetMGM',
+    'caesars':       'Caesars',
+    'williamhill_us': 'Caesars',       # legacy key from the William Hill US -> Caesars rebrand
+    'pinnacle':      PINNACLE_BOOK_LABEL,
 }
 
 NAME_TO_ABB = {
