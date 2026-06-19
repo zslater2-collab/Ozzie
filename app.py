@@ -982,6 +982,104 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
     return overlap_raw * (1 - pitcher_k_rate) / (1 - LEAGUE_AVG_KRATE)
 
 
+# ── TRACKING-ONLY MODE (June 2026 incident) ──────────────────────────────────────────
+# Google Drive started blocking gdown's public-link access to the ~12 sigma/heatmap model
+# files ("Cannot retrieve the public link... may have had many accesses") -- every worker
+# restart re-attempted all 12 downloads, which kept hammering Drive and worsening the block,
+# crash-looping the whole app (worker timeout / OOM -> SIGKILL -> cold restart -> repeat).
+# Per Zach: pause sigma/heatmap, FG Under, HR picks, and DFS picks entirely (all depend on
+# load_model() / Google Drive) and surface ONLY the two F5 TT U1.5 tracking signals that
+# don't touch Drive at all -- Pitcher Quality Composite (pq_q4) and Offense Quality
+# Composite (off_q3_gate), both sourced from local CSV priors + live pybaseball pulls.
+# To restore full functionality once Drive access is fixed: swap get_tracking_only_flags(games)
+# back to model = load_model(); get_heatmap_flags(games, model) in api_picks/api_notify, and
+# restore get_hr_picks/get_dfs_picks.
+def get_tracking_only_flags(games):
+    flags = []
+
+    try:
+        odds_lines = get_odds_api_lines(games)
+    except Exception as e:
+        print(f"Odds API lookup error: {e}")
+        odds_lines = {}
+
+    try:
+        pq_population = get_pitcher_quality_population()
+    except Exception as e:
+        print(f"Pitcher quality population error: {e}")
+        pq_population = {}
+
+    try:
+        off_population = get_offense_quality_population()
+    except Exception as e:
+        print(f"Offense quality population error: {e}")
+        off_population = {}
+
+    for game in games:
+        matchups = [
+            (game['away_lineup'], game['home_pitcher_id'],
+             game['home_pitcher_name'], game['away_team'],
+             game['home_team'], f"{game['away_team']}@{game['home_team']}"),
+            (game['home_lineup'], game['away_pitcher_id'],
+             game['away_pitcher_name'], game['home_team'],
+             game['away_team'], f"{game['away_team']}@{game['home_team']}"),
+        ]
+        for lineup, pitcher_id, pitcher_name, batting_team, fielding_team, game_str in matchups:
+            if not lineup or not pitcher_id:
+                continue
+
+            pq_info = pq_population.get(pitcher_id) if pitcher_id else None
+            pq_q4   = bool(pq_info and pq_info['quartile'] == 'Q4')
+
+            off_info = get_lineup_offense_quality(lineup, off_population) if off_population else None
+            off_q3_gate = bool(
+                off_info and
+                OFF_Q3_LOW_PCTILE <= off_info['off_pctile'] <= OFF_Q3_HIGH_PCTILE and
+                off_info['o_bb_rate'] < OFF_BB_RATE_MEDIAN
+            )
+
+            if not pq_q4 and not off_q3_gate:
+                continue
+
+            flag = {
+                'game':             game_str,
+                'batting_team':     batting_team,
+                'fielding_team':    fielding_team,
+                'pitcher_name':     pitcher_name,
+                'pitcher_id':       pitcher_id,
+                'signal':           'pitcher_quality_only' if pq_q4 else 'offense_quality_only',
+                'game_time':        game.get('game_time'),
+                'pq_score':         pq_info['score']      if pq_info else None,
+                'pq_percentile':    pq_info['percentile'] if pq_info else None,
+                'pq_quartile':      pq_info['quartile']   if pq_info else None,
+                'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
+                'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
+                'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
+                'pq_q4':            pq_q4,
+                'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
+                                      '1.5, this historically favors UNDER (check the line yourself; '
+                                      'not yet proven on 2026 — tracking signal only, do not bet)')
+                                     if pq_q4 else None,
+                'off_pctile':       off_info['off_pctile'] if off_info else None,
+                'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
+                'off_q3_gate':      off_q3_gate,
+                'off_note':         ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
+                                      'this team is 1.5, this historically favors UNDER (check the line '
+                                      'yourself; 2 years OOS-replicated but still tracking signal only, '
+                                      'do not bet)')
+                                     if off_q3_gate else None,
+                'odds_lines':       odds_lines.get(batting_team, {}),
+                'odds_has_1_5':     any(b.get('point') == 1.5 for b in odds_lines.get(batting_team, {}).values()),
+            }
+            flags.append(flag)
+
+    pq_only_flags  = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
+                             key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    off_only_flags = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
+                             key=lambda x: x.get('off_pctile', 0), reverse=True)
+    return pq_only_flags + off_only_flags
+
+
 def get_heatmap_flags(games, model):
     pitcher_scores  = model.get('all_pitcher_arch_scores', {})
     nb_bundle       = model.get('negbin_model_params')
@@ -1486,9 +1584,11 @@ def api_picks():
             except Exception:
                 pass
 
-        model     = load_model()
+        # TRACKING-ONLY MODE (see comment above get_tracking_only_flags): Google Drive model
+        # loading is paused, so load_model()/get_hr_picks()/get_dfs_picks() are not called --
+        # all three need the Drive-loaded model. picks/dfs_picks stay empty until restored.
         games     = get_lineups_and_starters(today)
-        picks     = get_hr_picks(games, model)
+        picks     = {}
         complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
@@ -1496,17 +1596,13 @@ def api_picks():
                       'game_time': g.get('game_time')}
                      for g in games]
 
-        heatmap_flags   = get_heatmap_flags(games, model)
+        heatmap_flags   = get_tracking_only_flags(games)
         fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
         pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
         off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
 
         dfs_picks = {}
-        try:
-            dfs_picks = get_dfs_picks(games, model)
-        except Exception as e:
-            print(f"DFS picks error: {e}")
 
         payload = {
             'date':            today,
@@ -1806,10 +1902,10 @@ def api_notify():
     if not NOTIFY_SECRET or secret != NOTIFY_SECRET:
         return jsonify({'error': 'Unauthorized'}), 401
     try:
-        model   = load_model()
+        # TRACKING-ONLY MODE (see comment above get_tracking_only_flags): Drive loading paused.
         today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games   = get_lineups_and_starters(today)
-        flags   = get_heatmap_flags(games, model)
+        flags   = get_tracking_only_flags(games)
         under_flags = [f for f in flags if f.get('signal') == 'under']
         pq_flags    = [f for f in flags if f.get('pq_q4')]
         off_flags   = [f for f in flags if f.get('off_q3_gate')]
