@@ -1,4 +1,5 @@
 import os
+import sys
 import csv
 import math
 import bisect
@@ -12,6 +13,16 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 import gdown
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FutureTimeoutError
+
+# Under gunicorn, stdout to a non-tty defaults to block-buffered, not line-buffered -- print()
+# calls from inside request handlers can sit in the buffer indefinitely instead of reaching
+# Render's logs, while only the handful of print()s that happen to fire together at worker
+# boot (FG profiles/PQ prior/offense prior) show up reliably. Confirmed June 2026: an entire
+# 53-minute window with 10+ requests, including two that definitely ran the pitcher-quality
+# population build, produced zero diagnostic output. Force line buffering so every print() is
+# visible in logs immediately, not just the ones that happen to fill a buffer.
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 DOWNLOAD_TIMEOUT_SECONDS = 20
 
