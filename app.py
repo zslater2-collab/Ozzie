@@ -191,15 +191,16 @@ def _pq_fetch_current_season():
         return {}
 
 
-def get_pitcher_quality_population():
+def get_pitcher_quality_population(force=False):
     """
     Returns dict: mlbID -> {score, percentile, quartile, k_rate, bb_rate, hr_rate}.
     Blends career prior with current-season-to-date (Marcel, leak-free as of right now).
     Cached PQ_SEASON_TTL seconds since current-season stats don't change minute to minute.
+    force=True bypasses this cache (see /api/picks?refresh=1).
     """
     global _pq_population_cache, _pq_population_cache_time
     now = datetime.now().timestamp()
-    if _pq_population_cache and _pq_population_cache_time and \
+    if not force and _pq_population_cache and _pq_population_cache_time and \
             (now - _pq_population_cache_time < PQ_SEASON_TTL):
         return _pq_population_cache
 
@@ -403,14 +404,15 @@ def _off_fetch_current_season():
         return {}
 
 
-def get_offense_quality_population():
+def get_offense_quality_population(force=False):
     """
     Returns dict: mlbID -> {score, percentile, k_rate, bb_rate, slg}.
     Blends career prior with current-season-to-date (Marcel). Cached OFF_SEASON_TTL seconds.
+    force=True bypasses this cache (see /api/picks?refresh=1).
     """
     global _off_population_cache, _off_population_cache_time
     now = datetime.now().timestamp()
-    if _off_population_cache and _off_population_cache_time and \
+    if not force and _off_population_cache and _off_population_cache_time and \
             (now - _off_population_cache_time < OFF_SEASON_TTL):
         return _off_population_cache
 
@@ -754,11 +756,13 @@ def _odds_american_to_profit(price):
     return price / 100.0 if price > 0 else 100.0 / abs(price)
 
 
-def get_odds_api_lines(games):
+def get_odds_api_lines(games, force=False):
     """
     Returns dict: team_abb -> {book_key: {'point': float, 'over': int, 'under': int,
     'over_profit': float, 'under_profit': float}}. Cached ODDS_API_TTL seconds in Redis
     (shared across /api/picks and /api/notify) since each call costs real API credits.
+    force=True bypasses this cache (see /api/picks?refresh=1) -- spends real credits, only
+    use when actually needed (e.g. debugging), not on every normal request.
     """
     if not ODDS_API_KEY or not games:
         return {}
@@ -766,7 +770,7 @@ def get_odds_api_lines(games):
     import json as _json
     today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
     cache_key = f"ozzie:odds_lines:{today}"
-    cached    = redis_get(cache_key)
+    cached    = None if force else redis_get(cache_key)
     if cached:
         try:
             return _json.loads(cached)
@@ -1056,23 +1060,23 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
 # To restore full functionality once Drive access is fixed: swap get_tracking_only_flags(games)
 # back to model = load_model(); get_heatmap_flags(games, model) in api_picks/api_notify, and
 # restore get_hr_picks/get_dfs_picks.
-def get_tracking_only_flags(games):
+def get_tracking_only_flags(games, force=False):
     flags = []
 
     try:
-        odds_lines = get_odds_api_lines(games)
+        odds_lines = get_odds_api_lines(games, force=force)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
         odds_lines = {}
 
     try:
-        pq_population = get_pitcher_quality_population()
+        pq_population = get_pitcher_quality_population(force=force)
     except Exception as e:
         print(f"Pitcher quality population error: {e}")
         pq_population = {}
 
     try:
-        off_population = get_offense_quality_population()
+        off_population = get_offense_quality_population(force=force)
     except Exception as e:
         print(f"Offense quality population error: {e}")
         off_population = {}
@@ -1647,6 +1651,11 @@ def api_picks():
         et_now    = datetime.now(pytz.timezone('America/New_York'))
         today     = et_now.strftime('%Y-%m-%d')
         cache_key = f"ozzie:picks:{today}"
+        # ?refresh=1 bypasses ALL THREE cache layers, not just this one: the picks-response
+        # Redis cache here, plus the 6h in-memory PQ/offense population caches and the 4h Redis
+        # odds-lines cache (both inside get_tracking_only_flags). Forcing only this top-level
+        # cache used to silently still serve the inner caches' data with zero fresh fetch
+        # happening -- discovered June 19, 2026 debugging why diagnostic print()s never fired.
         force = request.args.get('refresh') == '1'
 
         cached = None if force else redis_get(cache_key)
@@ -1668,7 +1677,7 @@ def api_picks():
                       'game_time': g.get('game_time')}
                      for g in games]
 
-        heatmap_flags   = get_tracking_only_flags(games)
+        heatmap_flags   = get_tracking_only_flags(games, force=force)
         fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
         over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
         pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
