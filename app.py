@@ -1660,7 +1660,7 @@ def api_picks():
         # loading is paused, so load_model()/get_hr_picks()/get_dfs_picks() are not called --
         # all three need the Drive-loaded model. picks/dfs_picks stay empty until restored.
         games     = get_lineups_and_starters(today)
-        picks     = {}
+        picks     = []  # get_hr_picks() normally returns a list -- frontend calls picks.forEach/.length
         complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
 
         games_out = [{'away': g['away_team'], 'home': g['home_team'],
