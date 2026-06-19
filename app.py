@@ -156,21 +156,33 @@ def load_pitcher_quality_prior():
 
 
 def _pq_fetch_current_season():
-    """Current-season K/BB/HR counts per pitcher via pybaseball (Baseball-Reference)."""
+    """
+    Current-season BF/K/BB/HR per pitcher via the official MLB Stats API bulk season-stats
+    endpoint -- one request for the whole league (playerPool=ALL, not just qualifiers).
+    Replaces a pybaseball Baseball-Reference scrape that started failing 100% of the time in
+    production (June 2026: "list index out of range" on every call) while working fine
+    locally -- consistent with Baseball-Reference rate-limiting/blocking Render's IP after
+    repeated automated requests. MLB Stats API is the same official, keyless, un-blocked
+    source already used reliably elsewhere in this app for lineups/boxscores.
+    """
     try:
-        import pybaseball as pb
-        year = datetime.now().year
-        ps = pb.pitching_stats_bref(year)
-        ps = ps.sort_values('IP', ascending=False).drop_duplicates('Name', keep='first')
-        ps = ps.dropna(subset=['mlbID'])
+        r = requests.get(
+            "https://statsapi.mlb.com/api/v1/stats",
+            params={'stats': 'season', 'group': 'pitching', 'season': datetime.now().year,
+                    'sportId': 1, 'limit': 3000, 'playerPool': 'ALL'},
+            timeout=20)
+        r.raise_for_status()
+        splits = r.json().get('stats', [{}])[0].get('splits', [])
         season = {}
-        for _, row in ps.iterrows():
-            bf = row.get('BF', 0) or 0
-            if bf <= 0:
+        for s in splits:
+            stat = s.get('stat', {})
+            bf = stat.get('battersFaced', 0) or 0
+            pid = s.get('player', {}).get('id')
+            if bf <= 0 or pid is None:
                 continue
-            season[int(row['mlbID'])] = {
-                'bf': bf, 'so': row.get('SO', 0) or 0,
-                'bb': row.get('BB', 0) or 0, 'hr': row.get('HR', 0) or 0,
+            season[int(pid)] = {
+                'bf': bf, 'so': stat.get('strikeOuts', 0) or 0,
+                'bb': stat.get('baseOnBalls', 0) or 0, 'hr': stat.get('homeRuns', 0) or 0,
             }
         print(f"Pitcher quality current-season fetch: {len(season)} pitchers with BF>0")
         return season
@@ -360,23 +372,29 @@ def load_batter_offense_prior():
 
 
 def _off_fetch_current_season():
-    """Current-season PA/AB/K/BB/TB per batter via pybaseball (Baseball-Reference)."""
+    """
+    Current-season PA/AB/K/BB/TB per batter via the official MLB Stats API bulk season-stats
+    endpoint -- same fix and same reasoning as _pq_fetch_current_season above (the prior
+    Baseball-Reference scrape was failing 100% of the time in production).
+    """
     try:
-        import pybaseball as pb
-        year = datetime.now().year
-        bs = pb.batting_stats_bref(year)
-        bs = bs.sort_values('PA', ascending=False).drop_duplicates('mlbID', keep='first')
-        bs = bs.dropna(subset=['mlbID'])
+        r = requests.get(
+            "https://statsapi.mlb.com/api/v1/stats",
+            params={'stats': 'season', 'group': 'hitting', 'season': datetime.now().year,
+                    'sportId': 1, 'limit': 3000, 'playerPool': 'ALL'},
+            timeout=20)
+        r.raise_for_status()
+        splits = r.json().get('stats', [{}])[0].get('splits', [])
         season = {}
-        for _, row in bs.iterrows():
-            pa = row.get('PA', 0) or 0
-            if pa <= 0:
+        for s in splits:
+            stat = s.get('stat', {})
+            pa = stat.get('plateAppearances', 0) or 0
+            pid = s.get('player', {}).get('id')
+            if pa <= 0 or pid is None:
                 continue
-            ab = row.get('AB', 0) or 0
-            tb = (row.get('H', 0) or 0) + (row.get('2B', 0) or 0) + 2 * (row.get('3B', 0) or 0) + 3 * (row.get('HR', 0) or 0)
-            season[int(row['mlbID'])] = {
-                'pa': pa, 'ab': ab, 'so': row.get('SO', 0) or 0,
-                'bb': row.get('BB', 0) or 0, 'tb': tb,
+            season[int(pid)] = {
+                'pa': pa, 'ab': stat.get('atBats', 0) or 0, 'so': stat.get('strikeOuts', 0) or 0,
+                'bb': stat.get('baseOnBalls', 0) or 0, 'tb': stat.get('totalBases', 0) or 0,
             }
         print(f"Offense quality current-season fetch: {len(season)} batters with PA>0")
         return season
