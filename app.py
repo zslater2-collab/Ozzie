@@ -112,6 +112,14 @@ _FG_PROFILES_LOADED = False
 #   in two different years (likely because the Marcel blend itself gets more accurate as more
 #   current-season data accumulates). Promising but underpowered — NOT a proven, deployable edge.
 #
+#   THRESHOLD UPDATE (June 19, 2026, TIER 1 finding #3): the ≥75th-percentile (quartile) cutoff
+#   contains a hidden dead zone at the 1.5 line — the 74th-87th percentile sub-band is actually
+#   NEGATIVE (2025: -6.5% ROI; 2026 OOS: -11.4% ROI, both replicated). A narrower 87-92nd "sweet
+#   spot" looked best in-sample but failed 2026 OOS (-5.2%, overfit, rejected). The cutoff that
+#   DOES replicate cleanly OOS is ~80th percentile (top quintile): 2025 n=310, 57.4% hit, +12.7%
+#   ROI, p=0.0006; 2026 OOS n=266, 56.0% hit, +9.4% ROI, p=0.0024 — both beat the old 75th-cut's
+#   OOS showing. Moved PQ_Q4_PCTILE from 75 to 80 accordingly. See CLAUDE.md TIER 1 FINDINGS.
+#
 # CRITICAL — this ONLY works at the 1.5 F5 team-total line specifically. At 2.5 lines, the effect
 # is flat-to-backward. This app does not fetch live odds/lines, so it cannot gate on line level —
 # you must check the actual posted F5 line yourself before treating this as anything actionable.
@@ -121,7 +129,7 @@ _FG_PROFILES_LOADED = False
 PQ_WEIGHTS       = {'k': 0.1186068959664584, 'bb': -0.156144018411192, 'hr': -0.1944839999359043}
 PQ_PHANTOM_BF    = {'k_rate': 70, 'bb_rate': 170, 'hr_rate': 1320}
 PQ_PRIOR_CSV     = 'pitcher_quality_prior_2026.csv'
-PQ_Q4_PCTILE     = 75.0
+PQ_Q4_PCTILE     = 80.0  # top quintile, not quartile -- see THRESHOLD UPDATE note above
 PQ_SEASON_TTL    = 21600  # 6h — current-season cumulative stats don't need hourly refresh
 
 _pq_prior        = {}
@@ -1160,7 +1168,7 @@ def get_tracking_only_flags(games, force=False):
                 # mostly/entirely the stale career prior, not a real current-season blend -- check
                 # this before trusting a flag. See the Nola incident, June 2026.
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
-                'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
+                'pq_note':          ('Top-quintile pitcher quality — IF the F5 line for this team is '
                                       '1.5, this historically favors UNDER (check the line yourself; '
                                       'not yet proven on 2026 — tracking signal only, do not bet)')
                                      if pq_q4 else None,
@@ -1336,7 +1344,7 @@ def get_heatmap_flags(games, model):
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
                 'pq_q4':            pq_q4,
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
-                'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
+                'pq_note':          ('Top-quintile pitcher quality — IF the F5 line for this team is '
                                       '1.5, this historically favors UNDER (check the line yourself; '
                                       'not yet proven on 2026 — tracking signal only, do not bet)')
                                      if pq_q4 else None,
