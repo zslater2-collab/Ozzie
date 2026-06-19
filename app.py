@@ -161,6 +161,7 @@ def _pq_fetch_current_season():
                 'bf': bf, 'so': row.get('SO', 0) or 0,
                 'bb': row.get('BB', 0) or 0, 'hr': row.get('HR', 0) or 0,
             }
+        print(f"Pitcher quality current-season fetch: {len(season)} pitchers with BF>0")
         return season
     except Exception as e:
         print(f"Warning: pitcher quality current-season fetch failed: {e}")
@@ -185,9 +186,14 @@ def get_pitcher_quality_population():
 
     season = _pq_fetch_current_season()
     blended = {}
+    current_bf_by_pid = {}
+    n_zero_current = 0
     for pid, prior in _pq_prior.items():
         s = season.get(pid, {'bf': 0, 'so': 0, 'bb': 0, 'hr': 0})
         bf = s['bf']
+        current_bf_by_pid[pid] = bf
+        if bf == 0:
+            n_zero_current += 1
         season_rates = {
             'k_rate':  s['so'] / bf if bf > 0 else 0,
             'bb_rate': s['bb'] / bf if bf > 0 else 0,
@@ -198,6 +204,10 @@ def get_pitcher_quality_population():
             ph = PQ_PHANTOM_BF[stat]
             blend[stat] = (ph * prior[stat] + bf * season_rates[stat]) / (ph + bf)
         blended[pid] = blend
+
+    if n_zero_current > len(_pq_prior) * 0.5:
+        print(f"Warning: pitcher quality current-season data missing for {n_zero_current}/{len(_pq_prior)} "
+              f"pitchers -- most blended scores this cycle are degraded to pure career prior")
 
     if len(blended) < 10:
         return {}
@@ -228,14 +238,20 @@ def get_pitcher_quality_population():
         score  = compute_score(b)
         pctile = 100.0 * bisect.bisect_left(ref_scores_sorted, score) / n_ref if n_ref > 1 else 50.0
         population[pid] = {
-            'score':      round(score, 4),
-            'percentile': round(pctile, 1),
-            'quartile':   'Q4' if pctile >= PQ_Q4_PCTILE else ('Q1' if pctile < 25 else ('Q2' if pctile < 50 else 'Q3')),
-            'k_rate':     round(blended[pid]['k_rate'], 4),
-            'bb_rate':    round(blended[pid]['bb_rate'], 4),
-            'hr_rate':    round(blended[pid]['hr_rate'], 4),
+            'score':       round(score, 4),
+            'percentile':  round(pctile, 1),
+            'quartile':    'Q4' if pctile >= PQ_Q4_PCTILE else ('Q1' if pctile < 25 else ('Q2' if pctile < 50 else 'Q3')),
+            'k_rate':      round(blended[pid]['k_rate'], 4),
+            'bb_rate':     round(blended[pid]['bb_rate'], 4),
+            'hr_rate':     round(blended[pid]['hr_rate'], 4),
+            # How much of THIS pitcher's score is real current-season data vs pure career prior --
+            # 0 means the current-season fetch had nothing for them (network blip, BRef lag, etc.)
+            # and the blend silently fell back to the prior alone. See incident notes, June 2026.
+            'current_bf':  current_bf_by_pid.get(pid, 0),
         }
 
+    print(f"Pitcher quality population built: {len(population)} pitchers, "
+          f"{n_zero_current} with zero current-season BF")
     _pq_population_cache      = population
     _pq_population_cache_time = now
     return population
@@ -351,6 +367,7 @@ def _off_fetch_current_season():
                 'pa': pa, 'ab': ab, 'so': row.get('SO', 0) or 0,
                 'bb': row.get('BB', 0) or 0, 'tb': tb,
             }
+        print(f"Offense quality current-season fetch: {len(season)} batters with PA>0")
         return season
     except Exception as e:
         print(f"Warning: offense quality current-season fetch failed: {e}")
@@ -374,9 +391,14 @@ def get_offense_quality_population():
 
     season = _off_fetch_current_season()
     blended = {}
+    current_pa_by_bid = {}
+    n_zero_current = 0
     for bid, prior in _off_prior.items():
         s = season.get(bid, {'pa': 0, 'ab': 0, 'so': 0, 'bb': 0, 'tb': 0})
         pa, ab = s['pa'], s['ab']
+        current_pa_by_bid[bid] = pa
+        if pa == 0:
+            n_zero_current += 1
         season_rates = {
             'k_rate':  s['so'] / pa if pa > 0 else 0,
             'bb_rate': s['bb'] / pa if pa > 0 else 0,
@@ -388,6 +410,10 @@ def get_offense_quality_population():
             'slg':     (OFF_PHANTOM['slg']     * prior['slg']     + ab * season_rates['slg'])     / (OFF_PHANTOM['slg']     + ab),
         }
         blended[bid] = blend
+
+    if n_zero_current > len(_off_prior) * 0.5:
+        print(f"Warning: offense quality current-season data missing for {n_zero_current}/{len(_off_prior)} "
+              f"batters -- most blended scores this cycle are degraded to pure career prior")
 
     if len(blended) < 10:
         return {}
@@ -414,8 +440,13 @@ def get_offense_quality_population():
             'k_rate':     round(b['k_rate'], 4),
             'bb_rate':    round(b['bb_rate'], 4),
             'slg':        round(b['slg'], 4),
+            # Same diagnostic as the pitcher side: 0 means this batter's current-season fetch came
+            # up empty and their score is pure career prior. See incident notes, June 2026.
+            'current_pa': current_pa_by_bid.get(bid, 0),
         }
 
+    print(f"Offense quality population built: {len(population)} batters, "
+          f"{n_zero_current} with zero current-season PA")
     _off_population_cache      = population
     _off_population_cache_time = now
     return population
@@ -431,7 +462,7 @@ def get_lineup_offense_quality(lineup, population):
     load_lineup_slot_weights()
     if not _lineup_slot_weights or not population:
         return None
-    wsum_pctile = wsum_bb = wtot = 0.0
+    wsum_pctile = wsum_bb = wsum_pa = wtot = 0.0
     n_matched = 0
     for batter in lineup:
         info = population.get(batter.get('id'))
@@ -439,15 +470,17 @@ def get_lineup_offense_quality(lineup, population):
         if info is None or slot not in _lineup_slot_weights:
             continue
         w = _lineup_slot_weights[slot]
-        wsum_pctile += info['percentile'] * w
-        wsum_bb     += info['bb_rate']    * w
+        wsum_pctile += info['percentile']         * w
+        wsum_bb     += info['bb_rate']            * w
+        wsum_pa     += info.get('current_pa', 0)  * w
         wtot        += w
         n_matched   += 1
     if n_matched < 5 or wtot <= 0:
         return None
     return {
-        'off_pctile': round(wsum_pctile / wtot, 1),
-        'o_bb_rate':  round(wsum_bb / wtot, 4),
+        'off_pctile':      round(wsum_pctile / wtot, 1),
+        'o_bb_rate':       round(wsum_bb / wtot, 4),
+        'current_pa_avg':  round(wsum_pa / wtot, 1),
     }
 
 
@@ -1056,6 +1089,10 @@ def get_tracking_only_flags(games):
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
                 'pq_q4':            pq_q4,
+                # 0 (or very low relative to the K phantom-BF of 70) means this pitcher's score is
+                # mostly/entirely the stale career prior, not a real current-season blend -- check
+                # this before trusting a flag. See the Nola incident, June 2026.
+                'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
                                       '1.5, this historically favors UNDER (check the line yourself; '
                                       'not yet proven on 2026 — tracking signal only, do not bet)')
@@ -1063,6 +1100,9 @@ def get_tracking_only_flags(games):
                 'off_pctile':       off_info['off_pctile'] if off_info else None,
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
+                # Same diagnostic, lineup-weighted: how much real current-season PA backs this
+                # team's offense score vs. falling back toward the career prior.
+                'off_current_pa_avg': off_info['current_pa_avg'] if off_info else None,
                 'off_note':         ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
                                       'this team is 1.5, this historically favors UNDER (check the line '
                                       'yourself; 2 years OOS-replicated but still tracking signal only, '
@@ -1225,6 +1265,7 @@ def get_heatmap_flags(games, model):
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
                 'pq_q4':            pq_q4,
+                'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          ('Top-quartile pitcher quality — IF the F5 line for this team is '
                                       '1.5, this historically favors UNDER (check the line yourself; '
                                       'not yet proven on 2026 — tracking signal only, do not bet)')
@@ -1235,6 +1276,7 @@ def get_heatmap_flags(games, model):
                 'off_pctile':       off_info['off_pctile'] if off_info else None,
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
+                'off_current_pa_avg': off_info['current_pa_avg'] if off_info else None,
                 'off_note':         ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
                                       'this team is 1.5, this historically favors UNDER (check the line '
                                       'yourself; 2 years OOS-replicated but still tracking signal only, '
