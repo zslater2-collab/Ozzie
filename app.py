@@ -818,6 +818,7 @@ def get_odds_api_lines(games, force=False):
           f"(unmatched sample: {[(NAME_TO_ABB.get(e.get('home_team','')), NAME_TO_ABB.get(e.get('away_team',''))) for e in events[:5]]})")
 
     lines = {}
+    all_bookmaker_keys = set()
     for event_id, home_abb, away_abb in matched_events:
         try:
             r = requests.get(
@@ -834,6 +835,7 @@ def get_odds_api_lines(games, force=False):
 
         for bm in data.get('bookmakers', []):
             book_key = bm.get('key', '')
+            all_bookmaker_keys.add(book_key)
             if book_key not in TARGET_BOOKS:
                 continue
             book_label = TARGET_BOOKS[book_key]
@@ -858,6 +860,7 @@ def get_odds_api_lines(games, force=False):
                         'under_profit':  round(_odds_american_to_profit(under['price']), 3),
                     }
 
+    print(f"Odds API bookmaker keys seen across all matched events: {sorted(all_bookmaker_keys)}")
     try:
         redis_set(cache_key, _json.dumps(lines), ex=ODDS_API_TTL)
     except Exception as e:
