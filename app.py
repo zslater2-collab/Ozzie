@@ -787,7 +787,14 @@ def get_odds_api_lines(games, force=False):
         print(f"Odds API events fetch error: {e}")
         return {}
 
-    wanted = {(g['home_team'], g['away_team']) for g in games}
+    # games' home_team/away_team come back as full names (e.g. "Detroit Tigers") whenever MLB
+    # Stats API's schedule response doesn't include the 'abbreviation' field for a team -- which
+    # turned out to be EVERY team in this call context, not occasional. Normalize both sides
+    # through NAME_TO_ABB (".get(x, x)" passes already-abbreviated values through unchanged) so
+    # this matches regardless of which format either side happens to use. Confirmed June 19,
+    # 2026: without this, matched was 0 of 25 events, every single time.
+    wanted = {(NAME_TO_ABB.get(g['home_team'], g['home_team']),
+               NAME_TO_ABB.get(g['away_team'], g['away_team'])) for g in games}
     matched_events = []
     for ev in events:
         home_abb = NAME_TO_ABB.get(ev.get('home_team', ''))
@@ -1141,8 +1148,11 @@ def get_tracking_only_flags(games, force=False):
                                       'yourself; 2 years OOS-replicated but still tracking signal only, '
                                       'do not bet)')
                                      if off_q3_gate else None,
-                'odds_lines':       odds_lines.get(batting_team, {}),
-                'odds_has_1_5':     any(b.get('point') == 1.5 for b in odds_lines.get(batting_team, {}).values()),
+                # odds_lines is keyed by abbreviation (team_abb), batting_team is the full name --
+                # normalize here too, same mismatch and same fix as get_odds_api_lines' matching.
+                'odds_lines':       odds_lines.get(NAME_TO_ABB.get(batting_team, batting_team), {}),
+                'odds_has_1_5':     any(b.get('point') == 1.5 for b in
+                                         odds_lines.get(NAME_TO_ABB.get(batting_team, batting_team), {}).values()),
             }
             flags.append(flag)
 
@@ -1318,9 +1328,11 @@ def get_heatmap_flags(games, model):
                 # Live F5 odds (DraftKings/Fanatics/theScore Bet) — see get_odds_api_lines.
                 # Display-only: does not filter pq_q4/off_q3_gate, just shows the real line/price
                 # per book so you don't have to check manually. {} if ODDS_API_KEY isn't set or
-                # this game/book combo wasn't found.
-                'odds_lines':       odds_lines.get(batting_team, {}),
-                'odds_has_1_5':     any(b.get('point') == 1.5 for b in odds_lines.get(batting_team, {}).values()),
+                # this game/book combo wasn't found. odds_lines is keyed by abbreviation --
+                # batting_team is the full name, normalize before lookup (see get_odds_api_lines).
+                'odds_lines':       odds_lines.get(NAME_TO_ABB.get(batting_team, batting_team), {}),
+                'odds_has_1_5':     any(b.get('point') == 1.5 for b in
+                                         odds_lines.get(NAME_TO_ABB.get(batting_team, batting_team), {}).values()),
             }
 
             # Add under-specific fields
