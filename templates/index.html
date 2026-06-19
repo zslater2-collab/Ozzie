@@ -415,6 +415,14 @@
     return card;
   }
 
+  function formatOddsLines(oddsLines) {
+    if (!oddsLines || Object.keys(oddsLines).length === 0) return '';
+    return Object.entries(oddsLines).map(([book, info]) => {
+      const mark = info.point === 1.5 ? ' ✅' : '';
+      return `${book} ${info.point}${mark}`;
+    }).join(' &nbsp;|&nbsp; ');
+  }
+
   function buildPqCard(f, i) {
     const card = document.createElement('div');
     card.className = 'pq-card';
@@ -435,7 +443,8 @@
         <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
-      <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>`;
+      <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
+      ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }
 
@@ -459,7 +468,8 @@
         <div><div class="hm-stat-label">Off BB Rate</div><div class="hm-stat-value">${(f.off_bb_rate*100).toFixed(1)}%</div></div>
         <div><div class="hm-stat-label">Off Pctile</div><div class="hm-stat-value">${pct}</div></div>
       </div>
-      <div class="off-detail" style="margin-top:8px">${f.off_note||''}</div>`;
+      <div class="off-detail" style="margin-top:8px">${f.off_note||''}</div>
+      ${formatOddsLines(f.odds_lines) ? `<div class="off-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }
 

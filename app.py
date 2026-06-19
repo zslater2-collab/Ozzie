@@ -626,6 +626,143 @@ def get_lineups_and_starters(game_date):
     return games
 
 
+# ── LIVE ODDS (The Odds API) — F5 team totals, line-level data for tracking signals ──
+# Added June 18, 2026. Both tracking signals (Pitcher Quality Composite, Offense Quality
+# Composite) only work at the 1.5 F5 line specifically — until now this app had no live odds
+# feed and required manually checking the posted line. Pulls real lines/prices from the three
+# books Zach can actually bet (Pinnacle is NOT used — he cannot access it from the US, see
+# CLAUDE.md "IMPORTANT CORRECTION — VALIDATION BOOK"). Display-only: per Zach's choice, this
+# does NOT filter/suppress any existing flag, it just attaches real line data to each one.
+#
+# Market key 'team_totals_1st_5_innings' requires the per-event odds endpoint (not the cheaper
+# bulk endpoint), so this costs real API credits: cost = markets x regions per event, currently
+# 1 market x 2 regions = 2 credits/game. regions=us covers DraftKings/Fanatics, regions=us2
+# covers theScore Bet (formerly ESPN Bet — its bookmaker key may still be 'espnbet' on this API;
+# TARGET_BOOKS below tries both so a rename doesn't silently break this). ~30-58 credits/day at
+# a typical 15-29 game slate. Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
+# double-spend credits when both run close together.
+
+ODDS_API_KEY      = os.environ.get('ODDS_API_KEY', '')
+ODDS_API_BASE     = 'https://api.the-odds-api.com/v4'
+ODDS_F5_MARKET    = 'team_totals_1st_5_innings'
+ODDS_REGIONS      = 'us,us2'
+ODDS_API_TTL      = 14400  # 4h
+TARGET_BOOKS = {
+    'draftkings': 'DraftKings',
+    'fanatics':   'Fanatics',
+    'espnbet':    'theScore Bet',
+    'thescorebet': 'theScore Bet',  # in case the API renames this key
+}
+
+NAME_TO_ABB = {
+    'Philadelphia Phillies': 'PHI', 'Atlanta Braves': 'ATL',
+    'New York Mets': 'NYM',         'Miami Marlins': 'MIA',
+    'Washington Nationals': 'WSH',  'Chicago Cubs': 'CHC',
+    'Milwaukee Brewers': 'MIL',     'St. Louis Cardinals': 'STL',
+    'Cincinnati Reds': 'CIN',       'Pittsburgh Pirates': 'PIT',
+    'Los Angeles Dodgers': 'LAD',   'San Francisco Giants': 'SF',
+    'San Diego Padres': 'SD',       'Colorado Rockies': 'COL',
+    'Arizona Diamondbacks': 'ARI',  'New York Yankees': 'NYY',
+    'Boston Red Sox': 'BOS',        'Toronto Blue Jays': 'TOR',
+    'Tampa Bay Rays': 'TB',         'Baltimore Orioles': 'BAL',
+    'Cleveland Guardians': 'CLE',   'Minnesota Twins': 'MIN',
+    'Chicago White Sox': 'CWS',     'Detroit Tigers': 'DET',
+    'Kansas City Royals': 'KC',     'Houston Astros': 'HOU',
+    'Texas Rangers': 'TEX',         'Seattle Mariners': 'SEA',
+    'Los Angeles Angels': 'LAA',    'Oakland Athletics': 'ATH',
+    'Athletics': 'ATH',
+}
+
+
+def _odds_american_to_profit(price):
+    price = float(price)
+    return price / 100.0 if price > 0 else 100.0 / abs(price)
+
+
+def get_odds_api_lines(games):
+    """
+    Returns dict: team_abb -> {book_key: {'point': float, 'over': int, 'under': int,
+    'over_profit': float, 'under_profit': float}}. Cached ODDS_API_TTL seconds in Redis
+    (shared across /api/picks and /api/notify) since each call costs real API credits.
+    """
+    if not ODDS_API_KEY or not games:
+        return {}
+
+    import json as _json
+    today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+    cache_key = f"ozzie:odds_lines:{today}"
+    cached    = redis_get(cache_key)
+    if cached:
+        try:
+            return _json.loads(cached)
+        except Exception:
+            pass
+
+    try:
+        ev_resp = requests.get(
+            f"{ODDS_API_BASE}/sports/baseball_mlb/events",
+            params={'apiKey': ODDS_API_KEY}, timeout=15)
+        events = ev_resp.json() if ev_resp.ok else []
+    except Exception as e:
+        print(f"Odds API events fetch error: {e}")
+        return {}
+
+    wanted = {(g['home_team'], g['away_team']) for g in games}
+    matched_events = []
+    for ev in events:
+        home_abb = NAME_TO_ABB.get(ev.get('home_team', ''))
+        away_abb = NAME_TO_ABB.get(ev.get('away_team', ''))
+        if (home_abb, away_abb) in wanted:
+            matched_events.append((ev['id'], home_abb, away_abb))
+
+    lines = {}
+    for event_id, home_abb, away_abb in matched_events:
+        try:
+            r = requests.get(
+                f"{ODDS_API_BASE}/sports/baseball_mlb/events/{event_id}/odds",
+                params={'apiKey': ODDS_API_KEY, 'regions': ODDS_REGIONS,
+                        'markets': ODDS_F5_MARKET, 'oddsFormat': 'american'},
+                timeout=15)
+            if not r.ok:
+                continue
+            data = r.json()
+        except Exception as e:
+            print(f"Odds API event {event_id} fetch error: {e}")
+            continue
+
+        for bm in data.get('bookmakers', []):
+            book_key = bm.get('key', '')
+            if book_key not in TARGET_BOOKS:
+                continue
+            book_label = TARGET_BOOKS[book_key]
+            for market in bm.get('markets', []):
+                if market.get('key') != ODDS_F5_MARKET:
+                    continue
+                by_team = {}
+                for outcome in market.get('outcomes', []):
+                    team_abb = NAME_TO_ABB.get(outcome.get('description', ''))
+                    if not team_abb:
+                        continue
+                    by_team.setdefault(team_abb, {})[outcome['name'].lower()] = outcome
+                for team_abb, sides in by_team.items():
+                    over, under = sides.get('over'), sides.get('under')
+                    if not over or not under:
+                        continue
+                    lines.setdefault(team_abb, {})[book_label] = {
+                        'point':         over.get('point'),
+                        'over':          int(over['price']),
+                        'under':         int(under['price']),
+                        'over_profit':   round(_odds_american_to_profit(over['price']), 3),
+                        'under_profit':  round(_odds_american_to_profit(under['price']), 3),
+                    }
+
+    try:
+        redis_set(cache_key, _json.dumps(lines), ex=ODDS_API_TTL)
+    except Exception as e:
+        print(f"Odds lines cache write error: {e}")
+    return lines
+
+
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
@@ -834,6 +971,12 @@ def get_heatmap_flags(games, model):
     bb_gb_rates_all = model.get('pitcher_bb_gb_rates', {}) or {}
     flags           = []
 
+    try:
+        odds_lines = get_odds_api_lines(games)
+    except Exception as e:
+        print(f"Odds API lookup error: {e}")
+        odds_lines = {}
+
     for game in games:
         matchups = [
             (game['away_lineup'], game['home_pitcher_id'],
@@ -981,6 +1124,12 @@ def get_heatmap_flags(games, model):
                                       'yourself; 2 years OOS-replicated but still tracking signal only, '
                                       'do not bet)')
                                      if off_q3_gate else None,
+                # Live F5 odds (DraftKings/Fanatics/theScore Bet) — see get_odds_api_lines.
+                # Display-only: does not filter pq_q4/off_q3_gate, just shows the real line/price
+                # per book so you don't have to check manually. {} if ODDS_API_KEY isn't set or
+                # this game/book combo wasn't found.
+                'odds_lines':       odds_lines.get(batting_team, {}),
+                'odds_has_1_5':     any(b.get('point') == 1.5 for b in odds_lines.get(batting_team, {}).values()),
             }
 
             # Add under-specific fields
@@ -1433,6 +1582,18 @@ def flag_key(flag):
     return f"{flag['game']}|{flag['batting_team']}"
 
 
+def format_odds_lines(odds_lines):
+    """e.g. 'DraftKings 1.5✅ | Fanatics 2.5 | theScore Bet 1.5✅' — empty string if no data."""
+    if not odds_lines:
+        return ''
+    parts = []
+    for book, info in odds_lines.items():
+        pt = info.get('point')
+        marker = '✅' if pt == 1.5 else ''
+        parts.append(f"{book} {pt}{marker}")
+    return ' | '.join(parts)
+
+
 def append_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
@@ -1500,7 +1661,8 @@ PQ_SHEET_TAB    = 'PitcherQuality'
 PQ_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name', 'pq_score', 'pq_percentile',
     'pq_k_rate', 'pq_bb_rate', 'pq_hr_rate', 'game_time',
-    'actual_f5_line', 'actual_f5_runs', 'under_hit',  # fill in by hand — app has no live odds feed
+    'books_lines', 'actual_f5_line',  # books_lines + actual_f5_line auto-filled from live odds when available
+    'actual_f5_runs', 'under_hit',    # still fill in by hand after the game — outcome isn't known yet
 ]
 
 
@@ -1546,7 +1708,9 @@ def append_pq_to_sheet(flags):
                 f.get('pq_score', ''), f.get('pq_percentile', ''),
                 f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
                 f.get('game_time', ''),
-                '', '', '',  # actual_f5_line / actual_f5_runs / under_hit — fill in by hand
+                format_odds_lines(f.get('odds_lines')),
+                1.5 if f.get('odds_has_1_5') else '',
+                '', '',  # actual_f5_runs / under_hit — fill in by hand after the game
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -1560,7 +1724,8 @@ def append_pq_to_sheet(flags):
 OFF_SHEET_TAB    = 'OffenseQuality'
 OFF_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name', 'off_pctile', 'off_bb_rate',
-    'game_time', 'actual_f5_line', 'actual_f5_runs', 'under_hit',  # fill in by hand
+    'game_time', 'books_lines', 'actual_f5_line',  # auto-filled from live odds when available
+    'actual_f5_runs', 'under_hit',  # still fill in by hand after the game
 ]
 
 
@@ -1604,7 +1769,9 @@ def append_off_to_sheet(flags):
                 today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
                 f.get('off_pctile', ''), f.get('off_bb_rate', ''),
                 f.get('game_time', ''),
-                '', '', '',  # actual_f5_line / actual_f5_runs / under_hit — fill in by hand
+                format_odds_lines(f.get('odds_lines')),
+                1.5 if f.get('odds_has_1_5') else '',
+                '', '',  # actual_f5_runs / under_hit — fill in by hand after the game
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -1665,29 +1832,35 @@ def api_notify():
             if new_under:
                 lines.append("")
             lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_pq)} Q4 pitcher(s) — check the actual F5 line is 1.5 before it means anything\n")
+            lines.append(f"{len(new_pq)} Q4 pitcher(s) — only means something if a line below shows ✅1.5\n")
             for f in new_pq:
                 pct  = f.get('pq_percentile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
+                odds = format_odds_lines(f.get('odds_lines'))
                 lines.append(
                     f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
                     f"HR {f['pq_hr_rate']*100:.1f}%){time}"
                 )
+                if odds:
+                    lines.append(f"   {odds}")
 
         if new_off:
             if new_under or new_pq:
                 lines.append("")
             lines.append(f"⚾ <b>Offense Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — check the actual F5 line is 1.5 before it means anything\n")
+            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — only means something if a line below shows ✅1.5\n")
             for f in new_off:
                 pct  = f.get('off_pctile')
                 bb   = f.get('off_bb_rate')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
+                odds = format_odds_lines(f.get('odds_lines'))
                 lines.append(
                     f"⚾ <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
                     f"(off pctile {pct:.0f}, BB {bb*100:.1f}%){time}"
                 )
+                if odds:
+                    lines.append(f"   {odds}")
 
         send_telegram('\n'.join(lines))
         if new_under:
