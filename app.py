@@ -11,6 +11,9 @@ from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FutureTimeoutError
+
+DOWNLOAD_TIMEOUT_SECONDS = 20
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'zach-picks-secret-2026')
@@ -521,11 +524,21 @@ def load_model():
         return _model_cache
     model = {}
     for name, fid in FILE_IDS.items():
+        # Each download runs in its own thread with a hard timeout -- gdown has no native
+        # timeout and a stalled Google Drive request used to hang the whole worker process
+        # until Gunicorn's timeout force-killed it. shutdown(wait=False) is deliberate: on
+        # timeout we abandon the stuck thread rather than blocking the request on it too.
+        ex = ThreadPoolExecutor(max_workers=1)
         try:
-            model[name] = download_pkl(fid)
+            model[name] = ex.submit(download_pkl, fid).result(timeout=DOWNLOAD_TIMEOUT_SECONDS)
+        except _FutureTimeoutError:
+            print(f"Warning: could not load {name}: download exceeded {DOWNLOAD_TIMEOUT_SECONDS}s, skipping")
+            model[name] = None
         except Exception as e:
             print(f"Warning: could not load {name}: {e}")
             model[name] = None
+        finally:
+            ex.shutdown(wait=False)
     model['arch_hitter_map'] = model['arch_hitter_map_combined']
     model['archetypes']      = model['archetypes_combined']
 
@@ -702,6 +715,7 @@ def get_odds_api_lines(games):
         ev_resp = requests.get(
             f"{ODDS_API_BASE}/sports/baseball_mlb/events",
             params={'apiKey': ODDS_API_KEY}, timeout=15)
+        print(f"Odds API events fetch: status={ev_resp.status_code}, ok={ev_resp.ok}")
         events = ev_resp.json() if ev_resp.ok else []
     except Exception as e:
         print(f"Odds API events fetch error: {e}")
@@ -714,6 +728,10 @@ def get_odds_api_lines(games):
         away_abb = NAME_TO_ABB.get(ev.get('away_team', ''))
         if (home_abb, away_abb) in wanted:
             matched_events.append((ev['id'], home_abb, away_abb))
+
+    print(f"Odds API debug: {len(events)} events returned, wanted={wanted}, "
+          f"matched={len(matched_events)} of {len(events)} "
+          f"(unmatched sample: {[(NAME_TO_ABB.get(e.get('home_team','')), NAME_TO_ABB.get(e.get('away_team',''))) for e in events[:5]]})")
 
     lines = {}
     for event_id, home_abb, away_abb in matched_events:
