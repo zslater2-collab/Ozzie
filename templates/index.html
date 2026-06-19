@@ -428,6 +428,14 @@
     card.className = 'pq-card';
     card.style.animationDelay = `${i * 0.06}s`;
     const pct = f.pq_percentile !== null ? f.pq_percentile.toFixed(0) + 'th pctile' : '—';
+    // Below ~20 current-season BF, the Marcel blend is still mostly/entirely the career prior --
+    // flag this visibly instead of letting it look like a normal, fully-blended score. See the
+    // Nola/Gausman/Skubal incident, June 2026.
+    const bf = f.pq_current_bf;
+    const bfStale = bf !== null && bf !== undefined && bf < 20;
+    const bfHtml = bf !== null && bf !== undefined
+      ? `<div style="font-size:.6rem;margin-top:4px;color:${bfStale ? 'var(--orange)' : 'var(--muted)'}">${bfStale ? '⚠ ' : ''}Current-season BF: ${bf}${bfStale ? ' — mostly/entirely stale prior, do not trust' : ''}</div>`
+      : '';
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -443,6 +451,7 @@
         <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
+      ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
@@ -453,6 +462,11 @@
     card.className = 'off-card';
     card.style.animationDelay = `${i * 0.06}s`;
     const pct = f.off_pctile !== null ? f.off_pctile.toFixed(0) + 'th pctile' : '—';
+    const pa = f.off_current_pa_avg;
+    const paStale = pa !== null && pa !== undefined && pa < 20;
+    const paHtml = pa !== null && pa !== undefined
+      ? `<div style="font-size:.6rem;margin-top:4px;color:${paStale ? 'var(--orange)' : 'var(--muted)'}">${paStale ? '⚠ ' : ''}Current-season PA (lineup avg): ${pa}${paStale ? ' — mostly/entirely stale prior, do not trust' : ''}</div>`
+      : '';
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -468,6 +482,7 @@
         <div><div class="hm-stat-label">Off BB Rate</div><div class="hm-stat-value">${(f.off_bb_rate*100).toFixed(1)}%</div></div>
         <div><div class="hm-stat-label">Off Pctile</div><div class="hm-stat-value">${pct}</div></div>
       </div>
+      ${paHtml}
       <div class="off-detail" style="margin-top:8px">${f.off_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="off-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
