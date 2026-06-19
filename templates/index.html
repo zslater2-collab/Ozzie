@@ -417,10 +417,20 @@
 
   function formatOddsLines(oddsLines) {
     if (!oddsLines || Object.keys(oddsLines).length === 0) return '';
-    return Object.entries(oddsLines).map(([book, info]) => {
+    const fmtPrice = (n) => n > 0 ? `+${n}` : `${n}`;
+    const fmtBook = ([book, info]) => {
       const mark = info.point === 1.5 ? ' ✅' : '';
-      return `${book} ${info.point}${mark}`;
-    }).join(' &nbsp;|&nbsp; ');
+      return `${book} ${info.point}${mark} (O ${fmtPrice(info.over)} / U ${fmtPrice(info.under)})`;
+    };
+    const entries = Object.entries(oddsLines);
+    // Pinnacle is the gate (validated against historically, not directly bettable from the US)
+    // -- shown first/bolded, then the actually-bettable books to shop for the best price.
+    const pinnacle = entries.find(([book]) => book === 'Pinnacle');
+    const others = entries.filter(([book]) => book !== 'Pinnacle');
+    const parts = [];
+    if (pinnacle) parts.push(`<b>${fmtBook(pinnacle)}</b>`);
+    parts.push(...others.map(fmtBook));
+    return parts.join(' &nbsp;|&nbsp; ');
   }
 
   function buildPqCard(f, i) {

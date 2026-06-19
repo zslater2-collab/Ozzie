@@ -707,28 +707,39 @@ def get_lineups_and_starters(game_date):
 # Added June 18, 2026. Both tracking signals (Pitcher Quality Composite, Offense Quality
 # Composite) only work at the 1.5 F5 line specifically — until now this app had no live odds
 # feed and required manually checking the posted line. Pulls real lines/prices from the three
-# books Zach can actually bet (Pinnacle is NOT used — he cannot access it from the US, see
-# CLAUDE.md "IMPORTANT CORRECTION — VALIDATION BOOK"). Display-only: per Zach's choice, this
-# does NOT filter/suppress any existing flag, it just attaches real line data to each one.
+# books Zach can actually bet PLUS Pinnacle. Display-only: per Zach's choice, this does NOT
+# filter/suppress any existing flag, it just attaches real line data to each one.
+#
+# Pinnacle added June 19, 2026 as a GATE, not a bet target — Zach cannot access Pinnacle from
+# the US (see CLAUDE.md "IMPORTANT CORRECTION — VALIDATION BOOK"), but it's what signal #4 and
+# the offense composite were actually validated against historically, and the three bettable
+# books don't always agree with each other on the line level itself (only ~91-93% line-match
+# rate vs Pinnacle historically — see CLAUDE.md "TEAM-LEVEL DEEP DIVE" Pinnacle-gate research).
+# So: check Pinnacle's posted line to know if this game is really a 1.5, then shop DraftKings/
+# Fanatics/theScore Bet for the best price. PINNACLE_BOOK_LABEL is rendered first/separately by
+# the frontend (see formatOddsLines in index.html) rather than mixed in with the bettable books.
 #
 # Market key 'team_totals_1st_5_innings' requires the per-event odds endpoint (not the cheaper
-# bulk endpoint), so this costs real API credits: cost = markets x regions per event, currently
-# 1 market x 2 regions = 2 credits/game. regions=us covers DraftKings/Fanatics, regions=us2
-# covers theScore Bet (formerly ESPN Bet — its bookmaker key may still be 'espnbet' on this API;
-# TARGET_BOOKS below tries both so a rename doesn't silently break this). ~30-58 credits/day at
-# a typical 15-29 game slate. Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
+# bulk endpoint), so this costs real API credits: cost = markets x regions per event, now
+# 1 market x 3 regions = 3 credits/game (was 2 before adding Pinnacle's region). regions=us
+# covers DraftKings/Fanatics, regions=us2 covers theScore Bet (formerly ESPN Bet — its bookmaker
+# key may still be 'espnbet' on this API; TARGET_BOOKS below tries both so a rename doesn't
+# silently break this), regions=eu covers Pinnacle. ~45-87 credits/day at a typical 15-29 game
+# slate (was ~30-58 before). Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
 # double-spend credits when both run close together.
 
-ODDS_API_KEY      = os.environ.get('ODDS_API_KEY', '')
-ODDS_API_BASE     = 'https://api.the-odds-api.com/v4'
-ODDS_F5_MARKET    = 'team_totals_1st_5_innings'
-ODDS_REGIONS      = 'us,us2'
-ODDS_API_TTL      = 14400  # 4h
+ODDS_API_KEY        = os.environ.get('ODDS_API_KEY', '')
+ODDS_API_BASE       = 'https://api.the-odds-api.com/v4'
+ODDS_F5_MARKET      = 'team_totals_1st_5_innings'
+ODDS_REGIONS        = 'us,us2,eu'
+ODDS_API_TTL        = 14400  # 4h
+PINNACLE_BOOK_LABEL = 'Pinnacle'
 TARGET_BOOKS = {
-    'draftkings': 'DraftKings',
-    'fanatics':   'Fanatics',
-    'espnbet':    'theScore Bet',
+    'draftkings':  'DraftKings',
+    'fanatics':    'Fanatics',
+    'espnbet':     'theScore Bet',
     'thescorebet': 'theScore Bet',  # in case the API renames this key
+    'pinnacle':    PINNACLE_BOOK_LABEL,
 }
 
 NAME_TO_ABB = {
