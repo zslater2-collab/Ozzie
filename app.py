@@ -1902,6 +1902,27 @@ def format_odds_lines(odds_lines):
     return ' | '.join(parts)
 
 
+# Books tracked as their own Line/Odds column pair on the PitcherQuality/OffenseQuality sheet
+# tabs (June 20, 2026, per Zach -- U1 at +100 is a very different bet than U1.5 at -150, so the
+# single combined "books_lines" text column wasn't enough to compute real ROI from the sheet).
+SHEET_TRACKED_BOOKS = ['Pinnacle', 'DraftKings', 'theScore Bet']
+
+
+def _book_line_odds(team_odds, book_label):
+    """
+    (point, under_odds) for one book from a team's odds_lines dict, '' for either if that book
+    didn't post this game. Under odds specifically -- both tracking signals bet the under side,
+    not the over -- formatted with an explicit '+' on positive American odds (e.g. '+100') to
+    match standard sportsbook display, since a bare 'point' column can't distinguish U1.5 -150
+    from U1.5 +100 and that difference is the whole point of tracking odds at all.
+    """
+    info  = (team_odds or {}).get(book_label) or {}
+    point = info.get('point', '')
+    price = info.get('under')
+    odds  = '' if price is None else (f"+{price}" if price > 0 else str(price))
+    return point, odds
+
+
 def append_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
@@ -1969,7 +1990,11 @@ PQ_SHEET_TAB    = 'PitcherQuality'
 PQ_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name', 'pq_score', 'pq_percentile',
     'pq_k_rate', 'pq_bb_rate', 'pq_hr_rate', 'game_time',
-    'books_lines', 'actual_f5_line',  # books_lines + actual_f5_line auto-filled from live odds when available
+    # one Line/Odds pair per tracked book (June 20, 2026), auto-filled from live odds when
+    # available -- see SHEET_TRACKED_BOOKS/_book_line_odds. Replaces the old combined
+    # 'books_lines'/'actual_f5_line' text columns, which couldn't separate line from price.
+    'pinnacle_line', 'pinnacle_odds', 'draftkings_line', 'draftkings_odds',
+    'thescore_line', 'thescore_odds',
     'actual_f5_runs', 'under_hit',    # auto-filled by backfill_sheet_outcomes() once F5 is final -- see below
     'game_id',                        # MLB gamePk, added June 19, 2026 -- lets backfill find the right boxscore
 ]
@@ -2014,13 +2039,17 @@ def append_pq_to_sheet(flags):
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_keys:
                 continue
+            team_odds = f.get('odds_lines') or {}
+            book_cells = []
+            for book_label in SHEET_TRACKED_BOOKS:
+                line, odds = _book_line_odds(team_odds, book_label)
+                book_cells.extend([line, odds])
             ws.append_row([
                 today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
                 f.get('pq_score', ''), f.get('pq_percentile', ''),
                 f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
                 f.get('game_time', ''),
-                format_odds_lines(f.get('odds_lines')),
-                1.5 if f.get('odds_has_1_5') else '',
+                *book_cells,
                 '', '',  # actual_f5_runs / under_hit — filled in later by backfill_sheet_outcomes()
                 f.get('game_id', ''),
             ], value_input_option='USER_ENTERED')
@@ -2036,7 +2065,10 @@ def append_pq_to_sheet(flags):
 OFF_SHEET_TAB    = 'OffenseQuality'
 OFF_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name', 'off_pctile', 'off_bb_rate',
-    'game_time', 'books_lines', 'actual_f5_line',  # auto-filled from live odds when available
+    'game_time',
+    # one Line/Odds pair per tracked book (June 20, 2026) -- see PQ_SHEET_HEADER note above
+    'pinnacle_line', 'pinnacle_odds', 'draftkings_line', 'draftkings_odds',
+    'thescore_line', 'thescore_odds',
     'actual_f5_runs', 'under_hit',  # auto-filled by backfill_sheet_outcomes() once F5 is final
     'game_id',                      # MLB gamePk, added June 19, 2026 -- see PQ_SHEET_HEADER note
 ]
@@ -2080,12 +2112,16 @@ def append_off_to_sheet(flags):
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_keys:
                 continue
+            team_odds = f.get('odds_lines') or {}
+            book_cells = []
+            for book_label in SHEET_TRACKED_BOOKS:
+                line, odds = _book_line_odds(team_odds, book_label)
+                book_cells.extend([line, odds])
             ws.append_row([
                 today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
                 f.get('off_pctile', ''), f.get('off_bb_rate', ''),
                 f.get('game_time', ''),
-                format_odds_lines(f.get('odds_lines')),
-                1.5 if f.get('odds_has_1_5') else '',
+                *book_cells,
                 '', '',  # actual_f5_runs / under_hit — filled in later by backfill_sheet_outcomes()
                 f.get('game_id', ''),
             ], value_input_option='USER_ENTERED')
@@ -2182,7 +2218,10 @@ def backfill_sheet_outcomes():
         try:
             i_game   = hdr.index('game')
             i_team   = hdr.index('batting_team')
-            i_line   = hdr.index('actual_f5_line')
+            # pinnacle_line replaces the old combined 'actual_f5_line' column (June 20, 2026) --
+            # equivalent for gating purposes, since the Pinnacle gate already only lets a flag
+            # through when Pinnacle's posted line is exactly 1.5 in the first place.
+            i_line   = hdr.index('pinnacle_line')
             i_runs   = hdr.index('actual_f5_runs')
             i_hit    = hdr.index('under_hit')
             i_gameid = hdr.index('game_id')
