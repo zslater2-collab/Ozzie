@@ -1804,6 +1804,50 @@ def logout():
     return redirect(url_for('login'))
 
 
+def build_picks_payload(today, games, heatmap_flags):
+    """Shared payload shape for /api/picks' response and its Redis cache entry. Also called
+    from /api/notify so a Telegram-triggered flag computation can refresh the dashboard's
+    cache immediately instead of leaving it to show stale data until the cache's own TTL
+    naturally expires (up to 30 min later, or never if the live odds gate closes again before
+    then -- see PICKS CACHE / NOTIFY SYNC note above api_notify)."""
+    # TRACKING-ONLY MODE (see comment above get_tracking_only_flags): Google Drive model
+    # loading is paused, so load_model()/get_hr_picks()/get_dfs_picks() are not called --
+    # all three need the Drive-loaded model. picks/dfs_picks stay empty until restored.
+    complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+    games_out = [{'away': g['away_team'], 'home': g['home_team'],
+                  'complete': bool(g['home_lineup'] and g['away_lineup']),
+                  'game_time': g.get('game_time')}
+                 for g in games]
+    fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
+    over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
+    pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
+    off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
+    return {
+        'date':            today,
+        'complete':        complete,
+        'total':           len(games),
+        'picks':           [],
+        'dfs_picks':       {},
+        'heatmap_flags':   heatmap_flags,
+        'fg_under_flags':  fg_under_flags,
+        'over_info_flags': over_info_flags,
+        'pq_flags':        pq_flags,
+        'off_flags':       off_flags,
+        'fg_in_window':    is_fg_valid_window(),
+        'games':           games_out,
+    }
+
+
+def picks_cache_ttl(now_et=None):
+    """Seconds until the picks cache should expire -- capped at 30 min, or sooner if 1am ET
+    (the next day's slate boundary) is closer than that."""
+    now_et = now_et or datetime.now(pytz.timezone('America/New_York'))
+    expire_et = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
+    if now_et >= expire_et:
+        expire_et = expire_et.replace(day=expire_et.day + 1)
+    return min(1800, int((expire_et - now_et).total_seconds()))
+
+
 @app.route('/api/picks')
 def api_picks():
     if not session.get('authenticated'):
@@ -1827,46 +1871,11 @@ def api_picks():
             except Exception:
                 pass
 
-        # TRACKING-ONLY MODE (see comment above get_tracking_only_flags): Google Drive model
-        # loading is paused, so load_model()/get_hr_picks()/get_dfs_picks() are not called --
-        # all three need the Drive-loaded model. picks/dfs_picks stay empty until restored.
-        games     = get_lineups_and_starters(today)
-        picks     = []  # get_hr_picks() normally returns a list -- frontend calls picks.forEach/.length
-        complete  = sum(1 for g in games if g['home_lineup'] and g['away_lineup'])
+        games         = get_lineups_and_starters(today)
+        heatmap_flags = get_tracking_only_flags(games, force=force)
+        payload       = build_picks_payload(today, games, heatmap_flags)
 
-        games_out = [{'away': g['away_team'], 'home': g['home_team'],
-                      'complete': bool(g['home_lineup'] and g['away_lineup']),
-                      'game_time': g.get('game_time')}
-                     for g in games]
-
-        heatmap_flags   = get_tracking_only_flags(games, force=force)
-        fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
-        over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
-        pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
-        off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
-
-        dfs_picks = {}
-
-        payload = {
-            'date':            today,
-            'complete':        complete,
-            'total':           len(games),
-            'picks':           picks,
-            'dfs_picks':       dfs_picks,
-            'heatmap_flags':   heatmap_flags,
-            'fg_under_flags':  fg_under_flags,
-            'over_info_flags': over_info_flags,
-            'pq_flags':        pq_flags,
-            'off_flags':       off_flags,
-            'fg_in_window':    is_fg_valid_window(),
-            'games':           games_out,
-        }
-
-        now_et    = datetime.now(pytz.timezone('America/New_York'))
-        expire_et = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
-        if now_et >= expire_et:
-            expire_et = expire_et.replace(day=expire_et.day + 1)
-        ttl = min(1800, int((expire_et - now_et).total_seconds()))
+        ttl = picks_cache_ttl(et_now)
         if ttl > 0 and heatmap_flags:
             try:
                 redis_set(cache_key, _json.dumps(payload), ex=ttl)
@@ -1940,14 +1949,16 @@ def flag_key(flag):
 
 
 def format_odds_lines(odds_lines):
-    """e.g. 'DraftKings 1.5✅ | Fanatics 2.5 | theScore Bet 1.5✅' — empty string if no data."""
+    """e.g. 'DraftKings 1.5✅ -150 | Fanatics 2.5 +110' — empty string if no data."""
     if not odds_lines:
         return ''
     parts = []
     for book, info in odds_lines.items():
         pt = info.get('point')
         marker = '✅' if pt == 1.5 else ''
-        parts.append(f"{book} {pt}{marker}")
+        price = info.get('under')
+        price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
+        parts.append(f"{book} {pt}{marker}{price_str}")
     return ' | '.join(parts)
 
 
@@ -2344,6 +2355,22 @@ def api_notify():
         today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games   = get_lineups_and_starters(today)
         flags   = get_tracking_only_flags(games)
+
+        # PICKS CACHE / NOTIFY SYNC: refresh /api/picks' Redis cache with what was just computed
+        # here, so the dashboard reflects a new flag immediately instead of waiting up to 30 min
+        # for that route's own cache to expire on its own schedule (or, worse, never -- if the
+        # live Pinnacle gate closes again before the next natural expiry, the dashboard would
+        # otherwise never show a flag that did fire in Telegram). Best-effort: a failure here
+        # should not block the Telegram send below.
+        try:
+            import json as _json
+            picks_payload = build_picks_payload(today, games, flags)
+            ttl = picks_cache_ttl()
+            if ttl > 0 and flags:
+                redis_set(f"ozzie:picks:{today}", _json.dumps(picks_payload), ex=ttl)
+        except Exception as cache_err:
+            print(f"Picks cache refresh from notify failed: {cache_err}")
+
         under_flags = [f for f in flags if f.get('signal') == 'under']
         pq_flags    = [f for f in flags if f.get('pq_q4')]
         off_flags   = [f for f in flags if f.get('off_q3_gate')]
