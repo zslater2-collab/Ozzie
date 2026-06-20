@@ -772,6 +772,63 @@ TARGET_BOOKS = {
     'pinnacle':      PINNACLE_BOOK_LABEL,
 }
 
+# ── PARK GATE EXCEPTION (June 20, 2026) ──────────────────────────────────────────────
+# The Pinnacle hard gate below only let pq_q4/off_q3 through at exactly F5 1.5 -- but a
+# matchup that's genuinely 1.5-quality often gets bumped to 2.5+ purely because it's in a
+# hitter-favorable park (Coors being the obvious case), and the line itself hasn't caught up
+# to that. Tested (CLAUDE.md "PARK-INFLATED LINE FINDING" + same-day cutoff sweep): among
+# elevated (2.5+) games, pq_q4/off_q3 predicts the under specifically inside these 6 parks --
+# 2025 n=42, 71.4% hit, +26.0% ROI, p=0.004; 2026 OOS n=21, 71.4% hit, +25.1% ROI, p=0.039.
+# Swept 7 cutoffs (decile through half) the same day -- this top-quintile set is the tightest
+# year-over-year replication of all of them (identical 71.4% hit rate both years), not just the
+# first cutoff tried; narrower cutoffs look better in 2025 alone but fail 2026 OOS the same way
+# other narrow-band findings in this project have. Source: park_factor_woba_current.pkl
+# (Statcast actual wOBA/xwOBA on balls in play, 2021-2025, leak-free), top quintile of 30 teams.
+PARK_GATE_TEAMS = {'COL', 'CIN', 'BOS', 'PHI', 'AZ', 'TB'}
+PARK_GATE_MIN_POINT = 2.5
+
+
+def _pq_note(pq_q4, gate_reason, pinnacle_point):
+    """pq_note shown on the dashboard card -- three states: gate inactive, confirmed at the
+    base 1.5 line, or passed via the validated park exception at an elevated line."""
+    if not pq_q4:
+        return None
+    if gate_reason == 'line_1_5':
+        return ('Top-quintile pitcher quality — Pinnacle line confirmed at F5 1.5 for this team, '
+                 'this historically favors UNDER (not yet proven on 2026 — tracking signal only, '
+                 'do not bet)')
+    if gate_reason == 'park_exception':
+        return (f'Top-quintile pitcher quality — Pinnacle line is F5 {pinnacle_point} in a '
+                 'hitter-favorable park (COL/CIN/BOS/PHI/AZ/TB), a validated extension of the '
+                 '1.5-line signal (2025 n=42, 71.4% hit, +26.0% ROI; 2026 OOS n=21, 71.4% hit, '
+                 '+25.1% ROI, p<0.05 both years — thinner sample than the base 1.5-line signal, '
+                 'tracking signal only, do not bet)')
+    return ('Top-quintile pitcher quality — IF the F5 line for this team is 1.5 (or 2.5+ in a '
+             'hitter-favorable park), this historically favors UNDER (Pinnacle gate inactive, no '
+             'odds feed configured — check the line yourself; not yet proven on 2026 — tracking '
+             'signal only, do not bet)')
+
+
+def _off_note(off_q3_gate, gate_reason, pinnacle_point):
+    """off_note shown on the dashboard card -- same three states as _pq_note."""
+    if not off_q3_gate:
+        return None
+    if gate_reason == 'line_1_5':
+        return ('Mid-tier offense (Q3) with a low walk rate — Pinnacle line confirmed at F5 1.5 '
+                 'for this team, this historically favors UNDER (2 years OOS-replicated but still '
+                 'tracking signal only, do not bet)')
+    if gate_reason == 'park_exception':
+        return (f'Mid-tier offense (Q3) with a low walk rate — Pinnacle line is F5 {pinnacle_point} '
+                 'in a hitter-favorable park (COL/CIN/BOS/PHI/AZ/TB), a validated extension of the '
+                 '1.5-line signal (2025 n=42, 71.4% hit, +26.0% ROI; 2026 OOS n=21, 71.4% hit, '
+                 '+25.1% ROI, p<0.05 both years — thinner sample than the base 1.5-line signal, '
+                 'tracking signal only, do not bet)')
+    return ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for this team is 1.5 (or '
+             '2.5+ in a hitter-favorable park), this historically favors UNDER (Pinnacle gate '
+             'inactive, no odds feed configured — check the line yourself; 2 years OOS-replicated '
+             'but still tracking signal only, do not bet)')
+
+
 NAME_TO_ABB = {
     'Philadelphia Phillies': 'PHI', 'Atlanta Braves': 'ATL',
     'New York Mets': 'NYM',         'Miami Marlins': 'MIA',
@@ -1113,8 +1170,9 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
 # restore get_hr_picks/get_dfs_picks.
 def get_tracking_only_flags(games, force=False):
     flags = []
-    pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5
+    pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5 or a park exception
     pinnacle_suppressed_missing = 0  # gate active but no Pinnacle line found for this team/game
+    pinnacle_park_exceptions    = 0  # passed via the park gate exception, not the base 1.5 line
 
     try:
         odds_lines = get_odds_api_lines(games, force=force)
@@ -1141,6 +1199,7 @@ def get_tracking_only_flags(games, force=False):
         off_population = {}
 
     for game in games:
+        home_abb = NAME_TO_ABB.get(game['home_team'], game['home_team'])
         matchups = [
             (game['away_lineup'], game['home_pitcher_id'],
              game['home_pitcher_name'], game['away_team'],
@@ -1166,17 +1225,27 @@ def get_tracking_only_flags(games, force=False):
             if not pq_q4 and not off_q3_gate:
                 continue
 
-            # ── PINNACLE GATE ── only surface this candidate if Pinnacle's posted F5 line for
-            # this team is exactly 1.5 (see PINNACLE GATE notes above get_odds_api_lines).
+            # ── PINNACLE GATE ── surface this candidate if Pinnacle's posted F5 line for this
+            # team is exactly 1.5 (see PINNACLE GATE notes above get_odds_api_lines), OR if the
+            # line is 2.5+ AND the game is in a hitter-favorable park (PARK_GATE_TEAMS, see notes
+            # above that constant) -- the validated park-inflated-line exception.
             team_abb       = NAME_TO_ABB.get(batting_team, batting_team)
             team_odds      = odds_lines.get(team_abb, {})
             pinnacle_point = team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
-            if pinnacle_gate_active and pinnacle_point != 1.5:
+            park_exception = (pinnacle_point is not None and pinnacle_point >= PARK_GATE_MIN_POINT
+                               and home_abb in PARK_GATE_TEAMS)
+            if pinnacle_gate_active and pinnacle_point != 1.5 and not park_exception:
                 if pinnacle_point is None:
                     pinnacle_suppressed_missing += 1
                 else:
                     pinnacle_suppressed_wrong += 1
                 continue
+            if park_exception and pinnacle_point != 1.5:
+                pinnacle_park_exceptions += 1
+
+            gate_reason = (None if not pinnacle_gate_active else
+                            'park_exception' if (park_exception and pinnacle_point != 1.5) else
+                            'line_1_5')
 
             flag = {
                 'game':             game_str,
@@ -1198,40 +1267,28 @@ def get_tracking_only_flags(games, force=False):
                 # mostly/entirely the stale career prior, not a real current-season blend -- check
                 # this before trusting a flag. See the Nola incident, June 2026.
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
-                'pq_note':          ('Top-quintile pitcher quality — Pinnacle line confirmed at F5 1.5 '
-                                      'for this team, this historically favors UNDER (not yet proven on '
-                                      '2026 — tracking signal only, do not bet)')
-                                     if (pq_q4 and pinnacle_gate_active) else
-                                     ('Top-quintile pitcher quality — IF the F5 line for this team is '
-                                      '1.5, this historically favors UNDER (Pinnacle gate inactive, no '
-                                      'odds feed configured — check the line yourself; not yet proven on '
-                                      '2026 — tracking signal only, do not bet)')
-                                     if pq_q4 else None,
+                'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 'off_pctile':       off_info['off_pctile'] if off_info else None,
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
                 # Same diagnostic, lineup-weighted: how much real current-season PA backs this
                 # team's offense score vs. falling back toward the career prior.
                 'off_current_pa_avg': off_info['current_pa_avg'] if off_info else None,
-                'off_note':         ('Mid-tier offense (Q3) with a low walk rate — Pinnacle line '
-                                      'confirmed at F5 1.5 for this team, this historically favors UNDER '
-                                      '(2 years OOS-replicated but still tracking signal only, do not bet)')
-                                     if (off_q3_gate and pinnacle_gate_active) else
-                                     ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
-                                      'this team is 1.5, this historically favors UNDER (Pinnacle gate '
-                                      'inactive, no odds feed configured — check the line yourself; 2 '
-                                      'years OOS-replicated but still tracking signal only, do not bet)')
-                                     if off_q3_gate else None,
+                'off_note':         _off_note(off_q3_gate, gate_reason, pinnacle_point),
                 # odds_lines is keyed by abbreviation (team_abb), batting_team is the full name --
                 # normalize here too, same mismatch and same fix as get_odds_api_lines' matching.
                 'odds_lines':       team_odds,
                 'odds_has_1_5':     any(b.get('point') == 1.5 for b in team_odds.values()),
                 'pinnacle_point':   pinnacle_point,
+                # 'line_1_5' (base signal), 'park_exception' (validated elevated-line extension,
+                # thinner sample -- see PARK_GATE_TEAMS), or None if the gate itself is inactive.
+                'pinnacle_gate_reason': gate_reason,
             }
             flags.append(flag)
 
     print(f"Pinnacle gate ({'active' if pinnacle_gate_active else 'INACTIVE -- no ODDS_API_KEY'}): "
-          f"{len(flags)} flags shown, {pinnacle_suppressed_wrong} suppressed (Pinnacle line != 1.5), "
+          f"{len(flags)} flags shown ({pinnacle_park_exceptions} via park exception), "
+          f"{pinnacle_suppressed_wrong} suppressed (Pinnacle line != 1.5, not a park exception), "
           f"{pinnacle_suppressed_missing} suppressed (no Pinnacle line found)")
 
     pq_only_flags  = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
@@ -1261,6 +1318,7 @@ def get_heatmap_flags(games, model):
     pinnacle_gate_active = bool(ODDS_API_KEY)
 
     for game in games:
+        home_abb = NAME_TO_ABB.get(game['home_team'], game['home_team'])
         matchups = [
             (game['away_lineup'], game['home_pitcher_id'],
              game['home_pitcher_name'], game['away_team'],
@@ -1325,13 +1383,19 @@ def get_heatmap_flags(games, model):
                 off_info['o_bb_rate'] < OFF_BB_RATE_MEDIAN
             )
 
-            # ── PINNACLE GATE (tracking signals only) ──
+            # ── PINNACLE GATE (tracking signals only) ── line 1.5, or 2.5+ in a hitter-favorable
+            # park (validated park exception, see PARK_GATE_TEAMS notes above).
             team_abb       = NAME_TO_ABB.get(batting_team, batting_team)
             team_odds      = odds_lines.get(team_abb, {})
             pinnacle_point = team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
-            pinnacle_ok    = (not pinnacle_gate_active) or (pinnacle_point == 1.5)
+            park_exception = (pinnacle_point is not None and pinnacle_point >= PARK_GATE_MIN_POINT
+                               and home_abb in PARK_GATE_TEAMS)
+            pinnacle_ok    = (not pinnacle_gate_active) or (pinnacle_point == 1.5) or park_exception
             pq_q4          = pq_q4 and pinnacle_ok
             off_q3_gate    = off_q3_gate and pinnacle_ok
+            gate_reason    = (None if not pinnacle_gate_active else
+                               'park_exception' if (park_exception and pinnacle_point != 1.5) else
+                               'line_1_5')
 
             # ── SIGNAL DETERMINATION ──────────────────────────────────────
             signal = None
@@ -1403,15 +1467,7 @@ def get_heatmap_flags(games, model):
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
                 'pq_q4':            pq_q4,
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
-                'pq_note':          ('Top-quintile pitcher quality — Pinnacle line confirmed at F5 1.5 '
-                                      'for this team, this historically favors UNDER (not yet proven on '
-                                      '2026 — tracking signal only, do not bet)')
-                                     if (pq_q4 and pinnacle_gate_active) else
-                                     ('Top-quintile pitcher quality — IF the F5 line for this team is '
-                                      '1.5, this historically favors UNDER (Pinnacle gate inactive, no '
-                                      'odds feed configured — check the line yourself; not yet proven on '
-                                      '2026 — tracking signal only, do not bet)')
-                                     if pq_q4 else None,
+                'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 # Offense Quality Composite — tracking only, NOT validated for betting.
                 # Only meaningful if today's actual F5 line for THIS batting team is 1.5 (check
                 # manually). See OFF_PHANTOM comment block above for full validation status.
@@ -1419,21 +1475,14 @@ def get_heatmap_flags(games, model):
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
                 'off_current_pa_avg': off_info['current_pa_avg'] if off_info else None,
-                'off_note':         ('Mid-tier offense (Q3) with a low walk rate — Pinnacle line '
-                                      'confirmed at F5 1.5 for this team, this historically favors UNDER '
-                                      '(2 years OOS-replicated but still tracking signal only, do not bet)')
-                                     if (off_q3_gate and pinnacle_gate_active) else
-                                     ('Mid-tier offense (Q3) with a low walk rate — IF the F5 line for '
-                                      'this team is 1.5, this historically favors UNDER (Pinnacle gate '
-                                      'inactive, no odds feed configured — check the line yourself; 2 '
-                                      'years OOS-replicated but still tracking signal only, do not bet)')
-                                     if off_q3_gate else None,
+                'off_note':         _off_note(off_q3_gate, gate_reason, pinnacle_point),
                 # Live F5 odds (DraftKings/Fanatics/theScore Bet) — see get_odds_api_lines.
                 # pq_q4/off_q3_gate are already Pinnacle-gated above (see PINNACLE GATE block) --
                 # this is just the shoppable-book display data, same as before.
                 'odds_lines':       team_odds,
                 'odds_has_1_5':     any(b.get('point') == 1.5 for b in team_odds.values()),
                 'pinnacle_point':   pinnacle_point,
+                'pinnacle_gate_reason': gate_reason,
             }
 
             # Add under-specific fields
@@ -2218,9 +2267,10 @@ def backfill_sheet_outcomes():
         try:
             i_game   = hdr.index('game')
             i_team   = hdr.index('batting_team')
-            # pinnacle_line replaces the old combined 'actual_f5_line' column (June 20, 2026) --
-            # equivalent for gating purposes, since the Pinnacle gate already only lets a flag
-            # through when Pinnacle's posted line is exactly 1.5 in the first place.
+            # pinnacle_line replaces the old combined 'actual_f5_line' column (June 20, 2026).
+            # Grades against whatever line is actually recorded here, not a hardcoded 1.5 --
+            # since the park gate exception (same day) lets flags through at 2.5+ in a
+            # hitter-favorable park too, so a confirmed line can legitimately be e.g. 2.5.
             i_line   = hdr.index('pinnacle_line')
             i_runs   = hdr.index('actual_f5_runs')
             i_hit    = hdr.index('under_hit')
@@ -2236,7 +2286,12 @@ def backfill_sheet_outcomes():
         for r_idx, row in enumerate(rows[1:], start=2):
             if cell(row, i_runs):            # already filled
                 continue
-            if cell(row, i_line) != '1.5':   # no confirmed 1.5 line to grade against
+            line_str = cell(row, i_line)
+            if not line_str:                 # no confirmed Pinnacle line to grade against
+                continue
+            try:
+                line_val = float(line_str)
+            except ValueError:
                 continue
             game_id = cell(row, i_gameid)
             if not game_id:
@@ -2254,7 +2309,7 @@ def backfill_sheet_outcomes():
             if f5 is None:
                 continue
             runs      = f5['home'] if is_home else f5['away']
-            under_hit = 'Yes' if runs < 1.5 else 'No'
+            under_hit = 'Yes' if runs < line_val else 'No'
             try:
                 ws.update_cell(r_idx, i_runs + 1, runs)
                 ws.update_cell(r_idx, i_hit + 1, under_hit)
@@ -2329,13 +2384,15 @@ def api_notify():
             if new_under:
                 lines.append("")
             lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_pq)} Q4 pitcher(s) — only means something if a line below shows ✅1.5\n")
+            lines.append(f"{len(new_pq)} Q4 pitcher(s) — only means something if a line below shows "
+                         f"✅1.5 or 🏟️ (validated park exception, thinner sample — see pq_note)\n")
             for f in new_pq:
                 pct  = f.get('pq_percentile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_odds_lines(f.get('odds_lines'))
+                tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
                 lines.append(
-                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
                     f"HR {f['pq_hr_rate']*100:.1f}%){time}"
                 )
@@ -2346,14 +2403,16 @@ def api_notify():
             if new_under or new_pq:
                 lines.append("")
             lines.append(f"⚾ <b>Offense Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — only means something if a line below shows ✅1.5\n")
+            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — only means something if a line "
+                         f"below shows ✅1.5 or 🏟️ (validated park exception, thinner sample — see off_note)\n")
             for f in new_off:
                 pct  = f.get('off_pctile')
                 bb   = f.get('off_bb_rate')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_odds_lines(f.get('odds_lines'))
+                tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
                 lines.append(
-                    f"⚾ <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"⚾ <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
                     f"(off pctile {pct:.0f}, BB {bb*100:.1f}%){time}"
                 )
                 if odds:
