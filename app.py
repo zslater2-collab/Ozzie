@@ -738,19 +738,24 @@ def get_lineups_and_starters(game_date):
 #
 # Market key 'team_totals_1st_5_innings' requires the per-event odds endpoint (not the cheaper
 # bulk endpoint), so this costs real API credits: cost = markets x regions per event, now
-# 1 market x 3 regions = 3 credits/game (was 2 before adding Pinnacle's region). regions=us
-# covers DraftKings/Fanatics/FanDuel/BetMGM/Caesars (all free additions, same region, June 19,
-# 2026 -- the latter three are inconsistent game to game since they don't always post this
-# specific market), regions=us2 covers theScore Bet (formerly ESPN Bet — its bookmaker key may
-# still be 'espnbet' on this API; TARGET_BOOKS below tries both so a rename doesn't silently
-# break this), regions=eu covers Pinnacle. ~45-87 credits/day at a typical 15-29 game slate (was
-# ~30-58 before adding Pinnacle's region -- the FanDuel/BetMGM/Caesars addition itself didn't
-# change this number). Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't
-# double-spend credits when both run close together.
+# 2 markets x 3 regions = 6 credits/game (was 1 market x 3 regions = 3 credits/game before
+# adding the joint-total market below, June 20, 2026 -- ~90-174 credits/day at a typical
+# 15-29 game slate, was ~45-87 before). regions=us covers DraftKings/Fanatics/FanDuel/BetMGM/
+# Caesars (all free additions, same region, June 19, 2026 -- the latter three are inconsistent
+# game to game since they don't always post this specific market), regions=us2 covers theScore
+# Bet (formerly ESPN Bet — its bookmaker key may still be 'espnbet' on this API; TARGET_BOOKS
+# below tries both so a rename doesn't silently break this), regions=eu covers Pinnacle.
+# Cached in Redis on ODDS_API_TTL so /api/picks and /api/notify don't double-spend credits when
+# both run close together.
 
 ODDS_API_KEY        = os.environ.get('ODDS_API_KEY', '')
 ODDS_API_BASE       = 'https://api.the-odds-api.com/v4'
 ODDS_F5_MARKET      = 'team_totals_1st_5_innings'
+# Joint/combined F5 total (both teams summed) -- a different market from the per-team one
+# above. Added June 20, 2026 for the joint-offense tracking signal (see JOINT_OFF_PCTILE_MAX
+# below). Bundled into the same per-event request as ODDS_F5_MARKET (one extra market, not an
+# extra request) -- see cost note above.
+ODDS_JOINT_MARKET   = 'totals_1st_5_innings'
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
@@ -786,6 +791,28 @@ TARGET_BOOKS = {
 # (Statcast actual wOBA/xwOBA on balls in play, 2021-2025, leak-free), top quintile of 30 teams.
 PARK_GATE_TEAMS = {'COL', 'CIN', 'BOS', 'PHI', 'AZ', 'TB'}
 PARK_GATE_MIN_POINT = 2.5
+
+# ── JOINT OFFENSE TRACKING SIGNAL (June 20, 2026) ────────────────────────────────────
+# Different market, different mechanism from pq_q4/off_q3 above -- this one is about the
+# JOINT/combined F5 total (both teams' runs summed), not a per-team total. Validated in
+# CLAUDE.md "FOLLOW-UP, SAME DAY: DIGGING INTO #6": when both lineups project weak (combined
+# average lineup off_pctile in the bottom quartile of games) AND the joint F5 line is exactly
+# 3.5, the OVER hits more than the market implies. Tight cross-year match, FanDuel-specific:
+# 2025 n=34, 67.6% hit, +21.8% ROI; 2026 OOS n=27, 70.4% hit, +22.2% ROI. Gated on FanDuel's
+# own line (JOINT_GATE_BOOK), not Pinnacle's -- deliberate deviation from the pq_q4/off_q3
+# Pinnacle-gate convention, because Pinnacle posts this specific market on only ~15% of events
+# (too thin to gate on), while FanDuel posts it on essentially every event and is also the book
+# this finding was actually validated against. NOT extended to elevated lines in hitter-
+# favorable parks the way pq_q4/off_q3 was -- tested same day, does not replicate (2025 n=29
+# +24.2% ROI vs 2026 n=23 -7.3% ROI, opposite signs). Coors/COL games never post a 3.5 joint
+# line in two years of data (mean 5.6, range 4.5-6.5 across 22 games) so this signal will
+# essentially never fire there -- expected, not a bug. JOINT_OFF_PCTILE_MAX (63.5) is NOT a
+# round number -- it's the empirical 25th-percentile cutoff of combined lineup off_pctile
+# across both validation years (63.1 in 2025, 63.9 in 2026 -- averaged), the same way
+# OFF_Q3_LOW/HIGH_PCTILE above are research-derived, not guessed.
+JOINT_OFF_PCTILE_MAX = 63.5
+JOINT_LINE_TARGET    = 3.5
+JOINT_GATE_BOOK      = 'FanDuel'
 
 
 def _pq_note(pq_q4, gate_reason, pinnacle_point):
@@ -829,6 +856,16 @@ def _off_note(off_q3_gate, gate_reason, pinnacle_point):
              'but still tracking signal only, do not bet)')
 
 
+def _joint_note(fanduel_point):
+    """joint_note shown on the dashboard card -- only one state, since this signal has no
+    Pinnacle-gate / park-exception machinery (see JOINT OFFENSE TRACKING SIGNAL notes above)."""
+    return (f'Bottom-quartile combined lineup offense (both teams), FanDuel joint F5 total '
+            f'confirmed at {fanduel_point} — historically favors OVER (2025 n=34, 67.6% hit, '
+            '+21.8% ROI; 2026 OOS n=27, 70.4% hit, +22.2% ROI — tight cross-year match, '
+            'FanDuel-specific, gated on FanDuel not Pinnacle — see CLAUDE.md. Tracking signal '
+            'only, do not bet)')
+
+
 NAME_TO_ABB = {
     'Philadelphia Phillies': 'PHI', 'Atlanta Braves': 'ATL',
     'New York Mets': 'NYM',         'Miami Marlins': 'MIA',
@@ -856,14 +893,20 @@ def _odds_american_to_profit(price):
 
 def get_odds_api_lines(games, force=False):
     """
-    Returns dict: team_abb -> {book_key: {'point': float, 'over': int, 'under': int,
-    'over_profit': float, 'under_profit': float}}. Cached ODDS_API_TTL seconds in Redis
-    (shared across /api/picks and /api/notify) since each call costs real API credits.
-    force=True bypasses this cache (see /api/picks?refresh=1) -- spends real credits, only
-    use when actually needed (e.g. debugging), not on every normal request.
+    Returns a tuple (team_lines, joint_lines):
+      team_lines:  team_abb -> {book_key: {'point', 'over', 'under', 'over_profit', 'under_profit'}}
+                   (ODDS_F5_MARKET -- per-team F5 total, used by pq_q4/off_q3)
+      joint_lines: (home_abb, away_abb) -> {book_key: {'point', 'over', 'under',
+                   'over_profit', 'under_profit'}} (ODDS_JOINT_MARKET -- combined F5 total,
+                   used by the joint-offense signal, added June 20, 2026)
+    Both markets are requested in the same per-event call (see cost note above ODDS_API_KEY).
+    Cached together ODDS_API_TTL seconds in Redis (shared across /api/picks and /api/notify)
+    since each call costs real API credits. force=True bypasses this cache (see
+    /api/picks?refresh=1) -- spends real credits, only use when actually needed, not on every
+    normal request.
     """
     if not ODDS_API_KEY or not games:
-        return {}
+        return {}, {}
 
     import json as _json
     today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
@@ -871,7 +914,11 @@ def get_odds_api_lines(games, force=False):
     cached    = None if force else redis_get(cache_key)
     if cached:
         try:
-            return _json.loads(cached)
+            parsed = _json.loads(cached)
+            # joint_lines keys are tuples, which JSON can't represent -- stored as "HOME|AWAY"
+            # strings and reconstructed here.
+            joint = {tuple(k.split('|', 1)): v for k, v in parsed.get('joint', {}).items()}
+            return parsed.get('team', {}), joint
         except Exception:
             pass
 
@@ -883,7 +930,7 @@ def get_odds_api_lines(games, force=False):
         events = ev_resp.json() if ev_resp.ok else []
     except Exception as e:
         print(f"Odds API events fetch error: {e}")
-        return {}
+        return {}, {}
 
     # games' home_team/away_team come back as full names (e.g. "Detroit Tigers") whenever MLB
     # Stats API's schedule response doesn't include the 'abbreviation' field for a team -- which
@@ -905,13 +952,14 @@ def get_odds_api_lines(games, force=False):
           f"(unmatched sample: {[(NAME_TO_ABB.get(e.get('home_team','')), NAME_TO_ABB.get(e.get('away_team',''))) for e in events[:5]]})")
 
     lines = {}
+    joint_lines = {}
     all_bookmaker_keys = set()
     for event_id, home_abb, away_abb in matched_events:
         try:
             r = requests.get(
                 f"{ODDS_API_BASE}/sports/baseball_mlb/events/{event_id}/odds",
                 params={'apiKey': ODDS_API_KEY, 'regions': ODDS_REGIONS,
-                        'markets': ODDS_F5_MARKET, 'oddsFormat': 'american'},
+                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET}', 'oddsFormat': 'american'},
                 timeout=15)
             if not r.ok:
                 continue
@@ -927,19 +975,33 @@ def get_odds_api_lines(games, force=False):
                 continue
             book_label = TARGET_BOOKS[book_key]
             for market in bm.get('markets', []):
-                if market.get('key') != ODDS_F5_MARKET:
-                    continue
-                by_team = {}
-                for outcome in market.get('outcomes', []):
-                    team_abb = NAME_TO_ABB.get(outcome.get('description', ''))
-                    if not team_abb:
-                        continue
-                    by_team.setdefault(team_abb, {})[outcome['name'].lower()] = outcome
-                for team_abb, sides in by_team.items():
+                mkey = market.get('key')
+                if mkey == ODDS_F5_MARKET:
+                    by_team = {}
+                    for outcome in market.get('outcomes', []):
+                        team_abb = NAME_TO_ABB.get(outcome.get('description', ''))
+                        if not team_abb:
+                            continue
+                        by_team.setdefault(team_abb, {})[outcome['name'].lower()] = outcome
+                    for team_abb, sides in by_team.items():
+                        over, under = sides.get('over'), sides.get('under')
+                        if not over or not under:
+                            continue
+                        lines.setdefault(team_abb, {})[book_label] = {
+                            'point':         over.get('point'),
+                            'over':          int(over['price']),
+                            'under':         int(under['price']),
+                            'over_profit':   round(_odds_american_to_profit(over['price']), 3),
+                            'under_profit':  round(_odds_american_to_profit(under['price']), 3),
+                        }
+                elif mkey == ODDS_JOINT_MARKET:
+                    # Joint/combined total -- one line for the whole game, no per-team
+                    # 'description' on the outcomes (unlike ODDS_F5_MARKET above).
+                    sides = {o['name'].lower(): o for o in market.get('outcomes', [])}
                     over, under = sides.get('over'), sides.get('under')
                     if not over or not under:
                         continue
-                    lines.setdefault(team_abb, {})[book_label] = {
+                    joint_lines.setdefault((home_abb, away_abb), {})[book_label] = {
                         'point':         over.get('point'),
                         'over':          int(over['price']),
                         'under':         int(under['price']),
@@ -949,10 +1011,14 @@ def get_odds_api_lines(games, force=False):
 
     print(f"Odds API bookmaker keys seen across all matched events: {sorted(all_bookmaker_keys)}")
     try:
-        redis_set(cache_key, _json.dumps(lines), ex=ODDS_API_TTL)
+        cache_payload = {
+            'team':  lines,
+            'joint': {f"{h}|{a}": v for (h, a), v in joint_lines.items()},
+        }
+        redis_set(cache_key, _json.dumps(cache_payload), ex=ODDS_API_TTL)
     except Exception as e:
         print(f"Odds lines cache write error: {e}")
-    return lines
+    return lines, joint_lines
 
 
 def pa_rate_to_game_odds(pa_rate_pct):
@@ -1173,12 +1239,14 @@ def get_tracking_only_flags(games, force=False):
     pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5 or a park exception
     pinnacle_suppressed_missing = 0  # gate active but no Pinnacle line found for this team/game
     pinnacle_park_exceptions    = 0  # passed via the park gate exception, not the base 1.5 line
+    joint_suppressed            = 0  # weak combined offense, but FanDuel joint line wasn't 3.5
+    joint_signals                = 0  # joint-offense flags actually surfaced
 
     try:
-        odds_lines = get_odds_api_lines(games, force=force)
+        team_lines, joint_lines = get_odds_api_lines(games, force=force)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
-        odds_lines = {}
+        team_lines, joint_lines = {}, {}
 
     # See "SAFETY FALLBACK" note above get_odds_api_lines: only gate on Pinnacle if a live odds
     # feed is actually configured. Without this, a missing/unset ODDS_API_KEY would silently
@@ -1230,7 +1298,7 @@ def get_tracking_only_flags(games, force=False):
             # line is 2.5+ AND the game is in a hitter-favorable park (PARK_GATE_TEAMS, see notes
             # above that constant) -- the validated park-inflated-line exception.
             team_abb       = NAME_TO_ABB.get(batting_team, batting_team)
-            team_odds      = odds_lines.get(team_abb, {})
+            team_odds      = team_lines.get(team_abb, {})
             pinnacle_point = team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
             park_exception = (pinnacle_point is not None and pinnacle_point >= PARK_GATE_MIN_POINT
                                and home_abb in PARK_GATE_TEAMS)
@@ -1286,16 +1354,58 @@ def get_tracking_only_flags(games, force=False):
             }
             flags.append(flag)
 
+        # ── JOINT OFFENSE TRACKING SIGNAL ── game-level (not per-team), so computed once per
+        # game after the matchups loop above, not once per matchup side. See notes above
+        # JOINT_OFF_PCTILE_MAX.
+        home_lineup = game.get('home_lineup')
+        away_lineup = game.get('away_lineup')
+        home_off_info = get_lineup_offense_quality(home_lineup, off_population) if (off_population and home_lineup) else None
+        away_off_info = get_lineup_offense_quality(away_lineup, off_population) if (off_population and away_lineup) else None
+        if home_off_info and away_off_info:
+            combined_off_pctile = (home_off_info['off_pctile'] + away_off_info['off_pctile']) / 2.0
+            if combined_off_pctile <= JOINT_OFF_PCTILE_MAX:
+                away_abb   = NAME_TO_ABB.get(game['away_team'], game['away_team'])
+                joint_odds = joint_lines.get((home_abb, away_abb), {})
+                fanduel_pt = joint_odds.get(JOINT_GATE_BOOK, {}).get('point')
+                # Gated on FanDuel's own line, not Pinnacle's -- see JOINT_GATE_BOOK notes above.
+                if pinnacle_gate_active and fanduel_pt != JOINT_LINE_TARGET:
+                    joint_suppressed += 1
+                else:
+                    joint_signals += 1
+                    flags.append({
+                        'game':                  f"{game['away_team']}@{game['home_team']}",
+                        'game_id':               game.get('game_id'),
+                        # sentinel, not a real team -- this is a game-level flag, but reuses
+                        # flag_key()/sheet keying unchanged (both key off game+batting_team).
+                        'batting_team':          'Joint Total',
+                        'fielding_team':         '',
+                        'pitcher_name':          '',
+                        'home_team':             game['home_team'],
+                        'away_team':             game['away_team'],
+                        'signal':                'joint_offense_over',
+                        'joint_signal':          True,
+                        'game_time':             game.get('game_time'),
+                        'joint_off_pctile':      round(combined_off_pctile, 1),
+                        'joint_home_off_pctile': round(home_off_info['off_pctile'], 1),
+                        'joint_away_off_pctile': round(away_off_info['off_pctile'], 1),
+                        'joint_odds_lines':      joint_odds,
+                        'joint_fanduel_point':   fanduel_pt,
+                        'joint_note':            _joint_note(fanduel_pt),
+                    })
+
     print(f"Pinnacle gate ({'active' if pinnacle_gate_active else 'INACTIVE -- no ODDS_API_KEY'}): "
           f"{len(flags)} flags shown ({pinnacle_park_exceptions} via park exception), "
           f"{pinnacle_suppressed_wrong} suppressed (Pinnacle line != 1.5, not a park exception), "
           f"{pinnacle_suppressed_missing} suppressed (no Pinnacle line found)")
+    print(f"Joint offense gate: {joint_signals} flag(s) shown, {joint_suppressed} suppressed "
+          f"(weak combined offense but FanDuel joint line wasn't {JOINT_LINE_TARGET})")
 
-    pq_only_flags  = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
-                             key=lambda x: x.get('pq_percentile', 0), reverse=True)
-    off_only_flags = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
-                             key=lambda x: x.get('off_pctile', 0), reverse=True)
-    return pq_only_flags + off_only_flags
+    pq_only_flags    = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
+                               key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    off_only_flags   = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
+                               key=lambda x: x.get('off_pctile', 0), reverse=True)
+    joint_only_flags = [f for f in flags if f['signal'] == 'joint_offense_over']
+    return pq_only_flags + off_only_flags + joint_only_flags
 
 
 def get_heatmap_flags(games, model):
@@ -1306,7 +1416,7 @@ def get_heatmap_flags(games, model):
     flags           = []
 
     try:
-        odds_lines = get_odds_api_lines(games)
+        odds_lines, _joint_lines_unused = get_odds_api_lines(games)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
         odds_lines = {}
@@ -1822,6 +1932,7 @@ def build_picks_payload(today, games, heatmap_flags):
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
     off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
+    joint_flags     = [f for f in heatmap_flags if f.get('joint_signal')]
     return {
         'date':            today,
         'complete':        complete,
@@ -1833,6 +1944,7 @@ def build_picks_payload(today, games, heatmap_flags):
         'over_info_flags': over_info_flags,
         'pq_flags':        pq_flags,
         'off_flags':       off_flags,
+        'joint_flags':     joint_flags,
         'fg_in_window':    is_fg_valid_window(),
         'games':           games_out,
     }
@@ -1957,6 +2069,21 @@ def format_odds_lines(odds_lines):
         pt = info.get('point')
         marker = '✅' if pt == 1.5 else ''
         price = info.get('under')
+        price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
+        parts.append(f"{book} {pt}{marker}{price_str}")
+    return ' | '.join(parts)
+
+
+def format_joint_odds_lines(odds_lines):
+    """Same shape as format_odds_lines, but shows the OVER price (this signal bets over, not
+    under) and marks JOINT_LINE_TARGET (3.5) instead of 1.5 -- e.g. 'FanDuel 3.5✅ -114'."""
+    if not odds_lines:
+        return ''
+    parts = []
+    for book, info in odds_lines.items():
+        pt = info.get('point')
+        marker = '✅' if pt == JOINT_LINE_TARGET else ''
+        price = info.get('over')
         price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
         parts.append(f"{book} {pt}{marker}{price_str}")
     return ' | '.join(parts)
@@ -2194,6 +2321,90 @@ def append_off_to_sheet(flags):
         print(f"Google Sheets (OffenseQuality) error: {e}")
 
 
+JOINT_SHEET_TAB    = 'JointOffense'
+JOINT_SHEET_HEADER = [
+    'date', 'game', 'home_team', 'away_team', 'joint_off_pctile',
+    'joint_home_off_pctile', 'joint_away_off_pctile', 'game_time',
+    # game-level signal (not per-team), so only the books that actually post the joint/combined
+    # market matter -- FanDuel (the gate book) and Pinnacle (thin coverage, ~15% of events, but
+    # worth recording when present). Same Line/Odds pair pattern as PQ_SHEET_HEADER, but OVER
+    # price/line, not UNDER -- this signal bets over.
+    'fanduel_line', 'fanduel_odds', 'pinnacle_line', 'pinnacle_odds',
+    'actual_joint_f5_runs', 'over_hit',  # auto-filled by backfill_sheet_outcomes() once F5 is final
+    'game_id',                           # MLB gamePk -- lets backfill find the right boxscore
+]
+
+
+def _joint_book_line_odds(joint_odds, book_label):
+    """Same as _book_line_odds, but reads the OVER price (this signal bets over, not under)."""
+    info  = (joint_odds or {}).get(book_label) or {}
+    point = info.get('point', '')
+    price = info.get('over')
+    odds  = '' if price is None else (f"+{price}" if price > 0 else str(price))
+    return point, odds
+
+
+def append_joint_to_sheet(flags):
+    """
+    Tracking-only log for the joint-offense signal (NOT a validated bet signal -- see
+    JOINT_OFF_PCTILE_MAX comment block). Separate tab, same pattern as append_pq_to_sheet/
+    append_off_to_sheet, but game-level rows (batting_team is the 'Joint Total' sentinel, not
+    a real team) and OVER-side odds, not under.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(JOINT_SHEET_TAB)
+            if ws.row_values(1) != JOINT_SHEET_HEADER:
+                ws.update('A1', [JOINT_SHEET_HEADER])  # migrate older sheets onto the current schema
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=JOINT_SHEET_TAB, rows=1000, cols=len(JOINT_SHEET_HEADER))
+            ws.append_row(JOINT_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 2:
+                existing_keys.add(f"{row[0]}|{row[1]}")  # date|game -- no batting_team, one row/game
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if not f.get('joint_signal'):
+                continue
+            key = f"{today}|{f.get('game','')}"
+            if key in existing_keys:
+                continue
+            joint_odds = f.get('joint_odds_lines') or {}
+            fd_line, fd_odds = _joint_book_line_odds(joint_odds, JOINT_GATE_BOOK)
+            pn_line, pn_odds = _joint_book_line_odds(joint_odds, PINNACLE_BOOK_LABEL)
+            ws.append_row([
+                today, f.get('game', ''), f.get('home_team', ''), f.get('away_team', ''),
+                f.get('joint_off_pctile', ''),
+                f.get('joint_home_off_pctile', ''), f.get('joint_away_off_pctile', ''),
+                f.get('game_time', ''),
+                fd_line, fd_odds, pn_line, pn_odds,
+                '', '',  # actual_joint_f5_runs / over_hit — filled in later by backfill
+                f.get('game_id', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (JointOffense): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping Joint Offense sheet append")
+    except Exception as e:
+        print(f"Google Sheets (JointOffense) error: {e}")
+
+
 # ── OUTCOME BACKFILL (June 19, 2026) ──────────────────────────────────────────────────
 # Until now, actual_f5_runs/under_hit on both tracking sheets were 100% manual -- Zach had to
 # look up each game's score and type it in. This fills them in automatically from MLB Stats
@@ -2242,7 +2453,7 @@ def backfill_sheet_outcomes():
     schedule (e.g. cron-job.org, same pattern as /api/notify) -- rows already filled, or whose
     F5 score isn't final yet, are simply skipped each time. Returns a summary dict for logging.
     """
-    summary = {'pq_filled': 0, 'off_filled': 0}
+    summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0}
     if not SHEETS_CREDS:
         return summary
     try:
@@ -2330,6 +2541,66 @@ def backfill_sheet_outcomes():
         summary[summary_key] = filled
         print(f"Backfill ({tab}): {filled} row(s) filled")
 
+    # ── JointOffense backfill ── different shape from the loop above: one row per GAME, not
+    # per team (no batting_team column), grades OVER not under, and runs = home + away summed
+    # (get_f5_runs_for_game already returns both sides -- this is the only consumer that needs
+    # the sum instead of picking one side).
+    try:
+        ws = sh.worksheet(JOINT_SHEET_TAB)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = None
+    except Exception as e:
+        print(f"Backfill ({JOINT_SHEET_TAB}): worksheet lookup error: {e}")
+        ws = None
+
+    if ws is not None:
+        try:
+            rows = ws.get_all_values()
+        except Exception as e:
+            print(f"Backfill ({JOINT_SHEET_TAB}): read error: {e}")
+            rows = []
+        if len(rows) >= 2:
+            hdr = rows[0]
+            try:
+                i_line   = hdr.index('fanduel_line')
+                i_runs   = hdr.index('actual_joint_f5_runs')
+                i_hit    = hdr.index('over_hit')
+                i_gameid = hdr.index('game_id')
+
+                def cell(row, i):
+                    return row[i] if i < len(row) else ''
+
+                filled = 0
+                for r_idx, row in enumerate(rows[1:], start=2):
+                    if cell(row, i_runs):                # already filled
+                        continue
+                    line_str = cell(row, i_line)
+                    if not line_str:                     # no confirmed FanDuel line to grade against
+                        continue
+                    try:
+                        line_val = float(line_str)
+                    except ValueError:
+                        continue
+                    game_id = cell(row, i_gameid)
+                    if not game_id:
+                        continue
+                    f5 = get_f5_runs_for_game(game_id)
+                    if f5 is None:
+                        continue
+                    joint_runs = f5['home'] + f5['away']
+                    over_hit   = 'Yes' if joint_runs > line_val else 'No'
+                    try:
+                        ws.update_cell(r_idx, i_runs + 1, joint_runs)
+                        ws.update_cell(r_idx, i_hit + 1, over_hit)
+                        filled += 1
+                    except Exception as e:
+                        print(f"Backfill ({JOINT_SHEET_TAB}): write error on row {r_idx}: {e}")
+                summary['joint_filled'] = filled
+                print(f"Backfill ({JOINT_SHEET_TAB}): {filled} row(s) filled")
+            except ValueError:
+                print(f"Backfill ({JOINT_SHEET_TAB}): header missing expected columns (run an "
+                      f"append first to migrate it), skipping")
+
     return summary
 
 
@@ -2374,7 +2645,8 @@ def api_notify():
         under_flags = [f for f in flags if f.get('signal') == 'under']
         pq_flags    = [f for f in flags if f.get('pq_q4')]
         off_flags   = [f for f in flags if f.get('off_q3_gate')]
-        if not under_flags and not pq_flags and not off_flags:
+        joint_flags = [f for f in flags if f.get('joint_signal')]
+        if not under_flags and not pq_flags and not off_flags and not joint_flags:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
         redis_key    = f"ozzie:notified:{today}"
@@ -2383,7 +2655,8 @@ def api_notify():
         new_under = [f for f in under_flags if flag_key(f) not in already_sent]
         new_pq    = [f for f in pq_flags if flag_key(f) not in already_sent]
         new_off   = [f for f in off_flags if flag_key(f) not in already_sent]
-        if not new_under and not new_pq and not new_off:
+        new_joint = [f for f in joint_flags if flag_key(f) not in already_sent]
+        if not new_under and not new_pq and not new_off and not new_joint:
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
@@ -2445,6 +2718,23 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
+        if new_joint:
+            if new_under or new_pq or new_off:
+                lines.append("")
+            lines.append(f"🌐 <b>Joint Offense (Combined F5 Total) — TRACKING ONLY, not a bet signal</b>")
+            lines.append(f"{len(new_joint)} weak-combined-offense game(s) — only means something if "
+                         f"FanDuel's joint line below shows ✅3.5 (see joint_note)\n")
+            for f in new_joint:
+                pct  = f.get('joint_off_pctile')
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                odds = format_joint_odds_lines(f.get('joint_odds_lines'))
+                lines.append(
+                    f"🌐 <b>{f['away_team']} @ {f['home_team']}</b> "
+                    f"(combined off pctile {pct}){time}"
+                )
+                if odds:
+                    lines.append(f"   {odds}")
+
         send_telegram('\n'.join(lines))
         if new_under:
             append_to_sheet(new_under)
@@ -2452,12 +2742,16 @@ def api_notify():
             append_pq_to_sheet(new_pq)
         if new_off:
             append_off_to_sheet(new_off)
+        if new_joint:
+            append_joint_to_sheet(new_joint)
         all_sent = (already_sent | {flag_key(f) for f in new_under}
-                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off})
+                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off}
+                    | {flag_key(f) for f in new_joint})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
-        return jsonify({'status': 'ok', 'new': len(new_under) + len(new_pq) + len(new_off),
+        return jsonify({'status': 'ok',
+                        'new': len(new_under) + len(new_pq) + len(new_off) + len(new_joint),
                         'flags': [flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
-                                 + [flag_key(f) for f in new_off]})
+                                 + [flag_key(f) for f in new_off] + [flag_key(f) for f in new_joint]})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

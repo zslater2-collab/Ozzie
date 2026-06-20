@@ -114,6 +114,11 @@
   .off-card{background:var(--surface);border:1px solid rgba(79,184,255,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
   .off-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(79,184,255,.5),transparent)}
   .off-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
+  /* Joint Offense (Combined F5 Total) cards */
+  #joint-section{padding:20px 20px 0;display:none}
+  .joint-card{background:var(--surface);border:1px solid rgba(120,220,180,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .joint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(120,220,180,.5),transparent)}
+  .joint-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
 </style>
 </head>
 <body>
@@ -177,6 +182,18 @@
       </div>
     </div>
     <div id="off-list"></div>
+  </div>
+</div>
+<div id="joint-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="joint-count"></div>
+      <div class="section-label" style="margin:0">Joint Offense — Combined F5 Total
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#78dcb4;margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
+      </div>
+    </div>
+    <div id="joint-list"></div>
   </div>
 </div>
 <div id="dfs-section">
@@ -433,6 +450,49 @@
     return parts.join(' &nbsp;|&nbsp; ');
   }
 
+  function formatJointOddsLines(oddsLines) {
+    // Same shape as formatOddsLines, but marks 3.5 (JOINT_LINE_TARGET) not 1.5, and leads with
+    // FanDuel (the gate book for this signal -- see JOINT_GATE_BOOK) instead of Pinnacle.
+    if (!oddsLines || Object.keys(oddsLines).length === 0) return '';
+    const fmtPrice = (n) => n > 0 ? `+${n}` : `${n}`;
+    const fmtBook = ([book, info]) => {
+      const mark = info.point === 3.5 ? ' ✅' : '';
+      return `${book} ${info.point}${mark} (O ${fmtPrice(info.over)} / U ${fmtPrice(info.under)})`;
+    };
+    const entries = Object.entries(oddsLines);
+    const fanduel = entries.find(([book]) => book === 'FanDuel');
+    const others  = entries.filter(([book]) => book !== 'FanDuel');
+    const parts = [];
+    if (fanduel) parts.push(`<b>${fmtBook(fanduel)}</b>`);
+    parts.push(...others.map(fmtBook));
+    return parts.join(' &nbsp;|&nbsp; ');
+  }
+
+  function buildJointCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'joint-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const pct = f.joint_off_pctile !== null && f.joint_off_pctile !== undefined ? f.joint_off_pctile : '—';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.away_team} @ ${f.home_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#78dcb4">WEAK COMBINED OFFENSE</div>
+          <div class="hm-sigma">${pct} combined pctile</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Home Off Pctile</div><div class="hm-stat-value">${f.joint_home_off_pctile}</div></div>
+        <div><div class="hm-stat-label">Away Off Pctile</div><div class="hm-stat-value">${f.joint_away_off_pctile}</div></div>
+        <div><div class="hm-stat-label">FanDuel Line</div><div class="hm-stat-value">${f.joint_fanduel_point ?? '—'}</div></div>
+      </div>
+      <div class="joint-detail" style="margin-top:8px">${f.joint_note||''}</div>
+      ${formatJointOddsLines(f.joint_odds_lines) ? `<div class="joint-detail" style="margin-top:4px;color:var(--text)">${formatJointOddsLines(f.joint_odds_lines)}</div>` : ''}`;
+    return card;
+  }
+
   function buildPqCard(f, i) {
     const card = document.createElement('div');
     card.className = 'pq-card';
@@ -506,7 +566,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','off-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','off-section','joint-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -565,6 +625,15 @@
           document.getElementById('off-count').textContent = `${offFlags.length} Offense${offFlags.length!==1?'s':''}`;
           offFlags.forEach((f,i) => offList.appendChild(buildOffCard(f,i)));
           document.getElementById('off-section').style.display = 'block';
+        }
+
+        // ── Joint Offense / Combined F5 Total (tracking only) ───────────
+        const jointList = document.getElementById('joint-list'); jointList.innerHTML='';
+        const jointFlags = (data.joint_flags||[]).filter(f=>f.joint_signal);
+        if (jointFlags.length > 0) {
+          document.getElementById('joint-count').textContent = `${jointFlags.length} Game${jointFlags.length!==1?'s':''}`;
+          jointFlags.forEach((f,i) => jointList.appendChild(buildJointCard(f,i)));
+          document.getElementById('joint-section').style.display = 'block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
