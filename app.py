@@ -1437,6 +1437,13 @@ def get_tracking_only_flags(games, force=False):
     fg_suppressed                = 0  # opposing bullpen rates top-quartile, but FG line wasn't 3.5/4.5/5.5
     fg_signals                   = 0  # FG TT under flags actually surfaced
     f5_over_signals               = 0  # derived F5 TT over flags actually surfaced
+    fg_no_bp_info                 = 0  # fielding team name didn't resolve to a bullpen population entry
+    fg_pctile_checked            = []  # (fielding_team, fielding_abb, pctile_or_None) -- every matchup
+    # checked today, regardless of gate result -- diagnostic so "0 flags shown" in the summary print
+    # below is distinguishable between "real, no team cleared the bar today" (expected on small
+    # slates -- ~75th-percentile-of-30-teams means only ~7-8 teams qualify on ANY given day) vs "the
+    # team-name lookup is silently broken." Added June 22, 2026 after the first live cycle showed
+    # 0/0 with no way to tell which case it was from the logs alone.
 
     try:
         team_lines, joint_lines, fg_lines = get_odds_api_lines(games, force=force)
@@ -1508,6 +1515,9 @@ def get_tracking_only_flags(games, force=False):
             bp_info      = bp_population.get(fielding_abb)
             fg_bp_pctile = bp_info['percentile'] if bp_info else None
             fg_bp_gate   = bool(bp_info and fg_bp_pctile >= FG_BP_PCTILE_GATE)
+            fg_pctile_checked.append((fielding_team, fielding_abb, fg_bp_pctile))
+            if bp_info is None:
+                fg_no_bp_info += 1
             if fg_bp_gate:
                 fg_team_abb    = NAME_TO_ABB.get(batting_team, batting_team)
                 fg_team_odds   = fg_lines.get(fg_team_abb, {})
@@ -1692,7 +1702,11 @@ def get_tracking_only_flags(games, force=False):
     print(f"Joint offense gate: {joint_signals} flag(s) shown, {joint_suppressed} suppressed "
           f"(weak combined offense but FanDuel joint line wasn't {JOINT_LINE_TARGET})")
     print(f"FG bullpen gate: {fg_signals} flag(s) shown, {fg_suppressed} suppressed "
-          f"(opposing bullpen top-quartile but FG line wasn't in {sorted(FG_TT_VALID_LINES)})")
+          f"(opposing bullpen top-quartile but FG line wasn't in {sorted(FG_TT_VALID_LINES)}), "
+          f"{fg_no_bp_info}/{len(fg_pctile_checked)} matchups had no bullpen population entry for "
+          f"the fielding team (name-resolution failure, not just below-threshold)")
+    print(f"FG bullpen pctile by matchup checked today: "
+          f"{[(t, a, p) for t, a, p in fg_pctile_checked]}")
     print(f"F5 TT over (derived): {f5_over_signals} flag(s) shown")
 
     pq_only_flags     = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
