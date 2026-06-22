@@ -671,7 +671,7 @@
     card.className = 'fgj-card';
     card.style.animationDelay = `${i * 0.06}s`;
     const isUnder = f.fg_joint_direction === 'under';
-    const dirColor = isUnder ? 'var(--green)' : 'var(--red)';
+    const dirColor = isUnder ? 'var(--red)' : 'var(--green)';
     const arrow = isUnder ? '🔻' : '🔺';
     const dirLabel = (f.fg_joint_direction || '').toUpperCase();
     const comb = (f.fgj_combined_pctile !== null && f.fgj_combined_pctile !== undefined) ? f.fgj_combined_pctile : '—';
