@@ -3175,6 +3175,128 @@ def get_f5_runs_for_game(game_id):
     return {'home': home_runs, 'away': away_runs}
 
 
+def get_fg_runs_for_game(game_id):
+    """
+    Returns {'home': int, 'away': int} FULL-GAME runs for a game that is FINAL, or None if the
+    game isn't final yet (or on error). Unlike F5 (which locks once inning 5 is complete), a
+    full-game total isn't safe to grade until the game is actually over (extras, rain-shortening),
+    so this gates on status == 'Final'. The schedule endpoint carries BOTH the final score and the
+    game status in one lightweight call, so no separate status fetch is needed. 'Final' also covers
+    rain-shortened "Completed Early" games (a valid, gradeable final result).
+    """
+    if not game_id:
+        return None
+    try:
+        r = requests.get("https://statsapi.mlb.com/api/v1/schedule",
+                         params={'sportId': 1, 'gamePks': game_id}, timeout=15)
+        if not r.ok:
+            return None
+        data = r.json()
+    except Exception as e:
+        print(f"Schedule fetch error (game {game_id}): {e}")
+        return None
+    for d in data.get('dates', []):
+        for g in d.get('games', []):
+            if str(g.get('gamePk')) != str(game_id):
+                continue
+            if (g.get('status') or {}).get('abstractGameState') != 'Final':
+                return None
+            teams = g.get('teams', {})
+            home = teams.get('home', {}).get('score')
+            away = teams.get('away', {}).get('score')
+            if home is None or away is None:
+                return None
+            return {'home': int(home), 'away': int(away)}
+    return None
+
+
+def _backfill_tab(sh, gspread, tab, *, line_col, runs_col, hit_col, fetch, mode, direction_col=None):
+    """
+    Generic outcome backfill for one tracking tab. Fills runs_col + hit_col for any row that has a
+    game_id and a recorded line but no outcome yet, skipping rows whose game isn't final/safe yet
+    (fetch returns None). Returns count filled.
+      fetch(game_id) -> {'home': int, 'away': int} or None (e.g. get_fg_runs_for_game for full-game,
+        get_f5_runs_for_game for first-5).
+      mode='team_under'/'team_over' -> per-team row (uses 'game' = "away@home" + 'batting_team' to
+        pick the side), graded under/over vs line_col.
+      mode='joint' -> game-level row, value = home+away, graded by the row's direction_col
+        ('under'/'over') vs line_col.
+    """
+    try:
+        ws = sh.worksheet(tab)
+    except gspread.exceptions.WorksheetNotFound:
+        return 0
+    except Exception as e:
+        print(f"Backfill ({tab}): worksheet lookup error: {e}")
+        return 0
+    try:
+        rows = ws.get_all_values()
+    except Exception as e:
+        print(f"Backfill ({tab}): read error: {e}")
+        return 0
+    if len(rows) < 2:
+        return 0
+    hdr = rows[0]
+    try:
+        i_game   = hdr.index('game')
+        i_line   = hdr.index(line_col)
+        i_runs   = hdr.index(runs_col)
+        i_hit    = hdr.index(hit_col)
+        i_gameid = hdr.index('game_id')
+        i_team   = hdr.index('batting_team') if mode in ('team_under', 'team_over') else None
+        i_dir    = hdr.index(direction_col) if direction_col else None
+    except ValueError:
+        print(f"Backfill ({tab}): header missing expected columns (run an append first to migrate), skipping")
+        return 0
+
+    def cell(row, i):
+        return row[i] if (i is not None and i < len(row)) else ''
+
+    filled = 0
+    for r_idx, row in enumerate(rows[1:], start=2):
+        if cell(row, i_runs):                 # already filled
+            continue
+        line_str = cell(row, i_line)
+        if not line_str:                      # no recorded line to grade against
+            continue
+        try:
+            line_val = float(line_str)
+        except ValueError:
+            continue
+        game_id = cell(row, i_gameid)
+        if not game_id:
+            continue
+        res = fetch(game_id)
+        if res is None:                       # not final / not safe to grade yet
+            continue
+        if mode == 'joint':
+            value = res['home'] + res['away']
+            direction = cell(row, i_dir)
+            hit = ('Yes' if value < line_val else 'No') if direction == 'under' \
+                  else ('Yes' if value > line_val else 'No')
+        else:
+            game_str = cell(row, i_game)
+            if '@' not in game_str:
+                continue
+            away, home = game_str.split('@', 1)
+            team_abb = NAME_TO_ABB.get(cell(row, i_team), cell(row, i_team))
+            is_home = NAME_TO_ABB.get(home, home) == team_abb
+            is_away = NAME_TO_ABB.get(away, away) == team_abb
+            if not is_home and not is_away:
+                continue
+            value = res['home'] if is_home else res['away']
+            hit = ('Yes' if value < line_val else 'No') if mode == 'team_under' \
+                  else ('Yes' if value > line_val else 'No')
+        try:
+            ws.update_cell(r_idx, i_runs + 1, value)
+            ws.update_cell(r_idx, i_hit + 1, hit)
+            filled += 1
+        except Exception as e:
+            print(f"Backfill ({tab}): write error on row {r_idx}: {e}")
+    print(f"Backfill ({tab}): {filled} row(s) filled")
+    return filled
+
+
 def backfill_sheet_outcomes():
     """
     Fills in actual_f5_runs/under_hit on PitcherQuality and OffenseQuality for any row with a
@@ -3182,7 +3304,8 @@ def backfill_sheet_outcomes():
     schedule (e.g. cron-job.org, same pattern as /api/notify) -- rows already filled, or whose
     F5 score isn't final yet, are simply skipped each time. Returns a summary dict for logging.
     """
-    summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0}
+    summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0,
+               'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0}
     if not SHEETS_CREDS:
         return summary
     try:
@@ -3329,6 +3452,20 @@ def backfill_sheet_outcomes():
             except ValueError:
                 print(f"Backfill ({JOINT_SHEET_TAB}): header missing expected columns (run an "
                       f"append first to migrate it), skipping")
+
+    # ── FULL-GAME tabs (June 22, 2026) ── now auto-backfilled via get_fg_runs_for_game (final
+    # games only). FgTeamTotal = per-team full-game under (graded vs the gate's pinnacle_line);
+    # FgJointTotal = game-level combined total, under OR over per the row's direction (graded vs
+    # draftkings_line, the gate book). F5TtOver = per-team F5 over (graded vs pinnacle_line, F5 runs).
+    summary['fg_tt_filled'] = _backfill_tab(
+        sh, gspread, FG_TT_SHEET_TAB, line_col='pinnacle_line', runs_col='actual_fg_runs',
+        hit_col='under_hit', fetch=get_fg_runs_for_game, mode='team_under')
+    summary['fg_joint_filled'] = _backfill_tab(
+        sh, gspread, FG_JOINT_SHEET_TAB, line_col='draftkings_line', runs_col='actual_fg_joint_runs',
+        hit_col='hit', fetch=get_fg_runs_for_game, mode='joint', direction_col='direction')
+    summary['f5_over_filled'] = _backfill_tab(
+        sh, gspread, F5_OVER_SHEET_TAB, line_col='pinnacle_line', runs_col='actual_f5_runs',
+        hit_col='over_hit', fetch=get_f5_runs_for_game, mode='team_over')
 
     return summary
 
