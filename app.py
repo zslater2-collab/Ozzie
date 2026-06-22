@@ -289,6 +289,186 @@ def get_pitcher_quality_population(force=False):
     return population
 
 
+# ── FG (FULL-GAME) BULLPEN COMPOSITE — TEAM-TOTAL UNDER (June 22, 2026) ─────────────────
+# Built same day as signal #4's full-game extension. Same K/BB/HR DIPS composite, same
+# recency-weighted prior (pitcher_quality_prior_2026.csv), same PQ_WEIGHTS/PQ_PHANTOM_BF — but
+# aggregated by TEAM instead of by individual pitcher, because (unlike a starter) you don't know
+# which specific relievers will pitch before the game. This is the honest live equivalent of the
+# backtest's "actual relievers who pitched, BF-weighted" methodology — a live signal can't have
+# that hindsight, so it uses the team's bullpen-as-a-whole current-season performance instead.
+# Expect some degradation vs. the backtest for this reason, same as every other signal here going
+# from backtest to live.
+#
+# VALIDATION STATUS:
+#   Opponent's bullpen quality predicts THIS team's full-game total going under — the opposing
+#   STARTER alone is flat (p=0.158), the entire edge is bullpen-specific. Validated at FG lines
+#   3.5/4.5/5.5 (2.5 is flat, not gated on). Recency-weighted prior, pooled across those three
+#   lines: 2025 n=852, 65.0% hit, +22.7% ROI, p<0.001; 2026 n=39, 66.7% hit, +27.8% ROI, p=0.027.
+#   Threshold sweep is clean and monotonic (no hidden dead zone like the starter composite needed
+#   to route around) — 75th percentile is well-supported by both years, not just a leftover
+#   default. Holds across line levels (3.5/4.5/5.5), not offense-confounded (r=0.05 vs batting
+#   team's own off_pctile), not park-confounded once the join was corrected (r=-0.03), and holds
+#   at Coors specifically (72.0% hit vs. Coors' unconditional 49.1% under rate). See CLAUDE.md
+#   "SIGNAL #5" sections for full validation history, including a backwards-join bug found and
+#   fixed mid-session — current numbers are post-fix.
+#
+# CRITICAL: this is a TRACKING-ONLY signal, same bar as pq_q4/off_q3 — not yet proven on a full
+# second season at the live (recency-weighted, team-aggregated) methodology. Gate on Pinnacle's
+# full-game team_totals line being exactly 3.5, 4.5, or 5.5 for this team.
+
+FG_BP_PCTILE_GATE = 75.0
+FG_TT_VALID_LINES = {3.5, 4.5, 5.5}
+BP_SEASON_TTL      = 21600  # same cadence as pq/off — current-season cumulative stats don't churn
+
+_bp_population_cache      = None
+_bp_population_cache_time = None
+
+
+def _bp_fetch_current_season_by_team():
+    """
+    Same MLB Stats API bulk season-stats call as _pq_fetch_current_season, but also captures
+    each pitcher's CURRENT team (the 'team' object on every split, same response, no extra
+    request) — needed to aggregate relievers by team for the bullpen composite. Kept as a
+    separate function rather than modifying _pq_fetch_current_season itself, since that one is
+    already depended on by the starter composite and this app has a history of production
+    incidents from touching shared fetch paths (see TRACKING-ONLY MODE notes above).
+    """
+    try:
+        r = requests.get(
+            "https://statsapi.mlb.com/api/v1/stats",
+            params={'stats': 'season', 'group': 'pitching', 'season': datetime.now().year,
+                    'sportId': 1, 'limit': 3000, 'playerPool': 'ALL'},
+            timeout=20)
+        r.raise_for_status()
+        splits = r.json().get('stats', [{}])[0].get('splits', [])
+        season = {}
+        n_no_team = 0
+        for s in splits:
+            stat = s.get('stat', {})
+            bf = stat.get('battersFaced', 0) or 0
+            pid = s.get('player', {}).get('id')
+            team_name = s.get('team', {}).get('name')
+            team_abb  = NAME_TO_ABB.get(team_name)
+            if bf <= 0 or pid is None:
+                continue
+            if team_abb is None:
+                n_no_team += 1
+                continue
+            season[int(pid)] = {
+                'bf': bf, 'so': stat.get('strikeOuts', 0) or 0,
+                'bb': stat.get('baseOnBalls', 0) or 0, 'hr': stat.get('homeRuns', 0) or 0,
+                'team_abb': team_abb,
+            }
+        print(f"Bullpen quality current-season fetch: {len(season)} pitchers with BF>0 and a "
+              f"resolvable team ({n_no_team} skipped, unresolvable team name)")
+        return season
+    except Exception as e:
+        print(f"Warning: bullpen quality current-season fetch failed: {e}")
+        return {}
+
+
+def get_bullpen_quality_population(force=False):
+    """
+    Returns dict: team_abb -> {score, percentile, n_relievers, bf_total}.
+    Aggregates every RELIEVER (is_starter=False in the prior) currently on each team, blends
+    each one's career prior with current-season-to-date (same Marcel formula as the starter
+    composite), then takes the BF-weighted average score across that team's relievers. z-scored/
+    percentile-ranked across all teams with enough relievers to trust.
+    Cached BP_SEASON_TTL seconds. force=True bypasses this cache (see /api/picks?refresh=1).
+    """
+    global _bp_population_cache, _bp_population_cache_time
+    now = datetime.now().timestamp()
+    if not force and _bp_population_cache and _bp_population_cache_time and \
+            (now - _bp_population_cache_time < BP_SEASON_TTL):
+        return _bp_population_cache
+
+    load_pitcher_quality_prior()
+    if not _pq_prior:
+        return {}
+
+    season = _bp_fetch_current_season_by_team()
+    reliever_scores = {}  # pid -> (score, bf, team_abb)
+    for pid, prior in _pq_prior.items():
+        if prior.get('is_starter'):
+            continue
+        s = season.get(pid)
+        if not s or s['bf'] <= 0:
+            continue
+        bf = s['bf']
+        season_rates = {
+            'k_rate':  s['so'] / bf, 'bb_rate': s['bb'] / bf, 'hr_rate': s['hr'] / bf,
+        }
+        blend = {}
+        for stat in ('k_rate', 'bb_rate', 'hr_rate'):
+            ph = PQ_PHANTOM_BF[stat]
+            blend[stat] = (ph * prior[stat] + bf * season_rates[stat]) / (ph + bf)
+        reliever_scores[pid] = (blend, bf, s['team_abb'])
+
+    if len(reliever_scores) < 30:  # need at least ~1/team on average to trust anything
+        print(f"Bullpen quality: only {len(reliever_scores)} relievers with current-season data, "
+              f"skipping (need current-season fetch to have actually worked)")
+        return {}
+
+    # Reference distribution for standardizing K/BB/HR — same starters-only-style reasoning as
+    # the pitcher composite doesn't apply here (this population IS already relievers-only by
+    # construction), so just use the full reliever pool directly.
+    means = {stat: sum(b[stat] for b, _, _ in reliever_scores.values()) / len(reliever_scores)
+             for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+    stds  = {stat: (sum((b[stat] - means[stat]) ** 2 for b, _, _ in reliever_scores.values())
+                     / len(reliever_scores)) ** 0.5
+             for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+
+    def compute_score(b):
+        z = {stat: (b[stat] - means[stat]) / stds[stat] if stds[stat] > 0 else 0.0
+             for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+        return PQ_WEIGHTS['k'] * z['k_rate'] + PQ_WEIGHTS['bb'] * z['bb_rate'] + PQ_WEIGHTS['hr'] * z['hr_rate']
+
+    by_team = {}
+    for pid, (blend, bf, team_abb) in reliever_scores.items():
+        score = compute_score(blend)
+        by_team.setdefault(team_abb, {'wsum': 0.0, 'wtot': 0.0, 'n': 0})
+        by_team[team_abb]['wsum'] += score * bf
+        by_team[team_abb]['wtot'] += bf
+        by_team[team_abb]['n']   += 1
+
+    team_scores = {team: d['wsum'] / d['wtot'] for team, d in by_team.items() if d['wtot'] > 0}
+    if len(team_scores) < 10:
+        print(f"Bullpen quality: only {len(team_scores)} teams with a usable bullpen score, skipping")
+        return {}
+
+    scores_sorted = sorted(team_scores.values())
+    n_ref = len(scores_sorted)
+    population = {}
+    for team, score in team_scores.items():
+        pctile = 100.0 * bisect.bisect_left(scores_sorted, score) / n_ref if n_ref > 1 else 50.0
+        population[team] = {
+            'score':       round(score, 4),
+            'percentile':  round(pctile, 1),
+            'n_relievers': by_team[team]['n'],
+            'bf_total':    by_team[team]['wtot'],
+        }
+
+    print(f"Bullpen quality population built: {len(population)} teams, "
+          f"{len(reliever_scores)} relievers with current-season data")
+    _bp_population_cache      = population
+    _bp_population_cache_time = now
+    return population
+
+
+def _fg_tt_note(fg_flag, gate_reason, pinnacle_point):
+    """fg_tt_note shown on the dashboard card -- same three-state shape as _pq_note/_off_note."""
+    if not fg_flag:
+        return None
+    if gate_reason == 'line_match':
+        return (f'Opposing bullpen rates top-quartile — Pinnacle full-game line confirmed at '
+                 f'{pinnacle_point} for this team, this historically favors UNDER (2025 n=852, '
+                 '65.0% hit, +22.7% ROI, p<0.001; 2026 n=39, 66.7% hit, +27.8% ROI, p=0.027 — '
+                 'tracking signal only, do not bet)')
+    return ('Opposing bullpen rates top-quartile — IF the full-game line for this team is 3.5, '
+             '4.5, or 5.5, this historically favors UNDER (Pinnacle gate inactive, no odds feed '
+             'configured — check the line yourself; tracking signal only, do not bet)')
+
+
 # ── OFFENSE QUALITY COMPOSITE (research / tracking signal, NOT validated for betting) ──
 # Built June 18, 2026. Lineup-weighted K/BB/SLG composite per batting team, blended the same
 # way as the pitcher composite. Career prior (2022-2025 pooled, batter_offense_prior_2026.csv)
@@ -756,6 +936,11 @@ ODDS_F5_MARKET      = 'team_totals_1st_5_innings'
 # below). Bundled into the same per-event request as ODDS_F5_MARKET (one extra market, not an
 # extra request) -- see cost note above.
 ODDS_JOINT_MARKET   = 'totals_1st_5_innings'
+# Full-GAME per-team total (no _1st_5_innings suffix) -- added June 22, 2026 for the FG bullpen
+# tracking signal (see FG_BP_PCTILE_GATE above). Same per-event request as the other two markets,
+# one more market on top -- pushes the per-event cost up further (see cost note above ODDS_API_KEY),
+# still well within the live key's monthly budget at typical slate sizes.
+ODDS_FG_MARKET      = 'team_totals'
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
@@ -893,20 +1078,22 @@ def _odds_american_to_profit(price):
 
 def get_odds_api_lines(games, force=False):
     """
-    Returns a tuple (team_lines, joint_lines):
+    Returns a tuple (team_lines, joint_lines, fg_lines):
       team_lines:  team_abb -> {book_key: {'point', 'over', 'under', 'over_profit', 'under_profit'}}
                    (ODDS_F5_MARKET -- per-team F5 total, used by pq_q4/off_q3)
       joint_lines: (home_abb, away_abb) -> {book_key: {'point', 'over', 'under',
                    'over_profit', 'under_profit'}} (ODDS_JOINT_MARKET -- combined F5 total,
                    used by the joint-offense signal, added June 20, 2026)
-    Both markets are requested in the same per-event call (see cost note above ODDS_API_KEY).
+      fg_lines:    team_abb -> {book_key: {...same shape as team_lines}} (ODDS_FG_MARKET --
+                   per-team FULL-GAME total, used by the FG bullpen signal, added June 22, 2026)
+    All three markets are requested in the same per-event call (see cost note above ODDS_API_KEY).
     Cached together ODDS_API_TTL seconds in Redis (shared across /api/picks and /api/notify)
     since each call costs real API credits. force=True bypasses this cache (see
     /api/picks?refresh=1) -- spends real credits, only use when actually needed, not on every
     normal request.
     """
     if not ODDS_API_KEY or not games:
-        return {}, {}
+        return {}, {}, {}
 
     import json as _json
     today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
@@ -918,7 +1105,7 @@ def get_odds_api_lines(games, force=False):
             # joint_lines keys are tuples, which JSON can't represent -- stored as "HOME|AWAY"
             # strings and reconstructed here.
             joint = {tuple(k.split('|', 1)): v for k, v in parsed.get('joint', {}).items()}
-            return parsed.get('team', {}), joint
+            return parsed.get('team', {}), joint, parsed.get('fg', {})
         except Exception:
             pass
 
@@ -930,7 +1117,7 @@ def get_odds_api_lines(games, force=False):
         events = ev_resp.json() if ev_resp.ok else []
     except Exception as e:
         print(f"Odds API events fetch error: {e}")
-        return {}, {}
+        return {}, {}, {}
 
     # games' home_team/away_team come back as full names (e.g. "Detroit Tigers") whenever MLB
     # Stats API's schedule response doesn't include the 'abbreviation' field for a team -- which
@@ -953,13 +1140,15 @@ def get_odds_api_lines(games, force=False):
 
     lines = {}
     joint_lines = {}
+    fg_lines = {}
     all_bookmaker_keys = set()
     for event_id, home_abb, away_abb in matched_events:
         try:
             r = requests.get(
                 f"{ODDS_API_BASE}/sports/baseball_mlb/events/{event_id}/odds",
                 params={'apiKey': ODDS_API_KEY, 'regions': ODDS_REGIONS,
-                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET}', 'oddsFormat': 'american'},
+                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET},{ODDS_FG_MARKET}',
+                        'oddsFormat': 'american'},
                 timeout=15)
             if not r.ok:
                 continue
@@ -976,7 +1165,10 @@ def get_odds_api_lines(games, force=False):
             book_label = TARGET_BOOKS[book_key]
             for market in bm.get('markets', []):
                 mkey = market.get('key')
-                if mkey == ODDS_F5_MARKET:
+                if mkey == ODDS_F5_MARKET or mkey == ODDS_FG_MARKET:
+                    # Same per-team outcome shape for both markets -- F5 and full-game team
+                    # totals are parsed identically, just written into separate dicts.
+                    target = lines if mkey == ODDS_F5_MARKET else fg_lines
                     by_team = {}
                     for outcome in market.get('outcomes', []):
                         team_abb = NAME_TO_ABB.get(outcome.get('description', ''))
@@ -987,7 +1179,7 @@ def get_odds_api_lines(games, force=False):
                         over, under = sides.get('over'), sides.get('under')
                         if not over or not under:
                             continue
-                        lines.setdefault(team_abb, {})[book_label] = {
+                        target.setdefault(team_abb, {})[book_label] = {
                             'point':         over.get('point'),
                             'over':          int(over['price']),
                             'under':         int(under['price']),
@@ -1014,11 +1206,12 @@ def get_odds_api_lines(games, force=False):
         cache_payload = {
             'team':  lines,
             'joint': {f"{h}|{a}": v for (h, a), v in joint_lines.items()},
+            'fg':    fg_lines,
         }
         redis_set(cache_key, _json.dumps(cache_payload), ex=ODDS_API_TTL)
     except Exception as e:
         print(f"Odds lines cache write error: {e}")
-    return lines, joint_lines
+    return lines, joint_lines, fg_lines
 
 
 def pa_rate_to_game_odds(pa_rate_pct):
@@ -1241,12 +1434,15 @@ def get_tracking_only_flags(games, force=False):
     pinnacle_park_exceptions    = 0  # passed via the park gate exception, not the base 1.5 line
     joint_suppressed            = 0  # weak combined offense, but FanDuel joint line wasn't 3.5
     joint_signals                = 0  # joint-offense flags actually surfaced
+    fg_suppressed                = 0  # opposing bullpen rates top-quartile, but FG line wasn't 3.5/4.5/5.5
+    fg_signals                   = 0  # FG TT under flags actually surfaced
+    f5_over_signals               = 0  # derived F5 TT over flags actually surfaced
 
     try:
-        team_lines, joint_lines = get_odds_api_lines(games, force=force)
+        team_lines, joint_lines, fg_lines = get_odds_api_lines(games, force=force)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
-        team_lines, joint_lines = {}, {}
+        team_lines, joint_lines, fg_lines = {}, {}, {}
 
     # See "SAFETY FALLBACK" note above get_odds_api_lines: only gate on Pinnacle if a live odds
     # feed is actually configured. Without this, a missing/unset ODDS_API_KEY would silently
@@ -1265,6 +1461,19 @@ def get_tracking_only_flags(games, force=False):
     except Exception as e:
         print(f"Offense quality population error: {e}")
         off_population = {}
+
+    try:
+        bp_population = get_bullpen_quality_population(force=force)
+    except Exception as e:
+        print(f"Bullpen quality population error: {e}")
+        bp_population = {}
+
+    # Tracks, per game, which team (by full name) actually got a confirmed F5 TT under flag
+    # (pq_q4, Pinnacle-gate-passed) -- used below to derive the F5 TT OVER signal: when a game
+    # is flagged for joint F5 over but exactly ONE team is flagged for F5 under, the OTHER team
+    # is the over candidate (Zach's hypothesis, June 22, 2026 -- e.g. BOS@SEA: BOS flagged F5
+    # under, joint flagged over -> SEA alone should be an F5 TT over play, not a joint play).
+    pq_under_fired_team = {}
 
     for game in games:
         home_abb = NAME_TO_ABB.get(game['home_team'], game['home_team'])
@@ -1289,6 +1498,42 @@ def get_tracking_only_flags(games, force=False):
                 OFF_Q3_LOW_PCTILE <= off_info['off_pctile'] <= OFF_Q3_HIGH_PCTILE and
                 off_info['o_bb_rate'] < OFF_BB_RATE_MEDIAN
             )
+
+            # ── FG (FULL-GAME) BULLPEN COMPOSITE ── independent of pq_q4/off_q3 above: different
+            # market (full-game team total, not F5), different mechanism (the OPPOSING TEAM's
+            # bullpen-as-a-whole, not this team's opposing starter or this team's own offense).
+            # Computed here since it shares the same batting_team/fielding_team framing as the
+            # matchup loop, but gated and appended independently -- see FG_BP_PCTILE_GATE notes.
+            fielding_abb = NAME_TO_ABB.get(fielding_team, fielding_team)
+            bp_info      = bp_population.get(fielding_abb)
+            fg_bp_pctile = bp_info['percentile'] if bp_info else None
+            fg_bp_gate   = bool(bp_info and fg_bp_pctile >= FG_BP_PCTILE_GATE)
+            if fg_bp_gate:
+                fg_team_abb    = NAME_TO_ABB.get(batting_team, batting_team)
+                fg_team_odds   = fg_lines.get(fg_team_abb, {})
+                fg_pinnacle_pt = fg_team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
+                fg_line_match  = fg_pinnacle_pt in FG_TT_VALID_LINES
+                if not pinnacle_gate_active or fg_line_match:
+                    fg_gate_reason = None if not pinnacle_gate_active else 'line_match'
+                    fg_signals += 1
+                    flags.append({
+                        'game':              game_str,
+                        'game_id':           game.get('game_id'),
+                        'batting_team':      batting_team,
+                        'fielding_team':     fielding_team,
+                        'pitcher_name':      pitcher_name,
+                        'signal':            'fg_tt_under',
+                        'game_time':         game.get('game_time'),
+                        'fg_bp_score':       bp_info['score'],
+                        'fg_bp_pctile':      fg_bp_pctile,
+                        'fg_bp_n_relievers': bp_info['n_relievers'],
+                        'fg_odds_lines':     fg_team_odds,
+                        'fg_pinnacle_point': fg_pinnacle_pt,
+                        'fg_gate_reason':    fg_gate_reason,
+                        'fg_note':           _fg_tt_note(True, fg_gate_reason, fg_pinnacle_pt),
+                    })
+                else:
+                    fg_suppressed += 1
 
             if not pq_q4 and not off_q3_gate:
                 continue
@@ -1353,6 +1598,9 @@ def get_tracking_only_flags(games, force=False):
                 'pinnacle_gate_reason': gate_reason,
             }
             flags.append(flag)
+            if pq_q4:
+                # confirmed, line-gate-passed F5 TT under -- feeds the F5 TT OVER derivation below
+                pq_under_fired_team[batting_team] = True
 
         # ── JOINT OFFENSE TRACKING SIGNAL ── game-level (not per-team), so computed once per
         # game after the matchups loop above, not once per matchup side. See notes above
@@ -1368,7 +1616,8 @@ def get_tracking_only_flags(games, force=False):
                 joint_odds = joint_lines.get((home_abb, away_abb), {})
                 fanduel_pt = joint_odds.get(JOINT_GATE_BOOK, {}).get('point')
                 # Gated on FanDuel's own line, not Pinnacle's -- see JOINT_GATE_BOOK notes above.
-                if pinnacle_gate_active and fanduel_pt != JOINT_LINE_TARGET:
+                joint_line_ok = (not pinnacle_gate_active) or (fanduel_pt == JOINT_LINE_TARGET)
+                if not joint_line_ok:
                     joint_suppressed += 1
                 else:
                     joint_signals += 1
@@ -1393,19 +1642,68 @@ def get_tracking_only_flags(games, force=False):
                         'joint_note':            _joint_note(fanduel_pt),
                     })
 
+                # ── DERIVED F5 TT OVER ── Zach's hypothesis, June 22, 2026: a joint-F5-over flag
+                # where exactly ONE team is also flagged F5-under means the OTHER team is the real
+                # play, not the joint total (e.g. BOS@SEA: BOS confirmed F5 under, joint flagged
+                # over -> SEA alone should be F5 TT over). Reuses the same joint-fires condition
+                # (weak combined offense + FanDuel line == 3.5) as the gate; only fires when
+                # exactly one side has a confirmed pq_under flag, not zero or both (no clean
+                # "other side" if neither or both teams are already explained by F5 under).
+                if joint_line_ok:
+                    home_flagged = pq_under_fired_team.get(game['home_team'], False)
+                    away_flagged = pq_under_fired_team.get(game['away_team'], False)
+                    if home_flagged != away_flagged:  # exactly one, not zero or both
+                        other_team   = game['away_team'] if home_flagged else game['home_team']
+                        flagged_team = game['home_team'] if home_flagged else game['away_team']
+                        other_abb    = NAME_TO_ABB.get(other_team, other_team)
+                        f5_over_signals += 1
+                        flags.append({
+                            'game':                 f"{game['away_team']}@{game['home_team']}",
+                            'game_id':              game.get('game_id'),
+                            'batting_team':         other_team,
+                            'fielding_team':        flagged_team,
+                            'pitcher_name':         '',
+                            'home_team':            game['home_team'],
+                            'away_team':            game['away_team'],
+                            'signal':               'f5_tt_over',
+                            'game_time':            game.get('game_time'),
+                            'f5_over_flagged_team': flagged_team,
+                            'joint_off_pctile':     round(combined_off_pctile, 1),
+                            'joint_fanduel_point':  fanduel_pt,
+                            # the OTHER team's own F5 odds (this signal bets THEIR F5 total over,
+                            # not the flagged-under team's) -- embedded directly on the flag, same
+                            # pattern as pq_q4/fg_tt_under's odds_lines, so the sheet-append
+                            # function doesn't need to re-fetch or cache anything separately.
+                            'f5_over_odds_lines':   team_lines.get(other_abb, {}),
+                            'f5_over_note': (
+                                f'Joint F5 over flagged, but {flagged_team} alone is already '
+                                f'F5-under flagged (elite opposing pitcher) — hypothesis: the '
+                                f'OTHER team ({other_team}) is the real F5 TT over play here, not '
+                                f'the joint total (the joint total likely fires because '
+                                f'{flagged_team} is suppressed while {other_team} is expected to '
+                                f'score heavily). New, untested signal — tracking only, do not bet.'
+                            ),
+                        })
+
     print(f"Pinnacle gate ({'active' if pinnacle_gate_active else 'INACTIVE -- no ODDS_API_KEY'}): "
           f"{len(flags)} flags shown ({pinnacle_park_exceptions} via park exception), "
           f"{pinnacle_suppressed_wrong} suppressed (Pinnacle line != 1.5, not a park exception), "
           f"{pinnacle_suppressed_missing} suppressed (no Pinnacle line found)")
     print(f"Joint offense gate: {joint_signals} flag(s) shown, {joint_suppressed} suppressed "
           f"(weak combined offense but FanDuel joint line wasn't {JOINT_LINE_TARGET})")
+    print(f"FG bullpen gate: {fg_signals} flag(s) shown, {fg_suppressed} suppressed "
+          f"(opposing bullpen top-quartile but FG line wasn't in {sorted(FG_TT_VALID_LINES)})")
+    print(f"F5 TT over (derived): {f5_over_signals} flag(s) shown")
 
-    pq_only_flags    = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
-                               key=lambda x: x.get('pq_percentile', 0), reverse=True)
-    off_only_flags   = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
-                               key=lambda x: x.get('off_pctile', 0), reverse=True)
-    joint_only_flags = [f for f in flags if f['signal'] == 'joint_offense_over']
-    return pq_only_flags + off_only_flags + joint_only_flags
+    pq_only_flags     = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
+                                key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    off_only_flags    = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
+                                key=lambda x: x.get('off_pctile', 0), reverse=True)
+    joint_only_flags  = [f for f in flags if f['signal'] == 'joint_offense_over']
+    fg_tt_only_flags  = sorted([f for f in flags if f['signal'] == 'fg_tt_under'],
+                                key=lambda x: x.get('fg_bp_pctile', 0), reverse=True)
+    f5_over_only_flags = [f for f in flags if f['signal'] == 'f5_tt_over']
+    return pq_only_flags + off_only_flags + joint_only_flags + fg_tt_only_flags + f5_over_only_flags
 
 
 def get_heatmap_flags(games, model):
@@ -1416,7 +1714,7 @@ def get_heatmap_flags(games, model):
     flags           = []
 
     try:
-        odds_lines, _joint_lines_unused = get_odds_api_lines(games)
+        odds_lines, _joint_lines_unused, _fg_lines_unused = get_odds_api_lines(games)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
         odds_lines = {}
@@ -1931,22 +2229,33 @@ def build_picks_payload(today, games, heatmap_flags):
     fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
-    off_flags       = [f for f in heatmap_flags if f.get('off_q3_gate')]
-    joint_flags     = [f for f in heatmap_flags if f.get('joint_signal')]
+    fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
+    f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
+    # VISIBILITY, per Zach (June 22, 2026): keep computing/logging off_q3_gate and the raw
+    # joint_offense_over signal exactly as before (see api_notify's Sheets-append calls, which
+    # are NOT gated on this) -- just don't surface them on the dashboard or in Telegram anymore.
+    # Concentrate visible signals on F5 TT under (pq_flags), FG TT under (fg_tt_flags, new), and
+    # F5 TT over (f5_over_flags, new, derived). Sent as empty lists rather than omitted so the
+    # frontend's `(data.off_flags||[]).filter(...)` pattern degrades to "section just stays
+    # hidden" instead of needing a template change.
+    off_flags       = []
+    joint_flags     = []
     return {
-        'date':            today,
-        'complete':        complete,
-        'total':           len(games),
-        'picks':           [],
-        'dfs_picks':       {},
-        'heatmap_flags':   heatmap_flags,
-        'fg_under_flags':  fg_under_flags,
-        'over_info_flags': over_info_flags,
-        'pq_flags':        pq_flags,
-        'off_flags':       off_flags,
-        'joint_flags':     joint_flags,
-        'fg_in_window':    is_fg_valid_window(),
-        'games':           games_out,
+        'date':              today,
+        'complete':          complete,
+        'total':             len(games),
+        'picks':             [],
+        'dfs_picks':         {},
+        'heatmap_flags':     heatmap_flags,
+        'fg_under_flags':    fg_under_flags,
+        'over_info_flags':   over_info_flags,
+        'pq_flags':          pq_flags,
+        'off_flags':         off_flags,
+        'joint_flags':       joint_flags,
+        'fg_tt_flags':       fg_tt_flags,
+        'f5_over_flags':     f5_over_flags,
+        'fg_in_window':      is_fg_valid_window(),
+        'games':             games_out,
     }
 
 
@@ -2405,6 +2714,164 @@ def append_joint_to_sheet(flags):
         print(f"Google Sheets (JointOffense) error: {e}")
 
 
+FG_TT_SHEET_TAB    = 'FgTeamTotal'
+FG_TT_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'fielding_team', 'fg_bp_score', 'fg_bp_pctile',
+    'fg_bp_n_relievers', 'game_time',
+    'pinnacle_line', 'pinnacle_odds', 'draftkings_line', 'draftkings_odds',
+    'thescore_line', 'thescore_odds',
+    'actual_fg_runs', 'under_hit',  # auto-filled by backfill once the full game is final
+    'game_id',
+]
+
+
+def append_fg_tt_to_sheet(flags):
+    """
+    Tracking-only log for the FG (full-game) bullpen composite team-total under signal (June 22,
+    2026 -- see FG_BP_PCTILE_GATE comment block). Same pattern as append_pq_to_sheet, per-team
+    rows, under-side odds (this signal bets under), separate tab since the FULL-GAME line means
+    different actual-outcome columns than the F5-scoped sheets.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(FG_TT_SHEET_TAB)
+            if ws.row_values(1) != FG_TT_SHEET_HEADER:
+                ws.update('A1', [FG_TT_SHEET_HEADER])
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=FG_TT_SHEET_TAB, rows=1000, cols=len(FG_TT_SHEET_HEADER))
+            ws.append_row(FG_TT_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if f.get('signal') != 'fg_tt_under':
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            fg_odds = f.get('fg_odds_lines') or {}
+            book_cells = []
+            for book_label in SHEET_TRACKED_BOOKS:
+                line, odds = _book_line_odds(fg_odds, book_label)
+                book_cells.extend([line, odds])
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('fielding_team', ''),
+                f.get('fg_bp_score', ''), f.get('fg_bp_pctile', ''), f.get('fg_bp_n_relievers', ''),
+                f.get('game_time', ''),
+                *book_cells,
+                '', '',  # actual_fg_runs / under_hit — filled in later by backfill
+                f.get('game_id', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (FgTeamTotal): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping FG Team Total sheet append")
+    except Exception as e:
+        print(f"Google Sheets (FgTeamTotal) error: {e}")
+
+
+F5_OVER_SHEET_TAB    = 'F5TtOver'
+F5_OVER_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'f5_over_flagged_team', 'joint_off_pctile',
+    'joint_fanduel_point', 'game_time',
+    'pinnacle_line', 'pinnacle_odds', 'draftkings_line', 'draftkings_odds',
+    'thescore_line', 'thescore_odds',
+    'actual_f5_runs', 'over_hit',  # auto-filled by backfill once F5 is final
+    'game_id',
+]
+
+
+def _book_line_odds_over(team_odds, book_label):
+    """Same as _book_line_odds, but reads the OVER price -- this derived signal bets over."""
+    info  = (team_odds or {}).get(book_label) or {}
+    point = info.get('point', '')
+    price = info.get('over')
+    odds  = '' if price is None else (f"+{price}" if price > 0 else str(price))
+    return point, odds
+
+
+def append_f5_over_to_sheet(flags):
+    """
+    Tracking-only log for the derived F5 TT over signal (June 22, 2026 -- Zach's "other side"
+    hypothesis, see notes above the f5_tt_over flag construction). New and untested -- per-team
+    rows like append_pq_to_sheet, but OVER-side odds off the F5 per-team market (team_lines /
+    ODDS_F5_MARKET), since this signal bets the OTHER team's F5 total to go over.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(F5_OVER_SHEET_TAB)
+            if ws.row_values(1) != F5_OVER_SHEET_HEADER:
+                ws.update('A1', [F5_OVER_SHEET_HEADER])
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=F5_OVER_SHEET_TAB, rows=1000, cols=len(F5_OVER_SHEET_HEADER))
+            ws.append_row(F5_OVER_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if f.get('signal') != 'f5_tt_over':
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            # this flag's batting_team is the "other side" team -- f5_over_odds_lines is already
+            # THAT team's own F5 odds (embedded at construction time, see get_tracking_only_flags).
+            team_odds = f.get('f5_over_odds_lines') or {}
+            book_cells = []
+            for book_label in SHEET_TRACKED_BOOKS:
+                line, odds = _book_line_odds_over(team_odds, book_label)
+                book_cells.extend([line, odds])
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''),
+                f.get('f5_over_flagged_team', ''),
+                f.get('joint_off_pctile', ''), f.get('joint_fanduel_point', ''),
+                f.get('game_time', ''),
+                *book_cells,
+                '', '',  # actual_f5_runs / over_hit — filled in later by backfill
+                f.get('game_id', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (F5TtOver): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping F5 TT Over sheet append")
+    except Exception as e:
+        print(f"Google Sheets (F5TtOver) error: {e}")
+
+
 # ── OUTCOME BACKFILL (June 19, 2026) ──────────────────────────────────────────────────
 # Until now, actual_f5_runs/under_hit on both tracking sheets were 100% manual -- Zach had to
 # look up each game's score and type it in. This fills them in automatically from MLB Stats
@@ -2642,21 +3109,32 @@ def api_notify():
         except Exception as cache_err:
             print(f"Picks cache refresh from notify failed: {cache_err}")
 
-        under_flags = [f for f in flags if f.get('signal') == 'under']
-        pq_flags    = [f for f in flags if f.get('pq_q4')]
-        off_flags   = [f for f in flags if f.get('off_q3_gate')]
-        joint_flags = [f for f in flags if f.get('joint_signal')]
-        if not under_flags and not pq_flags and not off_flags and not joint_flags:
+        # VISIBILITY vs TRACKING, per Zach (June 22, 2026): every signal below still gets logged
+        # to its own Sheet tab every cycle (see the unconditional append_*_to_sheet calls further
+        # down) -- "new_off"/"new_joint" are NOT gated on whether they appear in Telegram, only
+        # on the existing per-flag dedup (already_sent). What changed is the Telegram MESSAGE
+        # below now only includes under/pq/fg_tt/f5_over -- off and joint are computed and logged
+        # exactly as before, just not built into the message text anymore (see build_picks_payload
+        # for the matching dashboard-side suppression).
+        under_flags  = [f for f in flags if f.get('signal') == 'under']
+        pq_flags     = [f for f in flags if f.get('pq_q4')]
+        off_flags    = [f for f in flags if f.get('off_q3_gate')]
+        joint_flags  = [f for f in flags if f.get('joint_signal')]
+        fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
+        f5_over_flags = [f for f in flags if f.get('signal') == 'f5_tt_over']
+        if not (under_flags or pq_flags or off_flags or joint_flags or fg_tt_flags or f5_over_flags):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
-        new_under = [f for f in under_flags if flag_key(f) not in already_sent]
-        new_pq    = [f for f in pq_flags if flag_key(f) not in already_sent]
-        new_off   = [f for f in off_flags if flag_key(f) not in already_sent]
-        new_joint = [f for f in joint_flags if flag_key(f) not in already_sent]
-        if not new_under and not new_pq and not new_off and not new_joint:
+        new_under   = [f for f in under_flags if flag_key(f) not in already_sent]
+        new_pq      = [f for f in pq_flags if flag_key(f) not in already_sent]
+        new_off     = [f for f in off_flags if flag_key(f) not in already_sent]
+        new_joint   = [f for f in joint_flags if flag_key(f) not in already_sent]
+        new_fg_tt   = [f for f in fg_tt_flags if flag_key(f) not in already_sent]
+        new_f5_over = [f for f in f5_over_flags if flag_key(f) not in already_sent]
+        if not (new_under or new_pq or new_off or new_joint or new_fg_tt or new_f5_over):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
@@ -2699,38 +3177,41 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
-        if new_off:
+        # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are
+        # deliberately NOT built into the Telegram message below, per Zach (June 22, 2026) --
+        # they're still computed above and still logged to their Sheet tabs unconditionally
+        # further down, just no longer surfaced in the notification itself. See VISIBILITY note
+        # above new_under/new_pq/etc.
+
+        if new_fg_tt:
             if new_under or new_pq:
                 lines.append("")
-            lines.append(f"⚾ <b>Offense Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_off)} mid-tier/low-BB offense(s) — only means something if a line "
-                         f"below shows ✅1.5 or 🏟️ (validated park exception, thinner sample — see off_note)\n")
-            for f in new_off:
-                pct  = f.get('off_pctile')
-                bb   = f.get('off_bb_rate')
+            lines.append(f"🛢️ <b>FG Team Total Under (Bullpen) — TRACKING ONLY, not a bet signal</b>")
+            lines.append(f"{len(new_fg_tt)} top-quartile opposing bullpen(s) — only means something "
+                         f"if a line below shows ✅3.5/4.5/5.5 (see fg_note)\n")
+            for f in new_fg_tt:
+                pct  = f.get('fg_bp_pctile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds = format_odds_lines(f.get('odds_lines'))
-                tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
+                odds = format_odds_lines(f.get('fg_odds_lines'))
                 lines.append(
-                    f"⚾ <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
-                    f"(off pctile {pct:.0f}, BB {bb*100:.1f}%){time}"
+                    f"🛢️ <b>{f['batting_team']}</b> vs {f['fielding_team']} bullpen "
+                    f"(pctile {pct:.0f}, {f.get('fg_bp_n_relievers','—')} relievers){time}"
                 )
                 if odds:
                     lines.append(f"   {odds}")
 
-        if new_joint:
-            if new_under or new_pq or new_off:
+        if new_f5_over:
+            if new_under or new_pq or new_fg_tt:
                 lines.append("")
-            lines.append(f"🌐 <b>Joint Offense (Combined F5 Total) — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_joint)} weak-combined-offense game(s) — only means something if "
-                         f"FanDuel's joint line below shows ✅3.5 (see joint_note)\n")
-            for f in new_joint:
-                pct  = f.get('joint_off_pctile')
+            lines.append(f"🔄 <b>F5 Team Total Over (Other Side) — NEW, UNTESTED, tracking only</b>")
+            lines.append(f"{len(new_f5_over)} game(s): joint F5 over flagged, one team already "
+                         f"F5-under flagged — surfacing the other side\n")
+            for f in new_f5_over:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds = format_joint_odds_lines(f.get('joint_odds_lines'))
+                odds = format_odds_lines(f.get('f5_over_odds_lines'))
                 lines.append(
-                    f"🌐 <b>{f['away_team']} @ {f['home_team']}</b> "
-                    f"(combined off pctile {pct}){time}"
+                    f"🔄 <b>{f['batting_team']}</b> (vs {f['f5_over_flagged_team']} flagged under) "
+                    f"{f['away_team']} @ {f['home_team']}{time}"
                 )
                 if odds:
                     lines.append(f"   {odds}")
@@ -2744,14 +3225,21 @@ def api_notify():
             append_off_to_sheet(new_off)
         if new_joint:
             append_joint_to_sheet(new_joint)
+        if new_fg_tt:
+            append_fg_tt_to_sheet(new_fg_tt)
+        if new_f5_over:
+            append_f5_over_to_sheet(new_f5_over)
         all_sent = (already_sent | {flag_key(f) for f in new_under}
                     | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off}
-                    | {flag_key(f) for f in new_joint})
+                    | {flag_key(f) for f in new_joint} | {flag_key(f) for f in new_fg_tt}
+                    | {flag_key(f) for f in new_f5_over})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
         return jsonify({'status': 'ok',
-                        'new': len(new_under) + len(new_pq) + len(new_off) + len(new_joint),
-                        'flags': [flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
-                                 + [flag_key(f) for f in new_off] + [flag_key(f) for f in new_joint]})
+                        'new': (len(new_under) + len(new_pq) + len(new_off) + len(new_joint)
+                                + len(new_fg_tt) + len(new_f5_over)),
+                        'flags': ([flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
+                                  + [flag_key(f) for f in new_off] + [flag_key(f) for f in new_joint]
+                                  + [flag_key(f) for f in new_fg_tt] + [flag_key(f) for f in new_f5_over])})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

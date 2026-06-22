@@ -196,6 +196,30 @@
     <div id="joint-list"></div>
   </div>
 </div>
+<div id="fg-tt-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="fg-tt-count"></div>
+      <div class="section-label" style="margin:0">FG Team Total Under — Bullpen Composite
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#ff9f5a;margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
+      </div>
+    </div>
+    <div id="fg-tt-list"></div>
+  </div>
+</div>
+<div id="f5-over-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="f5-over-count"></div>
+      <div class="section-label" style="margin:0">F5 Team Total Over — Other Side
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#e066ff;margin-left:8px;text-transform:uppercase">Tracking Only — New, Untested</span>
+      </div>
+    </div>
+    <div id="f5-over-list"></div>
+  </div>
+</div>
 <div id="dfs-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -558,6 +582,54 @@
     return card;
   }
 
+  function buildFgTtCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'pq-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const pct = f.fg_bp_pctile !== null && f.fg_bp_pctile !== undefined ? f.fg_bp_pctile.toFixed(0) + 'th pctile' : '—';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#ff9f5a">OPP. BULLPEN Q4</div>
+          <div class="hm-sigma">${pct}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Opp.</div><div class="hm-stat-value">${f.fielding_team}</div></div>
+        <div><div class="hm-stat-label">Bullpen Score</div><div class="hm-stat-value">${f.fg_bp_score}</div></div>
+        <div><div class="hm-stat-label"># Relievers</div><div class="hm-stat-value">${f.fg_bp_n_relievers ?? '—'}</div></div>
+      </div>
+      <div class="pq-detail" style="margin-top:8px">${f.fg_note||''}</div>
+      ${formatOddsLines(f.fg_odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.fg_odds_lines)}</div>` : ''}`;
+    return card;
+  }
+
+  function buildF5OverCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'joint-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#e066ff">F5 OVER (OTHER SIDE)</div>
+          <div class="hm-sigma">vs ${f.f5_over_flagged_team}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Game</div><div class="hm-stat-value" style="font-size:.7rem">${f.away_team} @ ${f.home_team}</div></div>
+        <div><div class="hm-stat-label">Joint Off Pctile</div><div class="hm-stat-value">${f.joint_off_pctile}</div></div>
+        <div><div class="hm-stat-label">FanDuel Joint Line</div><div class="hm-stat-value">${f.joint_fanduel_point ?? '—'}</div></div>
+      </div>
+      <div class="joint-detail" style="margin-top:8px">${f.f5_over_note||''}</div>`;
+    return card;
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -634,6 +706,24 @@
           document.getElementById('joint-count').textContent = `${jointFlags.length} Game${jointFlags.length!==1?'s':''}`;
           jointFlags.forEach((f,i) => jointList.appendChild(buildJointCard(f,i)));
           document.getElementById('joint-section').style.display = 'block';
+        }
+
+        // ── FG Team Total Under — Bullpen Composite (tracking only) ─────
+        const fgTtList = document.getElementById('fg-tt-list'); fgTtList.innerHTML='';
+        const fgTtFlags = (data.fg_tt_flags||[]);
+        if (fgTtFlags.length > 0) {
+          document.getElementById('fg-tt-count').textContent = `${fgTtFlags.length} Flag${fgTtFlags.length!==1?'s':''}`;
+          fgTtFlags.forEach((f,i) => fgTtList.appendChild(buildFgTtCard(f,i)));
+          document.getElementById('fg-tt-section').style.display = 'block';
+        }
+
+        // ── F5 Team Total Over — Other Side (tracking only, derived) ────
+        const f5OverList = document.getElementById('f5-over-list'); f5OverList.innerHTML='';
+        const f5OverFlags = (data.f5_over_flags||[]);
+        if (f5OverFlags.length > 0) {
+          document.getElementById('f5-over-count').textContent = `${f5OverFlags.length} Game${f5OverFlags.length!==1?'s':''}`;
+          f5OverFlags.forEach((f,i) => f5OverList.appendChild(buildF5OverCard(f,i)));
+          document.getElementById('f5-over-section').style.display = 'block';
         }
 
         const dfs=data.dfs_picks||{pitcher_plays:[],stack_targets:[]};
