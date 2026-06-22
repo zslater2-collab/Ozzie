@@ -119,6 +119,10 @@
   .joint-card{background:var(--surface);border:1px solid rgba(120,220,180,.25);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
   .joint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(120,220,180,.5),transparent)}
   .joint-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
+  /* FG Joint / Combined Game Total (Bullpen) cards — gold accent (headline live model) */
+  .fgj-card{background:var(--surface);border:1px solid rgba(245,196,81,.30);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .fgj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(245,196,81,.6),transparent)}
+  .fgj-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
 </style>
 </head>
 <body>
@@ -206,6 +210,18 @@
       </div>
     </div>
     <div id="fg-tt-list"></div>
+  </div>
+</div>
+<div id="fg-joint-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="fg-joint-count"></div>
+      <div class="section-label" style="margin:0">Joint / Combined Game Total — Bullpen Composite
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#f5c451;margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
+      </div>
+    </div>
+    <div id="fg-joint-list"></div>
   </div>
 </div>
 <div id="f5-over-section">
@@ -630,6 +646,56 @@
     return card;
   }
 
+  function formatFgJointOddsLines(oddsLines, direction) {
+    if (!oddsLines || Object.keys(oddsLines).length === 0) return '';
+    const fmtPrice = (n) => n > 0 ? `+${n}` : `${n}`;
+    const side = direction === 'over' ? 'over' : 'under';
+    const sideLabel = direction === 'over' ? 'O' : 'U';
+    const fmtBook = ([book, info]) => {
+      const inRange = info.point >= 7.0 && info.point <= 9.5;     // FG_JOINT_LINE_MIN..MAX
+      const mark = inRange ? ' ✅' : '';
+      return `${book} ${info.point}${mark} (${sideLabel} ${fmtPrice(info[side])})`;
+    };
+    const entries = Object.entries(oddsLines);
+    // DraftKings is the gate/validation book here (bettable) -- show bettable books first,
+    // Pinnacle last as reference (thin coverage, not bettable from the US).
+    const pinnacle = entries.find(([book]) => book === 'Pinnacle');
+    const others = entries.filter(([book]) => book !== 'Pinnacle');
+    const parts = others.map(fmtBook);
+    if (pinnacle) parts.push(`<span style="color:var(--dim)">${fmtBook(pinnacle)}</span>`);
+    return parts.join(' &nbsp;|&nbsp; ');
+  }
+
+  function buildFgJointCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'fgj-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const isUnder = f.fg_joint_direction === 'under';
+    const dirColor = isUnder ? 'var(--green)' : 'var(--red)';
+    const arrow = isUnder ? '🔻' : '🔺';
+    const dirLabel = (f.fg_joint_direction || '').toUpperCase();
+    const comb = (f.fgj_combined_pctile !== null && f.fgj_combined_pctile !== undefined) ? f.fgj_combined_pctile : '—';
+    const oddsStr = formatFgJointOddsLines(f.fgj_odds_lines, f.fg_joint_direction);
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team" style="font-size:.9rem">${f.away_team} @ ${f.home_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:${dirColor}">${arrow} JOINT ${dirLabel}</div>
+          <div class="hm-sigma">combined ${comb} pctile</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">${f.away_team} pen</div><div class="hm-stat-value">${f.fgj_away_bp_pctile ?? '—'}</div></div>
+        <div><div class="hm-stat-label">${f.home_team} pen</div><div class="hm-stat-value">${f.fgj_home_bp_pctile ?? '—'}</div></div>
+        <div><div class="hm-stat-label">DK Total</div><div class="hm-stat-value">${f.fgj_gate_point ?? '—'}</div></div>
+      </div>
+      <div class="fgj-detail" style="margin-top:8px">${f.fg_joint_note||''}</div>
+      ${oddsStr ? `<div class="fgj-detail" style="margin-top:4px;color:var(--text)">${oddsStr}</div>` : ''}`;
+    return card;
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -715,6 +781,15 @@
           document.getElementById('fg-tt-count').textContent = `${fgTtFlags.length} Flag${fgTtFlags.length!==1?'s':''}`;
           fgTtFlags.forEach((f,i) => fgTtList.appendChild(buildFgTtCard(f,i)));
           document.getElementById('fg-tt-section').style.display = 'block';
+        }
+
+        // ── Joint / Combined Game Total — Bullpen Composite (tracking only) ──
+        const fgJointList = document.getElementById('fg-joint-list'); fgJointList.innerHTML='';
+        const fgJointFlags = (data.fg_joint_flags||[]);
+        if (fgJointFlags.length > 0) {
+          document.getElementById('fg-joint-count').textContent = `${fgJointFlags.length} Game${fgJointFlags.length!==1?'s':''}`;
+          fgJointFlags.forEach((f,i) => fgJointList.appendChild(buildFgJointCard(f,i)));
+          document.getElementById('fg-joint-section').style.display = 'block';
         }
 
         // ── F5 Team Total Over — Other Side (tracking only, derived) ────
