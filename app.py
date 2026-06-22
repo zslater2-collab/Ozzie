@@ -5,6 +5,7 @@ import math
 import bisect
 import pickle
 import requests
+import time
 import pandas as pd
 import pytz
 from datetime import datetime, date as _date
@@ -1301,6 +1302,168 @@ def get_odds_api_lines(games, force=False):
     return lines, joint_lines, fg_lines, fg_joint_lines
 
 
+# ── KALSHI (CFTC-regulated event exchange — a line-shopping venue bettable in many US states) ──
+# Public market-data API, no auth. Pulls MLB full-game JOINT (KXMLBTOTAL) and per-team
+# (KXMLBTEAMTOTAL) totals so Kalshi shows alongside the sportsbook lines on the FG joint + team-total
+# signals. Each event = one game (ticker encodes date+teams), each market = one strike (floor_strike
+# = line), YES = OVER / NO = UNDER. Prices are $-denominated strings (the *_dollars fields). Bet UNDER
+# = buy NO at no_ask -> decimal 1/no_ask; OVER = buy YES at yes_ask. Fully fail-safe: any error returns
+# empty and the existing book lines are unaffected. Redis-cached KALSHI_TTL.
+KALSHI_BASE         = "https://api.elections.kalshi.com/trade-api/v2"
+KALSHI_TTL          = 14400   # 4h, same cadence as the odds cache
+KALSHI_JOINT_SERIES = "KXMLBTOTAL"
+KALSHI_TEAM_SERIES  = "KXMLBTEAMTOTAL"
+KALSHI_MON = {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
+KALSHI_ABB = {'AZ': 'ARI'}    # Kalshi uses AZ; we use ARI (NAME_TO_ABB). Everything else matches.
+
+
+def _kalshi_get(path, **params):
+    """GET Kalshi market-data with throttle + 429 backoff. Returns {} on any non-OK (fail-safe)."""
+    for attempt in range(5):
+        time.sleep(0.12)
+        try:
+            r = requests.get(f"{KALSHI_BASE}{path}", params=params, timeout=15)
+        except Exception:
+            return {}
+        if r.status_code == 429:
+            time.sleep(0.5 * (2 ** attempt))
+            continue
+        if not r.ok:
+            return {}
+        return r.json()
+    return {}
+
+
+def _kalshi_dec_to_american(d):
+    if not d or d <= 1:
+        return None
+    return round((d - 1) * 100) if d >= 2 else round(-100 / (d - 1))
+
+
+def _kalshi_market_row(m):
+    """One Kalshi market -> the same {point,over,under,*_profit} shape as the sportsbook dicts."""
+    def f(v):
+        try:
+            return float(v) if v not in (None, '') else None
+        except (TypeError, ValueError):
+            return None
+    ya, na = f(m.get('yes_ask_dollars')), f(m.get('no_ask_dollars'))
+    line   = f(m.get('floor_strike'))
+    if line is None:
+        return None
+    over_dec  = (1.0 / ya) if ya and ya > 0 else None
+    under_dec = (1.0 / na) if na and na > 0 else None
+    return {
+        'point':        line,
+        'over':         _kalshi_dec_to_american(over_dec),
+        'under':        _kalshi_dec_to_american(under_dec),
+        'over_profit':  round(over_dec - 1, 3) if over_dec else None,
+        'under_profit': round(under_dec - 1, 3) if under_dec else None,
+        'volume':       f(m.get('volume_fp')) or 0,
+    }
+
+
+def _kalshi_event_meta(ev):
+    """(game_date 'YYYY-MM-DD', abb_a, abb_b) from a Kalshi event, or None. Date is the game's ET
+    date (matches our convention); teams from sub_title ('ATH vs SF (Jun 23)'), normalized to ARI."""
+    try:
+        tail = ev['event_ticker'].split('-', 1)[1]
+        gdate = f"20{int(tail[0:2]):02d}-{KALSHI_MON[tail[2:5]]:02d}-{int(tail[5:7]):02d}"
+    except Exception:
+        return None
+    head = (ev.get('sub_title') or '').split('(')[0].strip()
+    if ' vs ' not in head:
+        return None
+    a, b = [KALSHI_ABB.get(t.strip(), t.strip()) for t in head.split(' vs ', 1)]
+    return gdate, a, b
+
+
+def _kalshi_event_markets(event_ticker):
+    out, cursor = [], None
+    while True:
+        mj = _kalshi_get('/markets', event_ticker=event_ticker, limit=200,
+                         **({'cursor': cursor} if cursor else {}))
+        out.extend(mj.get('markets', []))
+        cursor = mj.get('cursor')
+        if not cursor:
+            break
+    return out
+
+
+def _kalshi_series_ladders(series, today_et, joint):
+    """{pairkey: [market_row,...]} for joint; {f'{pairkey}@@{team}': [rows]} for team totals.
+    pairkey = '|'.join(sorted([abb_a, abb_b])) in our convention."""
+    out, cursor, events = {}, None, []
+    while True:
+        js = _kalshi_get('/events', series_ticker=series, status='open', limit=200,
+                         **({'cursor': cursor} if cursor else {}))
+        events.extend(js.get('events', []))
+        cursor = js.get('cursor')
+        if not cursor:
+            break
+    for ev in events:
+        meta = _kalshi_event_meta(ev)
+        if not meta or meta[0] != today_et:
+            continue
+        _, a, b = meta
+        pk = '|'.join(sorted([a, b]))
+        for m in _kalshi_event_markets(ev['event_ticker']):
+            row = _kalshi_market_row(m)
+            if not row:
+                continue
+            if joint:
+                out.setdefault(pk, []).append(row)
+            else:
+                team = ''.join(ch for ch in m.get('ticker', '').rsplit('-', 1)[-1] if ch.isalpha())
+                team = KALSHI_ABB.get(team, team)
+                out.setdefault(f"{pk}@@{team}", []).append(row)
+    return out
+
+
+def get_kalshi_lines(games, force=False):
+    """(joint, team) Kalshi ladders for today's slate. Redis-cached; ({}, {}) on any error."""
+    if not games:
+        return {}, {}
+    import json as _json
+    today_et  = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+    cache_key = f"ozzie:kalshi:{today_et}"
+    if not force:
+        cached = redis_get(cache_key)
+        if cached:
+            try:
+                p = _json.loads(cached)
+                return p.get('joint', {}), p.get('team', {})
+            except Exception:
+                pass
+    try:
+        joint = _kalshi_series_ladders(KALSHI_JOINT_SERIES, today_et, joint=True)
+        team  = _kalshi_series_ladders(KALSHI_TEAM_SERIES,  today_et, joint=False)
+    except Exception as e:
+        print(f"Kalshi fetch error: {e}")
+        return {}, {}
+    try:
+        redis_set(cache_key, _json.dumps({'joint': joint, 'team': team}), ex=KALSHI_TTL)
+    except Exception as e:
+        print(f"Kalshi cache write error: {e}")
+    print(f"Kalshi: {len(joint)} joint game(s), {len(team)} team-total entries")
+    return joint, team
+
+
+def _pick_kalshi(ladder, target_pt):
+    """From a Kalshi market ladder, pick the strike matching target_pt (else nearest; else the
+    most-liquid) so it's an apples-to-apples line vs. the signal's gate line."""
+    if not ladder:
+        return None
+    if target_pt is not None:
+        exact = [r for r in ladder if r.get('point') == target_pt]
+        if exact:
+            return exact[0]
+        cand = [r for r in ladder if r.get('point') is not None]
+        if cand:
+            return min(cand, key=lambda r: abs(r['point'] - target_pt))
+    return max(ladder, key=lambda r: r.get('volume') or 0)
+
+
 def pa_rate_to_game_odds(pa_rate_pct):
     pa_rate   = pa_rate_pct / 100
     game_prob = 1 - (1 - pa_rate) ** ASSUMED_PAS
@@ -1540,6 +1703,14 @@ def get_tracking_only_flags(games, force=False):
         print(f"Odds API lookup error: {e}")
         team_lines, joint_lines, fg_lines, fg_joint_lines = {}, {}, {}, {}
 
+    # Kalshi line-shopping source (separate exchange API) — attached to the FG joint + team-total
+    # flags alongside the sportsbook lines. Fully fail-safe: empty on any error, flags unaffected.
+    try:
+        kalshi_joint, kalshi_team = get_kalshi_lines(games, force=force)
+    except Exception as e:
+        print(f"Kalshi lookup error: {e}")
+        kalshi_joint, kalshi_team = {}, {}
+
     # See "SAFETY FALLBACK" note above get_odds_api_lines: only gate on Pinnacle if a live odds
     # feed is actually configured. Without this, a missing/unset ODDS_API_KEY would silently
     # suppress every tracking flag instead of just not gating them -- same failure shape as the
@@ -1609,9 +1780,14 @@ def get_tracking_only_flags(games, force=False):
                 fg_no_bp_info += 1
             if fg_bp_gate:
                 fg_team_abb    = NAME_TO_ABB.get(batting_team, batting_team)
-                fg_team_odds   = fg_lines.get(fg_team_abb, {})
+                fg_team_odds   = dict(fg_lines.get(fg_team_abb, {}))
                 fg_pinnacle_pt = fg_team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
                 fg_line_match  = fg_pinnacle_pt in FG_TT_VALID_LINES
+                # attach Kalshi at the gate line (this team's full-game total)
+                _pk = '|'.join(sorted([home_abb, NAME_TO_ABB.get(game.get('away_team',''), game.get('away_team',''))]))
+                _kal = _pick_kalshi(kalshi_team.get(f"{_pk}@@{fg_team_abb}", []), fg_pinnacle_pt)
+                if _kal:
+                    fg_team_odds['Kalshi'] = _kal
                 if not pinnacle_gate_active or fg_line_match:
                     fg_gate_reason = None if not pinnacle_gate_active else 'line_match'
                     fg_signals += 1
@@ -1796,10 +1972,14 @@ def get_tracking_only_flags(games, force=False):
             combined_bp_pctile = (home_bp_j['percentile'] + away_bp_j['percentile']) / 2.0
             fgj_direction, fgj_tier, fgj_units = fg_joint_tier(combined_bp_pctile)
             if fgj_direction:
-                fgj_odds = fg_joint_lines.get((home_abb, away_abb_j), {})
+                fgj_odds = dict(fg_joint_lines.get((home_abb, away_abb_j), {}))
                 fgj_gate_pt = fgj_odds.get(FG_JOINT_GATE_BOOK, {}).get('point')
                 fgj_line_ok = (fgj_gate_pt is not None and
                                FG_JOINT_LINE_MIN <= fgj_gate_pt <= FG_JOINT_LINE_MAX)
+                # attach Kalshi's combined-game total at the gate line
+                _kalj = _pick_kalshi(kalshi_joint.get('|'.join(sorted([home_abb, away_abb_j])), []), fgj_gate_pt)
+                if _kalj:
+                    fgj_odds['Kalshi'] = _kalj
                 if not pinnacle_gate_active or fgj_line_ok:
                     fg_joint_signals += 1
                     flags.append({
@@ -2885,11 +3065,14 @@ def append_joint_to_sheet(flags):
 
 
 FG_TT_SHEET_TAB    = 'FgTeamTotal'
+# Own book list (SHEET_TRACKED_BOOKS + Kalshi) so the FG tabs get the Kalshi line-shop column
+# without adding a blank Kalshi column to the F5-scoped PQ/OFF tabs (which Kalshi F5 isn't pulled for).
+FG_TT_SHEET_BOOKS  = SHEET_TRACKED_BOOKS + ['Kalshi']
 FG_TT_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'fielding_team', 'fg_bp_score', 'fg_bp_pctile',
     'fg_bp_n_relievers', 'game_time',
     'pinnacle_line', 'pinnacle_odds', 'draftkings_line', 'draftkings_odds',
-    'thescore_line', 'thescore_odds',
+    'thescore_line', 'thescore_odds', 'kalshi_line', 'kalshi_odds',
     'actual_fg_runs', 'under_hit',  # auto-filled by backfill once the full game is final
     'game_id',
 ]
@@ -2937,7 +3120,7 @@ def append_fg_tt_to_sheet(flags):
                 continue
             fg_odds = f.get('fg_odds_lines') or {}
             book_cells = []
-            for book_label in SHEET_TRACKED_BOOKS:
+            for book_label in FG_TT_SHEET_BOOKS:
                 line, odds = _book_line_odds(fg_odds, book_label)
                 book_cells.extend([line, odds])
             ws.append_row([
@@ -2965,13 +3148,14 @@ FG_JOINT_SHEET_HEADER = [
     # is recorded per book. Same Line/Odds pair pattern as the other tabs.
     'draftkings_line', 'draftkings_odds', 'thescore_line', 'thescore_odds',
     'fanduel_line', 'fanduel_odds', 'pinnacle_line', 'pinnacle_odds',
+    'kalshi_line', 'kalshi_odds',
     'actual_fg_joint_runs', 'hit',  # manual / future backfill once the full game is final
     'game_id',
 ]
 # Books whose FG game total is recorded as its own Line/Odds column pair. DraftKings + theScore
 # Bet are the two usable books the signal was validated on; FanDuel and Pinnacle recorded for
-# reference (FanDuel posts the densest game totals; Pinnacle thin but worth keeping when present).
-FG_JOINT_SHEET_BOOKS = ['DraftKings', 'theScore Bet', 'FanDuel', 'Pinnacle']
+# reference; Kalshi (event exchange) added June 22, 2026 as a bettable line-shopping source.
+FG_JOINT_SHEET_BOOKS = ['DraftKings', 'theScore Bet', 'FanDuel', 'Pinnacle', 'Kalshi']
 
 
 def _fg_joint_book_line_odds(joint_odds, book_label, direction):
