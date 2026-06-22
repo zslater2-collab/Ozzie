@@ -342,8 +342,20 @@ BP_SEASON_TTL      = 21600  # same cadence as pq/off — current-season cumulati
 # LINE GATE: the edge holds across game totals 7.0–9.5 (strongest at 7.5/8.5/9.5); 6.5 was flat
 # and 10.0+ thin/negative in the backtest. Gated on DraftKings' game total (the book it was
 # validated on + full coverage), mirroring fg_tt's Pinnacle-gate shape.
-FG_JOINT_UNDER_PCTILE = 65.0
-FG_JOINT_OVER_PCTILE  = 35.0
+# CONVICTION TIERS (June 22, 2026) — the combined-percentile threshold sweep is cleanly monotonic
+# both years, so the joint signal is tiered Gold/Silver/Bronze with suggested unit sizing (tracking
+# guidance, NOT auto-bets). Validated DraftKings, both years (CLAUDE.md "JOINT BULLPEN AGGREGATION
+# METHODOLOGY SWEEP" + "TIERS"). The UNDER side tiers monotonically; the OVER side does NOT (its
+# 10-20 combined band reverses in 2026), so over is left as a single tier — forcing medals on it
+# would misrepresent the data. Floors are tighter than the original flat 65/35 gate (the 60-70
+# under band and 30-40 over band were inconsistent/negative in 2026, so they're dropped).
+FG_JOINT_UNDER_TIERS = [   # (min_combined, max_combined, tier_label, units)
+    (90.0, 100.01, 'Gold',   1.5),   # 2025 n=47  70.2%/+33.1%; 2026 n=10 90.0%/+70.9% (thin)
+    (80.0, 90.0,   'Silver', 1.0),   # 2025 n=106 63.2%/+20.5%; 2026 n=34 70.6%/+34.3%
+    (70.0, 80.0,   'Bronze', 0.5),   # 2025 n=200 56.0%/+6.6%;  2026 n=84 59.5%/+14.1%
+]
+FG_JOINT_OVER_MAX     = 30.0   # combined <= 30 -> OVER (2025 65.4%/+24.9%, 2026 57.4%/+10.1%); single tier
+FG_JOINT_OVER_UNITS   = 1.0
 FG_JOINT_LINE_MIN     = 7.0
 FG_JOINT_LINE_MAX     = 9.5
 FG_JOINT_GATE_BOOK    = 'DraftKings'
@@ -1084,18 +1096,37 @@ def _joint_note(fanduel_point):
             'only, do not bet)')
 
 
-def _fg_joint_note(direction, gate_point):
+def fg_joint_tier(combined_pctile):
+    """(direction, tier_label, units) for a game's combined bullpen percentile, or (None,None,None).
+    UNDER tiers Gold/Silver/Bronze (monotonic both years); OVER is a single tier (doesn't tier)."""
+    for lo, hi, label, units in FG_JOINT_UNDER_TIERS:
+        if lo <= combined_pctile < hi:
+            return ('under', label, units)
+    if combined_pctile <= FG_JOINT_OVER_MAX:
+        return ('over', 'Flagged', FG_JOINT_OVER_UNITS)
+    return (None, None, None)
+
+
+# Per-tier validated track record, for the note text shown on the card / Telegram.
+_FG_JOINT_TIER_STATS = {
+    'Gold':   '2025 70.2% hit/+33.1% ROI, 2026 90.0%/+70.9% (thin n=10)',
+    'Silver': '2025 63.2%/+20.5%, 2026 70.6%/+34.3%',
+    'Bronze': '2025 56.0%/+6.6%, 2026 59.5%/+14.1%',
+}
+
+
+def _fg_joint_note(direction, gate_point, tier, units):
     """fg_joint_note shown on the dashboard card / Telegram. Combined (both teams') bullpen
-    quality vs. the whole-game combined total. Strong combined -> under, weak -> over."""
+    quality vs. the whole-game combined total; conviction-tiered with suggested unit sizing."""
     if direction == 'under':
-        return (f'Top-tier COMBINED bullpens (both teams) — {FG_JOINT_GATE_BOOK} full-game total '
-                f'{gate_point} — historically favors the combined-game UNDER (2025 n=605 60.3% hit '
-                '/+14.8% ROI, 2026 OOS n=193 63.2%/+20.5%, p<0.001 both yrs DraftKings; theScore '
-                'Bet 2025 63.9%/+21.8% — strongest cross-year result in the project, but CORRELATED '
-                'with the FG team-total signal, same composite. Tracking only, do not bet)')
-    return (f'Bottom-tier COMBINED bullpens (both teams) — {FG_JOINT_GATE_BOOK} full-game total '
-            f'{gate_point} — historically favors the combined-game OVER (2025 n=604 59.3% hit '
-            '/+12.9% ROI, 2026 OOS n=192 57.3%/+9.6%). Tracking only, do not bet)')
+        return (f'{tier} UNDER ({units}u) — top-tier COMBINED bullpens (both teams), '
+                f'{FG_JOINT_GATE_BOOK} full-game total {gate_point}. Tier record: '
+                f'{_FG_JOINT_TIER_STATS.get(tier, "")}. Strongest cross-year result in the project, '
+                f'but CORRELATED with the FG team-total signal (same composite). Tracking only, do not bet.')
+    return (f'OVER ({units}u) — bottom-tier COMBINED bullpens (both teams), {FG_JOINT_GATE_BOOK} '
+            f'full-game total {gate_point} (2025 65.4% hit/+24.9% ROI, 2026 57.4%/+10.1%). The over '
+            f'side does not separate into clean conviction tiers, so it is a single tier. '
+            f'Tracking only, do not bet.')
 
 
 NAME_TO_ABB = {
@@ -1763,8 +1794,7 @@ def get_tracking_only_flags(games, force=False):
         away_bp_j  = bp_population.get(away_abb_j)
         if home_bp_j and away_bp_j:
             combined_bp_pctile = (home_bp_j['percentile'] + away_bp_j['percentile']) / 2.0
-            fgj_direction = ('under' if combined_bp_pctile >= FG_JOINT_UNDER_PCTILE else
-                             'over'  if combined_bp_pctile <= FG_JOINT_OVER_PCTILE else None)
+            fgj_direction, fgj_tier, fgj_units = fg_joint_tier(combined_bp_pctile)
             if fgj_direction:
                 fgj_odds = fg_joint_lines.get((home_abb, away_abb_j), {})
                 fgj_gate_pt = fgj_odds.get(FG_JOINT_GATE_BOOK, {}).get('point')
@@ -1775,8 +1805,8 @@ def get_tracking_only_flags(games, force=False):
                     flags.append({
                         'game':                  f"{game['away_team']}@{game['home_team']}",
                         'game_id':               game.get('game_id'),
-                        # direction-specific sentinel team so flag_key (game|batting_team) is
-                        # unique per direction and distinct from joint-offense's 'Joint Total'.
+                        # direction+tier sentinel so flag_key (game|batting_team) is unique per
+                        # direction and distinct from joint-offense's 'Joint Total'.
                         'batting_team':          f"Joint Total {fgj_direction.capitalize()}",
                         'fielding_team':         '',
                         'pitcher_name':          '',
@@ -1785,6 +1815,8 @@ def get_tracking_only_flags(games, force=False):
                         'signal':                'fg_joint_total',
                         'fg_joint_signal':       True,
                         'fg_joint_direction':    fgj_direction,
+                        'fg_joint_tier':         fgj_tier,
+                        'fg_joint_units':        fgj_units,
                         'game_time':             game.get('game_time'),
                         'fgj_combined_pctile':   round(combined_bp_pctile, 1),
                         'fgj_home_bp_pctile':    round(home_bp_j['percentile'], 1),
@@ -1793,7 +1825,7 @@ def get_tracking_only_flags(games, force=False):
                         'fgj_away_bp_score':     away_bp_j['score'],
                         'fgj_odds_lines':        fgj_odds,
                         'fgj_gate_point':        fgj_gate_pt,
-                        'fg_joint_note':         _fg_joint_note(fgj_direction, fgj_gate_pt),
+                        'fg_joint_note':         _fg_joint_note(fgj_direction, fgj_gate_pt, fgj_tier, fgj_units),
                     })
                 else:
                     fg_joint_suppressed += 1
@@ -2927,7 +2959,7 @@ def append_fg_tt_to_sheet(flags):
 
 FG_JOINT_SHEET_TAB    = 'FgJointTotal'
 FG_JOINT_SHEET_HEADER = [
-    'date', 'game', 'home_team', 'away_team', 'direction',
+    'date', 'game', 'home_team', 'away_team', 'direction', 'tier', 'units',
     'combined_bp_pctile', 'home_bp_pctile', 'away_bp_pctile', 'game_time',
     # game-level signal; the directional price (under for an under flag, over for an over flag)
     # is recorded per book. Same Line/Odds pair pattern as the other tabs.
@@ -3001,7 +3033,7 @@ def append_fg_joint_to_sheet(flags):
                 book_cells.extend([line, odds])
             ws.append_row([
                 today, f.get('game', ''), f.get('home_team', ''), f.get('away_team', ''),
-                direction,
+                direction, f.get('fg_joint_tier', ''), f.get('fg_joint_units', ''),
                 f.get('fgj_combined_pctile', ''), f.get('fgj_home_bp_pctile', ''),
                 f.get('fgj_away_bp_pctile', ''), f.get('game_time', ''),
                 *book_cells,
@@ -3455,19 +3487,24 @@ def api_notify():
                 lines.append("")
             lines.append(f"🎰 <b>FG Joint/Combined Total (Bullpen) — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_fg_joint)} game(s) — combined (both teams') bullpen strength vs "
-                         f"the whole-game total; ✅ = {FG_JOINT_GATE_BOOK} line in "
+                         f"the whole-game total. UNDER tiered 🥇Gold 1.5u / 🥈Silver 1.0u / 🥉Bronze "
+                         f"0.5u; OVER single 1.0u. ✅ = {FG_JOINT_GATE_BOOK} line in "
                          f"{FG_JOINT_LINE_MIN}-{FG_JOINT_LINE_MAX}\n")
             for f in new_fg_joint:
                 direction = f.get('fg_joint_direction', '')
+                tier  = f.get('fg_joint_tier', '')
+                units = f.get('fg_joint_units', '')
+                medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '')
                 arrow = '🔻 UNDER' if direction == 'under' else '🔺 OVER'
+                tier_prefix = f"{medal} {tier} " if direction == 'under' else ''
                 gate_pt = f.get('fgj_gate_point')
                 marker  = '✅' if (gate_pt is not None and
                                    FG_JOINT_LINE_MIN <= gate_pt <= FG_JOINT_LINE_MAX) else ''
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_fg_joint_odds_lines(f.get('fgj_odds_lines'), direction)
                 lines.append(
-                    f"🎰 <b>{f['away_team']} @ {f['home_team']}</b> — JOINT {arrow} "
-                    f"(combined bullpen pctile {f.get('fgj_combined_pctile')}; "
+                    f"🎰 <b>{f['away_team']} @ {f['home_team']}</b> — {tier_prefix}JOINT {arrow} "
+                    f"({units}u) (combined bullpen pctile {f.get('fgj_combined_pctile')}; "
                     f"{f.get('fgj_away_bp_pctile')}/{f.get('fgj_home_bp_pctile')} away/home) "
                     f"[{FG_JOINT_GATE_BOOK} {gate_pt}{marker}]{time}"
                 )

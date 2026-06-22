@@ -676,9 +676,16 @@
     const dirLabel = (f.fg_joint_direction || '').toUpperCase();
     const comb = (f.fgj_combined_pctile !== null && f.fgj_combined_pctile !== undefined) ? f.fgj_combined_pctile : '—';
     const oddsStr = formatFgJointOddsLines(f.fgj_odds_lines, f.fg_joint_direction);
+    const tier = f.fg_joint_tier || '';
+    const units = (f.fg_joint_units !== null && f.fg_joint_units !== undefined) ? f.fg_joint_units : '';
+    const medal = {Gold:'🥇',Silver:'🥈',Bronze:'🥉'}[tier] || '';
+    const medalColor = {Gold:'#f5c451',Silver:'#c8c8d0',Bronze:'#cd7f4e'}[tier] || 'var(--muted)';
+    const tierBadge = isUnder
+      ? `<span style="font-size:.6rem;font-weight:700;color:${medalColor};border:1px solid ${medalColor};border-radius:4px;padding:1px 7px;letter-spacing:.05em">${medal} ${tier.toUpperCase()} · ${units}u</span>`
+      : `<span style="font-size:.6rem;font-weight:700;color:var(--green);border:1px solid var(--green);border-radius:4px;padding:1px 7px;letter-spacing:.05em">${units}u</span>`;
     card.innerHTML = `
       <div class="hm-top">
-        <div class="hm-team" style="font-size:.9rem">${f.away_team} @ ${f.home_team}</div>
+        <div class="hm-team" style="font-size:.9rem">${f.away_team} @ ${f.home_team} &nbsp;${tierBadge}</div>
         <div class="hm-signal-wrap">
           <div class="hm-signal" style="font-size:1rem;color:${dirColor}">${arrow} JOINT ${dirLabel}</div>
           <div class="hm-sigma">combined ${comb} pctile</div>
