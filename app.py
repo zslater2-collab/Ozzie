@@ -1698,6 +1698,16 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
 # To restore full functionality once Drive access is fixed: swap get_tracking_only_flags(games)
 # back to model = load_model(); get_heatmap_flags(games, model) in api_picks/api_notify, and
 # restore get_hr_picks/get_dfs_picks.
+
+# DISABLED (June 22, 2026, see CLAUDE.md "PER-GAME BULLPEN_Z IS OUTCOME-CONTAMINATED"): both FG
+# bullpen-totals signals were proven to be outcome leakage. BUG FOUND June 23, 2026 -- this filter
+# was originally only applied inside get_heatmap_flags(), which has been paused (Drive incident,
+# see comment block above) since before the disable was even written, so it never actually reached
+# the live request path. get_tracking_only_flags() is the function the live dashboard/Telegram
+# code actually calls (see api_picks/api_notify) -- the filter must live here to take effect.
+DISABLED_SIGNALS = {'fg_joint_total', 'fg_tt_under'}
+
+
 def get_tracking_only_flags(games, force=False):
     flags = []
     pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5 or a park exception
@@ -2096,7 +2106,8 @@ def get_tracking_only_flags(games, force=False):
     fg_tt_only_flags  = sorted([f for f in flags if f['signal'] == 'fg_tt_under'],
                                 key=lambda x: x.get('fg_bp_pctile', 0), reverse=True)
     f5_over_only_flags = [f for f in flags if f['signal'] == 'f5_tt_over']
-    return pq_only_flags + off_only_flags + joint_only_flags + fg_tt_only_flags + f5_over_only_flags
+    result = pq_only_flags + off_only_flags + joint_only_flags + fg_tt_only_flags + f5_over_only_flags
+    return [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
 
 
 def get_heatmap_flags(games, model):
@@ -2384,7 +2395,8 @@ def get_heatmap_flags(games, model):
     # notifying / logging / display. The F5 signals (pq_q4, f5_tt_over, off_q3, joint_offense) are
     # NOT affected — they're built on the announced starter + offense (pre-game, leak-free) — and
     # are left live. They still compute above; this just drops them before they surface anywhere.
-    DISABLED_SIGNALS = {'fg_joint_total', 'fg_tt_under'}
+    # (Reuses the module-level DISABLED_SIGNALS constant -- see get_tracking_only_flags, the
+    # function actually on the live path, for why this copy here wasn't sufficient on its own.)
     flags = [f for f in flags if f.get('signal') not in DISABLED_SIGNALS]
     return flags
 
