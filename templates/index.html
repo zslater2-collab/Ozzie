@@ -123,6 +123,10 @@
   .fgj-card{background:var(--surface);border:1px solid rgba(245,196,81,.30);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
   .fgj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(245,196,81,.6),transparent)}
   .fgj-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
+  /* FG Joint Offense-Fade (clean lead) cards — teal accent */
+  .ofj-card{background:var(--surface);border:1px solid rgba(79,255,176,.28);border-radius:10px;padding:14px;margin-bottom:8px;animation:fadeIn .25s ease both;position:relative;overflow:hidden}
+  .ofj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(79,255,176,.55),transparent)}
+  .ofj-detail{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:6px}
 </style>
 </head>
 <body>
@@ -222,6 +226,18 @@
       </div>
     </div>
     <div id="fg-joint-list"></div>
+  </div>
+</div>
+<div id="off-fade-section">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="off-fade-count"></div>
+      <div class="section-label" style="margin:0">FG Joint Total — Offense Fade
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#4fffb0;margin-left:8px;text-transform:uppercase">Clean Lead — Tracking, Not a Bet Signal</span>
+      </div>
+    </div>
+    <div id="off-fade-list"></div>
   </div>
 </div>
 <div id="f5-over-section">
@@ -666,6 +682,31 @@
     return parts.join(' &nbsp;|&nbsp; ');
   }
 
+  function buildOffFadeCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'ofj-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    const oddsStr = formatFgJointOddsLines(f.ofj_odds_lines, 'under');
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team" style="font-size:.9rem">${f.away_team} @ ${f.home_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:var(--red)">🔻 JOINT UNDER</div>
+          <div class="hm-sigma">combined off ${f.ofj_combined_off}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">${f.away_team} off</div><div class="hm-stat-value">${f.ofj_away_off ?? '—'}</div></div>
+        <div><div class="hm-stat-label">${f.home_team} off</div><div class="hm-stat-value">${f.ofj_home_off ?? '—'}</div></div>
+        <div><div class="hm-stat-label">DK Total</div><div class="hm-stat-value">${f.ofj_dk_point ?? '—'}</div></div>
+      </div>
+      <div class="ofj-detail" style="margin-top:8px">${f.ofj_note||''}</div>
+      ${oddsStr ? `<div class="ofj-detail" style="margin-top:4px;color:var(--text)">${oddsStr}</div>` : ''}`;
+    return card;
+  }
+
   function buildFgJointCard(f, i) {
     const card = document.createElement('div');
     card.className = 'fgj-card';
@@ -797,6 +838,15 @@
           document.getElementById('fg-joint-count').textContent = `${fgJointFlags.length} Game${fgJointFlags.length!==1?'s':''}`;
           fgJointFlags.forEach((f,i) => fgJointList.appendChild(buildFgJointCard(f,i)));
           document.getElementById('fg-joint-section').style.display = 'block';
+        }
+
+        // ── FG Joint Total — Offense Fade (clean lead, tracking) ────────
+        const offFadeList = document.getElementById('off-fade-list'); offFadeList.innerHTML='';
+        const offFadeFlags = (data.off_fade_flags||[]);
+        if (offFadeFlags.length > 0) {
+          document.getElementById('off-fade-count').textContent = `${offFadeFlags.length} Game${offFadeFlags.length!==1?'s':''}`;
+          offFadeFlags.forEach((f,i) => offFadeList.appendChild(buildOffFadeCard(f,i)));
+          document.getElementById('off-fade-section').style.display = 'block';
         }
 
         // ── F5 Team Total Over — Other Side (tracking only, derived) ────

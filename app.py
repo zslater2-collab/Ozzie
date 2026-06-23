@@ -1045,6 +1045,17 @@ JOINT_OFF_PCTILE_MAX = 63.5
 JOINT_LINE_TARGET    = 3.5
 JOINT_GATE_BOOK      = 'FanDuel'
 
+# ── OFFENSE-OVERPRICED FG JOINT UNDER (June 22, 2026) ── the ONE clean leak-free lead from the
+# post-bullpen-leak search (see CLAUDE.md "CLEAN LEAK-FREE SEARCH"): combined offense (both lineups)
+# is OVERPRICED in the FULL-GAME joint total, so a strong combined offense fades to the UNDER. Same
+# combined-offense measure as joint_offense above, but the TOP tail and the FULL-GAME joint market.
+# Threshold = empirical 75th pctile of combined off_pctile (73.1 in 2025, 73.2 in 2026 -> 73.0).
+# Leak-free (offense = announced lineups + blended prior rates), confound-checked (NOT a line proxy;
+# corr(offense,residual) -0.12/-0.34 both years). TRACKING LEAD, NOT a bet trigger: 2025 n=114
+# 62.3%/+18.9% p=0.006, 2026 n=24 66.7%/+26.4% (thin). Gated on the DraftKings full-game total >= 7.0.
+OFF_FADE_PCTILE_MIN = 73.0
+OFF_FADE_LINE_MIN   = 7.0
+
 
 def _pq_note(pq_q4, gate_reason, pinnacle_point):
     """pq_note shown on the dashboard card -- three states: gate inactive, confirmed at the
@@ -1114,6 +1125,16 @@ _FG_JOINT_TIER_STATS = {
     'Silver': '2025 63.2%/+20.5%, 2026 70.6%/+34.3%',
     'Bronze': '2025 56.0%/+6.6%, 2026 59.5%/+14.1%',
 }
+
+
+def _off_fade_note(dk_point):
+    """offense-overpriced FG joint UNDER note (the clean leak-free lead). Honestly labeled a
+    tracking LEAD, not a bet trigger — modest magnitude + thin 2026."""
+    return (f'Strong COMBINED offense (both lineups top-quartile) — DraftKings full-game total '
+            f'{dk_point}. Clean leak-free LEAD: offense is OVERPRICED in the joint total, so a strong '
+            f'offense fades to the UNDER (2025 n=114 62.3% hit/+18.9% ROI p=0.006; 2026 n=24 66.7%/'
+            f'+26.4%, thin — confound-checked, NOT a line proxy). TRACKING LEAD — accumulating live '
+            f'data, do NOT bet yet.')
 
 
 def _fg_joint_note(direction, gate_point, tier, units):
@@ -1687,6 +1708,8 @@ def get_tracking_only_flags(games, force=False):
     fg_suppressed                = 0  # opposing bullpen rates top-quartile, but FG line wasn't 3.5/4.5/5.5
     fg_signals                   = 0  # FG TT under flags actually surfaced
     f5_over_signals               = 0  # derived F5 TT over flags actually surfaced
+    off_fade_signals              = 0  # offense-overpriced FG joint UNDER (clean lead) flags surfaced
+    off_fade_suppressed           = 0  # strong offense but DK joint line missing/below range
     fg_joint_signals              = 0  # FG joint (combined game total) bullpen flags surfaced
     fg_joint_suppressed           = 0  # combined bullpen qualified, but DK game total wasn't in range
     fg_no_bp_info                 = 0  # fielding team name didn't resolve to a bullpen population entry
@@ -1886,6 +1909,41 @@ def get_tracking_only_flags(games, force=False):
         away_off_info = get_lineup_offense_quality(away_lineup, off_population) if (off_population and away_lineup) else None
         if home_off_info and away_off_info:
             combined_off_pctile = (home_off_info['off_pctile'] + away_off_info['off_pctile']) / 2.0
+
+            # ── OFFENSE-OVERPRICED FG JOINT UNDER (clean leak-free lead) ── strong combined offense
+            # (top tail of the SAME measure) fades to the FULL-GAME joint total UNDER. Independent of
+            # the weak-offense F5-over block below. Gated on the DraftKings full-game total. See
+            # OFF_FADE_* constants. Tracking lead, not a bet trigger.
+            if combined_off_pctile >= OFF_FADE_PCTILE_MIN:
+                _away_abb = NAME_TO_ABB.get(game['away_team'], game['away_team'])
+                _ofj_odds = dict(fg_joint_lines.get((home_abb, _away_abb), {}))
+                _ofj_pt   = _ofj_odds.get('DraftKings', {}).get('point')
+                _kalj = _pick_kalshi(kalshi_joint.get('|'.join(sorted([home_abb, _away_abb])), []), _ofj_pt)
+                if _kalj:
+                    _ofj_odds['Kalshi'] = _kalj
+                _ofj_line_ok = (_ofj_pt is not None and _ofj_pt >= OFF_FADE_LINE_MIN)
+                if not pinnacle_gate_active or _ofj_line_ok:
+                    off_fade_signals += 1
+                    flags.append({
+                        'game':              f"{game['away_team']}@{game['home_team']}",
+                        'game_id':           game.get('game_id'),
+                        'batting_team':      'Joint Total (Off Fade)',  # sentinel — game-level flag
+                        'fielding_team':     '',
+                        'pitcher_name':      '',
+                        'home_team':         game['home_team'],
+                        'away_team':         game['away_team'],
+                        'signal':            'fg_joint_off_under',
+                        'game_time':         game.get('game_time'),
+                        'ofj_combined_off':  round(combined_off_pctile, 1),
+                        'ofj_home_off':      round(home_off_info['off_pctile'], 1),
+                        'ofj_away_off':      round(away_off_info['off_pctile'], 1),
+                        'ofj_odds_lines':    _ofj_odds,
+                        'ofj_dk_point':      _ofj_pt,
+                        'ofj_note':          _off_fade_note(_ofj_pt),
+                    })
+                else:
+                    off_fade_suppressed += 1
+
             if combined_off_pctile <= JOINT_OFF_PCTILE_MAX:
                 away_abb   = NAME_TO_ABB.get(game['away_team'], game['away_team'])
                 joint_odds = joint_lines.get((home_abb, away_abb), {})
@@ -2016,6 +2074,9 @@ def get_tracking_only_flags(games, force=False):
           f"{pinnacle_suppressed_missing} suppressed (no Pinnacle line found)")
     print(f"Joint offense gate: {joint_signals} flag(s) shown, {joint_suppressed} suppressed "
           f"(weak combined offense but FanDuel joint line wasn't {JOINT_LINE_TARGET})")
+    print(f"Offense-fade FG joint UNDER (clean lead): {off_fade_signals} flag(s) shown, "
+          f"{off_fade_suppressed} suppressed (strong combined offense >= {OFF_FADE_PCTILE_MIN} but "
+          f"DraftKings full-game total missing/below {OFF_FADE_LINE_MIN})")
     print(f"FG bullpen gate: {fg_signals} flag(s) shown, {fg_suppressed} suppressed "
           f"(opposing bullpen top-quartile but FG line wasn't in {sorted(FG_TT_VALID_LINES)}), "
           f"{fg_no_bp_info}/{len(fg_pctile_checked)} matchups had no bullpen population entry for "
@@ -2573,6 +2634,7 @@ def build_picks_payload(today, games, heatmap_flags):
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
+    off_fade_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_off_under']
     # VISIBILITY, per Zach (June 22, 2026): keep computing/logging off_q3_gate and the raw
     # joint_offense_over signal exactly as before (see api_notify's Sheets-append calls, which
     # are NOT gated on this) -- just don't surface them on the dashboard or in Telegram anymore.
@@ -2597,6 +2659,7 @@ def build_picks_payload(today, games, heatmap_flags):
         'fg_tt_flags':       fg_tt_flags,
         'f5_over_flags':     f5_over_flags,
         'fg_joint_flags':    fg_joint_flags,
+        'off_fade_flags':    off_fade_flags,
         'fg_in_window':      is_fg_valid_window(),
         'games':             games_out,
     }
@@ -3242,6 +3305,75 @@ def append_fg_joint_to_sheet(flags):
         print(f"Google Sheets (FgJointTotal) error: {e}")
 
 
+OFF_FADE_SHEET_TAB    = 'FgJointOffense'
+OFF_FADE_SHEET_HEADER = [
+    'date', 'game', 'home_team', 'away_team', 'direction',
+    'combined_off', 'home_off', 'away_off', 'game_time',
+    'draftkings_line', 'draftkings_odds', 'thescore_line', 'thescore_odds',
+    'fanduel_line', 'fanduel_odds', 'pinnacle_line', 'pinnacle_odds', 'kalshi_line', 'kalshi_odds',
+    'actual_fg_joint_runs', 'hit',   # auto-backfilled by get_fg_runs_for_game (full-game final)
+    'game_id',
+]
+
+
+def append_off_fade_to_sheet(flags):
+    """
+    Tracking log for the offense-overpriced FG joint UNDER lead (June 22, 2026 — the one clean
+    leak-free lead from the post-bullpen search). Game-level, always UNDER. Same shape as the
+    FgJointTotal tab; outcome columns auto-backfill via get_fg_runs_for_game.
+    """
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(OFF_FADE_SHEET_TAB)
+            if ws.row_values(1) != OFF_FADE_SHEET_HEADER:
+                ws.update('A1', [OFF_FADE_SHEET_HEADER])
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=OFF_FADE_SHEET_TAB, rows=1000, cols=len(OFF_FADE_SHEET_HEADER))
+            ws.append_row(OFF_FADE_SHEET_HEADER, value_input_option='USER_ENTERED')
+
+        existing = ws.get_all_values()
+        existing_keys = {f"{r[0]}|{r[1]}" for r in existing[1:] if len(r) >= 2}
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if f.get('signal') != 'fg_joint_off_under':
+                continue
+            key = f"{today}|{f.get('game','')}"
+            if key in existing_keys:
+                continue
+            odds = f.get('ofj_odds_lines') or {}
+            book_cells = []
+            for book_label in FG_JOINT_SHEET_BOOKS:
+                line, o = _fg_joint_book_line_odds(odds, book_label, 'under')
+                book_cells.extend([line, o])
+            ws.append_row([
+                today, f.get('game', ''), f.get('home_team', ''), f.get('away_team', ''), 'under',
+                f.get('ofj_combined_off', ''), f.get('ofj_home_off', ''), f.get('ofj_away_off', ''),
+                f.get('game_time', ''),
+                *book_cells,
+                '', '',  # actual_fg_joint_runs / hit — auto-backfill
+                f.get('game_id', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (FgJointOffense): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping FG Joint Offense sheet append")
+    except Exception as e:
+        print(f"Google Sheets (FgJointOffense) error: {e}")
+
+
 F5_OVER_SHEET_TAB    = 'F5TtOver'
 F5_OVER_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'f5_over_flagged_team', 'joint_off_pctile',
@@ -3498,7 +3630,7 @@ def backfill_sheet_outcomes():
     F5 score isn't final yet, are simply skipped each time. Returns a summary dict for logging.
     """
     summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0,
-               'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0}
+               'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0, 'off_fade_filled': 0}
     if not SHEETS_CREDS:
         return summary
     try:
@@ -3659,6 +3791,9 @@ def backfill_sheet_outcomes():
     summary['f5_over_filled'] = _backfill_tab(
         sh, gspread, F5_OVER_SHEET_TAB, line_col='pinnacle_line', runs_col='actual_f5_runs',
         hit_col='over_hit', fetch=get_f5_runs_for_game, mode='team_over')
+    summary['off_fade_filled'] = _backfill_tab(
+        sh, gspread, OFF_FADE_SHEET_TAB, line_col='draftkings_line', runs_col='actual_fg_joint_runs',
+        hit_col='hit', fetch=get_fg_runs_for_game, mode='joint', direction_col='direction')
 
     return summary
 
@@ -3715,8 +3850,9 @@ def api_notify():
         fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
         f5_over_flags = [f for f in flags if f.get('signal') == 'f5_tt_over']
         fg_joint_flags = [f for f in flags if f.get('signal') == 'fg_joint_total']
+        off_fade_flags = [f for f in flags if f.get('signal') == 'fg_joint_off_under']
         if not (under_flags or pq_flags or off_flags or joint_flags or fg_tt_flags
-                or f5_over_flags or fg_joint_flags):
+                or f5_over_flags or fg_joint_flags or off_fade_flags):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
         redis_key    = f"ozzie:notified:{today}"
@@ -3729,8 +3865,9 @@ def api_notify():
         new_fg_tt   = [f for f in fg_tt_flags if flag_key(f) not in already_sent]
         new_f5_over = [f for f in f5_over_flags if flag_key(f) not in already_sent]
         new_fg_joint = [f for f in fg_joint_flags if flag_key(f) not in already_sent]
+        new_off_fade = [f for f in off_fade_flags if flag_key(f) not in already_sent]
         if not (new_under or new_pq or new_off or new_joint or new_fg_tt or new_f5_over
-                or new_fg_joint):
+                or new_fg_joint or new_off_fade):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
@@ -3841,6 +3978,24 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
+        if new_off_fade:
+            if len(lines) > 1:
+                lines.append("")
+            lines.append(f"📉 <b>FG Joint Total — OFFENSE FADE (clean lead) — TRACKING, not a bet signal</b>")
+            lines.append(f"{len(new_off_fade)} game(s): strong combined offense (overpriced) → fade the "
+                         f"full-game JOINT total UNDER. Accumulating live data; do NOT bet yet.\n")
+            for f in new_off_fade:
+                dk_pt = f.get('ofj_dk_point')
+                time  = f" — {f['game_time']}" if f.get('game_time') else ''
+                odds  = format_fg_joint_odds_lines(f.get('ofj_odds_lines'), 'under')
+                lines.append(
+                    f"📉 <b>{f['away_team']} @ {f['home_team']}</b> — JOINT 🔻 UNDER "
+                    f"(combined offense {f.get('ofj_combined_off')}; "
+                    f"{f.get('ofj_away_off')}/{f.get('ofj_home_off')} away/home) [DraftKings {dk_pt}]{time}"
+                )
+                if odds:
+                    lines.append(f"   {odds}")
+
         send_telegram('\n'.join(lines))
         if new_under:
             append_to_sheet(new_under)
@@ -3856,18 +4011,22 @@ def api_notify():
             append_f5_over_to_sheet(new_f5_over)
         if new_fg_joint:
             append_fg_joint_to_sheet(new_fg_joint)
+        if new_off_fade:
+            append_off_fade_to_sheet(new_off_fade)
         all_sent = (already_sent | {flag_key(f) for f in new_under}
                     | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off}
                     | {flag_key(f) for f in new_joint} | {flag_key(f) for f in new_fg_tt}
-                    | {flag_key(f) for f in new_f5_over} | {flag_key(f) for f in new_fg_joint})
+                    | {flag_key(f) for f in new_f5_over} | {flag_key(f) for f in new_fg_joint}
+                    | {flag_key(f) for f in new_off_fade})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
         return jsonify({'status': 'ok',
                         'new': (len(new_under) + len(new_pq) + len(new_off) + len(new_joint)
-                                + len(new_fg_tt) + len(new_f5_over) + len(new_fg_joint)),
+                                + len(new_fg_tt) + len(new_f5_over) + len(new_fg_joint)
+                                + len(new_off_fade)),
                         'flags': ([flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
                                   + [flag_key(f) for f in new_off] + [flag_key(f) for f in new_joint]
                                   + [flag_key(f) for f in new_fg_tt] + [flag_key(f) for f in new_f5_over]
-                                  + [flag_key(f) for f in new_fg_joint])})
+                                  + [flag_key(f) for f in new_fg_joint] + [flag_key(f) for f in new_off_fade])})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
