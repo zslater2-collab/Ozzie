@@ -3471,6 +3471,94 @@ def append_f5_over_to_sheet(flags):
         print(f"Google Sheets (F5TtOver) error: {e}")
 
 
+# ── LINE-HISTORY CAPTURE for CLOSING-LINE VALUE (June 23, 2026) ────────────────────────
+# The historical line data is a single near-close snapshot per game (no open->close pair), so
+# CLV -- does an edge survive to the close, do we need to bet early -- can't be measured
+# retroactively. This logs every flagged game's line on each /api/notify run, but writes a new
+# row only when the line/price actually CHANGES vs what we last saw that day, so the result is a
+# compact movement log: the first row per (game, market, book) is the "open" we observed, the
+# last is the "close". Append-only to its own tab, fully isolated + try/except-guarded so it can
+# never affect the live picks/notify flow. Day's change-state lives in ONE Redis key (1 GET + at
+# most 1 SET per run) to avoid per-game Redis chatter. NOTE: live odds are Redis-cached
+# ODDS_API_TTL (4h), so effective movement resolution is ~4h regardless of cron cadence -- enough
+# to capture open vs near-close, not minute-by-minute. Analyze later by joining game_id to the
+# per-signal sheets (which record which signal flagged the game).
+LINEHIST_SHEET_TAB = 'LineHistory'
+LINEHIST_HEADER = ['ts_utc', 'date', 'game_id', 'game', 'market', 'book', 'point', 'under', 'over', 'game_time']
+# (odds-field name on the flag dict) -> market tag written to the sheet
+LINEHIST_ODDS_FIELDS = [
+    ('odds_lines',         'F5_TT'),         # sigma-under / pq_q4 / off_q3 -- F5 per-team total, under side
+    ('fg_odds_lines',      'FG_TT'),         # fg_tt_under -- full-game per-team total
+    ('joint_odds_lines',   'F5_JOINT'),      # joint_offense -- F5 combined total, over side
+    ('f5_over_odds_lines', 'F5_TT_OVER'),    # f5_tt_over -- "other side" team's F5 total
+    ('fgj_odds_lines',     'FG_JOINT'),      # fg_joint_total -- full-game combined total
+    ('ofj_odds_lines',     'FG_JOINT_FADE'), # fg_joint_off_under -- offense-fade on FG combined total
+]
+
+
+def append_line_history(flags):
+    """Best-effort line-movement log for CLV. Writes a row only when a (game, market, book)
+    line/price changes vs the last value seen today. Never raises into the caller."""
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        import gspread
+        import json as _json
+        from google.oauth2.service_account import Credentials
+        today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        now_utc = datetime.now(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        state_key = f"ozzie:lh_state:{today}"
+        raw   = redis_get(state_key)
+        state = _json.loads(raw) if raw else {}
+
+        new_rows = []
+        for f in flags:
+            gid   = f.get('game_id', '')
+            game  = f.get('game', '') or f"{f.get('away_team', '')} @ {f.get('home_team', '')}"
+            gtime = f.get('game_time', '')
+            for field, market in LINEHIST_ODDS_FIELDS:
+                for book, info in (f.get(field) or {}).items():
+                    pt, u, o = info.get('point'), info.get('under'), info.get('over')
+                    if pt is None and u is None and o is None:
+                        continue
+                    k, val = f"{gid}|{market}|{book}", f"{pt}|{u}|{o}"
+                    if state.get(k) == val:
+                        continue
+                    state[k] = val
+                    new_rows.append([now_utc, today, gid, game, market, book,
+                                     pt if pt is not None else '', u if u is not None else '',
+                                     o if o is not None else '', gtime])
+        if not new_rows:
+            return
+
+        creds_dict = _json.loads(SHEETS_CREDS)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets',
+                  'https://www.googleapis.com/auth/drive']
+        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        gc     = gspread.authorize(creds)
+        sh     = gc.open_by_key(SHEETS_ID)
+        try:
+            ws = sh.worksheet(LINEHIST_SHEET_TAB)
+            if ws.row_values(1) != LINEHIST_HEADER:
+                ws.update('A1', [LINEHIST_HEADER])
+        except gspread.exceptions.WorksheetNotFound:
+            ws = sh.add_worksheet(title=LINEHIST_SHEET_TAB, rows=2000, cols=len(LINEHIST_HEADER))
+            ws.append_row(LINEHIST_HEADER, value_input_option='USER_ENTERED')
+
+        if hasattr(ws, 'append_rows'):
+            ws.append_rows(new_rows, value_input_option='USER_ENTERED')
+        else:  # very old gspread fallback
+            for row in new_rows:
+                ws.append_row(row, value_input_option='USER_ENTERED')
+        redis_set(state_key, _json.dumps(state), ex=259200)  # 3 days
+        print(f"Google Sheets (LineHistory): {len(new_rows)} rows added")
+    except ImportError:
+        print("gspread not installed — skipping LineHistory append")
+    except Exception as e:
+        print(f"Google Sheets (LineHistory) error: {e}")
+
+
 # ── OUTCOME BACKFILL (June 19, 2026) ──────────────────────────────────────────────────
 # Until now, actual_f5_runs/under_hit on both tracking sheets were 100% manual -- Zach had to
 # look up each game's score and type it in. This fills them in automatically from MLB Stats
@@ -3866,6 +3954,12 @@ def api_notify():
         if not (under_flags or pq_flags or off_flags or joint_flags or fg_tt_flags
                 or f5_over_flags or fg_joint_flags or off_fade_flags):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
+
+        # CLV line-history capture (best-effort, see append_line_history). Runs on the FULL flag
+        # set BEFORE the new-flag dedup below, so it still records the CLOSING line on later runs
+        # when every flag is "already sent" and the route returns early at "No new flags".
+        append_line_history(under_flags + pq_flags + off_flags + joint_flags + fg_tt_flags
+                            + f5_over_flags + fg_joint_flags + off_fade_flags)
 
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
