@@ -3903,13 +3903,28 @@ def api_notify():
                 u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
                 lines.append(f"   {u25_str}")
 
-        if new_pq:
+        # PQ_BF_STALE_THRESHOLD matches the dashboard's bfStale check (templates/index.html,
+        # "Current-season BF: N -- mostly/entirely stale prior, do not trust"). Per Zach
+        # (June 23, 2026, prompted by Shane Bieber's season debut firing a Q4 flag with zero
+        # current-season innings behind it): the dashboard already shows that warning inline,
+        # but Telegram had no equivalent check and sent a plain, unqualified flag. Rather than
+        # add the warning text to Telegram too, suppress these from the NOTIFICATION entirely --
+        # a flag that's "mostly/entirely stale prior" isn't actionable, and Zach is the only
+        # consumer of these alerts (no audience-visibility reason to send it anyway). Still
+        # computed/logged to the PitcherQuality Sheet tab below (new_pq, unfiltered) and still
+        # visible on the dashboard (which already carries its own inline warning) -- only the
+        # Telegram push is gated.
+        PQ_BF_STALE_THRESHOLD = 20
+        new_pq_for_telegram = [f for f in new_pq if (f.get('pq_current_bf') or 0) >= PQ_BF_STALE_THRESHOLD]
+        new_pq_stale = [f for f in new_pq if f not in new_pq_for_telegram]
+
+        if new_pq_for_telegram:
             if new_under:
                 lines.append("")
             lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_pq)} Q4 pitcher(s) — only means something if a line below shows "
+            lines.append(f"{len(new_pq_for_telegram)} Q4 pitcher(s) — only means something if a line below shows "
                          f"✅1.5 or 🏟️ (validated park exception, thinner sample — see pq_note)\n")
-            for f in new_pq:
+            for f in new_pq_for_telegram:
                 pct  = f.get('pq_percentile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_odds_lines(f.get('odds_lines'))
@@ -3921,6 +3936,10 @@ def api_notify():
                 )
                 if odds:
                     lines.append(f"   {odds}")
+        if new_pq_stale:
+            print(f"PQ Telegram suppression: {len(new_pq_stale)} flag(s) held back for stale prior "
+                  f"(current-season BF < {PQ_BF_STALE_THRESHOLD}): "
+                  f"{[(f.get('pitcher_name'), f.get('pq_current_bf')) for f in new_pq_stale]}")
 
         # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are
         # deliberately NOT built into the Telegram message below, per Zach (June 22, 2026) --
@@ -3929,7 +3948,7 @@ def api_notify():
         # above new_under/new_pq/etc.
 
         if new_fg_tt:
-            if new_under or new_pq:
+            if new_under or new_pq_for_telegram:
                 lines.append("")
             lines.append(f"🛢️ <b>FG Team Total Under (Bullpen) — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_fg_tt)} top-quartile opposing bullpen(s) — only means something "
@@ -3946,7 +3965,7 @@ def api_notify():
                     lines.append(f"   {odds}")
 
         if new_f5_over:
-            if new_under or new_pq or new_fg_tt:
+            if new_under or new_pq_for_telegram or new_fg_tt:
                 lines.append("")
             lines.append(f"🔄 <b>F5 Team Total Over (Other Side) — NEW, UNTESTED, tracking only</b>")
             lines.append(f"{len(new_f5_over)} game(s): joint F5 over flagged, one team already "
@@ -3962,7 +3981,7 @@ def api_notify():
                     lines.append(f"   {odds}")
 
         if new_fg_joint:
-            if new_under or new_pq or new_fg_tt or new_f5_over:
+            if new_under or new_pq_for_telegram or new_fg_tt or new_f5_over:
                 lines.append("")
             lines.append(f"🎰 <b>FG Joint/Combined Total (Bullpen) — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_fg_joint)} game(s) — combined (both teams') bullpen strength vs "
