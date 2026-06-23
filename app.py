@@ -551,6 +551,14 @@ OFF_Q3_HIGH_PCTILE  = 73.5
 # o_bb_rate median within that Q3/1.5-line band: 2025=0.0855, 2026=0.0866 — averaged.
 OFF_BB_RATE_MEDIAN  = 0.0860
 OFF_SEASON_TTL      = 21600  # 6h, same cadence as the pitcher composite
+# Fraction of prior batters with ZERO current-season PA above which we treat the current-season
+# hitting fetch as having FAILED (transient MLB API blip) rather than just normally sparse. Under
+# normal mid-season conditions ~44% of the 883-batter prior has no 2026 PA (bench/minors/2022-25
+# players no longer up) -- measured June 23, 2026 -- so the old 0.5 warning threshold was only ~6
+# points above baseline. A real fetch failure degrades ~95-100% of batters to pure career prior;
+# 0.85 sits cleanly between the two. See get_offense_quality_population for why this now BAILS
+# (returns empty, uncached) instead of just warning.
+OFF_FETCH_FAIL_FRAC = 0.85
 
 _off_prior            = {}
 _off_prior_loaded      = False
@@ -671,9 +679,21 @@ def get_offense_quality_population(force=False):
         }
         blended[bid] = blend
 
-    if n_zero_current > len(_off_prior) * 0.5:
-        print(f"Warning: offense quality current-season data missing for {n_zero_current}/{len(_off_prior)} "
-              f"batters -- most blended scores this cycle are degraded to pure career prior")
+    # Population-wide current-season fetch failure guard (added June 23, 2026). If nearly every
+    # batter degraded to pure 2022-2025 career prior, the hitting fetch failed (transient MLB API
+    # blip -- the exact incident shape the comments above warn about). Do NOT build, cache, or serve
+    # offense flags off this: a cached degraded population pins every lineup's avg PA to ~0 for
+    # OFF_SEASON_TTL (6h) and fires offense-family signals (off_q3_gate, off_fade, joint) on stale
+    # priors -- including straight to Telegram, since off_fade has no per-flag stale gate the way the
+    # pitcher composite got one after the Bieber incident (see api_notify PQ_BF_STALE_THRESHOLD).
+    # Return empty WITHOUT caching so the next cycle retries once the fetch recovers; get_lineup_
+    # offense_quality already returns None on an empty population, cleanly suppressing every offense
+    # flag this cycle rather than emitting an untrustworthy one. Threshold = OFF_FETCH_FAIL_FRAC.
+    if n_zero_current > len(_off_prior) * OFF_FETCH_FAIL_FRAC:
+        print(f"Offense quality: current-season data missing for {n_zero_current}/{len(_off_prior)} "
+              f"batters (>{OFF_FETCH_FAIL_FRAC:.0%}) -- treating as fetch failure, returning empty and "
+              f"NOT caching so offense signals are suppressed this cycle and retried next cycle")
+        return {}
 
     if len(blended) < 10:
         return {}
