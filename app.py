@@ -2316,6 +2316,15 @@ def get_heatmap_flags(games, model):
                 f['combined_f5_min_sigma'] = round(min_sigma, 2)
                 f['combined_f5_max_sigma'] = round(max_sigma, 2)
 
+    # ── DISABLED (June 22, 2026): the FULL-GAME bullpen totals signals were proven to be outcome
+    # leakage — the backtest's per-game bullpen_z was built from the relievers who ACTUALLY pitched,
+    # which is decided by the game itself; the clean leak-free re-test (live roster-quality bullpen)
+    # was a coin toss (~50%, see CLAUDE.md "DEFINITIVE LEAK-FREE TEST"). Removed from firing /
+    # notifying / logging / display. The F5 signals (pq_q4, f5_tt_over, off_q3, joint_offense) are
+    # NOT affected — they're built on the announced starter + offense (pre-game, leak-free) — and
+    # are left live. They still compute above; this just drops them before they surface anywhere.
+    DISABLED_SIGNALS = {'fg_joint_total', 'fg_tt_under'}
+    flags = [f for f in flags if f.get('signal') not in DISABLED_SIGNALS]
     return flags
 
 
