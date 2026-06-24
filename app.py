@@ -3014,6 +3014,10 @@ PQ_SHEET_HEADER = [
     'actual_f5_runs', 'under_hit',    # auto-filled by backfill_sheet_outcomes() once F5 is final -- see below
     'game_id',                        # MLB gamePk, added June 19, 2026 -- lets backfill find the right boxscore
     'projected_k',                    # informational log5 K projection (June 23, 2026) -- forward ledger vs K props
+    'current_bf',                     # pitcher's current-season BF behind the blend (June 23, 2026) -- < 20 means
+                                      # mostly career prior (Bieber case), Telegram-suppressed; log it so stale rows
+                                      # are filterable out of the track record (WHERE current_bf >= 20). Appended at
+                                      # END so existing rows + backfill column positions are unaffected.
 ]
 
 
@@ -3070,6 +3074,7 @@ def append_pq_to_sheet(flags):
                 '', '',  # actual_f5_runs / under_hit — filled in later by backfill_sheet_outcomes()
                 f.get('game_id', ''),
                 f.get('projected_k', ''),
+                f.get('pq_current_bf', ''),  # staleness column -- see PQ_SHEET_HEADER 'current_bf' note
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -3413,6 +3418,11 @@ OFF_FADE_SHEET_HEADER = [
     'fanduel_line', 'fanduel_odds', 'pinnacle_line', 'pinnacle_odds', 'kalshi_line', 'kalshi_odds',
     'actual_fg_joint_runs', 'hit',   # auto-backfilled by get_fg_runs_for_game (full-game final)
     'game_id',
+    # Lineup current-season PA behind each side's offense score (June 23, 2026). min_pa_avg is the
+    # weaker-data side -- the Telegram stale gate (OFF_FADE_PA_STALE_THRESHOLD) suppresses < 20, so
+    # log it to filter stale-prior rows out of the track record (WHERE min_pa_avg >= 20). Appended
+    # at END so existing rows + outcome-backfill column positions are unaffected.
+    'home_pa_avg', 'away_pa_avg', 'min_pa_avg',
 ]
 
 
@@ -3464,6 +3474,7 @@ def append_off_fade_to_sheet(flags):
                 *book_cells,
                 '', '',  # actual_fg_joint_runs / hit — auto-backfill
                 f.get('game_id', ''),
+                f.get('ofj_home_pa_avg', ''), f.get('ofj_away_pa_avg', ''), f.get('ofj_min_pa_avg', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
