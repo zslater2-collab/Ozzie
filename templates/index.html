@@ -204,30 +204,6 @@
     <div id="joint-list"></div>
   </div>
 </div>
-<div id="fg-tt-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="fg-tt-count"></div>
-      <div class="section-label" style="margin:0">FG Team Total Under — Bullpen Composite
-        <span style="font-size:.55rem;letter-spacing:.1em;color:#ff9f5a;margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
-      </div>
-    </div>
-    <div id="fg-tt-list"></div>
-  </div>
-</div>
-<div id="fg-joint-section">
-  <div class="divider"></div>
-  <div style="padding-top:20px">
-    <div class="flags-header">
-      <div class="flags-count" id="fg-joint-count"></div>
-      <div class="section-label" style="margin:0">Joint / Combined Game Total — Bullpen Composite
-        <span style="font-size:.55rem;letter-spacing:.1em;color:#f5c451;margin-left:8px;text-transform:uppercase">Tracking Only — Not a Bet Signal</span>
-      </div>
-    </div>
-    <div id="fg-joint-list"></div>
-  </div>
-</div>
 <div id="off-fade-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -821,24 +797,6 @@
           document.getElementById('joint-count').textContent = `${jointFlags.length} Game${jointFlags.length!==1?'s':''}`;
           jointFlags.forEach((f,i) => jointList.appendChild(buildJointCard(f,i)));
           document.getElementById('joint-section').style.display = 'block';
-        }
-
-        // ── FG Team Total Under — Bullpen Composite (tracking only) ─────
-        const fgTtList = document.getElementById('fg-tt-list'); fgTtList.innerHTML='';
-        const fgTtFlags = (data.fg_tt_flags||[]);
-        if (fgTtFlags.length > 0) {
-          document.getElementById('fg-tt-count').textContent = `${fgTtFlags.length} Flag${fgTtFlags.length!==1?'s':''}`;
-          fgTtFlags.forEach((f,i) => fgTtList.appendChild(buildFgTtCard(f,i)));
-          document.getElementById('fg-tt-section').style.display = 'block';
-        }
-
-        // ── Joint / Combined Game Total — Bullpen Composite (tracking only) ──
-        const fgJointList = document.getElementById('fg-joint-list'); fgJointList.innerHTML='';
-        const fgJointFlags = (data.fg_joint_flags||[]);
-        if (fgJointFlags.length > 0) {
-          document.getElementById('fg-joint-count').textContent = `${fgJointFlags.length} Game${fgJointFlags.length!==1?'s':''}`;
-          fgJointFlags.forEach((f,i) => fgJointList.appendChild(buildFgJointCard(f,i)));
-          document.getElementById('fg-joint-section').style.display = 'block';
         }
 
         // ── FG Joint Total — Offense Fade (clean lead, tracking) ────────
