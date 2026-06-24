@@ -2939,19 +2939,43 @@ def _book_line_odds(team_odds, book_label):
     return point, odds
 
 
+def _open_sheet():
+    """Authorize gspread from SHEETS_CREDS and open the Ozzie spreadsheet once.
+    Returns (gspread_module, spreadsheet). Callers keep their own try/except, so each
+    sheet's ImportError/Exception handling (and backfill's return-on-error) is unchanged --
+    this only removes the identical auth boilerplate copy-pasted into every appender."""
+    import gspread
+    import json as _json
+    from google.oauth2.service_account import Credentials
+    creds_dict = _json.loads(SHEETS_CREDS)
+    scopes = ['https://www.googleapis.com/auth/spreadsheets',
+              'https://www.googleapis.com/auth/drive']
+    creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+    gc     = gspread.authorize(creds)
+    return gspread, gc.open_by_key(SHEETS_ID)
+
+
+def _get_or_create_ws(gspread, sh, tab, header):
+    """Return worksheet `tab`, migrating its header row to `header` if it drifted, or
+    creating the tab (seeded with `header`) if it doesn't exist yet. Identical behavior to
+    the get-or-create block that was duplicated across the tracking-sheet appenders."""
+    try:
+        ws = sh.worksheet(tab)
+        if ws.row_values(1) != header:
+            ws.update('A1', [header])  # migrate older sheets onto the current schema
+        return ws
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sh.add_worksheet(title=tab, rows=1000, cols=len(header))
+        ws.append_row(header, value_input_option='USER_ENTERED')
+        return ws
+
+
 def append_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        ws     = gc.open_by_key(SHEETS_ID).worksheet(SHEETS_TAB)
+        _, sh  = _open_sheet()
+        ws     = sh.worksheet(SHEETS_TAB)
         existing      = ws.get_all_values()
         existing_keys = set()
         for row in existing[1:]:
@@ -3030,22 +3054,8 @@ def append_pq_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(PQ_SHEET_TAB)
-            if ws.row_values(1) != PQ_SHEET_HEADER:
-                ws.update('A1', [PQ_SHEET_HEADER])  # migrate older sheets onto the current schema
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=PQ_SHEET_TAB, rows=1000, cols=len(PQ_SHEET_HEADER))
-            ws.append_row(PQ_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, PQ_SHEET_TAB, PQ_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3105,22 +3115,8 @@ def append_off_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(OFF_SHEET_TAB)
-            if ws.row_values(1) != OFF_SHEET_HEADER:
-                ws.update('A1', [OFF_SHEET_HEADER])  # migrate older sheets onto the current schema
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=OFF_SHEET_TAB, rows=1000, cols=len(OFF_SHEET_HEADER))
-            ws.append_row(OFF_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, OFF_SHEET_TAB, OFF_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3190,22 +3186,8 @@ def append_joint_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(JOINT_SHEET_TAB)
-            if ws.row_values(1) != JOINT_SHEET_HEADER:
-                ws.update('A1', [JOINT_SHEET_HEADER])  # migrate older sheets onto the current schema
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=JOINT_SHEET_TAB, rows=1000, cols=len(JOINT_SHEET_HEADER))
-            ws.append_row(JOINT_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, JOINT_SHEET_TAB, JOINT_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3265,22 +3247,8 @@ def append_fg_tt_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(FG_TT_SHEET_TAB)
-            if ws.row_values(1) != FG_TT_SHEET_HEADER:
-                ws.update('A1', [FG_TT_SHEET_HEADER])
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=FG_TT_SHEET_TAB, rows=1000, cols=len(FG_TT_SHEET_HEADER))
-            ws.append_row(FG_TT_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, FG_TT_SHEET_TAB, FG_TT_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3356,22 +3324,8 @@ def append_fg_joint_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(FG_JOINT_SHEET_TAB)
-            if ws.row_values(1) != FG_JOINT_SHEET_HEADER:
-                ws.update('A1', [FG_JOINT_SHEET_HEADER])
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=FG_JOINT_SHEET_TAB, rows=1000, cols=len(FG_JOINT_SHEET_HEADER))
-            ws.append_row(FG_JOINT_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, FG_JOINT_SHEET_TAB, FG_JOINT_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3435,22 +3389,8 @@ def append_off_fade_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(OFF_FADE_SHEET_TAB)
-            if ws.row_values(1) != OFF_FADE_SHEET_HEADER:
-                ws.update('A1', [OFF_FADE_SHEET_HEADER])
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=OFF_FADE_SHEET_TAB, rows=1000, cols=len(OFF_FADE_SHEET_HEADER))
-            ws.append_row(OFF_FADE_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, OFF_FADE_SHEET_TAB, OFF_FADE_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = {f"{r[0]}|{r[1]}" for r in existing[1:] if len(r) >= 2}
@@ -3515,22 +3455,8 @@ def append_f5_over_to_sheet(flags):
     if not SHEETS_CREDS or not flags:
         return
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
-        try:
-            ws = sh.worksheet(F5_OVER_SHEET_TAB)
-            if ws.row_values(1) != F5_OVER_SHEET_HEADER:
-                ws.update('A1', [F5_OVER_SHEET_HEADER])
-        except gspread.exceptions.WorksheetNotFound:
-            ws = sh.add_worksheet(title=F5_OVER_SHEET_TAB, rows=1000, cols=len(F5_OVER_SHEET_HEADER))
-            ws.append_row(F5_OVER_SHEET_HEADER, value_input_option='USER_ENTERED')
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, F5_OVER_SHEET_TAB, F5_OVER_SHEET_HEADER)
 
         existing = ws.get_all_values()
         existing_keys = set()
@@ -3833,15 +3759,7 @@ def backfill_sheet_outcomes():
     if not SHEETS_CREDS:
         return summary
     try:
-        import gspread
-        import json as _json
-        from google.oauth2.service_account import Credentials
-        creds_dict = _json.loads(SHEETS_CREDS)
-        scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                  'https://www.googleapis.com/auth/drive']
-        creds  = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-        gc     = gspread.authorize(creds)
-        sh     = gc.open_by_key(SHEETS_ID)
+        gspread, sh = _open_sheet()
     except ImportError:
         print("gspread not installed — skipping outcome backfill")
         return summary
