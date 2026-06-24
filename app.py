@@ -2009,6 +2009,14 @@ def get_tracking_only_flags(games, force=False):
                         'ofj_combined_off':  round(combined_off_pctile, 1),
                         'ofj_home_off':      round(home_off_info['off_pctile'], 1),
                         'ofj_away_off':      round(away_off_info['off_pctile'], 1),
+                        # Lineup current-season PA backing each side's offense score (Marcel blend
+                        # vs. pure career prior). ofj_min_pa_avg is the weaker-data side -- the
+                        # Telegram stale gate (see api_notify OFF_FADE_PA_STALE_THRESHOLD) holds
+                        # off-fade to the same honesty bar as the pitcher composite's BF gate.
+                        'ofj_home_pa_avg':   home_off_info['current_pa_avg'],
+                        'ofj_away_pa_avg':   away_off_info['current_pa_avg'],
+                        'ofj_min_pa_avg':    min(home_off_info['current_pa_avg'],
+                                                 away_off_info['current_pa_avg']),
                         'ofj_odds_lines':    _ofj_odds,
                         'ofj_dk_point':      _ofj_pt,
                         'ofj_note':          _off_fade_note(_ofj_pt),
@@ -4185,13 +4193,24 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
-        if new_off_fade:
+        # OFF-FADE stale gate — offense-side parity with PQ_BF_STALE_THRESHOLD above. off-fade fires
+        # off BOTH lineups' offense scores; ofj_min_pa_avg is the weaker-data side's lineup-average
+        # current-season PA. Below the threshold the score is mostly career prior (rare mid-season,
+        # common in April / heavy-call-up lineups) -- suppress from Telegram, exactly as a stale Q4
+        # pitcher is. Still logged to the OffenseFade Sheet tab below (new_off_fade, unfiltered) and
+        # still shown on the dashboard (off-fade card carries its own PA warning, templates/index.html).
+        OFF_FADE_PA_STALE_THRESHOLD = 20
+        new_off_fade_for_telegram = [f for f in new_off_fade
+                                     if (f.get('ofj_min_pa_avg') or 0) >= OFF_FADE_PA_STALE_THRESHOLD]
+        new_off_fade_stale = [f for f in new_off_fade if f not in new_off_fade_for_telegram]
+
+        if new_off_fade_for_telegram:
             if len(lines) > 1:
                 lines.append("")
             lines.append(f"📉 <b>FG Joint Total — OFFENSE FADE (clean lead) — TRACKING, not a bet signal</b>")
-            lines.append(f"{len(new_off_fade)} game(s): strong combined offense (overpriced) → fade the "
+            lines.append(f"{len(new_off_fade_for_telegram)} game(s): strong combined offense (overpriced) → fade the "
                          f"full-game JOINT total UNDER. Accumulating live data; do NOT bet yet.\n")
-            for f in new_off_fade:
+            for f in new_off_fade_for_telegram:
                 dk_pt = f.get('ofj_dk_point')
                 time  = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds  = format_fg_joint_odds_lines(f.get('ofj_odds_lines'), 'under')
@@ -4202,6 +4221,10 @@ def api_notify():
                 )
                 if odds:
                     lines.append(f"   {odds}")
+        if new_off_fade_stale:
+            print(f"Off-fade Telegram suppression: {len(new_off_fade_stale)} flag(s) held back for stale prior "
+                  f"(lineup avg PA < {OFF_FADE_PA_STALE_THRESHOLD}): "
+                  f"{[(f.get('game'), f.get('ofj_min_pa_avg')) for f in new_off_fade_stale]}")
 
         send_telegram('\n'.join(lines))
         if new_under:
