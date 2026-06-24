@@ -577,6 +577,7 @@
         <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
+      ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— informational, not a bet</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;

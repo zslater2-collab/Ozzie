@@ -192,6 +192,7 @@ def _pq_fetch_current_season():
             season[int(pid)] = {
                 'bf': bf, 'so': stat.get('strikeOuts', 0) or 0,
                 'bb': stat.get('baseOnBalls', 0) or 0, 'hr': stat.get('homeRuns', 0) or 0,
+                'gs': stat.get('gamesStarted', 0) or 0,   # for per-pitcher expected outing length
             }
         print(f"Pitcher quality current-season fetch: {len(season)} pitchers with BF>0")
         return season
@@ -220,11 +221,13 @@ def get_pitcher_quality_population(force=False):
     season = _pq_fetch_current_season()
     blended = {}
     current_bf_by_pid = {}
+    exp_bf_by_pid = {}
     n_zero_current = 0
     for pid, prior in _pq_prior.items():
-        s = season.get(pid, {'bf': 0, 'so': 0, 'bb': 0, 'hr': 0})
+        s = season.get(pid, {'bf': 0, 'so': 0, 'bb': 0, 'hr': 0, 'gs': 0})
         bf = s['bf']
         current_bf_by_pid[pid] = bf
+        exp_bf_by_pid[pid] = expected_bf_per_start(bf, s.get('gs', 0))
         if bf == 0:
             n_zero_current += 1
         season_rates = {
@@ -281,6 +284,9 @@ def get_pitcher_quality_population(force=False):
             # 0 means the current-season fetch had nothing for them (network blip, BRef lag, etc.)
             # and the blend silently fell back to the prior alone. See incident notes, June 2026.
             'current_bf':  current_bf_by_pid.get(pid, 0),
+            # this pitcher's expected batters-faced for a start (season BF/start, shrunk toward the
+            # league-average outing) -- drives the K projection, see project_starter_ks.
+            'exp_bf':      exp_bf_by_pid.get(pid, K_PROJ_EXPECTED_BF),
         }
 
     print(f"Pitcher quality population built: {len(population)} pitchers, "
@@ -742,7 +748,7 @@ def get_lineup_offense_quality(lineup, population):
     load_lineup_slot_weights()
     if not _lineup_slot_weights or not population:
         return None
-    wsum_pctile = wsum_bb = wsum_pa = wtot = 0.0
+    wsum_pctile = wsum_bb = wsum_k = wsum_pa = wtot = 0.0
     n_matched = 0
     for batter in lineup:
         info = population.get(batter.get('id'))
@@ -752,6 +758,7 @@ def get_lineup_offense_quality(lineup, population):
         w = _lineup_slot_weights[slot]
         wsum_pctile += info['percentile']         * w
         wsum_bb     += info['bb_rate']            * w
+        wsum_k      += info['k_rate']             * w
         wsum_pa     += info.get('current_pa', 0)  * w
         wtot        += w
         n_matched   += 1
@@ -760,8 +767,38 @@ def get_lineup_offense_quality(lineup, population):
     return {
         'off_pctile':      round(wsum_pctile / wtot, 1),
         'o_bb_rate':       round(wsum_bb / wtot, 4),
+        'o_k_rate':        round(wsum_k / wtot, 4),   # PA-weighted lineup K rate (for K projection)
         'current_pa_avg':  round(wsum_pa / wtot, 1),
     }
+
+
+# ── PROJECTED STRIKEOUTS (informational, June 23, 2026) ───────────────────────────────
+# Log5 matchup K projection shown on pitcher-quality flags so the starter's expected K total is
+# visible at a glance (e.g. for eyeballing K props). NOT a bet signal -- this projection agrees
+# with sharp books on most starts; any edge lives only in rare divergences, and individual-pitcher
+# input noise (thin priors, outing-length) drives most big gaps. See expected_k_validation research.
+K_PROJ_LEAGUE_K_RATE = 0.221   # 2026 league K per plate appearance
+K_PROJ_EXPECTED_BF   = 22.5    # league-average start's batters faced (~5.2 IP); fallback outing
+K_PROJ_BF_PHANTOM    = 4       # shrink a pitcher's season BF/start toward the league average
+
+def expected_bf_per_start(bf, gs):
+    """Per-pitcher expected batters faced in a start: season BF/start, shrunk toward the league
+    average (K_PROJ_BF_PHANTOM phantom starts) so thin samples don't swing it, clamped to a sane
+    range. Falls back to the league average when the pitcher has no starts yet. Note: `bf` is the
+    season total across all appearances, so for a swingman this slightly overcounts -- fine for the
+    announced starters this is used on."""
+    if not bf or gs < 1:
+        return K_PROJ_EXPECTED_BF
+    est = (K_PROJ_BF_PHANTOM * K_PROJ_EXPECTED_BF + bf) / (K_PROJ_BF_PHANTOM + gs)
+    return round(max(16.0, min(28.0, est)), 1)
+
+def project_starter_ks(p_k_rate, o_k_rate, exp_bf=None):
+    """Log5 of the pitcher's blended K rate vs the opposing lineup's K rate, x this pitcher's
+    expected outing length. Returns expected strikeouts (1 decimal), or None if a rate is missing."""
+    if not p_k_rate or not o_k_rate:
+        return None
+    matchup_k_per_bf = p_k_rate * o_k_rate / K_PROJ_LEAGUE_K_RATE
+    return round(matchup_k_per_bf * (exp_bf or K_PROJ_EXPECTED_BF), 1)
 
 
 def load_fg_profiles():
@@ -1903,6 +1940,11 @@ def get_tracking_only_flags(games, force=False):
                 'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
+                # informational log5 K projection for this starter vs the lineup he faces (off_info
+                # is the batting_team's lineup quality computed above). Not a bet signal.
+                'projected_k':      project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                                       off_info['o_k_rate'] if off_info else None,
+                                                       pq_info.get('exp_bf') if pq_info else None),
                 'pq_q4':            pq_q4,
                 # 0 (or very low relative to the K phantom-BF of 70) means this pitcher's score is
                 # mostly/entirely the stale career prior, not a real current-season blend -- check
@@ -2297,6 +2339,11 @@ def get_heatmap_flags(games, model):
                 'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
+                # informational log5 K projection for this starter vs the lineup he faces (off_info
+                # is the batting_team's lineup quality computed above). Not a bet signal.
+                'projected_k':      project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                                       off_info['o_k_rate'] if off_info else None,
+                                                       pq_info.get('exp_bf') if pq_info else None),
                 'pq_q4':            pq_q4,
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
@@ -2947,6 +2994,7 @@ PQ_SHEET_HEADER = [
     'thescore_line', 'thescore_odds',
     'actual_f5_runs', 'under_hit',    # auto-filled by backfill_sheet_outcomes() once F5 is final -- see below
     'game_id',                        # MLB gamePk, added June 19, 2026 -- lets backfill find the right boxscore
+    'projected_k',                    # informational log5 K projection (June 23, 2026) -- forward ledger vs K props
 ]
 
 
@@ -3002,6 +3050,7 @@ def append_pq_to_sheet(flags):
                 *book_cells,
                 '', '',  # actual_f5_runs / under_hit — filled in later by backfill_sheet_outcomes()
                 f.get('game_id', ''),
+                f.get('projected_k', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
@@ -4043,10 +4092,12 @@ def api_notify():
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_odds_lines(f.get('odds_lines'))
                 tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
+                kp   = f.get('projected_k')
+                kp_s = f" — proj ~{kp} K" if kp else ''
                 lines.append(
                     f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
-                    f"HR {f['pq_hr_rate']*100:.1f}%){time}"
+                    f"HR {f['pq_hr_rate']*100:.1f}%){kp_s}{time}"
                 )
                 if odds:
                     lines.append(f"   {odds}")
