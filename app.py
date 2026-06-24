@@ -2160,15 +2160,26 @@ def get_tracking_only_flags(games, force=False):
           f"{[(t, a, p) for t, a, p in fg_pctile_checked]}")
     print(f"F5 TT over (derived): {f5_over_signals} flag(s) shown")
 
-    pq_only_flags     = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
-                                key=lambda x: x.get('pq_percentile', 0), reverse=True)
-    off_only_flags    = sorted([f for f in flags if f['signal'] == 'offense_quality_only'],
-                                key=lambda x: x.get('off_pctile', 0), reverse=True)
-    joint_only_flags  = [f for f in flags if f['signal'] == 'joint_offense_over']
-    fg_tt_only_flags  = sorted([f for f in flags if f['signal'] == 'fg_tt_under'],
-                                key=lambda x: x.get('fg_bp_pctile', 0), reverse=True)
-    f5_over_only_flags = [f for f in flags if f['signal'] == 'f5_tt_over']
-    result = pq_only_flags + off_only_flags + joint_only_flags + fg_tt_only_flags + f5_over_only_flags
+    # SURFACED SIGNALS (June 23, 2026, per Zach): collapse the live output to exactly the three
+    # signals actively tracked right now -- Q4 pitcher F5 U1.5, the derived F5 TT over, and the
+    # full-game joint OFFENSE FADE. Everything else still COMPUTES above and is deliberately NOT
+    # surfaced, so it reaches neither the dashboard, Telegram, nor the Sheets:
+    #   * offense_quality_only (off_q3) -- muted, but its offense population/percentiles still feed
+    #                                      the offense-fade signal.
+    #   * joint_offense_over            -- muted, but its weak-combined-offense CONDITION still
+    #                                      drives the derived f5_tt_over below: Zach wants the
+    #                                      joint-over to FIRE the over-derivation without the joint
+    #                                      flag itself being shown or logged.
+    #   * fg_tt_under / fg_joint_total  -- disproven bullpen leakage (see DISABLED_SIGNALS).
+    # NOTE: fg_joint_off_under was previously computed but accidentally left out of this assembly,
+    # so it never reached the dashboard/Telegram/Sheets despite the full plumbing existing for it
+    # (append_off_fade_to_sheet, the api_notify off-fade block, build_picks_payload's off_fade_flags).
+    # Fixed here by including it.
+    pq_only_flags       = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
+                                  key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    f5_over_only_flags  = [f for f in flags if f['signal'] == 'f5_tt_over']
+    off_fade_only_flags = [f for f in flags if f['signal'] == 'fg_joint_off_under']
+    result = pq_only_flags + f5_over_only_flags + off_fade_only_flags
     return [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
 
 
