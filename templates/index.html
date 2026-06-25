@@ -554,6 +554,7 @@
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
       ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— informational, not a bet</span></div>` : ''}
+      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP FLAG — high-K lineup (opp K-rate ≥ 22.4%). <span style="font-weight:normal;color:var(--muted)">2025: n=80, +1.0K, 66% beat; 2026 OOS: +0.67K, 66%. Eyeball K prop vs proj above.</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
