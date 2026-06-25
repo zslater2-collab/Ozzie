@@ -573,10 +573,9 @@ _off_population_cache_time = None
 _lineup_slot_weights   = {}
 _lineup_weights_loaded = False
 # Rolling median batter K-rate from the live Marcel blend — recomputed each time
-# get_offense_quality_population() rebuilds. Starts near the 2022-2025 career prior
-# in April (little current-season PA yet) and drifts toward live 2026 rates as the
-# season accumulates PA. Used as the k_prop_flag threshold so it updates monthly
-# instead of being frozen at the 2025 research median.
+# get_offense_quality_population() rebuilds. Logged for diagnostics (printed when
+# population rebuilds). No longer used in k_prop_flag — the K-composite handles
+# opp K-rate via its fitted coefficient (K_COMP_O_K = +15.192).
 _off_k_rate_median    = None
 
 
@@ -737,11 +736,10 @@ def get_offense_quality_population(force=False):
             'current_pa': current_pa_by_bid.get(bid, 0),
         }
 
-    # Compute rolling median batter K-rate from the blended population — used as the
-    # k_prop_flag threshold. Updates each cycle as more current-season PA accumulates
-    # in the Marcel blend, so April uses mostly career-prior rates and July reflects
-    # actual 2026 form. Stored in a module-level variable so flag-building code can
-    # read it without re-scanning the full population dict.
+    # Compute rolling median batter K-rate from the blended population — stored for
+    # diagnostics and printed each rebuild cycle. The K-composite model (k_prop_flag)
+    # incorporates o_k_rate directly via a fitted coefficient rather than using this
+    # median as a threshold, so this is informational only.
     global _off_k_rate_median
     import statistics as _stats
     k_rates = [v['k_rate'] for v in population.values() if v.get('k_rate') is not None]
@@ -800,10 +798,24 @@ def get_lineup_offense_quality(lineup, population):
 K_PROJ_LEAGUE_K_RATE = 0.221   # 2026 league K per plate appearance
 K_PROJ_EXPECTED_BF   = 22.5    # league-average start's batters faced (~5.2 IP); fallback outing
 K_PROJ_BF_PHANTOM    = 4       # shrink a pitcher's season BF/start toward the league average
-# K-prop flag threshold: opposing lineup K-rate >= this fires k_prop_flag when pq_q4=True.
-# Calibrated to the 2025 U1.5 median o_k_rate (~0.224). Research: pq_q4 + opp_k_hi in 2025
-# U1.5 games: n=80, +1.00K vs proj, 66% beat; 2026 OOS: +0.67K, 66%. Eyeball K prop lines.
-K_PROP_OPP_K_THRESH  = 0.224
+# ── K-PROP COMPOSITE (June 25, 2026) ─────────────────────────────────────────
+# OLS fit on 2025 proj_error (actual_k - proj_k) using pitcher and opponent rates.
+# o_k_rate dominates (+15.2) because the baseline proj (p_k_rate * 22) ignores opponent
+# K-rate entirely. p_k_rate is negative (-4.8) because it's already baked into proj_k —
+# we're predicting the RESIDUAL. Threshold = 80th pctile of this score in 2025 U1.5 starts.
+#
+# VALIDATION: 2025 in-sample n=138, +0.71K, 60% beat; 2026 true OOS n=44, +0.67K, 66%.
+# Combined 2025+2026: n=182, +0.70K, 61.5%, p=0.0000 vs 0. Flag vs non-flag p=0.0002.
+# Much stronger than the original pq_q4 composite for K props (which collapses in 2026 OOS).
+# No separate opp_k_hi filter needed — o_k_rate is the dominant term in the composite,
+# so a pitcher only clears the threshold when facing a legitimately high-K lineup.
+# Eyeball the posted K prop line vs projected_k; no automated odds pull yet.
+K_COMP_P_K       = -4.817    # pitcher K-rate (negative: already in proj_k baseline)
+K_COMP_P_BB      = -11.906   # pitcher BB-rate
+K_COMP_P_HR      = -9.897    # pitcher HR-rate
+K_COMP_O_K       = +15.192   # opposing lineup K-rate (dominant predictor)
+K_COMP_INTERCEPT = -0.884
+K_COMP_THRESH    = 0.5839    # 80th pctile from 2025 calibration; applied unchanged to 2026 OOS
 
 def expected_bf_per_start(bf, gs):
     """Per-pitcher expected batters faced in a start: season BF/start, shrunk toward the league
@@ -815,6 +827,18 @@ def expected_bf_per_start(bf, gs):
         return K_PROJ_EXPECTED_BF
     est = (K_PROJ_BF_PHANTOM * K_PROJ_EXPECTED_BF + bf) / (K_PROJ_BF_PHANTOM + gs)
     return round(max(16.0, min(28.0, est)), 1)
+
+def k_composite_score(p_k_rate, p_bb_rate, p_hr_rate, o_k_rate):
+    """K-prop composite score: OLS on 2025 proj_error, applied unchanged to 2026 OOS.
+    Returns None if any input is missing (flag suppressed, not fired)."""
+    if None in (p_k_rate, p_bb_rate, p_hr_rate, o_k_rate):
+        return None
+    return (K_COMP_INTERCEPT
+            + K_COMP_P_K  * p_k_rate
+            + K_COMP_P_BB * p_bb_rate
+            + K_COMP_P_HR * p_hr_rate
+            + K_COMP_O_K  * o_k_rate)
+
 
 def project_starter_ks(p_k_rate, o_k_rate, exp_bf=None):
     """Log5 of the pitcher's blended K rate vs the opposing lineup's K rate, x this pitcher's
@@ -1159,15 +1183,16 @@ def _pq_note(pq_q4, gate_reason, pinnacle_point):
              'signal only, do not bet)')
 
 
-def _kprop_note(k_prop_flag, o_k_rate, projected_k):
-    """K-prop tracking note: pq_q4 pitcher + high-K opposing lineup. Display-only, no API pull."""
+def _kprop_note(k_prop_flag, kc_score, o_k_rate, projected_k):
+    """K-prop tracking note: K-composite model flags this starter. Display-only, no API pull."""
     if not k_prop_flag:
         return None
     ok_s  = f"{o_k_rate*100:.1f}%" if o_k_rate else '—'
     kp_s  = f" — proj ~{projected_k} K" if projected_k else ''
-    return (f'K-PROP: pq_q4 starter vs high-K lineup (opp K-rate {ok_s}){kp_s}. '
-            f'Research (U1.5 only): pq_q4 + opp_k_hi — 2025 n=80, +1.00K vs proj, 66% beat rate; '
-            f'2026 OOS: +0.67K, 66%. Eyeball K prop vs this projection. NOT a validated bet signal.')
+    sc_s  = f"{kc_score:+.3f}" if kc_score is not None else '—'
+    return (f'K-PROP: K-composite score {sc_s} (threshold {K_COMP_THRESH}) vs opp K-rate {ok_s}{kp_s}. '
+            f'Research (U1.5 only): 2025 n=138 +0.71K 60% beat; 2026 OOS n=44 +0.67K 66%; '
+            f'combined p=0.0000. Eyeball K prop vs proj above. NOT a validated bet signal.')
 
 
 def _off_note(off_q3_gate, gate_reason, pinnacle_point):
@@ -1960,6 +1985,14 @@ def get_tracking_only_flags(games, force=False):
                             'park_exception' if (park_exception and pinnacle_point != 1.5) else
                             'line_1_5')
 
+            _kc = k_composite_score(
+                pq_info['k_rate']  if pq_info else None,
+                pq_info['bb_rate'] if pq_info else None,
+                pq_info['hr_rate'] if pq_info else None,
+                off_info.get('o_k_rate') if off_info else None,
+            )
+            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
+
             flag = {
                 'game':             game_str,
                 'game_id':          game.get('game_id'),
@@ -1981,19 +2014,18 @@ def get_tracking_only_flags(games, force=False):
                                                        off_info['o_k_rate'] if off_info else None,
                                                        pq_info.get('exp_bf') if pq_info else None),
                 'pq_q4':            pq_q4,
-                # K-prop tracking flag: pq_q4 starter facing a high-K lineup (opp K-rate >= median).
-                # Research (U1.5 only): 2025 n=80, +1.00K, 66% beat; 2026 OOS +0.67K, 66%.
-                # Eyeball K prop lines against the projected_k value — this is a tracking indicator,
-                # not a validated bet signal and has no API line pull yet.
-                'k_prop_flag':      bool(pq_q4 and off_info and
-                                         (off_info.get('o_k_rate') or 0) >= (_off_k_rate_median or K_PROP_OPP_K_THRESH)),
-                'k_prop_note':      _kprop_note(
-                                         bool(pq_q4 and off_info and
-                                              (off_info.get('o_k_rate') or 0) >= (_off_k_rate_median or K_PROP_OPP_K_THRESH)),
-                                         off_info.get('o_k_rate') if off_info else None,
-                                         project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                            off_info['o_k_rate'] if off_info else None,
-                                                            pq_info.get('exp_bf') if pq_info else None)),
+                # K-prop tracking flag: K-composite model (OLS on proj_error, 2025-trained, 2026 OOS
+                # validated). Fires when composite >= K_COMP_THRESH (80th pctile from 2025).
+                # o_k_rate is the dominant term so the threshold implicitly requires a high-K lineup.
+                # Research: 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; combined p=0.0000.
+                # Eyeball K prop vs projected_k — no automated odds pull yet.
+                'k_comp_score':     _kc,
+                'k_prop_flag':      _kc_flag,
+                'k_prop_note':      _kprop_note(_kc_flag, _kc,
+                                                off_info.get('o_k_rate') if off_info else None,
+                                                project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                                                   off_info['o_k_rate'] if off_info else None,
+                                                                   pq_info.get('exp_bf') if pq_info else None)),
                 # 0 (or very low relative to the K phantom-BF of 70) means this pitcher's score is
                 # mostly/entirely the stale career prior, not a real current-season blend -- check
                 # this before trusting a flag. See the Nola incident, June 2026.
@@ -2371,6 +2403,14 @@ def get_heatmap_flags(games, model):
             if signal is None:
                 continue
 
+            _kc = k_composite_score(
+                pq_info['k_rate']  if pq_info else None,
+                pq_info['bb_rate'] if pq_info else None,
+                pq_info['hr_rate'] if pq_info else None,
+                off_info.get('o_k_rate') if off_info else None,
+            )
+            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
+
             flag = {
                 'game':             game_str,
                 'game_id':          game.get('game_id'),
@@ -2412,15 +2452,13 @@ def get_heatmap_flags(games, model):
                                                        off_info['o_k_rate'] if off_info else None,
                                                        pq_info.get('exp_bf') if pq_info else None),
                 'pq_q4':            pq_q4,
-                'k_prop_flag':      bool(pq_q4 and off_info and
-                                         (off_info.get('o_k_rate') or 0) >= (_off_k_rate_median or K_PROP_OPP_K_THRESH)),
-                'k_prop_note':      _kprop_note(
-                                         bool(pq_q4 and off_info and
-                                              (off_info.get('o_k_rate') or 0) >= (_off_k_rate_median or K_PROP_OPP_K_THRESH)),
-                                         off_info.get('o_k_rate') if off_info else None,
-                                         project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                            off_info['o_k_rate'] if off_info else None,
-                                                            pq_info.get('exp_bf') if pq_info else None)),
+                'k_comp_score':     _kc,
+                'k_prop_flag':      _kc_flag,
+                'k_prop_note':      _kprop_note(_kc_flag, _kc,
+                                                off_info.get('o_k_rate') if off_info else None,
+                                                project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                                                   off_info['o_k_rate'] if off_info else None,
+                                                                   pq_info.get('exp_bf') if pq_info else None)),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 # Offense Quality Composite — tracking only, NOT validated for betting.
@@ -3099,8 +3137,8 @@ PQ_SHEET_HEADER = [
                                       # mostly career prior (Bieber case), Telegram-suppressed; log it so stale rows
                                       # are filterable out of the track record (WHERE current_bf >= 20). Appended at
                                       # END so existing rows + backfill column positions are unaffected.
-    'k_prop_flag',                    # K-prop tracking: pq_q4 + opp K-rate >= 0.224 (June 25, 2026). 2025 n=80
-                                      # +1.00K/66%; 2026 OOS +0.67K/66%. Eyeball K prop vs projected_k.
+    'k_prop_flag',                    # K-prop tracking: K-composite >= 0.5839 (June 25, 2026). 2025 n=138
+                                      # +0.71K/60%; 2026 OOS n=44 +0.67K/66%; combined p=0.0000. Eyeball K prop.
 ]
 
 
