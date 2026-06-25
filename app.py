@@ -4207,7 +4207,9 @@ def api_notify():
                 odds = format_odds_lines(f.get('odds_lines'))
                 tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
                 kp   = f.get('projected_k')
-                kp_s = f" — proj ~{kp} K" if kp else ''
+                ok   = f.get('o_k_rate')
+                lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
+                kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
                 kprop_tag = ' 🎯K-PROP' if f.get('k_prop_flag') else ''
                 lines.append(
                     f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag}{kprop_tag} "
