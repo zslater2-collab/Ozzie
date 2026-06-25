@@ -2031,6 +2031,7 @@ def get_tracking_only_flags(games, force=False):
                 # this before trusting a flag. See the Nola incident, June 2026.
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
+                'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
                 'off_pctile':       off_info['off_pctile'] if off_info else None,
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
@@ -2461,6 +2462,7 @@ def get_heatmap_flags(games, model):
                                                                    pq_info.get('exp_bf') if pq_info else None)),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
+                'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
                 # Offense Quality Composite — tracking only, NOT validated for betting.
                 # Only meaningful if today's actual F5 line for THIS batting team is 1.5 (check
                 # manually). See OFF_PHANTOM comment block above for full validation status.
@@ -3191,6 +3193,70 @@ def append_pq_to_sheet(flags):
         print("gspread not installed — skipping PQ sheet append")
     except Exception as e:
         print(f"Google Sheets (PitcherQuality) error: {e}")
+
+
+KPROP_SHEET_TAB    = 'KProp'
+KPROP_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'pitcher_name',
+    'k_comp_score',                  # K-composite value (threshold = K_COMP_THRESH = 0.5839)
+    'o_k_rate',                      # opposing lineup K-rate (dominant composite term)
+    'p_k_rate', 'p_bb_rate', 'p_hr_rate',  # pitcher blended inputs to composite
+    'projected_k',                   # informational K projection vs this lineup
+    'game_time',
+    'pinnacle_line', 'pinnacle_odds',
+    'draftkings_line', 'draftkings_odds',
+    'thescore_line', 'thescore_odds',
+    'k_prop_line',                   # posted K prop line — fill in manually
+    'actual_k',                      # actual Ks thrown — fill in after game
+    'k_hit',                         # 1 if actual_k > k_prop_line — fill in after game
+    'game_id',
+]
+
+
+def append_kprop_to_sheet(flags):
+    """Dedicated K-prop tracking tab. Logs every k_prop_flag=True start for manual follow-up."""
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, KPROP_SHEET_TAB, KPROP_SHEET_HEADER)
+
+        existing = ws.get_all_values()
+        existing_keys = set()
+        for row in existing[1:]:
+            if len(row) >= 3:
+                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
+        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added = 0
+        for f in flags:
+            if not f.get('k_prop_flag'):
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_keys:
+                continue
+            team_odds = f.get('odds_lines') or {}
+            def _lo(book):
+                line, odds = _book_line_odds(team_odds, book)
+                return [line, odds]
+            kc = f.get('k_comp_score')
+            off = f.get('odds_lines') or {}
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
+                round(kc, 4) if kc is not None else '',
+                round(f.get('o_k_rate') or 0, 4) or '',
+                f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
+                f.get('projected_k', ''), f.get('game_time', ''),
+                *_lo('pinnacle'), *_lo('draftkings'), *_lo('thescore'),
+                '', '', '',  # k_prop_line / actual_k / k_hit — filled manually
+                f.get('game_id', ''),
+            ], value_input_option='USER_ENTERED')
+            existing_keys.add(key)
+            rows_added += 1
+        print(f"Google Sheets (KProp): {rows_added} rows added")
+    except ImportError:
+        print("gspread not installed — skipping KProp sheet append")
+    except Exception as e:
+        print(f"Google Sheets (KProp) error: {e}")
 
 
 OFF_SHEET_TAB    = 'OffenseQuality'
@@ -4060,6 +4126,7 @@ def api_notify():
         # for the matching dashboard-side suppression).
         under_flags  = [f for f in flags if f.get('signal') == 'under']
         pq_flags     = [f for f in flags if f.get('pq_q4')]
+        kprop_flags  = [f for f in flags if f.get('k_prop_flag')]
         off_flags    = [f for f in flags if f.get('off_q3_gate')]
         joint_flags  = [f for f in flags if f.get('joint_signal')]
         fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
@@ -4081,6 +4148,7 @@ def api_notify():
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
         new_under   = [f for f in under_flags if flag_key(f) not in already_sent]
         new_pq      = [f for f in pq_flags if flag_key(f) not in already_sent]
+        new_kprop   = [f for f in kprop_flags if flag_key(f) not in already_sent]
         new_off     = [f for f in off_flags if flag_key(f) not in already_sent]
         new_joint   = [f for f in joint_flags if flag_key(f) not in already_sent]
         new_fg_tt   = [f for f in fg_tt_flags if flag_key(f) not in already_sent]
@@ -4259,6 +4327,8 @@ def api_notify():
             append_to_sheet(new_under)
         if new_pq:
             append_pq_to_sheet(new_pq)
+        if new_kprop:
+            append_kprop_to_sheet(new_kprop)
         if new_off:
             append_off_to_sheet(new_off)
         if new_joint:
@@ -4272,7 +4342,8 @@ def api_notify():
         if new_off_fade:
             append_off_fade_to_sheet(new_off_fade)
         all_sent = (already_sent | {flag_key(f) for f in new_under}
-                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_off}
+                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_kprop}
+                    | {flag_key(f) for f in new_off}
                     | {flag_key(f) for f in new_joint} | {flag_key(f) for f in new_fg_tt}
                     | {flag_key(f) for f in new_f5_over} | {flag_key(f) for f in new_fg_joint}
                     | {flag_key(f) for f in new_off_fade})
