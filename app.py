@@ -1648,22 +1648,27 @@ def get_kalshi_k_props(games, force=False):
                     (floor, threshold, _fv(m.get('yes_ask_dollars'))))
             for name_lower, ladder in pitcher_ladders.items():
                 ladder.sort(key=lambda x: x[0])  # sort by floor_strike ascending
-                # Implied line: highest floor_strike where yes_ask >= 0.50 (market still favors over)
+                # Implied line: highest floor_strike where yes_ask >= 0.50
                 implied_line = None
+                implied_thr   = None
+                implied_ya    = None
                 for fl, thr, ya in ladder:
                     if ya is not None and ya >= 0.50:
                         implied_line = fl
+                        implied_thr  = thr
+                        implied_ya   = ya
                 if implied_line is None and ladder:
                     implied_line = ladder[0][0] - 1.0
-                # Best bet: lowest threshold where yes_ask just dropped below 0.50
-                best = next(((fl, thr, ya) for fl, thr, ya in ladder
-                             if ya is not None and ya < 0.50 and ya >= 0.10), None)
+                    implied_thr  = ladder[0][1]
+                    implied_ya   = ladder[0][2]
                 if implied_line is None:
                     continue
+                # Bet IS the implied-line threshold: proj_gap > 0.5 means we think
+                # there's >50% chance of hitting the implied-line strike, so buy it.
                 out.setdefault(pk, {})[name_lower] = {
                     'implied_line':  implied_line,
-                    'bet_threshold': best[1] if best else None,
-                    'yes_bid':       round(best[2] * 100) if best and best[2] else None,
+                    'bet_threshold': implied_thr,
+                    'yes_bid':       round(implied_ya * 100) if implied_ya else None,
                 }
     except Exception as e:
         print(f"Kalshi K props fetch error: {e}")
