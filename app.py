@@ -1452,7 +1452,7 @@ KALSHI_TEAM_SERIES  = "KXMLBTEAMTOTAL"
 KALSHI_MON = {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
 KALSHI_ABB = {'AZ': 'ARI'}    # Kalshi uses AZ; we use ARI (NAME_TO_ABB). Everything else matches.
 KALSHI_KS_SERIES = "KXMLBKS"  # pitcher strikeout prop ladder
-KALSHI_KS_TTL    = 3600        # 1h — prices move as game time approaches
+KALSHI_KS_TTL    = 1200        # 20min — K prop prices move significantly pre-game
 
 
 def _kalshi_get(path, **params):
@@ -1639,26 +1639,26 @@ def get_kalshi_k_props(games, force=False):
                     try: return float(v) if v not in (None, '') else None
                     except: return None
                 pitcher_ladders.setdefault(name_lower, []).append(
-                    (floor, _fv(m.get('yes_bid_dollars')), _fv(m.get('yes_ask_dollars'))))
+                    (floor, _fv(m.get('yes_ask_dollars'))))
             for name_lower, ladder in pitcher_ladders.items():
                 ladder.sort(key=lambda x: x[0])
-                # Implied line: highest floor_strike where yes_bid >= 0.50
+                # Implied line: highest floor_strike where yes_ask < 0.50 means market prices
+                # it as underdog. Use yes_ask (the buy price) — matches what Kalshi displays.
                 implied_line = None
-                for fl, yb, ya in ladder:
-                    if yb is not None and yb >= 0.50:
+                for fl, ya in ladder:
+                    if ya is not None and ya >= 0.50:
                         implied_line = fl
                 if implied_line is None and ladder:
                     implied_line = ladder[0][0] - 1.0
-                # Best bet: lowest floor_strike where yes_bid just dropped below 0.50
-                best = next(((fl, yb, ya) for fl, yb, ya in ladder
-                             if yb is not None and yb < 0.50 and yb >= 0.10), None)
+                # Best bet: lowest floor_strike where yes_ask just dropped below 0.50
+                best = next(((fl, ya) for fl, ya in ladder
+                             if ya is not None and ya < 0.50 and ya >= 0.10), None)
                 if implied_line is None:
                     continue
                 out.setdefault(pk, {})[name_lower] = {
                     'implied_line':  implied_line,
                     'bet_threshold': int(best[0] + 1) if best else None,
                     'yes_bid':       round(best[1] * 100) if best and best[1] else None,
-                    'yes_ask':       round(best[2] * 100) if best and best[2] else None,
                 }
     except Exception as e:
         print(f"Kalshi K props fetch error: {e}")
