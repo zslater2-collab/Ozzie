@@ -1176,16 +1176,21 @@ def _pq_note(pq_q4, gate_reason, pinnacle_point):
              'signal only, do not bet)')
 
 
-def _kprop_note(k_prop_flag, kc_score, o_k_rate, projected_k):
-    """K-prop tracking note: K-composite model flags this starter. Display-only, no API pull."""
+def _kprop_note(k_prop_flag, proj_gap, kal_k, o_k_rate, projected_k):
+    """K-prop signal note: proj_gap (proj_k - Kalshi implied line) > 0.5."""
     if not k_prop_flag:
         return None
     ok_s  = f"{o_k_rate*100:.1f}%" if o_k_rate else '—'
-    kp_s  = f" — proj ~{projected_k} K" if projected_k else ''
-    sc_s  = f"{kc_score:+.3f}" if kc_score is not None else '—'
-    return (f'K-PROP: K-composite score {sc_s} (threshold {K_COMP_THRESH}) vs opp K-rate {ok_s}{kp_s}. '
-            f'Research (U1.5 only): 2025 n=138 +0.71K 60% beat; 2026 OOS n=44 +0.67K 66%; '
-            f'combined p=0.0000. Eyeball K prop vs proj above. NOT a validated bet signal.')
+    pk_s  = f"{projected_k:.1f}" if projected_k else '—'
+    gap_s = f"{proj_gap:+.1f}" if proj_gap is not None else '—'
+    if kal_k and kal_k.get('implied_line') is not None:
+        line_s   = str(kal_k['implied_line'])
+        strike_s = str(kal_k.get('bet_threshold', '—'))
+        bid_s    = f"{kal_k['yes_bid']}¢" if kal_k.get('yes_bid') else '—'
+        return (f'K-PROP (KALSHI): proj={pk_s}K vs Kalshi line={line_s}, gap={gap_s}. '
+                f'BUY "Yes {strike_s}+ Ks" at {bid_s}. Opp K-rate {ok_s}. '
+                f'2026 OOS: proj_gap>0.5 = 59.5% over (n=417).')
+    return f'K-PROP: proj={pk_s}K, gap={gap_s} (no Kalshi line found). Opp K-rate {ok_s}.'
 
 
 def _off_note(off_q3_gate, gate_reason, pinnacle_point):
@@ -1446,6 +1451,8 @@ KALSHI_JOINT_SERIES = "KXMLBTOTAL"
 KALSHI_TEAM_SERIES  = "KXMLBTEAMTOTAL"
 KALSHI_MON = {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
 KALSHI_ABB = {'AZ': 'ARI'}    # Kalshi uses AZ; we use ARI (NAME_TO_ABB). Everything else matches.
+KALSHI_KS_SERIES = "KXMLBKS"  # pitcher strikeout prop ladder
+KALSHI_KS_TTL    = 3600        # 1h — prices move as game time approaches
 
 
 def _kalshi_get(path, **params):
@@ -1578,6 +1585,106 @@ def get_kalshi_lines(games, force=False):
         print(f"Kalshi cache write error: {e}")
     print(f"Kalshi: {len(joint)} joint game(s), {len(team)} team-total entries")
     return joint, team
+
+
+def get_kalshi_k_props(games, force=False):
+    """Pitcher strikeout props from Kalshi KXMLBKS series.
+    Returns {pair_key: {pitcher_name_lower: {implied_line, bet_threshold, yes_bid, yes_ask}}}.
+    pair_key = '|'.join(sorted([home_abb, away_abb])).
+    pitcher_name_lower = 'first last' lowercase (e.g. 'roki sasaki').
+    implied_line = floor_strike (Kalshi decimal) where yes_bid_dollars crosses 0.50.
+    yes_bid is in cents (0-100).  ({}, {}) on any error."""
+    if not games:
+        return {}
+    import json as _json
+    today_et  = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+    cache_key = f"ozzie:kalshi_ks:{today_et}"
+    if not force:
+        cached = redis_get(cache_key)
+        if cached:
+            try:
+                return _json.loads(cached)
+            except Exception:
+                pass
+    out = {}
+    try:
+        all_events, cursor = [], None
+        while True:
+            js = _kalshi_get('/events', series_ticker=KALSHI_KS_SERIES, status='open', limit=200,
+                             **({'cursor': cursor} if cursor else {}))
+            all_events.extend(js.get('events', []))
+            cursor = js.get('cursor')
+            if not cursor:
+                break
+        for ev in all_events:
+            meta = _kalshi_event_meta(ev)
+            if not meta or meta[0] != today_et:
+                continue
+            _, a, b = meta
+            pk = '|'.join(sorted([a, b]))
+            markets = _kalshi_event_markets(ev['event_ticker'])
+            pitcher_ladders = {}  # {name_lower: [(floor_strike, yes_bid_dollars, yes_ask_dollars)]}
+            for m in markets:
+                title = m.get('yes_sub_title') or m.get('title', '')
+                if ':' not in title:
+                    continue
+                name_lower = title.split(':')[0].strip().lower()
+                try:
+                    floor = float(m.get('floor_strike') or 0)
+                except (TypeError, ValueError):
+                    continue
+                if floor <= 0:
+                    continue
+                def _fv(v):
+                    try: return float(v) if v not in (None, '') else None
+                    except: return None
+                pitcher_ladders.setdefault(name_lower, []).append(
+                    (floor, _fv(m.get('yes_bid_dollars')), _fv(m.get('yes_ask_dollars'))))
+            for name_lower, ladder in pitcher_ladders.items():
+                ladder.sort(key=lambda x: x[0])
+                # Implied line: highest floor_strike where yes_bid >= 0.50
+                implied_line = None
+                for fl, yb, ya in ladder:
+                    if yb is not None and yb >= 0.50:
+                        implied_line = fl
+                if implied_line is None and ladder:
+                    implied_line = ladder[0][0] - 1.0
+                # Best bet: lowest floor_strike where yes_bid just dropped below 0.50
+                best = next(((fl, yb, ya) for fl, yb, ya in ladder
+                             if yb is not None and yb < 0.50 and yb >= 0.10), None)
+                if implied_line is None:
+                    continue
+                out.setdefault(pk, {})[name_lower] = {
+                    'implied_line':  implied_line,
+                    'bet_threshold': int(best[0] + 1) if best else None,
+                    'yes_bid':       round(best[1] * 100) if best and best[1] else None,
+                    'yes_ask':       round(best[2] * 100) if best and best[2] else None,
+                }
+    except Exception as e:
+        print(f"Kalshi K props fetch error: {e}")
+    try:
+        redis_set(cache_key, _json.dumps(out), ex=KALSHI_KS_TTL)
+    except Exception as e:
+        print(f"Kalshi K props cache write error: {e}")
+    print(f"Kalshi K props: {sum(len(v) for v in out.values())} pitcher props across {len(out)} games")
+    return out
+
+
+def _lookup_kalshi_k(kalshi_k_props, pair_key, pitcher_name):
+    """Match a pitcher (MLB 'First Last' format) to their Kalshi K prop entry.
+    Falls back to last-name match for accented / hyphenated names.
+    Returns the prop dict or None if not found."""
+    game_props = kalshi_k_props.get(pair_key, {})
+    if not game_props or not pitcher_name or pitcher_name == 'TBD':
+        return None
+    name_lower = pitcher_name.strip().lower()
+    if name_lower in game_props:
+        return game_props[name_lower]
+    last = name_lower.split()[-1]
+    for key, val in game_props.items():
+        if key.split()[-1] == last:
+            return val
+    return None
 
 
 def _pick_kalshi(ladder, target_pt):
@@ -1854,6 +1961,13 @@ def get_tracking_only_flags(games, force=False):
         print(f"Kalshi lookup error: {e}")
         kalshi_joint, kalshi_team = {}, {}
 
+    # Kalshi pitcher K prop ladder — drives the k_prop_only signal (proj_gap > 0.5).
+    try:
+        kalshi_k_props = get_kalshi_k_props(games, force=force)
+    except Exception as e:
+        print(f"Kalshi K props lookup error: {e}")
+        kalshi_k_props = {}
+
     # See "SAFETY FALLBACK" note above get_odds_api_lines: only gate on Pinnacle if a live odds
     # feed is actually configured. Without this, a missing/unset ODDS_API_KEY would silently
     # suppress every tracking flag instead of just not gating them -- same failure shape as the
@@ -1953,23 +2067,35 @@ def get_tracking_only_flags(games, force=False):
                 else:
                     fg_suppressed += 1
 
-            # K-composite computed before the gate so it can act as an independent pass-through.
+            # K-composite kept for historical tracking only; no longer drives the signal.
             _kc = k_composite_score(
                 pq_info['k_rate']  if pq_info else None,
                 pq_info['bb_rate'] if pq_info else None,
                 pq_info['hr_rate'] if pq_info else None,
                 off_info.get('o_k_rate') if off_info else None,
             )
-            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
 
-            if not pq_q4 and not off_q3_gate and not _kc_flag:
+            # K-prop signal: proj_gap = proj_k − Kalshi implied line > 0.5 (June 26, 2026).
+            # 2026 OOS: proj_gap>0.5 → 59.5% over (n=417). Replaces the kc_composite gate.
+            _proj_k_val = project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                             off_info['o_k_rate'] if off_info else None,
+                                             pq_info.get('exp_bf') if pq_info else None)
+            _away_abb_ks = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
+            _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
+            _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
+            _proj_gap    = (round(_proj_k_val - _kal_k['implied_line'], 2)
+                            if _proj_k_val and _kal_k and _kal_k.get('implied_line') is not None
+                            else None)
+            _k_prop_signal = bool(_proj_gap is not None and _proj_gap > 0.5)
+
+            if not pq_q4 and not off_q3_gate and not _k_prop_signal:
                 continue
 
             # ── PINNACLE GATE ── surface this candidate if Pinnacle's posted F5 line for this
             # team is exactly 1.5 (see PINNACLE GATE notes above get_odds_api_lines), OR if the
             # line is 2.5+ AND the game is in a hitter-favorable park (PARK_GATE_TEAMS, see notes
             # above that constant) -- the validated park-inflated-line exception.
-            # K-composite-only flags bypass this gate: they're betting Ks, not the F5 total.
+            # K-prop-only flags bypass this gate: they're betting Ks on Kalshi, not the F5 total.
             team_abb       = NAME_TO_ABB.get(batting_team, batting_team)
             team_odds      = team_lines.get(team_abb, {})
             pinnacle_point = team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
@@ -1995,7 +2121,7 @@ def get_tracking_only_flags(games, force=False):
                 'fielding_team':    fielding_team,
                 'pitcher_name':     pitcher_name,
                 'pitcher_id':       pitcher_id,
-                'signal':           'pitcher_quality_only' if pq_q4 else ('k_prop_only' if (_kc_flag and not off_q3_gate) else 'offense_quality_only'),
+                'signal':           'pitcher_quality_only' if pq_q4 else ('k_prop_only' if (_k_prop_signal and not off_q3_gate) else 'offense_quality_only'),
                 'game_time':        game.get('game_time'),
                 'pq_score':         pq_info['score']      if pq_info else None,
                 'pq_percentile':    pq_info['percentile'] if pq_info else None,
@@ -2003,27 +2129,19 @@ def get_tracking_only_flags(games, force=False):
                 'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
-                # informational log5 K projection for this starter vs the lineup he faces (off_info
-                # is the batting_team's lineup quality computed above). Not a bet signal.
-                'projected_k':      project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                       off_info['o_k_rate'] if off_info else None,
-                                                       pq_info.get('exp_bf') if pq_info else None),
+                'projected_k':      _proj_k_val,
                 'pq_q4':            pq_q4,
-                # K-prop tracking flag: K-composite model (OLS on proj_error, 2025-trained, 2026 OOS
-                # validated). Fires when composite >= K_COMP_THRESH (80th pctile from 2025).
-                # o_k_rate is the dominant term so the threshold implicitly requires a high-K lineup.
-                # Research: 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; combined p=0.0000.
-                # Eyeball K prop vs projected_k — no automated odds pull yet.
+                # K-prop signal: proj_gap > 0.5 using Kalshi KXMLBKS implied line (June 26, 2026).
+                # k_comp_score kept for historical reference but no longer drives the flag.
                 'k_comp_score':     _kc,
-                'k_prop_flag':      _kc_flag,
-                'k_prop_note':      _kprop_note(_kc_flag, _kc,
+                'k_prop_flag':      _k_prop_signal,
+                'k_prop_gap':       _proj_gap,
+                'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
+                'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
+                'kalshi_k_yes_bid': _kal_k.get('yes_bid') if _kal_k else None,
+                'k_prop_note':      _kprop_note(_k_prop_signal, _proj_gap, _kal_k,
                                                 off_info.get('o_k_rate') if off_info else None,
-                                                project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                                   off_info['o_k_rate'] if off_info else None,
-                                                                   pq_info.get('exp_bf') if pq_info else None)),
-                # 0 (or very low relative to the K phantom-BF of 70) means this pitcher's score is
-                # mostly/entirely the stale career prior, not a real current-season blend -- check
-                # this before trusting a flag. See the Nola incident, June 2026.
+                                                _proj_k_val),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
@@ -2407,7 +2525,16 @@ def get_heatmap_flags(games, model):
                 pq_info['hr_rate'] if pq_info else None,
                 off_info.get('o_k_rate') if off_info else None,
             )
-            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
+            _proj_k_val2 = project_starter_ks(pq_info['k_rate'] if pq_info else None,
+                                              off_info['o_k_rate'] if off_info else None,
+                                              pq_info.get('exp_bf') if pq_info else None)
+            _away_abb_ks2 = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
+            _pk_ks2       = '|'.join(sorted([home_abb, _away_abb_ks2]))
+            _kal_k2       = _lookup_kalshi_k(kalshi_k_props, _pk_ks2, pitcher_name)
+            _proj_gap2    = (round(_proj_k_val2 - _kal_k2['implied_line'], 2)
+                             if _proj_k_val2 and _kal_k2 and _kal_k2.get('implied_line') is not None
+                             else None)
+            _k_prop_signal2 = bool(_proj_gap2 is not None and _proj_gap2 > 0.5)
 
             flag = {
                 'game':             game_str,
@@ -2434,35 +2561,26 @@ def get_heatmap_flags(games, model):
                 'fg_in_window':     fg_flag['in_valid_window'],
                 'fg_reason':        fg_flag['reason'],
                 'game_time':        game.get('game_time'),
-                # Pitcher Quality Composite — tracking only, NOT validated for betting.
-                # Only meaningful if today's actual F5 line for this matchup is 1.5 (check manually —
-                # this app does not fetch live lines). 2026 OOS is weak/not significant overall;
-                # see PQ_WEIGHTS comment block above for full validation status.
                 'pq_score':         pq_info['score']      if pq_info else None,
                 'pq_percentile':    pq_info['percentile'] if pq_info else None,
                 'pq_quartile':      pq_info['quartile']   if pq_info else None,
                 'pq_k_rate':        pq_info['k_rate']      if pq_info else None,
                 'pq_bb_rate':       pq_info['bb_rate']     if pq_info else None,
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
-                # informational log5 K projection for this starter vs the lineup he faces (off_info
-                # is the batting_team's lineup quality computed above). Not a bet signal.
-                'projected_k':      project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                       off_info['o_k_rate'] if off_info else None,
-                                                       pq_info.get('exp_bf') if pq_info else None),
+                'projected_k':      _proj_k_val2,
                 'pq_q4':            pq_q4,
                 'k_comp_score':     _kc,
-                'k_prop_flag':      _kc_flag,
-                'k_prop_note':      _kprop_note(_kc_flag, _kc,
+                'k_prop_flag':      _k_prop_signal2,
+                'k_prop_gap':       _proj_gap2,
+                'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
+                'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
+                'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,
+                'k_prop_note':      _kprop_note(_k_prop_signal2, _proj_gap2, _kal_k2,
                                                 off_info.get('o_k_rate') if off_info else None,
-                                                project_starter_ks(pq_info['k_rate'] if pq_info else None,
-                                                                   off_info['o_k_rate'] if off_info else None,
-                                                                   pq_info.get('exp_bf') if pq_info else None)),
+                                                _proj_k_val2),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
-                # Offense Quality Composite — tracking only, NOT validated for betting.
-                # Only meaningful if today's actual F5 line for THIS batting team is 1.5 (check
-                # manually). See OFF_PHANTOM comment block above for full validation status.
                 'off_pctile':       off_info['off_pctile'] if off_info else None,
                 'off_bb_rate':      off_info['o_bb_rate']  if off_info else None,
                 'off_q3_gate':      off_q3_gate,
@@ -3197,17 +3315,20 @@ def append_pq_to_sheet(flags):
 KPROP_SHEET_TAB    = 'KProp'
 KPROP_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name',
-    'k_comp_score',                  # K-composite value (threshold = K_COMP_THRESH = 0.5839)
-    'o_k_rate',                      # opposing lineup K-rate (dominant composite term)
-    'p_k_rate', 'p_bb_rate', 'p_hr_rate',  # pitcher blended inputs to composite
-    'projected_k',                   # informational K projection vs this lineup
+    'projected_k',                   # log5 K projection (proj_k)
+    'kalshi_k_line',                 # Kalshi KXMLBKS implied line (floor_strike at 50¢)
+    'k_prop_gap',                    # proj_k − kalshi_k_line (signal fires when > 0.5)
+    'kalshi_k_strike',               # recommended bet threshold (N+ Ks to buy Yes on)
+    'kalshi_k_yes_bid',              # yes_bid at that strike in cents
+    'o_k_rate',                      # opposing lineup K-rate
+    'p_k_rate', 'p_bb_rate', 'p_hr_rate',
+    'k_comp_score',                  # legacy K-composite (no longer drives signal)
     'game_time',
     'pinnacle_line', 'pinnacle_odds',
     'draftkings_line', 'draftkings_odds',
     'thescore_line', 'thescore_odds',
-    'k_prop_line',                   # posted K prop line — fill in manually
     'actual_k',                      # actual Ks thrown — fill in after game
-    'k_hit',                         # 1 if actual_k > k_prop_line — fill in after game
+    'k_hit',                         # 1 if actual_k >= kalshi_k_strike — fill in after game
     'game_id',
 ]
 
@@ -3241,12 +3362,17 @@ def append_kprop_to_sheet(flags):
             off = f.get('odds_lines') or {}
             ws.append_row([
                 today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
-                round(kc, 4) if kc is not None else '',
+                f.get('projected_k', ''),
+                f.get('kalshi_k_line', ''),
+                f.get('k_prop_gap', ''),
+                f.get('kalshi_k_strike', ''),
+                f.get('kalshi_k_yes_bid', ''),
                 round(f.get('o_k_rate') or 0, 4) or '',
                 f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
-                f.get('projected_k', ''), f.get('game_time', ''),
+                round(kc, 4) if kc is not None else '',
+                f.get('game_time', ''),
                 *_lo('pinnacle'), *_lo('draftkings'), *_lo('thescore'),
-                '', '', '',  # k_prop_line / actual_k / k_hit — filled manually
+                '', '',  # actual_k / k_hit — filled manually
                 f.get('game_id', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
