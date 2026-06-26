@@ -566,7 +566,7 @@
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
       ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${f.o_k_rate != null ? (f.o_k_rate >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : 'informational'}, not a bet</span></div>` : ''}
-      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP FLAG — K-composite ${f.k_comp_score != null ? (f.k_comp_score >= 0 ? '+' : '') + f.k_comp_score.toFixed(3) : ''} (threshold +0.584). <span style="font-weight:normal;color:var(--muted)">2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; p=0.0000. Eyeball K prop vs proj above.</span></div>` : ''}
+      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP (KALSHI) — proj ${f.projected_k != null ? f.projected_k.toFixed(1) : '—'}K vs line ${f.kalshi_k_line != null ? f.kalshi_k_line : '—'}, gap ${f.k_prop_gap != null ? (f.k_prop_gap>=0?'+':'')+f.k_prop_gap.toFixed(1) : '—'}. <span style="font-weight:normal">${f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null ? `BUY Yes ${f.kalshi_k_strike}+ Ks @ ${f.kalshi_k_yes_bid}¢` : ''}</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
@@ -578,27 +578,32 @@
     card.className = 'pq-card';
     card.style.animationDelay = `${i * 0.06}s`;
     card.style.borderColor = 'rgba(240,165,0,.4)';
-    const kc = f.k_comp_score != null ? (f.k_comp_score >= 0 ? '+' : '') + f.k_comp_score.toFixed(4) : '—';
     const ok = f.o_k_rate;
     const lineupLabel = ok != null ? (ok >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : '';
-    const kpHtml = f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${lineupLabel}, not a bet</span></div>` : '';
+    const gap = f.k_prop_gap != null ? (f.k_prop_gap >= 0 ? '+' : '') + f.k_prop_gap.toFixed(1) : '—';
+    const gapColor = f.k_prop_gap != null && f.k_prop_gap > 0.5 ? '#4caf50' : '#f0a500';
+    const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
+    const projK = f.projected_k != null ? f.projected_k.toFixed(1) : '—';
+    const betStr = (f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null)
+      ? `BUY Yes <b>${f.kalshi_k_strike}+ Ks</b> @ ${f.kalshi_k_yes_bid}¢`
+      : (f.kalshi_k_strike != null ? `Yes ${f.kalshi_k_strike}+ Ks` : '—');
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal" style="font-size:1rem;color:#f0a500">🎯 K-PROP</div>
-          <div class="hm-sigma">comp ${kc}</div>
+          <div class="hm-signal" style="font-size:1rem;color:#f0a500">🎯 K-PROP (KALSHI)</div>
+          <div class="hm-sigma" style="color:${gapColor}">gap ${gap}</div>
         </div>
       </div>
       <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
-        <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
+        <div><div class="hm-stat-label">Proj K / Kalshi Line</div><div class="hm-stat-value">${projK} / ${kalshiLine}</div></div>
         <div><div class="hm-stat-label">Opp K%</div><div class="hm-stat-value">${ok != null ? (ok*100).toFixed(1)+'%' : '—'}</div></div>
       </div>
-      ${kpHtml}
-      <div class="pq-detail" style="margin-top:6px;color:var(--muted);font-size:.6rem">K composite threshold: +0.584 (80th pctile 2025). 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; p&lt;0.0001. Eyeball K prop vs projection above.</div>
+      <div class="pq-detail" style="margin-top:8px;color:#f0a500;font-weight:600">${betStr}</div>
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">proj_gap &gt; 0.5 → 59.5% over (2026 OOS n=417). Bet on Kalshi KXMLBKS.</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }
