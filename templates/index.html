@@ -566,7 +566,7 @@
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
       ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${f.o_k_rate != null ? (f.o_k_rate >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : 'informational'}, not a bet</span></div>` : ''}
-      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP (KALSHI) — proj ${f.projected_k != null ? f.projected_k.toFixed(1) : '—'}K vs line ${f.kalshi_k_line != null ? f.kalshi_k_line : '—'}, gap ${f.k_prop_gap != null ? (f.k_prop_gap>=0?'+':'')+f.k_prop_gap.toFixed(1) : '—'}. <span style="font-weight:normal">${f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null ? `BUY Yes ${f.kalshi_k_strike}+ Ks @ ${f.kalshi_k_yes_bid}¢` : ''}</span></div>` : ''}
+      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP (KALSHI) — proj ${f.projected_k != null ? f.projected_k.toFixed(1) : '—'}K vs line ${f.kalshi_k_line != null ? f.kalshi_k_line : '—'}, gap ${f.k_prop_gap != null ? (f.k_prop_gap>=0?'+':'')+f.k_prop_gap.toFixed(1) : '—'}. <span style="font-weight:normal">${f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null ? `BUY Yes ${f.kalshi_k_strike}+ Ks (${f.kalshi_k_yes_bid >= 50 ? '-'+Math.round(f.kalshi_k_yes_bid/(100-f.kalshi_k_yes_bid)*100) : '+'+Math.round((100-f.kalshi_k_yes_bid)/f.kalshi_k_yes_bid*100)})` : ''}</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
@@ -584,8 +584,14 @@
     const gapColor = f.k_prop_gap != null && f.k_prop_gap > 0.5 ? '#4caf50' : '#f0a500';
     const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
     const projK = f.projected_k != null ? f.projected_k.toFixed(1) : '—';
-    const betStr = (f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null)
-      ? `BUY Yes <b>${f.kalshi_k_strike}+ Ks</b> @ ${f.kalshi_k_yes_bid}¢`
+    function centToAmerican(c) {
+      if (c == null) return null;
+      const p = c / 100;
+      return p >= 0.50 ? '-' + Math.round(p / (1 - p) * 100) : '+' + Math.round((1 - p) / p * 100);
+    }
+    const americanOdds = centToAmerican(f.kalshi_k_yes_bid);
+    const betStr = (f.kalshi_k_strike != null && americanOdds != null)
+      ? `BUY Yes <b>${f.kalshi_k_strike}+ Ks</b> (${americanOdds})`
       : (f.kalshi_k_strike != null ? `Yes ${f.kalshi_k_strike}+ Ks` : '—');
     card.innerHTML = `
       <div class="hm-top">
