@@ -248,31 +248,24 @@ def get_pitcher_quality_population(force=False):
     if len(blended) < 10:
         return {}
 
-    # Reference distribution (mean/std/percentile ranking) is computed from STARTERS ONLY —
-    # the prior pool is ~60% relievers (different K/BB rate profile), and the validated research
-    # quartile was defined among actual starting pitchers in 1.5-line games, not all of MLB.
-    # Mixing relievers into the reference population measurably shifts the Q4 cutoff (verified
-    # June 2026: ~1.7% of starters flip Q4 status between the two methods). Every pitcher still
-    # gets scored/blended the same way — only the comparison population is restricted here.
-    starter_ids = [pid for pid in blended if _pq_prior.get(pid, {}).get('is_starter')]
-    ref_pool    = starter_ids if len(starter_ids) >= 10 else list(blended.keys())
-
-    means  = {stat: sum(blended[pid][stat] for pid in ref_pool) / len(ref_pool) for stat in ('k_rate', 'bb_rate', 'hr_rate')}
-    stds   = {stat: (sum((blended[pid][stat] - means[stat]) ** 2 for pid in ref_pool) / len(ref_pool)) ** 0.5
-              for stat in ('k_rate', 'bb_rate', 'hr_rate')}
+    # fip_like = -2*k + 3*bb + 13*hr (lower = better pitcher), ranked against all pitchers.
+    # Replaced the weighted z-score with starters-only reference pool (June 26, 2026): the
+    # starters-only cutoff shifted Q4 enough to capture ~61 extra starts at -33% ROI that the
+    # all-pitcher fip_like ranking excluded (backtest_live_model.py, 2026 OOS comparison).
+    ref_pool = list(blended.keys())
 
     def compute_score(b):
-        z = {stat: (b[stat] - means[stat]) / stds[stat] if stds[stat] > 0 else 0.0
-             for stat in ('k_rate', 'bb_rate', 'hr_rate')}
-        return PQ_WEIGHTS['k'] * z['k_rate'] + PQ_WEIGHTS['bb'] * z['bb_rate'] + PQ_WEIGHTS['hr'] * z['hr_rate']
+        return -2 * b['k_rate'] + 3 * b['bb_rate'] + 13 * b['hr_rate']
 
+    # Sort ascending (lowest fip_like = best pitcher). pctile = fraction with a HIGHER (worse)
+    # fip_like value, so higher pctile = better pitcher, Q4 = top quintile (pctile >= 80).
     ref_scores_sorted = sorted(compute_score(blended[pid]) for pid in ref_pool)
     n_ref = len(ref_scores_sorted)
 
     population = {}
     for pid, b in blended.items():
         score  = compute_score(b)
-        pctile = 100.0 * bisect.bisect_left(ref_scores_sorted, score) / n_ref if n_ref > 1 else 50.0
+        pctile = 100.0 * (n_ref - bisect.bisect_right(ref_scores_sorted, score)) / n_ref if n_ref > 1 else 50.0
         population[pid] = {
             'score':       round(score, 4),
             'percentile':  round(pctile, 1),
@@ -1960,19 +1953,29 @@ def get_tracking_only_flags(games, force=False):
                 else:
                     fg_suppressed += 1
 
-            if not pq_q4 and not off_q3_gate:
+            # K-composite computed before the gate so it can act as an independent pass-through.
+            _kc = k_composite_score(
+                pq_info['k_rate']  if pq_info else None,
+                pq_info['bb_rate'] if pq_info else None,
+                pq_info['hr_rate'] if pq_info else None,
+                off_info.get('o_k_rate') if off_info else None,
+            )
+            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
+
+            if not pq_q4 and not off_q3_gate and not _kc_flag:
                 continue
 
             # ── PINNACLE GATE ── surface this candidate if Pinnacle's posted F5 line for this
             # team is exactly 1.5 (see PINNACLE GATE notes above get_odds_api_lines), OR if the
             # line is 2.5+ AND the game is in a hitter-favorable park (PARK_GATE_TEAMS, see notes
             # above that constant) -- the validated park-inflated-line exception.
+            # K-composite-only flags bypass this gate: they're betting Ks, not the F5 total.
             team_abb       = NAME_TO_ABB.get(batting_team, batting_team)
             team_odds      = team_lines.get(team_abb, {})
             pinnacle_point = team_odds.get(PINNACLE_BOOK_LABEL, {}).get('point')
             park_exception = (pinnacle_point is not None and pinnacle_point >= PARK_GATE_MIN_POINT
                                and home_abb in PARK_GATE_TEAMS)
-            if pinnacle_gate_active and pinnacle_point != 1.5 and not park_exception:
+            if (pq_q4 or off_q3_gate) and pinnacle_gate_active and pinnacle_point != 1.5 and not park_exception:
                 if pinnacle_point is None:
                     pinnacle_suppressed_missing += 1
                 else:
@@ -1985,14 +1988,6 @@ def get_tracking_only_flags(games, force=False):
                             'park_exception' if (park_exception and pinnacle_point != 1.5) else
                             'line_1_5')
 
-            _kc = k_composite_score(
-                pq_info['k_rate']  if pq_info else None,
-                pq_info['bb_rate'] if pq_info else None,
-                pq_info['hr_rate'] if pq_info else None,
-                off_info.get('o_k_rate') if off_info else None,
-            )
-            _kc_flag = bool(_kc is not None and _kc >= K_COMP_THRESH)
-
             flag = {
                 'game':             game_str,
                 'game_id':          game.get('game_id'),
@@ -2000,7 +1995,7 @@ def get_tracking_only_flags(games, force=False):
                 'fielding_team':    fielding_team,
                 'pitcher_name':     pitcher_name,
                 'pitcher_id':       pitcher_id,
-                'signal':           'pitcher_quality_only' if pq_q4 else 'offense_quality_only',
+                'signal':           'pitcher_quality_only' if pq_q4 else ('k_prop_only' if (_kc_flag and not off_q3_gate) else 'offense_quality_only'),
                 'game_time':        game.get('game_time'),
                 'pq_score':         pq_info['score']      if pq_info else None,
                 'pq_percentile':    pq_info['percentile'] if pq_info else None,
@@ -2266,9 +2261,11 @@ def get_tracking_only_flags(games, force=False):
     # Fixed here by including it.
     pq_only_flags       = sorted([f for f in flags if f['signal'] == 'pitcher_quality_only'],
                                   key=lambda x: x.get('pq_percentile', 0), reverse=True)
+    kprop_only_flags    = sorted([f for f in flags if f['signal'] == 'k_prop_only'],
+                                  key=lambda x: x.get('k_comp_score') or 0, reverse=True)
     f5_over_only_flags  = [f for f in flags if f['signal'] == 'f5_tt_over']
     off_fade_only_flags = [f for f in flags if f['signal'] == 'fg_joint_off_under']
-    result = pq_only_flags + f5_over_only_flags + off_fade_only_flags
+    result = pq_only_flags + kprop_only_flags + f5_over_only_flags + off_fade_only_flags
     return [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
 
 
@@ -2826,6 +2823,7 @@ def build_picks_payload(today, games, heatmap_flags):
     fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
+    kprop_only_flags = [f for f in heatmap_flags if f.get('signal') == 'k_prop_only']
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
@@ -2849,6 +2847,7 @@ def build_picks_payload(today, games, heatmap_flags):
         'fg_under_flags':    fg_under_flags,
         'over_info_flags':   over_info_flags,
         'pq_flags':          pq_flags,
+        'kprop_only_flags':  kprop_only_flags,
         'off_flags':         off_flags,
         'joint_flags':       joint_flags,
         'fg_tt_flags':       fg_tt_flags,
@@ -4133,7 +4132,7 @@ def api_notify():
         f5_over_flags = [f for f in flags if f.get('signal') == 'f5_tt_over']
         fg_joint_flags = [f for f in flags if f.get('signal') == 'fg_joint_total']
         off_fade_flags = [f for f in flags if f.get('signal') == 'fg_joint_off_under']
-        if not (under_flags or pq_flags or off_flags or joint_flags or fg_tt_flags
+        if not (under_flags or pq_flags or kprop_flags or off_flags or joint_flags or fg_tt_flags
                 or f5_over_flags or fg_joint_flags or off_fade_flags):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
@@ -4155,8 +4154,8 @@ def api_notify():
         new_f5_over = [f for f in f5_over_flags if flag_key(f) not in already_sent]
         new_fg_joint = [f for f in fg_joint_flags if flag_key(f) not in already_sent]
         new_off_fade = [f for f in off_fade_flags if flag_key(f) not in already_sent]
-        if not (new_under or new_pq or new_off or new_joint or new_fg_tt or new_f5_over
-                or new_fg_joint or new_off_fade):
+        if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
+                or new_f5_over or new_fg_joint or new_off_fade):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
@@ -4222,6 +4221,27 @@ def api_notify():
             print(f"PQ Telegram suppression: {len(new_pq_stale)} flag(s) held back for stale prior "
                   f"(current-season BF < {PQ_BF_STALE_THRESHOLD}): "
                   f"{[(f.get('pitcher_name'), f.get('pq_current_bf')) for f in new_pq_stale]}")
+
+        # Standalone K-prop flags (k_prop_only signal — fires without pq_q4/off_q3_gate).
+        new_kprop_only = [f for f in new_kprop if f.get('signal') == 'k_prop_only']
+        if new_kprop_only:
+            if len(lines) > 1:
+                lines.append("")
+            lines.append("🎯 <b>K-Prop Signal — STANDALONE (no U1.5 gate required)</b>")
+            lines.append(f"{len(new_kprop_only)} start(s) — K composite fires on its own. "
+                         "Research: 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; p&lt;0.0001\n")
+            for f in new_kprop_only:
+                kc  = f.get('k_comp_score')
+                ok  = f.get('o_k_rate')
+                kp  = f.get('projected_k')
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
+                kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
+                lines.append(
+                    f"🎯 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
+                    f"(K-comp {kc:+.4f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}%)"
+                    f"{kp_s}{time}"
+                )
 
         # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are
         # deliberately NOT built into the Telegram message below, per Zach (June 22, 2026) --
@@ -4351,13 +4371,14 @@ def api_notify():
                     | {flag_key(f) for f in new_off_fade})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
         return jsonify({'status': 'ok',
-                        'new': (len(new_under) + len(new_pq) + len(new_off) + len(new_joint)
-                                + len(new_fg_tt) + len(new_f5_over) + len(new_fg_joint)
-                                + len(new_off_fade)),
+                        'new': (len(new_under) + len(new_pq) + len(new_kprop) + len(new_off)
+                                + len(new_joint) + len(new_fg_tt) + len(new_f5_over)
+                                + len(new_fg_joint) + len(new_off_fade)),
                         'flags': ([flag_key(f) for f in new_under] + [flag_key(f) for f in new_pq]
-                                  + [flag_key(f) for f in new_off] + [flag_key(f) for f in new_joint]
-                                  + [flag_key(f) for f in new_fg_tt] + [flag_key(f) for f in new_f5_over]
-                                  + [flag_key(f) for f in new_fg_joint] + [flag_key(f) for f in new_off_fade])})
+                                  + [flag_key(f) for f in new_kprop] + [flag_key(f) for f in new_off]
+                                  + [flag_key(f) for f in new_joint] + [flag_key(f) for f in new_fg_tt]
+                                  + [flag_key(f) for f in new_f5_over] + [flag_key(f) for f in new_fg_joint]
+                                  + [flag_key(f) for f in new_off_fade])})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

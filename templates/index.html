@@ -180,6 +180,18 @@
     <div id="pq-list"></div>
   </div>
 </div>
+<div id="kprop-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="kprop-count"></div>
+      <div class="section-label" style="margin:0">🎯 K-Prop Signal (Standalone)
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0a500;margin-left:8px;text-transform:uppercase">Independent — No U1.5 Gate Required</span>
+      </div>
+    </div>
+    <div id="kprop-list"></div>
+  </div>
+</div>
 <div id="off-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -561,6 +573,36 @@
     return card;
   }
 
+  function buildKpropOnlyCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'pq-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.style.borderColor = 'rgba(240,165,0,.4)';
+    const kc = f.k_comp_score != null ? (f.k_comp_score >= 0 ? '+' : '') + f.k_comp_score.toFixed(4) : '—';
+    const ok = f.o_k_rate;
+    const lineupLabel = ok != null ? (ok >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : '';
+    const kpHtml = f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${lineupLabel}, not a bet</span></div>` : '';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#f0a500">🎯 K-PROP</div>
+          <div class="hm-sigma">comp ${kc}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">K / BB / HR</div><div class="hm-stat-value" style="font-size:.65rem">${(f.pq_k_rate*100).toFixed(1)}% / ${(f.pq_bb_rate*100).toFixed(1)}% / ${(f.pq_hr_rate*100).toFixed(1)}%</div></div>
+        <div><div class="hm-stat-label">Opp K%</div><div class="hm-stat-value">${ok != null ? (ok*100).toFixed(1)+'%' : '—'}</div></div>
+      </div>
+      ${kpHtml}
+      <div class="pq-detail" style="margin-top:6px;color:var(--muted);font-size:.6rem">K composite threshold: +0.584 (80th pctile 2025). 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; p&lt;0.0001. Eyeball K prop vs projection above.</div>
+      ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
+    return card;
+  }
+
   function buildOffCard(f, i) {
     const card = document.createElement('div');
     card.className = 'off-card';
@@ -730,7 +772,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','off-section','joint-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','off-section','joint-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -780,6 +822,15 @@
           document.getElementById('pq-count').textContent = `${pqFlags.length} Pitcher${pqFlags.length!==1?'s':''}`;
           pqFlags.forEach((f,i) => pqList.appendChild(buildPqCard(f,i)));
           document.getElementById('pq-section').style.display = 'block';
+        }
+
+        // ── K-Prop Standalone (k_prop_only signal — no U1.5 gate) ──────
+        const kpropList = document.getElementById('kprop-list'); kpropList.innerHTML='';
+        const kpropOnlyFlags = (data.kprop_only_flags||[]);
+        if (kpropOnlyFlags.length > 0) {
+          document.getElementById('kprop-count').textContent = `${kpropOnlyFlags.length} Start${kpropOnlyFlags.length!==1?'s':''}`;
+          kpropOnlyFlags.forEach((f,i) => kpropList.appendChild(buildKpropOnlyCard(f,i)));
+          document.getElementById('kprop-section').style.display = 'block';
         }
 
         // ── Offense Quality Composite (tracking only) ───────────────────
