@@ -280,6 +280,9 @@ def get_pitcher_quality_population(force=False):
             # this pitcher's expected batters-faced for a start (season BF/start, shrunk toward the
             # league-average outing) -- drives the K projection, see project_starter_ks.
             'exp_bf':      exp_bf_by_pid.get(pid, K_PROJ_EXPECTED_BF),
+            # season-to-date games started (point-in-time prior-start count, pregame). Gates the
+            # K-prop SHARP tier -- see KPROP_SHARP_MIN_STARTS.
+            'gs':          season.get(pid, {}).get('gs', 0),
         }
 
     print(f"Pitcher quality population built: {len(population)} pitchers, "
@@ -1098,6 +1101,14 @@ ODDS_KPROP_MARKET   = 'pitcher_strikeouts'
 KPROP_OVER_FAV_LO   = -160   # most negative over price still in the band
 KPROP_OVER_FAV_HI   = -120   # least negative (closest to even)
 KPROP_SHARP_F5_TOTAL = 2.0   # opp F5 total below this = 'sharp' tier
+# SHARP-pocket prior-start gate (June 27, 2026). Within the over-favorite pocket, the +12.8% ROI
+# is concentrated in pitchers with >= 7 prior starts this season (n=118, 68.6% over, +18.4%);
+# the <=3-prior slice is ~breakeven (-0.9%, n=50) and the out-of-pocket thin-prior plays bled
+# heavily (Mar/Apr -38%). The driver is estimate stability, not the pitcher: too few starts ->
+# noisy point-in-time rates. So a would-be SHARP play with < 7 prior starts is demoted to 'base'
+# (the signal still fires; it just loses the SHARP-conviction label). K-rate < 22% carries an
+# independent ~-8pt ROI drag even with stable priors (surfaced in the note, not gated).
+KPROP_SHARP_MIN_STARTS = 7
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
@@ -1201,16 +1212,20 @@ def _kprop_note(ofav, kal_k):
     bk     = ofav.get('best_book')
     line_s = f"{ofav['line']:g}" if ofav.get('line') is not None else '—'
     f5_s   = f"{ofav['opp_f5_total']:g}" if ofav.get('opp_f5_total') is not None else '—'
-    tier_s = 'SHARP (opp F5<2.0)' if ofav.get('tier') == 'sharp' else 'base'
+    tier_s = 'SHARP (opp F5<2.0, >=7 starts)' if ofav.get('tier') == 'sharp' else 'base'
     best_s = f"{best:+d} ({bk})" if best is not None else '—'
     kal_s  = ''
     if kal_k and kal_k.get('implied_line') is not None:
         kal_s = f" [ref: Kalshi line {kal_k['implied_line']}, {kal_k.get('yes_bid','—')}¢]"
+    thin_s = ''
+    if ofav.get('sharp_blocked_thin'):
+        thin_s = (f" [opp F5<2.0 but only {ofav.get('prior_starts')} prior starts (<7) — held at "
+                  f"base; point-in-time rates not yet stable, the SHARP premium needs >=7]")
     return (f'K-PROP OVER [{tier_s}] — TRACKING: BUY Over {line_s}K. '
             f'DK over {dk}, best {best_s}, {ofav.get("n_books", 0)} books. '
-            f'Opp F5 total {f5_s}.{kal_s} '
-            f'(2026 DK over-favorite bias: ~+9% ROI base / +18% sharp, replicates May+June; '
-            f'UNVALIDATED OOS — tracking only, shop the best over price.)')
+            f'Opp F5 total {f5_s}.{thin_s}{kal_s} '
+            f'(2026 DK over-favorite bias: ~+9% ROI base / +18% sharp [opp F5<2.0 & >=7 starts], '
+            f'replicates May+June; UNVALIDATED OOS — tracking only, shop the best over price.)')
 
 
 def _kprop_tg_bet(f):
@@ -1224,9 +1239,13 @@ def _kprop_tg_bet(f):
     book = f.get('kprop_best_book') or '—'
     f5   = f.get('kprop_opp_f5')
     best_s = f"{best:+d}" if best is not None else '—'
+    # surface why a low-F5 game is still 'base': too few prior starts for the SHARP premium
+    thin = ''
+    if f.get('kprop_sharp_blocked_thin'):
+        thin = f" (F5<2.0 but {f.get('kprop_prior_starts')} starts <7 — held at base)"
     return (f"🎯 K-PROP OVER {line if line is not None else '—'} [{tier}] — "
             f"DK {dk if dk is not None else '—'}, best {best_s} ({book}), "
-            f"opp F5 {f5 if f5 is not None else '—'}")
+            f"opp F5 {f5 if f5 is not None else '—'}{thin}")
 
 
 def _off_note(off_q3_gate, gate_reason, pinnacle_point):
@@ -1514,14 +1533,17 @@ def _kprop_norm_name(name):
     return ' '.join(n.lower().replace('.', '').split())
 
 
-def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines):
+def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_starts=None):
     """The rebuilt K-prop signal: bet the OVER when the book prices it a moderate favorite
     (KPROP_OVER_FAV_LO..HI on DraftKings, where the edge was measured), sharpened when the
-    opposing offense's F5 team total < KPROP_SHARP_F5_TOTAL.
+    opposing offense's F5 team total < KPROP_SHARP_F5_TOTAL AND the pitcher has >= 7 prior
+    starts this season (KPROP_SHARP_MIN_STARTS -- a would-be SHARP play with too few priors is
+    demoted to 'base' because its point-in-time rates aren't stable yet).
     Returns dict (always) with 'signal' bool + display fields, or signal=False if no qualifying
     over price. Classifies on DK; reports the BEST over price across books for the actual bet."""
     out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
-           'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0}
+           'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
+           'prior_starts': prior_starts, 'sharp_blocked_thin': False}
     books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
     if not books:
         return out
@@ -1552,7 +1574,12 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines):
     # classify on DK over price (the measured edge)
     if dk_over is not None and KPROP_OVER_FAV_LO <= dk_over <= KPROP_OVER_FAV_HI:
         out['signal'] = True
-        out['tier'] = 'sharp' if (opp_f5 is not None and opp_f5 < KPROP_SHARP_F5_TOTAL) else 'base'
+        f5_sharp = opp_f5 is not None and opp_f5 < KPROP_SHARP_F5_TOTAL
+        # prior-start gate: only demote when we positively know the count is too low. Unknown
+        # (prior_starts is None, e.g. missing current-season fetch) keeps the F5-based tier.
+        thin = prior_starts is not None and prior_starts < KPROP_SHARP_MIN_STARTS
+        out['sharp_blocked_thin'] = bool(f5_sharp and thin)
+        out['tier'] = 'sharp' if (f5_sharp and not thin) else 'base'
     return out
 
 
@@ -2221,7 +2248,8 @@ def get_tracking_only_flags(games, force=False):
             _away_abb_ks = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
             _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
-            _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines)
+            _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines,
+                                           prior_starts=pq_info.get('gs') if pq_info else None)
             _k_prop_signal = _ofav['signal']
             _kprop_diag['checked'] += 1
             if _kprop_norm_name(pitcher_name) in kprop_lines:
@@ -2285,6 +2313,8 @@ def get_tracking_only_flags(games, force=False):
                 'kprop_line':       _ofav['line'],
                 'kprop_opp_f5':     _ofav['opp_f5_total'],
                 'kprop_n_books':    _ofav['n_books'],
+                'kprop_prior_starts':      _ofav['prior_starts'],
+                'kprop_sharp_blocked_thin': _ofav['sharp_blocked_thin'],
                 'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
                 'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
                 'kalshi_k_yes_bid': _kal_k.get('yes_bid') if _kal_k else None,
@@ -2685,7 +2715,8 @@ def get_heatmap_flags(games, model):
                                               off_info['o_k_rate'] if off_info else None,
                                               pq_info.get('exp_bf') if pq_info else None)
             _kal_k2         = None
-            _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines)
+            _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines,
+                                              prior_starts=pq_info.get('gs') if pq_info else None)
             _k_prop_signal2 = _ofav2['signal']
 
             flag = {
@@ -2730,6 +2761,8 @@ def get_heatmap_flags(games, model):
                 'kprop_line':       _ofav2['line'],
                 'kprop_opp_f5':     _ofav2['opp_f5_total'],
                 'kprop_n_books':    _ofav2['n_books'],
+                'kprop_prior_starts':      _ofav2['prior_starts'],
+                'kprop_sharp_blocked_thin': _ofav2['sharp_blocked_thin'],
                 'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
                 'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
                 'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,
@@ -3492,6 +3525,8 @@ KPROP_SHEET_HEADER = [
     'actual_k',                      # actual Ks thrown — fill in after game
     'k_hit',                         # 1 if actual_k > kprop_line (over won) — fill in after game
     'game_id',
+    'kprop_prior_starts',            # season-to-date prior starts (SHARP needs >=7); appended last
+                                     # to avoid shifting the manually-filled actual_k/k_hit columns
 ]
 
 
@@ -3537,6 +3572,7 @@ def append_kprop_to_sheet(flags):
                 *_lo('pinnacle'), *_lo('draftkings'), *_lo('thescore'),
                 '', '',  # actual_k / k_hit — filled manually after game
                 f.get('game_id', ''),
+                f.get('kprop_prior_starts', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
             rows_added += 1
