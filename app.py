@@ -1510,14 +1510,26 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines):
     if not books:
         return out
     dk = books.get('DraftKings')
-    dk_over = dk['over'] if dk else None
-    # best (least-negative / highest-payout) over price across books for the actual wager
-    best_book = max(books, key=lambda b: books[b]['over'])
-    out.update({'dk_over': dk_over, 'best_over': books[best_book]['over'],
-                'best_book': best_book, 'line': (dk or books[best_book]).get('point'),
-                'n_books': len(books)})
-    # opposing offense's F5 team total (median across books offering it)
-    opp_pts = [v.get('point') for v in (team_lines.get(opp_team) or {}).values()
+    dk_over  = dk['over'] if dk else None
+    dk_line  = dk.get('point') if dk else None
+    # Shop the best over price ONLY among books posting the SAME line as DK. Comparing across
+    # different strikes is meaningless — e.g. over 4.5 at -157 vs another book's over 6.5 at +240
+    # are different bets, and naively taking max(price) recommended the +240 (a totally different
+    # prop). Fall back to DK if no other book matches the line.
+    same_line = {b: v for b, v in books.items()
+                 if dk_line is not None and v.get('point') == dk_line and v.get('over') is not None}
+    if same_line:
+        best_book = max(same_line, key=lambda b: same_line[b]['over'])
+        best_over = same_line[best_book]['over']
+    else:
+        best_book, best_over = ('DraftKings', dk_over) if dk_over is not None else (None, None)
+    out.update({'dk_over': dk_over, 'best_over': best_over, 'best_book': best_book,
+                'line': dk_line, 'n_books': len(same_line)})
+    # opposing offense's F5 team total (median across books). team_lines is keyed by ABBREVIATION
+    # ('BOS'); opp_team arrives as a full name ('Boston Red Sox') -> convert first, else it never
+    # resolves and the SHARP tier (opp F5 < 2.0) can never fire.
+    opp_abb = NAME_TO_ABB.get(opp_team, opp_team)
+    opp_pts = [v.get('point') for v in (team_lines.get(opp_abb) or {}).values()
                if v.get('point') is not None]
     opp_f5 = round(sorted(opp_pts)[len(opp_pts) // 2], 1) if opp_pts else None
     out['opp_f5_total'] = opp_f5
