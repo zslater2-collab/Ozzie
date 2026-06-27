@@ -1213,6 +1213,22 @@ def _kprop_note(ofav, kal_k):
             f'UNVALIDATED OOS — tracking only, shop the best over price.)')
 
 
+def _kprop_tg_bet(f):
+    """One-line K-prop OVER bet for Telegram, from a flag dict. Used both for standalone K-prop
+    pitchers and for pitchers that ALSO fired pitcher-quality (so the actual bet always shows
+    instead of a bare tag)."""
+    tier = 'SHARP' if f.get('k_prop_tier') == 'sharp' else 'base'
+    line = f.get('kprop_line')
+    dk   = f.get('kprop_dk_over')
+    best = f.get('kprop_best_over')
+    book = f.get('kprop_best_book') or '—'
+    f5   = f.get('kprop_opp_f5')
+    best_s = f"{best:+d}" if best is not None else '—'
+    return (f"🎯 K-PROP OVER {line if line is not None else '—'} [{tier}] — "
+            f"DK {dk if dk is not None else '—'}, best {best_s} ({book}), "
+            f"opp F5 {f5 if f5 is not None else '—'}")
+
+
 def _off_note(off_q3_gate, gate_reason, pinnacle_point):
     """off_note shown on the dashboard card -- same three states as _pq_note."""
     if not off_q3_gate:
@@ -4488,6 +4504,10 @@ def api_notify():
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
                     f"HR {f['pq_hr_rate']*100:.1f}%){kp_s}{time}"
                 )
+                # If this pitcher ALSO fired the K-prop over, show the actual bet inline (not just
+                # the tag) so dual-signal pitchers aren't missing their K-prop line/price.
+                if f.get('k_prop_flag'):
+                    lines.append(f"   {_kprop_tg_bet(f)}")
                 if odds:
                     lines.append(f"   {odds}")
         if new_pq_stale:
@@ -4505,19 +4525,8 @@ def api_notify():
                          "-120..-160; SHARP adds opp F5 total &lt;2.0). 2026 DK: ~+9% base / +18% "
                          "sharp ROI, replicates May+June. UNVALIDATED OOS — shop the best over price.\n")
             for f in new_kprop_only:
-                tier  = 'SHARP' if f.get('k_prop_tier') == 'sharp' else 'base'
-                line  = f.get('kprop_line')
-                dk    = f.get('kprop_dk_over')
-                best  = f.get('kprop_best_over')
-                book  = f.get('kprop_best_book') or '—'
-                f5    = f.get('kprop_opp_f5')
-                time  = f" — {f['game_time']}" if f.get('game_time') else ''
-                best_s = f"{best:+d}" if best is not None else '—'
-                lines.append(
-                    f"🎯 <b>{f['pitcher_name']}</b> [{tier}] — BUY Over {line if line is not None else '—'}K · "
-                    f"DK {dk if dk is not None else '—'}, best {best_s} ({book}) · opp F5 {f5 if f5 is not None else '—'}"
-                    f"{time}"
-                )
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                lines.append(f"<b>{f['pitcher_name']}</b> · {_kprop_tg_bet(f)}{time}")
 
         # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are
         # deliberately NOT built into the Telegram message below, per Zach (June 22, 2026) --
