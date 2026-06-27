@@ -4485,7 +4485,24 @@ def api_notify():
 
         lines = [f"🎯 <b>Ozzie — {today}</b>"]
 
+        # ── CONSOLIDATED K-PROP SECTION (top) — every start that fired the K-prop over, whether
+        # standalone (k_prop_only) or alongside Pitcher Quality (pq_q4). Moved to the top and merged
+        # June 27, 2026 per Zach (mostly following K props now) so all K plays live in one place;
+        # the PQ section below keeps the pitcher-quality context but no longer repeats the bet.
+        if new_kprop:
+            lines.append("🎯 <b>K-Prop OVER — TRACKING ONLY (not yet a validated bet signal)</b>")
+            lines.append(f"{len(new_kprop)} start(s) — over-favorite price bias (DK over -120..-160; "
+                         "SHARP adds opp F5 total &lt;2.0 AND ≥7 prior starts). 2026 DK: ~+9% base / "
+                         "+18% sharp ROI, replicates May+June. UNVALIDATED OOS — shop the best over price.\n")
+            for f in new_kprop:
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                also = ' · also 📊Q4' if f.get('pq_q4') else ''
+                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
+                             f"{_kprop_tg_bet(f)}{time}")
+
         if new_under:
+            if len(lines) > 1:
+                lines.append("")
             lines.append(f"{len(new_under)} new flag(s)\n")
             for f in new_under:
                 label = f.get('confidence_label', '—')
@@ -4534,16 +4551,14 @@ def api_notify():
                 ok   = f.get('o_k_rate')
                 lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
                 kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
-                kprop_tag = ' 🎯K-PROP' if f.get('k_prop_flag') else ''
+                kprop_tag = ' 🎯K-PROP↑' if f.get('k_prop_flag') else ''
                 lines.append(
                     f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag}{kprop_tag} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
                     f"HR {f['pq_hr_rate']*100:.1f}%){kp_s}{time}"
                 )
-                # If this pitcher ALSO fired the K-prop over, show the actual bet inline (not just
-                # the tag) so dual-signal pitchers aren't missing their K-prop line/price.
-                if f.get('k_prop_flag'):
-                    lines.append(f"   {_kprop_tg_bet(f)}")
+                # K-prop bet (if this pitcher also fired it) is now shown in the consolidated
+                # K-Prop section at the top; the 🎯K-PROP↑ tag above cross-references it.
                 if odds:
                     lines.append(f"   {odds}")
         if new_pq_stale:
@@ -4551,18 +4566,9 @@ def api_notify():
                   f"(current-season BF < {PQ_BF_STALE_THRESHOLD}): "
                   f"{[(f.get('pitcher_name'), f.get('pq_current_bf')) for f in new_pq_stale]}")
 
-        # Standalone K-prop flags (k_prop_only signal — fires without pq_q4/off_q3_gate).
-        new_kprop_only = [f for f in new_kprop if f.get('signal') == 'k_prop_only']
-        if new_kprop_only:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append("🎯 <b>K-Prop OVER — TRACKING ONLY (not yet a validated bet signal)</b>")
-            lines.append(f"{len(new_kprop_only)} start(s) — over-favorite price bias (DK over "
-                         "-120..-160; SHARP adds opp F5 total &lt;2.0). 2026 DK: ~+9% base / +18% "
-                         "sharp ROI, replicates May+June. UNVALIDATED OOS — shop the best over price.\n")
-            for f in new_kprop_only:
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                lines.append(f"<b>{f['pitcher_name']}</b> · {_kprop_tg_bet(f)}{time}")
+        # NOTE: the K-prop section was moved to the TOP of the message (consolidated, all K plays)
+        # June 27, 2026 — see the new_kprop block right after the header. The old standalone-only
+        # block here was removed so dual-signal (pq_q4) K plays aren't split across two sections.
 
         # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are
         # deliberately NOT built into the Telegram message below, per Zach (June 22, 2026) --
