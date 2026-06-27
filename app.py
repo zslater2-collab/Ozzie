@@ -2113,6 +2113,11 @@ def get_tracking_only_flags(games, force=False):
     # under, joint flagged over -> SEA alone should be an F5 TT over play, not a joint play).
     pq_under_fired_team = {}
 
+    # K-prop diagnostic (printed in the summary below) so a log paste confirms the signal at a
+    # glance: how many starters we checked, how many matched a sportsbook prop line (name match),
+    # how many fired the over-favorite signal, and any unmatched names to investigate.
+    _kprop_diag = {'checked': 0, 'matched': 0, 'fired': 0, 'unmatched': []}
+
     for game in games:
         home_abb = NAME_TO_ABB.get(game['home_team'], game['home_team'])
         matchups = [
@@ -2202,6 +2207,13 @@ def get_tracking_only_flags(games, force=False):
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
             _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines)
             _k_prop_signal = _ofav['signal']
+            _kprop_diag['checked'] += 1
+            if _kprop_norm_name(pitcher_name) in kprop_lines:
+                _kprop_diag['matched'] += 1
+            elif kprop_lines:
+                _kprop_diag['unmatched'].append(pitcher_name)
+            if _k_prop_signal:
+                _kprop_diag['fired'] += 1
 
             if not pq_q4 and not off_q3_gate and not _k_prop_signal:
                 continue
@@ -2480,6 +2492,11 @@ def get_tracking_only_flags(games, force=False):
     print(f"FG bullpen pctile by matchup checked today: "
           f"{[(t, a, p) for t, a, p in fg_pctile_checked]}")
     print(f"F5 TT over (derived): {f5_over_signals} flag(s) shown")
+    print(f"K-prop over-favorite: {_kprop_diag['fired']} fired | "
+          f"{_kprop_diag['matched']}/{_kprop_diag['checked']} starters matched a sportsbook prop "
+          f"line | {len(_kprop_diag['unmatched'])} no match"
+          + (f" (no line posted OR name mismatch): {_kprop_diag['unmatched'][:8]}"
+             if _kprop_diag['unmatched'] else ""))
 
     # SURFACED SIGNALS (June 23, 2026, per Zach): collapse the live output to exactly the three
     # signals actively tracked right now -- Q4 pitcher F5 U1.5, the derived F5 TT over, and the
