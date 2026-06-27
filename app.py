@@ -1085,6 +1085,19 @@ ODDS_FG_MARKET      = 'team_totals'
 # request as the other three markets, one more market on top. This is the standard MLB game
 # total ('totals'), distinct from ODDS_JOINT_MARKET which is the FIRST-5 joint total.
 ODDS_FG_JOINT_MARKET = 'totals'
+# Pitcher strikeout props (player prop). Added June 27, 2026 to drive the rebuilt K-prop signal
+# (the over-favorite price bias — see _kprop_over_fav below). Bundled into get_odds_api_lines'
+# per-event call (June 27, 2026) so all books' strikeout prices come back with the F5/FG totals in
+# one request — multi-book line shopping at no extra per-event cost. Player-prop outcomes carry the
+# pitcher in 'description' and Over/Under in 'name' (same shape pull_k_props_2026.py proved).
+ODDS_KPROP_MARKET   = 'pitcher_strikeouts'
+# Over-favorite band: the edge (2026 DK, replicates May+June) is betting the OVER when the book
+# prices it a moderate favorite. Classified on DraftKings (where it was measured); best price
+# across books is used for the actual bet. Refinement tier: opposing offense's F5 team total < 2.0
+# sharpened ROI to +17-21% and held both months.
+KPROP_OVER_FAV_LO   = -160   # most negative over price still in the band
+KPROP_OVER_FAV_HI   = -120   # least negative (closest to even)
+KPROP_SHARP_F5_TOTAL = 2.0   # opp F5 total below this = 'sharp' tier
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
@@ -1176,21 +1189,28 @@ def _pq_note(pq_q4, gate_reason, pinnacle_point):
              'signal only, do not bet)')
 
 
-def _kprop_note(k_prop_flag, proj_gap, kal_k, o_k_rate, projected_k):
-    """K-prop signal note: proj_gap (proj_k - Kalshi implied line) > 0.5."""
-    if not k_prop_flag:
+def _kprop_note(ofav, kal_k):
+    """K-prop signal note for the rebuilt OVER-FAVORITE bias signal (replaced the leaked
+    proj_gap>0.5 Kalshi signal June 27, 2026). Kalshi price kept as a reference only — it does
+    NOT drive the signal (exchange pricing, the recreational-shading mechanism likely absent).
+    Labeled TRACKING: one season, one book, threshold-searched — not yet OOS/forward-validated."""
+    if not ofav or not ofav.get('signal'):
         return None
-    ok_s  = f"{o_k_rate*100:.1f}%" if o_k_rate else '—'
-    pk_s  = f"{projected_k:.1f}" if projected_k else '—'
-    gap_s = f"{proj_gap:+.1f}" if proj_gap is not None else '—'
+    dk     = ofav.get('dk_over')
+    best   = ofav.get('best_over')
+    bk     = ofav.get('best_book')
+    line_s = f"{ofav['line']:g}" if ofav.get('line') is not None else '—'
+    f5_s   = f"{ofav['opp_f5_total']:g}" if ofav.get('opp_f5_total') is not None else '—'
+    tier_s = 'SHARP (opp F5<2.0)' if ofav.get('tier') == 'sharp' else 'base'
+    best_s = f"{best:+d} ({bk})" if best is not None else '—'
+    kal_s  = ''
     if kal_k and kal_k.get('implied_line') is not None:
-        line_s   = str(kal_k['implied_line'])
-        strike_s = str(kal_k.get('bet_threshold', '—'))
-        bid_s    = f"{kal_k['yes_bid']}¢" if kal_k.get('yes_bid') else '—'
-        return (f'K-PROP (KALSHI): proj={pk_s}K vs Kalshi line={line_s}, gap={gap_s}. '
-                f'BUY "Yes {strike_s}+ Ks" at {bid_s}. Opp K-rate {ok_s}. '
-                f'2026 OOS: proj_gap>0.5 = 59.5% over (n=417).')
-    return f'K-PROP: proj={pk_s}K, gap={gap_s} (no Kalshi line found). Opp K-rate {ok_s}.'
+        kal_s = f" [ref: Kalshi line {kal_k['implied_line']}, {kal_k.get('yes_bid','—')}¢]"
+    return (f'K-PROP OVER [{tier_s}] — TRACKING: BUY Over {line_s}K. '
+            f'DK over {dk}, best {best_s}, {ofav.get("n_books", 0)} books. '
+            f'Opp F5 total {f5_s}.{kal_s} '
+            f'(2026 DK over-favorite bias: ~+9% ROI base / +18% sharp, replicates May+June; '
+            f'UNVALIDATED OOS — tracking only, shop the best over price.)')
 
 
 def _off_note(off_q3_gate, gate_reason, pinnacle_point):
@@ -1293,7 +1313,7 @@ def _odds_american_to_profit(price):
 
 def get_odds_api_lines(games, force=False):
     """
-    Returns a tuple (team_lines, joint_lines, fg_lines, fg_joint_lines):
+    Returns a tuple (team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines):
       team_lines:  team_abb -> {book_key: {'point', 'over', 'under', 'over_profit', 'under_profit'}}
                    (ODDS_F5_MARKET -- per-team F5 total, used by pq_q4/off_q3)
       joint_lines: (home_abb, away_abb) -> {book_key: {'point', 'over', 'under',
@@ -1304,14 +1324,18 @@ def get_odds_api_lines(games, force=False):
       fg_joint_lines: (home_abb, away_abb) -> {book_key: {...same shape as joint_lines}}
                    (ODDS_FG_JOINT_MARKET -- whole-game combined total, used by the FG JOINT
                    bullpen signal, added June 22, 2026)
-    All four markets are requested in the same per-event call (see cost note above ODDS_API_KEY).
+      kprop_lines: norm_pitcher_name -> {book_label: {'point','over','under','over_profit'}}
+                   (ODDS_KPROP_MARKET -- pitcher strikeout props, drives the over-favorite K
+                   signal, bundled June 27, 2026 to save a second per-event call)
+    All five markets are requested in the same per-event call (see cost note above ODDS_API_KEY).
     Cached together ODDS_API_TTL seconds in Redis (shared across /api/picks and /api/notify)
     since each call costs real API credits. force=True bypasses this cache (see
     /api/picks?refresh=1) -- spends real credits, only use when actually needed, not on every
-    normal request.
+    normal request. NOTE: the Odds API simply omits a market it can't price for an event rather
+    than erroring the whole request, so adding the K-prop market can't break the F5 lines.
     """
     if not ODDS_API_KEY or not games:
-        return {}, {}, {}, {}
+        return {}, {}, {}, {}, {}
 
     import json as _json
     today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
@@ -1324,7 +1348,7 @@ def get_odds_api_lines(games, force=False):
             # strings and reconstructed here.
             joint = {tuple(k.split('|', 1)): v for k, v in parsed.get('joint', {}).items()}
             fg_joint = {tuple(k.split('|', 1)): v for k, v in parsed.get('fg_joint', {}).items()}
-            return parsed.get('team', {}), joint, parsed.get('fg', {}), fg_joint
+            return parsed.get('team', {}), joint, parsed.get('fg', {}), fg_joint, parsed.get('kprop', {})
         except Exception:
             pass
 
@@ -1336,7 +1360,7 @@ def get_odds_api_lines(games, force=False):
         events = ev_resp.json() if ev_resp.ok else []
     except Exception as e:
         print(f"Odds API events fetch error: {e}")
-        return {}, {}, {}, {}
+        return {}, {}, {}, {}, {}
 
     # games' home_team/away_team come back as full names (e.g. "Detroit Tigers") whenever MLB
     # Stats API's schedule response doesn't include the 'abbreviation' field for a team -- which
@@ -1361,13 +1385,14 @@ def get_odds_api_lines(games, force=False):
     joint_lines = {}
     fg_lines = {}
     fg_joint_lines = {}
+    kprop = {}
     all_bookmaker_keys = set()
     for event_id, home_abb, away_abb in matched_events:
         try:
             r = requests.get(
                 f"{ODDS_API_BASE}/sports/baseball_mlb/events/{event_id}/odds",
                 params={'apiKey': ODDS_API_KEY, 'regions': ODDS_REGIONS,
-                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET},{ODDS_FG_MARKET},{ODDS_FG_JOINT_MARKET}',
+                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET},{ODDS_FG_MARKET},{ODDS_FG_JOINT_MARKET},{ODDS_KPROP_MARKET}',
                         'oddsFormat': 'american'},
                 timeout=15)
             if not r.ok:
@@ -1423,19 +1448,84 @@ def get_odds_api_lines(games, force=False):
                         'over_profit':   round(_odds_american_to_profit(over['price']), 3),
                         'under_profit':  round(_odds_american_to_profit(under['price']), 3),
                     }
+                elif mkey == ODDS_KPROP_MARKET:
+                    # Pitcher strikeout props -- outcomes carry the pitcher in 'description' and
+                    # Over/Under in 'name' (player-prop shape). Keyed by normalized pitcher name so
+                    # the statcast "Last, First" lookup in _kprop_over_fav can find it.
+                    by_p = {}
+                    for o in market.get('outcomes', []):
+                        nm = _kprop_norm_name(o.get('description', ''))
+                        if not nm:
+                            continue
+                        by_p.setdefault(nm, {})[o.get('name', '').lower()] = o
+                    for nm, sides in by_p.items():
+                        over, under = sides.get('over'), sides.get('under')
+                        if not over or not under:
+                            continue
+                        kprop.setdefault(nm, {})[book_label] = {
+                            'point':       over.get('point'),
+                            'over':        int(over['price']),
+                            'under':       int(under['price']),
+                            'over_profit': round(_odds_american_to_profit(over['price']), 3),
+                        }
 
     print(f"Odds API bookmaker keys seen across all matched events: {sorted(all_bookmaker_keys)}")
+    print(f"K-prop lines parsed for {len(kprop)} pitchers (bundled in get_odds_api_lines)")
     try:
         cache_payload = {
             'team':  lines,
             'joint': {f"{h}|{a}": v for (h, a), v in joint_lines.items()},
             'fg':    fg_lines,
             'fg_joint': {f"{h}|{a}": v for (h, a), v in fg_joint_lines.items()},
+            'kprop': kprop,
         }
         redis_set(cache_key, _json.dumps(cache_payload), ex=ODDS_API_TTL)
     except Exception as e:
         print(f"Odds lines cache write error: {e}")
-    return lines, joint_lines, fg_lines, fg_joint_lines
+    return lines, joint_lines, fg_lines, fg_joint_lines, kprop
+
+
+def _kprop_norm_name(name):
+    """Normalize a pitcher name to 'first last' lowercase for cross-source matching.
+    Statcast gives 'Last, First'; the Odds API gives 'First Last'. Strips suffixes/accents
+    loosely. Not bulletproof (suffixes, Jr., accents) — matching is best-effort."""
+    if not name:
+        return ''
+    n = name.strip()
+    if ',' in n:                       # 'Last, First' -> 'First Last'
+        parts = [p.strip() for p in n.split(',', 1)]
+        n = f"{parts[1]} {parts[0]}" if len(parts) == 2 else parts[0]
+    return ' '.join(n.lower().replace('.', '').split())
+
+
+def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines):
+    """The rebuilt K-prop signal: bet the OVER when the book prices it a moderate favorite
+    (KPROP_OVER_FAV_LO..HI on DraftKings, where the edge was measured), sharpened when the
+    opposing offense's F5 team total < KPROP_SHARP_F5_TOTAL.
+    Returns dict (always) with 'signal' bool + display fields, or signal=False if no qualifying
+    over price. Classifies on DK; reports the BEST over price across books for the actual bet."""
+    out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
+           'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0}
+    books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
+    if not books:
+        return out
+    dk = books.get('DraftKings')
+    dk_over = dk['over'] if dk else None
+    # best (least-negative / highest-payout) over price across books for the actual wager
+    best_book = max(books, key=lambda b: books[b]['over'])
+    out.update({'dk_over': dk_over, 'best_over': books[best_book]['over'],
+                'best_book': best_book, 'line': (dk or books[best_book]).get('point'),
+                'n_books': len(books)})
+    # opposing offense's F5 team total (median across books offering it)
+    opp_pts = [v.get('point') for v in (team_lines.get(opp_team) or {}).values()
+               if v.get('point') is not None]
+    opp_f5 = round(sorted(opp_pts)[len(opp_pts) // 2], 1) if opp_pts else None
+    out['opp_f5_total'] = opp_f5
+    # classify on DK over price (the measured edge)
+    if dk_over is not None and KPROP_OVER_FAV_LO <= dk_over <= KPROP_OVER_FAV_HI:
+        out['signal'] = True
+        out['tier'] = 'sharp' if (opp_f5 is not None and opp_f5 < KPROP_SHARP_F5_TOTAL) else 'base'
+    return out
 
 
 # ── KALSHI (CFTC-regulated event exchange — a line-shopping venue bettable in many US states) ──
@@ -1958,10 +2048,10 @@ def get_tracking_only_flags(games, force=False):
     # 0/0 with no way to tell which case it was from the logs alone.
 
     try:
-        team_lines, joint_lines, fg_lines, fg_joint_lines = get_odds_api_lines(games, force=force)
+        team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines = get_odds_api_lines(games, force=force)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
-        team_lines, joint_lines, fg_lines, fg_joint_lines = {}, {}, {}, {}
+        team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines = {}, {}, {}, {}, {}
 
     # Kalshi line-shopping source (separate exchange API) — attached to the FG joint + team-total
     # flags alongside the sportsbook lines. Fully fail-safe: empty on any error, flags unaffected.
@@ -1971,7 +2061,9 @@ def get_tracking_only_flags(games, force=False):
         print(f"Kalshi lookup error: {e}")
         kalshi_joint, kalshi_team = {}, {}
 
-    # Kalshi pitcher K prop ladder — drives the k_prop_only signal (proj_gap > 0.5).
+    # Kalshi pitcher K prop ladder — kept as a REFERENCE price only (no longer drives the signal;
+    # the rebuilt over-favorite signal uses sportsbook prices from kprop_lines, bundled into the
+    # get_odds_api_lines call above).
     try:
         kalshi_k_props = get_kalshi_k_props(games, force=force)
     except Exception as e:
@@ -2085,18 +2177,19 @@ def get_tracking_only_flags(games, force=False):
                 off_info.get('o_k_rate') if off_info else None,
             )
 
-            # K-prop signal: proj_gap = proj_k − Kalshi implied line > 0.5 (June 26, 2026).
-            # 2026 OOS: proj_gap>0.5 → 59.5% over (n=417). Replaces the kc_composite gate.
+            # K-prop signal REBUILT June 27, 2026 — over-favorite price bias (see _kprop_over_fav).
+            # The old proj_gap>0.5 vs Kalshi signal was leaked (its "59.5% OOS" used full-season K
+            # rates to predict in-season games); leak-free it's no edge. Now: bet the OVER when the
+            # book prices it a moderate favorite (DK -120..-160), sharper when opp F5 total < 2.0.
+            # _proj_k_val / _kal_k kept only for the reference columns the tracker still logs.
             _proj_k_val = project_starter_ks(pq_info['k_rate'] if pq_info else None,
                                              off_info['o_k_rate'] if off_info else None,
                                              pq_info.get('exp_bf') if pq_info else None)
             _away_abb_ks = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
             _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
-            _proj_gap    = (round(_proj_k_val - _kal_k['implied_line'], 2)
-                            if _proj_k_val and _kal_k and _kal_k.get('implied_line') is not None
-                            else None)
-            _k_prop_signal = bool(_proj_gap is not None and _proj_gap > 0.5)
+            _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines)
+            _k_prop_signal = _ofav['signal']
 
             if not pq_q4 and not off_q3_gate and not _k_prop_signal:
                 continue
@@ -2141,17 +2234,21 @@ def get_tracking_only_flags(games, force=False):
                 'pq_hr_rate':       pq_info['hr_rate']     if pq_info else None,
                 'projected_k':      _proj_k_val,
                 'pq_q4':            pq_q4,
-                # K-prop signal: proj_gap > 0.5 using Kalshi KXMLBKS implied line (June 26, 2026).
-                # k_comp_score kept for historical reference but no longer drives the flag.
+                # K-prop signal REBUILT June 27, 2026 — over-favorite price bias (over-fav fields
+                # below drive it). k_comp_score / kalshi_* kept as reference only.
                 'k_comp_score':     _kc,
                 'k_prop_flag':      _k_prop_signal,
-                'k_prop_gap':       _proj_gap,
+                'k_prop_tier':      _ofav['tier'],
+                'kprop_dk_over':    _ofav['dk_over'],
+                'kprop_best_over':  _ofav['best_over'],
+                'kprop_best_book':  _ofav['best_book'],
+                'kprop_line':       _ofav['line'],
+                'kprop_opp_f5':     _ofav['opp_f5_total'],
+                'kprop_n_books':    _ofav['n_books'],
                 'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
                 'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
                 'kalshi_k_yes_bid': _kal_k.get('yes_bid') if _kal_k else None,
-                'k_prop_note':      _kprop_note(_k_prop_signal, _proj_gap, _kal_k,
-                                                off_info.get('o_k_rate') if off_info else None,
-                                                _proj_k_val),
+                'k_prop_note':      _kprop_note(_ofav, _kal_k),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
@@ -2405,10 +2502,10 @@ def get_heatmap_flags(games, model):
     flags           = []
 
     try:
-        odds_lines, _joint_lines_unused, _fg_lines_unused, _fg_joint_unused = get_odds_api_lines(games)
+        odds_lines, _joint_lines_unused, _fg_lines_unused, _fg_joint_unused, kprop_lines = get_odds_api_lines(games)
     except Exception as e:
         print(f"Odds API lookup error: {e}")
-        odds_lines = {}
+        odds_lines, kprop_lines = {}, {}
 
     # Mirrors the Pinnacle gate in get_tracking_only_flags (see notes above get_odds_api_lines) --
     # kept in sync here even though this function is currently paused (Drive incident) so the
@@ -2535,16 +2632,16 @@ def get_heatmap_flags(games, model):
                 pq_info['hr_rate'] if pq_info else None,
                 off_info.get('o_k_rate') if off_info else None,
             )
+            # K-prop signal REBUILT June 27, 2026 — over-favorite price bias (same as block 1 in
+            # get_tracking_only_flags). This get_heatmap_flags path is paused (Drive incident) and
+            # previously referenced an undefined kalshi_k_props here; _kal_k2 set None (Kalshi is
+            # reference-only now and not fetched in this paused path).
             _proj_k_val2 = project_starter_ks(pq_info['k_rate'] if pq_info else None,
                                               off_info['o_k_rate'] if off_info else None,
                                               pq_info.get('exp_bf') if pq_info else None)
-            _away_abb_ks2 = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
-            _pk_ks2       = '|'.join(sorted([home_abb, _away_abb_ks2]))
-            _kal_k2       = _lookup_kalshi_k(kalshi_k_props, _pk_ks2, pitcher_name)
-            _proj_gap2    = (round(_proj_k_val2 - _kal_k2['implied_line'], 2)
-                             if _proj_k_val2 and _kal_k2 and _kal_k2.get('implied_line') is not None
-                             else None)
-            _k_prop_signal2 = bool(_proj_gap2 is not None and _proj_gap2 > 0.5)
+            _kal_k2         = None
+            _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines)
+            _k_prop_signal2 = _ofav2['signal']
 
             flag = {
                 'game':             game_str,
@@ -2581,13 +2678,17 @@ def get_heatmap_flags(games, model):
                 'pq_q4':            pq_q4,
                 'k_comp_score':     _kc,
                 'k_prop_flag':      _k_prop_signal2,
-                'k_prop_gap':       _proj_gap2,
+                'k_prop_tier':      _ofav2['tier'],
+                'kprop_dk_over':    _ofav2['dk_over'],
+                'kprop_best_over':  _ofav2['best_over'],
+                'kprop_best_book':  _ofav2['best_book'],
+                'kprop_line':       _ofav2['line'],
+                'kprop_opp_f5':     _ofav2['opp_f5_total'],
+                'kprop_n_books':    _ofav2['n_books'],
                 'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
                 'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
                 'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,
-                'k_prop_note':      _kprop_note(_k_prop_signal2, _proj_gap2, _kal_k2,
-                                                off_info.get('o_k_rate') if off_info else None,
-                                                _proj_k_val2),
+                'k_prop_note':      _kprop_note(_ofav2, _kal_k2),
                 'pq_current_bf':    pq_info['current_bf'] if pq_info else None,
                 'pq_note':          _pq_note(pq_q4, gate_reason, pinnacle_point),
                 'o_k_rate':         off_info.get('o_k_rate') if off_info else None,
@@ -3323,22 +3424,28 @@ def append_pq_to_sheet(flags):
 
 
 KPROP_SHEET_TAB    = 'KProp'
+# Rebuilt June 27, 2026 for the over-favorite price-bias signal (replaced the leaked proj_gap
+# columns). 'k_hit' now = 1 if actual_k > kprop_line (over wins). Kalshi/projected_k kept as
+# reference. F5 team-total odds columns are the OPPOSING-OFFENSE F5 total context (sharp tier).
 KPROP_SHEET_HEADER = [
     'date', 'game', 'batting_team', 'pitcher_name',
-    'projected_k',                   # log5 K projection (proj_k)
-    'kalshi_k_line',                 # Kalshi KXMLBKS implied line (floor_strike at 50¢)
-    'k_prop_gap',                    # proj_k − kalshi_k_line (signal fires when > 0.5)
-    'kalshi_k_strike',               # recommended bet threshold (N+ Ks to buy Yes on)
-    'kalshi_k_yes_bid',              # yes_bid at that strike in cents
+    'k_prop_tier',                   # 'base' or 'sharp' (opp F5 total < 2.0)
+    'kprop_line',                    # strikeout line (strike) the over is bet at
+    'kprop_dk_over',                 # DraftKings over price — signal classified here (-120..-160)
+    'kprop_best_over',               # best over price across books — SHOP this
+    'kprop_best_book',               # book offering the best over price
+    'kprop_n_books',                 # # books priced
+    'kprop_opp_f5',                  # opposing offense F5 team total (sharp if < 2.0)
+    'kalshi_k_line',                 # REFERENCE only — Kalshi KXMLBKS implied line
+    'projected_k',                   # REFERENCE only — log5 K projection
     'o_k_rate',                      # opposing lineup K-rate
     'p_k_rate', 'p_bb_rate', 'p_hr_rate',
-    'k_comp_score',                  # legacy K-composite (no longer drives signal)
     'game_time',
     'pinnacle_line', 'pinnacle_odds',
     'draftkings_line', 'draftkings_odds',
     'thescore_line', 'thescore_odds',
     'actual_k',                      # actual Ks thrown — fill in after game
-    'k_hit',                         # 1 if actual_k >= kalshi_k_strike — fill in after game
+    'k_hit',                         # 1 if actual_k > kprop_line (over won) — fill in after game
     'game_id',
 ]
 
@@ -3368,21 +3475,22 @@ def append_kprop_to_sheet(flags):
             def _lo(book):
                 line, odds = _book_line_odds(team_odds, book)
                 return [line, odds]
-            kc = f.get('k_comp_score')
-            off = f.get('odds_lines') or {}
             ws.append_row([
                 today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
-                f.get('projected_k', ''),
+                f.get('k_prop_tier', ''),
+                f.get('kprop_line', ''),
+                f.get('kprop_dk_over', ''),
+                f.get('kprop_best_over', ''),
+                f.get('kprop_best_book', ''),
+                f.get('kprop_n_books', ''),
+                f.get('kprop_opp_f5', ''),
                 f.get('kalshi_k_line', ''),
-                f.get('k_prop_gap', ''),
-                f.get('kalshi_k_strike', ''),
-                f.get('kalshi_k_yes_bid', ''),
+                f.get('projected_k', ''),
                 round(f.get('o_k_rate') or 0, 4) or '',
                 f.get('pq_k_rate', ''), f.get('pq_bb_rate', ''), f.get('pq_hr_rate', ''),
-                round(kc, 4) if kc is not None else '',
                 f.get('game_time', ''),
                 *_lo('pinnacle'), *_lo('draftkings'), *_lo('thescore'),
-                '', '',  # actual_k / k_hit — filled manually
+                '', '',  # actual_k / k_hit — filled manually after game
                 f.get('game_id', ''),
             ], value_input_option='USER_ENTERED')
             existing_keys.add(key)
@@ -4363,20 +4471,23 @@ def api_notify():
         if new_kprop_only:
             if len(lines) > 1:
                 lines.append("")
-            lines.append("🎯 <b>K-Prop Signal — STANDALONE (no U1.5 gate required)</b>")
-            lines.append(f"{len(new_kprop_only)} start(s) — K composite fires on its own. "
-                         "Research: 2025 n=138 +0.71K 60%; 2026 OOS n=44 +0.67K 66%; p&lt;0.0001\n")
+            lines.append("🎯 <b>K-Prop OVER — TRACKING ONLY (not yet a validated bet signal)</b>")
+            lines.append(f"{len(new_kprop_only)} start(s) — over-favorite price bias (DK over "
+                         "-120..-160; SHARP adds opp F5 total &lt;2.0). 2026 DK: ~+9% base / +18% "
+                         "sharp ROI, replicates May+June. UNVALIDATED OOS — shop the best over price.\n")
             for f in new_kprop_only:
-                kc  = f.get('k_comp_score')
-                ok  = f.get('o_k_rate')
-                kp  = f.get('projected_k')
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
-                kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
+                tier  = 'SHARP' if f.get('k_prop_tier') == 'sharp' else 'base'
+                line  = f.get('kprop_line')
+                dk    = f.get('kprop_dk_over')
+                best  = f.get('kprop_best_over')
+                book  = f.get('kprop_best_book') or '—'
+                f5    = f.get('kprop_opp_f5')
+                time  = f" — {f['game_time']}" if f.get('game_time') else ''
+                best_s = f"{best:+d}" if best is not None else '—'
                 lines.append(
-                    f"🎯 <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                    f"(K-comp {kc:+.4f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}%)"
-                    f"{kp_s}{time}"
+                    f"🎯 <b>{f['pitcher_name']}</b> [{tier}] — BUY Over {line if line is not None else '—'}K · "
+                    f"DK {dk if dk is not None else '—'}, best {best_s} ({book}) · opp F5 {f5 if f5 is not None else '—'}"
+                    f"{time}"
                 )
 
         # NOTE: off (Offense Quality) and joint (Joint Offense / Combined F5 Total) are

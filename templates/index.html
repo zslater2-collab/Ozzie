@@ -566,7 +566,7 @@
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
       ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${f.o_k_rate != null ? (f.o_k_rate >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : 'informational'}, not a bet</span></div>` : ''}
-      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP (KALSHI) — proj ${f.projected_k != null ? f.projected_k.toFixed(1) : '—'}K vs line ${f.kalshi_k_line != null ? f.kalshi_k_line : '—'}, gap ${f.k_prop_gap != null ? (f.k_prop_gap>=0?'+':'')+f.k_prop_gap.toFixed(1) : '—'}. <span style="font-weight:normal">${f.kalshi_k_strike != null && f.kalshi_k_yes_bid != null ? `BUY Yes ${f.kalshi_k_strike}+ Ks (${f.kalshi_k_yes_bid >= 50 ? '-'+Math.round(f.kalshi_k_yes_bid/(100-f.kalshi_k_yes_bid)*100) : '+'+Math.round((100-f.kalshi_k_yes_bid)/f.kalshi_k_yes_bid*100)})` : ''}</span></div>` : ''}
+      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP OVER [${f.k_prop_tier === 'sharp' ? 'SHARP' : 'base'}] — BUY Over ${f.kprop_line != null ? f.kprop_line : '—'}K. DK over ${f.kprop_dk_over != null ? f.kprop_dk_over : '—'}, best ${f.kprop_best_over != null ? (f.kprop_best_over>=0?'+':'')+f.kprop_best_over : '—'} (${f.kprop_best_book||'—'}). <span style="font-weight:normal">Opp F5 tot ${f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—'}. TRACKING — unvalidated.</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
@@ -579,37 +579,32 @@
     card.style.animationDelay = `${i * 0.06}s`;
     card.style.borderColor = 'rgba(240,165,0,.4)';
     const ok = f.o_k_rate;
-    const lineupLabel = ok != null ? (ok >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : '';
-    const gap = f.k_prop_gap != null ? (f.k_prop_gap >= 0 ? '+' : '') + f.k_prop_gap.toFixed(1) : '—';
-    const gapColor = f.k_prop_gap != null && f.k_prop_gap > 0.5 ? '#4caf50' : '#f0a500';
+    const tier = f.k_prop_tier === 'sharp' ? 'SHARP' : 'base';
+    const tierColor = f.k_prop_tier === 'sharp' ? '#4caf50' : '#f0a500';
+    const line = f.kprop_line != null ? f.kprop_line : '—';
+    const dkOver = f.kprop_dk_over != null ? f.kprop_dk_over : '—';
+    const bestOver = f.kprop_best_over != null ? ((f.kprop_best_over >= 0 ? '+' : '') + f.kprop_best_over) : '—';
+    const bestBook = f.kprop_best_book || '—';
+    const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
-    const projK = f.projected_k != null ? f.projected_k.toFixed(1) : '—';
-    function centToAmerican(c) {
-      if (c == null) return null;
-      const p = c / 100;
-      return p >= 0.50 ? '-' + Math.round(p / (1 - p) * 100) : '+' + Math.round((1 - p) / p * 100);
-    }
-    const americanOdds = centToAmerican(f.kalshi_k_yes_bid);
-    const betStr = (f.kalshi_k_strike != null && americanOdds != null)
-      ? `BUY Yes <b>${f.kalshi_k_strike}+ Ks</b> (${americanOdds})`
-      : (f.kalshi_k_strike != null ? `Yes ${f.kalshi_k_strike}+ Ks` : '—');
+    const betStr = `BUY <b>Over ${line}K</b> @ best ${bestOver} (${bestBook})`;
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
         <div class="hm-signal-wrap">
-          <div class="hm-signal" style="font-size:1rem;color:#f0a500">🎯 K-PROP (KALSHI)</div>
-          <div class="hm-sigma" style="color:${gapColor}">gap ${gap}</div>
+          <div class="hm-signal" style="font-size:1rem;color:#f0a500">🎯 K-PROP OVER</div>
+          <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
         </div>
       </div>
       <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
-        <div><div class="hm-stat-label">Proj K / Kalshi Line</div><div class="hm-stat-value">${projK} / ${kalshiLine}</div></div>
-        <div><div class="hm-stat-label">Opp K%</div><div class="hm-stat-value">${ok != null ? (ok*100).toFixed(1)+'%' : '—'}</div></div>
+        <div><div class="hm-stat-label">DK over / books</div><div class="hm-stat-value">${dkOver} / ${f.kprop_n_books != null ? f.kprop_n_books : '—'}</div></div>
+        <div><div class="hm-stat-label">Opp F5 tot</div><div class="hm-stat-value">${oppF5}</div></div>
       </div>
       <div class="pq-detail" style="margin-top:8px;color:#f0a500;font-weight:600">${betStr}</div>
-      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">proj_gap &gt; 0.5 → 59.5% over (2026 OOS n=417). Bet on Kalshi KXMLBKS.</div>
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Over-favorite price bias (DK over -120..-160${f.k_prop_tier === 'sharp' ? ', opp F5&lt;2.0' : ''}). 2026: ~+9% base / +18% sharp, replicates May+June. UNVALIDATED OOS — tracking only, shop best over. [ref Kalshi line ${kalshiLine}]</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }
