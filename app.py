@@ -4171,6 +4171,53 @@ def get_fg_runs_for_game(game_id):
     return None
 
 
+def get_pitcher_ks_for_game(game_id, pitcher_name):
+    """Actual strikeouts thrown by `pitcher_name` in FINAL game `game_id`, or None if the game
+    isn't Final yet, the pitcher isn't in the boxscore, or on error. Gated on Final (like
+    get_fg_runs_for_game) so a still-active starter never writes a PARTIAL K count -- once the
+    actual_k cell is filled, backfill skips the row forever, so a half-game number would stick.
+    Names matched via _kprop_norm_name (KProp stores 'Last, First'; the boxscore gives 'First Last')."""
+    if not game_id or not pitcher_name:
+        return None
+    # 1) only grade finished games (schedule carries status in one light call)
+    try:
+        r = requests.get("https://statsapi.mlb.com/api/v1/schedule",
+                         params={'sportId': 1, 'gamePks': game_id}, timeout=15)
+        if not r.ok:
+            return None
+        sched = r.json()
+    except Exception as e:
+        print(f"K backfill schedule error (game {game_id}): {e}")
+        return None
+    is_final = any(str(g.get('gamePk')) == str(game_id)
+                   and (g.get('status') or {}).get('abstractGameState') == 'Final'
+                   for d in sched.get('dates', []) for g in d.get('games', []))
+    if not is_final:
+        return None
+    # 2) find the pitcher in the boxscore and return his strikeouts
+    try:
+        r = requests.get(f"https://statsapi.mlb.com/api/v1/game/{game_id}/boxscore", timeout=15)
+        if not r.ok:
+            return None
+        box = r.json()
+    except Exception as e:
+        print(f"K backfill boxscore error (game {game_id}): {e}")
+        return None
+    target = _kprop_norm_name(pitcher_name)
+    for side in ('home', 'away'):
+        players = ((box.get('teams', {}).get(side, {}) or {}).get('players', {})) or {}
+        for p in players.values():
+            full = (p.get('person') or {}).get('fullName', '')
+            if _kprop_norm_name(full) != target:
+                continue
+            pitching = (p.get('stats') or {}).get('pitching') or {}
+            so = pitching.get('strikeOuts')
+            if so is None:          # name matched a non-pitcher entry -- keep looking
+                continue
+            return int(so)
+    return None
+
+
 def _backfill_tab(sh, gspread, tab, *, line_col, runs_col, hit_col, fetch, mode, direction_col=None):
     """
     Generic outcome backfill for one tracking tab. Fills runs_col + hit_col for any row that has a
@@ -4266,7 +4313,8 @@ def backfill_sheet_outcomes():
     F5 score isn't final yet, are simply skipped each time. Returns a summary dict for logging.
     """
     summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0,
-               'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0, 'off_fade_filled': 0}
+               'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0, 'off_fade_filled': 0,
+               'kprop_filled': 0}
     if not SHEETS_CREDS:
         return summary
     try:
@@ -4422,6 +4470,62 @@ def backfill_sheet_outcomes():
     summary['off_fade_filled'] = _backfill_tab(
         sh, gspread, OFF_FADE_SHEET_TAB, line_col='draftkings_line', runs_col='actual_fg_joint_runs',
         hit_col='hit', fetch=get_fg_runs_for_game, mode='joint', direction_col='direction')
+
+    # ── KProp backfill (June 28, 2026) ── per-pitcher strikeout outcomes, the K-prop analog of the
+    # team-total backfills above. Fills actual_k from the FINAL boxscore and k_hit = 1 if the over
+    # won (actual_k > kprop_line) else 0. Self-maintaining on the same cron; rows already filled, or
+    # whose game isn't Final yet, are skipped each pass. Grades every row (base and sharp tiers alike).
+    try:
+        ws = sh.worksheet(KPROP_SHEET_TAB)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = None
+    except Exception as e:
+        print(f"Backfill ({KPROP_SHEET_TAB}): worksheet lookup error: {e}")
+        ws = None
+    if ws is not None:
+        try:
+            rows = ws.get_all_values()
+        except Exception as e:
+            print(f"Backfill ({KPROP_SHEET_TAB}): read error: {e}")
+            rows = []
+        if len(rows) >= 2:
+            hdr = rows[0]
+            try:
+                i_pitcher = hdr.index('pitcher_name')
+                i_line    = hdr.index('kprop_line')
+                i_k       = hdr.index('actual_k')
+                i_hit     = hdr.index('k_hit')
+                i_gameid  = hdr.index('game_id')
+            except ValueError:
+                print(f"Backfill ({KPROP_SHEET_TAB}): header missing expected columns, skipping")
+            else:
+                def cell(row, i):
+                    return row[i] if i < len(row) else ''
+                filled = 0
+                for r_idx, row in enumerate(rows[1:], start=2):
+                    if cell(row, i_k):                       # already filled
+                        continue
+                    line_str = cell(row, i_line)
+                    game_id  = cell(row, i_gameid)
+                    pitcher  = cell(row, i_pitcher)
+                    if not line_str or not game_id or not pitcher:
+                        continue
+                    try:
+                        line_val = float(line_str)
+                    except ValueError:
+                        continue
+                    ks = get_pitcher_ks_for_game(game_id, pitcher)
+                    if ks is None:                           # game not Final / pitcher not found
+                        continue
+                    k_hit = 1 if ks > line_val else 0
+                    try:
+                        ws.update_cell(r_idx, i_k + 1, ks)
+                        ws.update_cell(r_idx, i_hit + 1, k_hit)
+                        filled += 1
+                    except Exception as e:
+                        print(f"Backfill ({KPROP_SHEET_TAB}): write error on row {r_idx}: {e}")
+                summary['kprop_filled'] = filled
+                print(f"Backfill ({KPROP_SHEET_TAB}): {filled} row(s) filled")
 
     return summary
 
