@@ -3376,8 +3376,19 @@ def _get_or_create_ws(gspread, sh, tab, header):
     the get-or-create block that was duplicated across the tracking-sheet appenders."""
     try:
         ws = sh.worksheet(tab)
-        if ws.row_values(1) != header:
-            ws.update('A1', [header])  # migrate older sheets onto the current schema
+        cur = ws.row_values(1)
+        if cur != header:
+            # SAFE MIGRATION ONLY (June 28, 2026): relabel/extend the header in place only when the
+            # existing header is a PREFIX of the new one -- i.e. columns were appended at the END, so
+            # every already-written row still lines up. If columns were inserted or reordered mid-list,
+            # overwriting A1 silently shifts every old row under the wrong labels (the KProp June 2026
+            # incident). In that case, on a tab that already holds data, REFUSE and warn so it's caught,
+            # not buried -- the fix is to archive/realign the old rows, then append new cols at the end.
+            if header[:len(cur)] == cur or len(ws.col_values(1)) <= 1:
+                ws.update('A1', [header])
+            else:
+                print(f"[sheet] {tab}: header changed mid-list with existing data — NOT overwriting A1 "
+                      f"(would shift old rows). Reconcile that tab, then only append new columns at the END.")
         return ws
     except gspread.exceptions.WorksheetNotFound:
         ws = sh.add_worksheet(title=tab, rows=1000, cols=len(header))
