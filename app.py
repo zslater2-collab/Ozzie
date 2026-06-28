@@ -1239,12 +1239,17 @@ def _kprop_tg_bet(f):
     book = f.get('kprop_best_book') or '—'
     f5   = f.get('kprop_opp_f5')
     best_s = f"{best:+d}" if best is not None else '—'
+    # ✅ confirms the gate that DEFINES this signal: DraftKings over price in the favorite band
+    # (KPROP_OVER_FAV_LO..HI, -160..-120), where the edge was measured.
+    dk_s  = f"{dk:+d}" if dk is not None else '—'
+    dk_ok = dk is not None and KPROP_OVER_FAV_LO <= dk <= KPROP_OVER_FAV_HI
+    dk_mark = '✅' if dk_ok else ''
     # surface why a low-F5 game is still 'base': too few prior starts for the SHARP premium
     thin = ''
     if f.get('kprop_sharp_blocked_thin'):
         thin = f" (F5<2.0 but {f.get('kprop_prior_starts')} starts <7 — held at base)"
     return (f"🎯 K-PROP OVER {line if line is not None else '—'} [{tier}] — "
-            f"DK {dk if dk is not None else '—'}, best {best_s} ({book}), "
+            f"DK {dk_s}{dk_mark}, best {best_s} ({book}), "
             f"opp F5 {f5 if f5 is not None else '—'}{thin}")
 
 
@@ -3277,14 +3282,20 @@ def flag_key(flag):
     return f"{flag['game']}|{flag['batting_team']}"
 
 
-def format_odds_lines(odds_lines):
-    """e.g. 'DraftKings 1.5✅ -150 | Fanatics 2.5 +110' — empty string if no data."""
+def format_odds_lines(odds_lines, gate_book=None, gate_point=None):
+    """e.g. 'DraftKings 1.5 -150 | Pinnacle 1.5✅ -119' — empty string if no data.
+
+    A ✅ confirms ONLY the gating book at the gate point -- i.e. the book the signal is actually
+    gated on (Pinnacle at 1.5 for Pitcher Quality), not every book that happens to sit at 1.5.
+    Other books are line-shopping context and never get a checkmark. Callers with no line gate
+    (e.g. the F5-over other-side play) pass no gate_book, yielding a clean checkmark-free row.
+    Updated June 28, 2026 per Zach: a ✅ should mean "the gate is met," not "this book is 1.5.\""""
     if not odds_lines:
         return ''
     parts = []
     for book, info in odds_lines.items():
         pt = info.get('point')
-        marker = '✅' if pt == 1.5 else ''
+        marker = '✅' if (gate_book is not None and book == gate_book and pt == gate_point) else ''
         price = info.get('under')
         price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
         parts.append(f"{book} {pt}{marker}{price_str}")
@@ -4486,7 +4497,9 @@ def api_notify():
                 or new_f5_over or new_fg_joint or new_off_fade):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
-        lines = [f"🎯 <b>Ozzie — {today}</b>"]
+        # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
+        # K-Prop section header, each K bet line (_kprop_tg_bet), and the 🎯K-PROP↑ cross-ref tag.
+        lines = [f"⚾ <b>Ozzie — {today}</b>"]
 
         # ── CONSOLIDATED K-PROP SECTION (top) — every start that fired the K-prop over, whether
         # standalone (k_prop_only) or alongside Pitcher Quality (pq_q4). Moved to the top and merged
@@ -4527,12 +4540,14 @@ def api_notify():
             if len(lines) > 1:
                 lines.append("")
             lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_pq_for_telegram)} Q4 pitcher(s) — only means something if a line below shows "
-                         f"✅1.5 or 🏟️ (validated park exception, thinner sample — see pq_note)\n")
+            lines.append(f"{len(new_pq_for_telegram)} Q4 pitcher(s) — only means something if <b>Pinnacle</b> below "
+                         f"shows ✅1.5 (or 🏟️ = validated park exception, thinner sample — see pq_note)\n")
             for f in new_pq_for_telegram:
                 pct  = f.get('pq_percentile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds = format_odds_lines(f.get('odds_lines'))
+                # ✅ confirms the actual gate: Pinnacle at 1.5. Park-exception flags carry 🏟️ on
+                # the row instead (their Pinnacle line is the park point, not 1.5) -- see _pq_note.
+                odds = format_odds_lines(f.get('odds_lines'), gate_book=PINNACLE_BOOK_LABEL, gate_point=1.5)
                 tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
                 kp   = f.get('projected_k')
                 ok   = f.get('o_k_rate')
