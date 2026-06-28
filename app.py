@@ -2381,9 +2381,10 @@ def get_tracking_only_flags(games, force=False):
                         'ofj_home_off':      round(home_off_info['off_pctile'], 1),
                         'ofj_away_off':      round(away_off_info['off_pctile'], 1),
                         # Lineup current-season PA backing each side's offense score (Marcel blend
-                        # vs. pure career prior). ofj_min_pa_avg is the weaker-data side -- the
-                        # Telegram stale gate (see api_notify OFF_FADE_PA_STALE_THRESHOLD) holds
-                        # off-fade to the same honesty bar as the pitcher composite's BF gate.
+                        # vs. pure career prior). ofj_min_pa_avg is the weaker-data side; logged so
+                        # stale-prior rows can be filtered out of the track record (WHERE min_pa_avg
+                        # >= 20). (Off-fade left Telegram June 28, 2026, so the old PA stale gate that
+                        # used this for notification suppression is gone -- it's a Sheets filter now.)
                         'ofj_home_pa_avg':   home_off_info['current_pa_avg'],
                         'ofj_away_pa_avg':   away_off_info['current_pa_avg'],
                         'ofj_min_pa_avg':    min(home_off_info['current_pa_avg'],
@@ -3861,9 +3862,9 @@ OFF_FADE_SHEET_HEADER = [
     'actual_fg_joint_runs', 'hit',   # auto-backfilled by get_fg_runs_for_game (full-game final)
     'game_id',
     # Lineup current-season PA behind each side's offense score (June 23, 2026). min_pa_avg is the
-    # weaker-data side -- the Telegram stale gate (OFF_FADE_PA_STALE_THRESHOLD) suppresses < 20, so
-    # log it to filter stale-prior rows out of the track record (WHERE min_pa_avg >= 20). Appended
-    # at END so existing rows + outcome-backfill column positions are unaffected.
+    # weaker-data side; log it to filter stale-prior rows out of the track record (WHERE min_pa_avg
+    # >= 20). Appended at END so existing rows + outcome-backfill column positions are unaffected.
+    # (This was also a Telegram stale gate until off-fade left Telegram June 28, 2026 -- Sheets only now.)
     'home_pa_avg', 'away_pa_avg', 'min_pa_avg',
 ]
 
@@ -4441,12 +4442,14 @@ def api_notify():
         except Exception as cache_err:
             print(f"Picks cache refresh from notify failed: {cache_err}")
 
-        # VISIBILITY vs TRACKING, per Zach (June 22, 2026): every signal below still gets logged
-        # to its own Sheet tab every cycle (see the unconditional append_*_to_sheet calls further
-        # down) -- "new_off"/"new_joint" are NOT gated on whether they appear in Telegram, only
-        # on the existing per-flag dedup (already_sent). What changed is the Telegram MESSAGE
-        # below now only includes under/pq/fg_tt/f5_over -- off and joint are computed and logged
-        # exactly as before, just not built into the message text anymore (see build_picks_payload
+        # VISIBILITY vs TRACKING, per Zach (June 22, 2026; updated June 28, 2026): every signal
+        # below still gets logged to its own Sheet tab every cycle (see the unconditional
+        # append_*_to_sheet calls further down) -- the "new_*" lists are NOT gated on whether they
+        # appear in Telegram, only on the existing per-flag dedup (already_sent). The Telegram
+        # MESSAGE is now K-PROP-FOCUSED: it includes kprop/pq/f5_over only. under (F5 TT U1.5) and
+        # off-fade (joint offense fade) were dropped from the message June 28, 2026 -- joining off
+        # and joint, which left June 22 -- all still computed and logged exactly as before (see
+        # build_picks_payload
         # for the matching dashboard-side suppression).
         under_flags  = [f for f in flags if f.get('signal') == 'under']
         pq_flags     = [f for f in flags if f.get('pq_q4')]
@@ -4500,26 +4503,10 @@ def api_notify():
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
                              f"{_kprop_tg_bet(f)}{time}")
 
-        if new_under:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"{len(new_under)} new flag(s)\n")
-            for f in new_under:
-                label = f.get('confidence_label', '—')
-                score = f.get('ozzie_score', '—')
-                sigma = f.get('std_from_mean', 0)
-                medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(label, '🥉')
-                fg    = ' + FG ✅' if f.get('fg_under_signal') else ''
-                comb  = ' + COMB ⚡' if f.get('combined_f5_signal') else ''
-                time  = f" — {f['game_time']}" if f.get('game_time') else ''
-                lines.append(
-                    f"{medal} <b>{f['batting_team']}</b> vs {f['pitcher_name']} "
-                    f"(UNDER #{score}, {sigma:+.2f}σ){fg}{comb}{time}"
-                )
-                if f.get('combined_f5_signal'):
-                    lines.append("   ⚡ F5 Combined: U4.5 @ -200 | U5.5 @ -300")
-                u25_str = f"{medal} U2.5 {f['min_u25']} / {f.get('unit_u25','')}" if f.get('min_u25') else "U2.5 No Bet"
-                lines.append(f"   {u25_str}")
+        # NOTE: the F5 TT U1.5 UNDER block was removed from Telegram June 28, 2026 per Zach
+        # (focusing notifications on K props) -- still computed above and still logged to its
+        # Sheet tab below (append_to_sheet(new_under), unfiltered), just no longer pushed to
+        # Telegram. Same VISIBILITY-vs-TRACKING split as off/joint (see note above new_under).
 
         # PQ_BF_STALE_THRESHOLD matches the dashboard's bfStale check (templates/index.html,
         # "Current-season BF: N -- mostly/entirely stale prior, do not trust"). Per Zach
@@ -4537,7 +4524,7 @@ def api_notify():
         new_pq_stale = [f for f in new_pq if f not in new_pq_for_telegram]
 
         if new_pq_for_telegram:
-            if new_under:
+            if len(lines) > 1:
                 lines.append("")
             lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_pq_for_telegram)} Q4 pitcher(s) — only means something if a line below shows "
@@ -4577,7 +4564,7 @@ def api_notify():
         # above new_under/new_pq/etc.
 
         if new_fg_tt:
-            if new_under or new_pq_for_telegram:
+            if len(lines) > 1:
                 lines.append("")
             lines.append(f"🛢️ <b>FG Team Total Under (Bullpen) — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_fg_tt)} top-quartile opposing bullpen(s) — only means something "
@@ -4594,7 +4581,7 @@ def api_notify():
                     lines.append(f"   {odds}")
 
         if new_f5_over:
-            if new_under or new_pq_for_telegram or new_fg_tt:
+            if len(lines) > 1:
                 lines.append("")
             lines.append(f"🔄 <b>F5 Team Total Over (Other Side) — NEW, UNTESTED, tracking only</b>")
             lines.append(f"{len(new_f5_over)} game(s): joint F5 over flagged, one team already "
@@ -4610,7 +4597,7 @@ def api_notify():
                     lines.append(f"   {odds}")
 
         if new_fg_joint:
-            if new_under or new_pq_for_telegram or new_fg_tt or new_f5_over:
+            if len(lines) > 1:
                 lines.append("")
             lines.append(f"🎰 <b>FG Joint/Combined Total (Bullpen) — TRACKING ONLY, not a bet signal</b>")
             lines.append(f"{len(new_fg_joint)} game(s) — combined (both teams') bullpen strength vs "
@@ -4638,38 +4625,11 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
-        # OFF-FADE stale gate — offense-side parity with PQ_BF_STALE_THRESHOLD above. off-fade fires
-        # off BOTH lineups' offense scores; ofj_min_pa_avg is the weaker-data side's lineup-average
-        # current-season PA. Below the threshold the score is mostly career prior (rare mid-season,
-        # common in April / heavy-call-up lineups) -- suppress from Telegram, exactly as a stale Q4
-        # pitcher is. Still logged to the OffenseFade Sheet tab below (new_off_fade, unfiltered) and
-        # still shown on the dashboard (off-fade card carries its own PA warning, templates/index.html).
-        OFF_FADE_PA_STALE_THRESHOLD = 20
-        new_off_fade_for_telegram = [f for f in new_off_fade
-                                     if (f.get('ofj_min_pa_avg') or 0) >= OFF_FADE_PA_STALE_THRESHOLD]
-        new_off_fade_stale = [f for f in new_off_fade if f not in new_off_fade_for_telegram]
-
-        if new_off_fade_for_telegram:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"📉 <b>FG Joint Total — OFFENSE FADE (clean lead) — TRACKING, not a bet signal</b>")
-            lines.append(f"{len(new_off_fade_for_telegram)} game(s): strong combined offense (overpriced) → fade the "
-                         f"full-game JOINT total UNDER. Accumulating live data; do NOT bet yet.\n")
-            for f in new_off_fade_for_telegram:
-                dk_pt = f.get('ofj_dk_point')
-                time  = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds  = format_fg_joint_odds_lines(f.get('ofj_odds_lines'), 'under')
-                lines.append(
-                    f"📉 <b>{f['away_team']} @ {f['home_team']}</b> — JOINT 🔻 UNDER "
-                    f"(combined offense {f.get('ofj_combined_off')}; "
-                    f"{f.get('ofj_away_off')}/{f.get('ofj_home_off')} away/home) [DraftKings {dk_pt}]{time}"
-                )
-                if odds:
-                    lines.append(f"   {odds}")
-        if new_off_fade_stale:
-            print(f"Off-fade Telegram suppression: {len(new_off_fade_stale)} flag(s) held back for stale prior "
-                  f"(lineup avg PA < {OFF_FADE_PA_STALE_THRESHOLD}): "
-                  f"{[(f.get('game'), f.get('ofj_min_pa_avg')) for f in new_off_fade_stale]}")
+        # NOTE: the FG Joint Total OFFENSE FADE block was removed from Telegram June 28, 2026 per
+        # Zach (focusing notifications on K props) -- still computed above and still logged to the
+        # OffenseFade Sheet tab below (append_off_fade_to_sheet(new_off_fade), unfiltered) and still
+        # captured in line-history, just no longer pushed to Telegram. The old OFF_FADE_PA_STALE
+        # Telegram gate went away with the block (it only filtered the notification, never the log).
 
         send_telegram('\n'.join(lines))
         if new_under:
