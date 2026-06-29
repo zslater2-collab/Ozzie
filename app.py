@@ -4616,16 +4616,19 @@ def api_notify():
         # K-Prop section header, each K bet line (_kprop_tg_bet), and the 🎯K-PROP↑ cross-ref tag.
         lines = [f"⚾ <b>Ozzie — {today}</b>"]
 
-        # ── CONSOLIDATED K-PROP SECTION (top) — every start that fired the K-prop over, whether
-        # standalone (k_prop_only) or alongside Pitcher Quality (pq_q4). Moved to the top and merged
-        # June 27, 2026 per Zach (mostly following K props now) so all K plays live in one place;
-        # the PQ section below keeps the pitcher-quality context but no longer repeats the bet.
-        if new_kprop:
-            lines.append("🎯 <b>K-Prop OVER — TRACKING ONLY (not yet a validated bet signal)</b>")
-            lines.append(f"{len(new_kprop)} start(s) — over-favorite price bias (DK over -120..-160; "
-                         "SHARP adds opp F5 total &lt;2.0 AND ≥7 prior starts). 2026 DK: ~+9% base / "
-                         "+18% sharp ROI, replicates May+June. UNVALIDATED OOS — shop the best over price.\n")
-            for f in new_kprop:
+        # ── CONSOLIDATED K-PROP SECTION (top) — SHARP-ONLY in Telegram as of June 29, 2026 per Zach.
+        # The open/close + matchup analysis showed the band edge is a strong-pitching-matchup edge:
+        # SHARP (opp F5 total <=1.5) carries it (~+18% 2026, both months), while base (opp F5 >=2.5)
+        # band plays were net dead (positive May, negative June). So only SHARP fires here. Base picks
+        # are NOT muted from tracking -- append_kprop_to_sheet(new_kprop) below still logs ALL of them
+        # (sharp + base) to the KProp tab unfiltered, so the base forward-record keeps accumulating.
+        new_kprop_sharp = [f for f in new_kprop if f.get('k_prop_tier') == 'sharp']
+        if new_kprop_sharp:
+            lines.append("🎯 <b>K-Prop OVER · SHARP only — TRACKING ONLY (not yet a validated bet signal)</b>")
+            lines.append(f"{len(new_kprop_sharp)} SHARP start(s) — over-favorite price + strong matchup "
+                         "(DK over -120..-160, opp F5 total &lt;2.0, ≥7 prior starts). SHARP is where the edge "
+                         "lives (~+18% 2026, both months); base plays log to the tracker only. Shop best over price.\n")
+            for f in new_kprop_sharp:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 also = ' · also 📊Q4' if f.get('pq_q4') else ''
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
@@ -4668,7 +4671,10 @@ def api_notify():
                 ok   = f.get('o_k_rate')
                 lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
                 kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
-                kprop_tag = ' 🎯K-PROP↑' if f.get('k_prop_flag') else ''
+                # only cross-reference SHARP K plays -- those are the only ones shown in the K-Prop
+                # section now (base K plays log to the tracker but don't fire), so a base tag here
+                # would point at a bet that isn't in the message.
+                kprop_tag = ' 🎯K-PROP↑' if (f.get('k_prop_flag') and f.get('k_prop_tier') == 'sharp') else ''
                 lines.append(
                     f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag}{kprop_tag} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
@@ -4761,7 +4767,11 @@ def api_notify():
         # captured in line-history, just no longer pushed to Telegram. The old OFF_FADE_PA_STALE
         # Telegram gate went away with the block (it only filtered the notification, never the log).
 
-        send_telegram('\n'.join(lines))
+        # Only push if a real section rendered (len>1 = more than the bare header). With base K plays
+        # now tracker-only, a base-K-only day would otherwise send a header with no body. The Sheet
+        # appends + dedup below still run regardless, so base picks keep logging on a no-message day.
+        if len(lines) > 1:
+            send_telegram('\n'.join(lines))
         if new_under:
             append_to_sheet(new_under)
         if new_pq:
