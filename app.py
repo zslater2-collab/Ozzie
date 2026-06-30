@@ -3184,10 +3184,11 @@ def build_picks_payload(today, games, heatmap_flags):
 def picks_cache_ttl(now_et=None):
     """Seconds until the picks cache should expire -- capped at 30 min, or sooner if 1am ET
     (the next day's slate boundary) is closer than that."""
+    from datetime import timedelta
     now_et = now_et or datetime.now(pytz.timezone('America/New_York'))
     expire_et = now_et.replace(hour=1, minute=0, second=0, microsecond=0)
     if now_et >= expire_et:
-        expire_et = expire_et.replace(day=expire_et.day + 1)
+        expire_et = expire_et + timedelta(days=1)
     return min(1800, int((expire_et - now_et).total_seconds()))
 
 
