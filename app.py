@@ -4642,15 +4642,25 @@ def api_notify():
             # doesn't re-ping them once.
             ksharp_sent |= {flag_key(f) for f in kprop_flags
                             if f.get('k_prop_tier') == 'sharp' and flag_key(f) in already_sent}
-        new_under   = [f for f in under_flags if flag_key(f) not in already_sent]
-        new_pq      = [f for f in pq_flags if flag_key(f) not in already_sent]
-        new_kprop   = [f for f in kprop_flags if flag_key(f) not in already_sent]
-        new_off     = [f for f in off_flags if flag_key(f) not in already_sent]
-        new_joint   = [f for f in joint_flags if flag_key(f) not in already_sent]
-        new_fg_tt   = [f for f in fg_tt_flags if flag_key(f) not in already_sent]
-        new_f5_over = [f for f in f5_over_flags if flag_key(f) not in already_sent]
-        new_fg_joint = [f for f in fg_joint_flags if flag_key(f) not in already_sent]
-        new_off_fade = [f for f in off_fade_flags if flag_key(f) not in already_sent]
+        # Per-signal dedup namespaces: each signal keys on "<signal>|game|team" so different
+        # signals on the SAME game (e.g. a K-prop and a Pitcher-Quality flag, which share
+        # game|batting_team) no longer suppress each other -- previously whichever fired first
+        # claimed the bare flag_key and blocked the rest (Skenes/Wheeler PQ shown in-app but never
+        # pinged). The extra bare-key check is a one-day transition guard so the switch-over doesn't
+        # re-ping anything already sent today under the old bare-key scheme; it's a no-op afterward
+        # (tomorrow's daily set contains only prefixed keys).
+        def _unsent(sig, flag_list):
+            return [f for f in flag_list
+                    if f"{sig}|{flag_key(f)}" not in already_sent and flag_key(f) not in already_sent]
+        new_under   = _unsent('under', under_flags)
+        new_pq      = _unsent('pq', pq_flags)
+        new_kprop   = _unsent('kprop', kprop_flags)
+        new_off     = _unsent('off', off_flags)
+        new_joint   = _unsent('joint', joint_flags)
+        new_fg_tt   = _unsent('fg_tt', fg_tt_flags)
+        new_f5_over = _unsent('f5_over', f5_over_flags)
+        new_fg_joint = _unsent('fg_joint', fg_joint_flags)
+        new_off_fade = _unsent('off_fade', off_fade_flags)
         # Sharp K-prop upgrades dedup independently (ksharp_sent) -- computed off the FULL
         # kprop_flags list (not already_sent-filtered new_kprop) so a pick that opened base
         # (its flag_key already in already_sent, Telegram-silent) can still fire its first
@@ -4840,12 +4850,14 @@ def api_notify():
             append_fg_joint_to_sheet(new_fg_joint)
         if new_off_fade:
             append_off_fade_to_sheet(new_off_fade)
-        all_sent = (already_sent | {flag_key(f) for f in new_under}
-                    | {flag_key(f) for f in new_pq} | {flag_key(f) for f in new_kprop}
-                    | {flag_key(f) for f in new_off}
-                    | {flag_key(f) for f in new_joint} | {flag_key(f) for f in new_fg_tt}
-                    | {flag_key(f) for f in new_f5_over} | {flag_key(f) for f in new_fg_joint}
-                    | {flag_key(f) for f in new_off_fade})
+        # Persist prefixed "<signal>|game|team" keys (matches _unsent above) so each signal dedups
+        # only against its own prior sends, never against another signal on the same game.
+        all_sent = (already_sent | {f"under|{flag_key(f)}" for f in new_under}
+                    | {f"pq|{flag_key(f)}" for f in new_pq} | {f"kprop|{flag_key(f)}" for f in new_kprop}
+                    | {f"off|{flag_key(f)}" for f in new_off}
+                    | {f"joint|{flag_key(f)}" for f in new_joint} | {f"fg_tt|{flag_key(f)}" for f in new_fg_tt}
+                    | {f"f5_over|{flag_key(f)}" for f in new_f5_over} | {f"fg_joint|{flag_key(f)}" for f in new_fg_joint}
+                    | {f"off_fade|{flag_key(f)}" for f in new_off_fade})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
         # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
         # upgrades are remembered independently of the shared game|team flag_key set above.
