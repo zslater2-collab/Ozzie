@@ -4609,6 +4609,20 @@ def api_notify():
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
         already_sent = set(existing_raw.split(',')) if existing_raw else set()
+        # Sharp K-prop pings use their OWN dedup namespace so that (a) a base sighting -- or a
+        # different signal sharing this game|team flag_key -- never locks out a later base->sharp
+        # upgrade, and (b) sharp still fires exactly once. Base picks stay Telegram-silent
+        # (Sheet/app only) and are deliberately NOT tracked here; they never ping, so there is
+        # nothing to dedup on them.
+        ksharp_key   = f"ozzie:kprop_sharp_notified:{today}"
+        ksharp_raw   = redis_get(ksharp_key)
+        ksharp_sent  = set(ksharp_raw.split(',')) if ksharp_raw else set()
+        if ksharp_raw is None:
+            # First notify run since this namespace was introduced (deploy day): carry over any
+            # sharp picks already announced today under the old shared dedup, so the switch-over
+            # doesn't re-ping them once.
+            ksharp_sent |= {flag_key(f) for f in kprop_flags
+                            if f.get('k_prop_tier') == 'sharp' and flag_key(f) in already_sent}
         new_under   = [f for f in under_flags if flag_key(f) not in already_sent]
         new_pq      = [f for f in pq_flags if flag_key(f) not in already_sent]
         new_kprop   = [f for f in kprop_flags if flag_key(f) not in already_sent]
@@ -4618,8 +4632,14 @@ def api_notify():
         new_f5_over = [f for f in f5_over_flags if flag_key(f) not in already_sent]
         new_fg_joint = [f for f in fg_joint_flags if flag_key(f) not in already_sent]
         new_off_fade = [f for f in off_fade_flags if flag_key(f) not in already_sent]
+        # Sharp K-prop upgrades dedup independently (ksharp_sent) -- computed off the FULL
+        # kprop_flags list (not already_sent-filtered new_kprop) so a pick that opened base
+        # (its flag_key already in already_sent, Telegram-silent) can still fire its first
+        # sharp ping. Added to the new-flag guard so a base->sharp upgrade doesn't early-return.
+        new_kprop_sharp = [f for f in kprop_flags
+                           if f.get('k_prop_tier') == 'sharp' and flag_key(f) not in ksharp_sent]
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
-                or new_f5_over or new_fg_joint or new_off_fade):
+                or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
@@ -4632,7 +4652,8 @@ def api_notify():
         # band plays were net dead (positive May, negative June). So only SHARP fires here. Base picks
         # are NOT muted from tracking -- append_kprop_to_sheet(new_kprop) below still logs ALL of them
         # (sharp + base) to the KProp tab unfiltered, so the base forward-record keeps accumulating.
-        new_kprop_sharp = [f for f in new_kprop if f.get('k_prop_tier') == 'sharp']
+        # new_kprop_sharp is computed above (off kprop_flags via ksharp_sent) so base->sharp upgrades
+        # survive the already_sent dedup that new_kprop is subject to.
         if new_kprop_sharp:
             lines.append("🎯 <b>K-Prop OVER · SHARP only — TRACKING ONLY (not yet a validated bet signal)</b>")
             lines.append(f"{len(new_kprop_sharp)} SHARP start(s) — over-favorite price + strong matchup "
@@ -4807,6 +4828,9 @@ def api_notify():
                     | {flag_key(f) for f in new_f5_over} | {flag_key(f) for f in new_fg_joint}
                     | {flag_key(f) for f in new_off_fade})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
+        # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
+        # upgrades are remembered independently of the shared game|team flag_key set above.
+        redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_kprop_sharp}), ex=86400)
         return jsonify({'status': 'ok',
                         'new': (len(new_under) + len(new_pq) + len(new_kprop) + len(new_off)
                                 + len(new_joint) + len(new_fg_tt) + len(new_f5_over)
