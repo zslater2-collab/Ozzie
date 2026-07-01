@@ -4,6 +4,7 @@ import csv
 import math
 import bisect
 import pickle
+import unicodedata
 import requests
 import time
 import pandas as pd
@@ -1535,6 +1536,12 @@ def _kprop_norm_name(name):
     if ',' in n:                       # 'Last, First' -> 'First Last'
         parts = [p.strip() for p in n.split(',', 1)]
         n = f"{parts[1]} {parts[0]}" if len(parts) == 2 else parts[0]
+    # Strip accents so Statcast's 'Sánchez, Cristopher' matches the odds feed's plain
+    # 'Cristopher Sanchez'. The docstring always promised this but the code never did it,
+    # silently dropping ~10 accented-name pitchers (Sánchez, Rodón, Luzardo, Eury Pérez,
+    # Germán Márquez, ...) from the K-prop join for all of 2026. Safe both ways: a no-op
+    # when neither side has accents; never breaks an already-matching pair.
+    n = ''.join(c for c in unicodedata.normalize('NFKD', n) if not unicodedata.combining(c))
     return ' '.join(n.lower().replace('.', '').split())
 
 
