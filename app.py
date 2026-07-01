@@ -2196,20 +2196,21 @@ def get_tracking_only_flags(games, force=False):
              game['away_team'], f"{game['away_team']}@{game['home_team']}"),
         ]
         for lineup, pitcher_id, pitcher_name, batting_team, fielding_team, game_str in matchups:
-            # EARLY-FIRE (June 29, 2026): only the probable pitcher is required, NOT a posted lineup.
-            # The K-prop signal needs just the starter + market lines (DK K prop, opp F5 total) +
-            # prior starts -- all available in the morning, hours before lineups post. The lineup-
-            # dependent signals (pq_q4, off_q3, joint) stay effectively lineup-gated below (pq_q4 and
-            # off_info both require `lineup`), so they fire post-lineup exactly as before -- this
-            # change ONLY lets K plays fire earlier. See project_kprop_timing_edge (open F5 is the
-            # best gate, so firing early on the morning line is safe / arguably better).
+            # EARLY-FIRE (June 29, 2026; extended to pq_q4 July 1, 2026): only the probable pitcher is
+            # required, NOT a posted lineup. The K-prop signal needs just the starter + market lines +
+            # prior starts. pq_q4 (the F5 1.5 UNDER pitcher-quality play) now ALSO early-fires: its edge
+            # is purely pitcher quality + the Pinnacle 1.5 line -- offense is empirically irrelevant to
+            # it (tested exhaustively; this market is pitcher-driven, not offense-driven), so waiting on
+            # the lineup only costs line value and risks nothing but a rare scratch (caught at lineup
+            # time). off_q3 and joint stay lineup-gated below (off_info requires `lineup`) -- those ARE
+            # offense signals. See project_kprop_timing_edge / project_kprop_prod_bugs_jul2026.
             if not pitcher_id:
                 continue
 
             pq_info = pq_population.get(pitcher_id) if pitcher_id else None
-            # gated on `lineup` so PQ keeps firing only post-lineup (unchanged behavior); pre-lineup
-            # runs surface K-only plays, where pq_q4 is False and the flag carries pitcher data only.
-            pq_q4   = bool(pq_info and pq_info['quartile'] == 'Q4' and lineup)
+            # NOT gated on `lineup` (see EARLY-FIRE above): fires on probable pitcher + Q4 + the Pinnacle
+            # 1.5 gate below. Offense fields on the flag stay None pre-lineup and fill in once it posts.
+            pq_q4   = bool(pq_info and pq_info['quartile'] == 'Q4')
 
             off_info = get_lineup_offense_quality(lineup, off_population) if (off_population and lineup) else None
             off_q3_gate = bool(
