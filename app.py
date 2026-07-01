@@ -4862,6 +4862,36 @@ def api_notify():
         # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
         # upgrades are remembered independently of the shared game|team flag_key set above.
         redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_kprop_sharp}), ex=86400)
+
+        # ── SHARP-AUDIT (TEMPORARY, ~1 week — remove after review) ──────────────────────────────
+        # Validates two things so we can decide whether faster K-prop pulls are worth the credits:
+        #   (1) delivery: every computed sharp should be 'now' or 'earlier' -- 'NEVER' = a real hole
+        #       in the dedup fix (should not appear).
+        #   (2) runway: minutes to first pitch when the sharp is active. If sharps consistently fire
+        #       with hours of runway, the 4h odds cache is provably fine and the pull isn't needed.
+        try:
+            _et = pytz.timezone('America/New_York')
+            _now_et = datetime.now(_et)
+            for _f in kprop_flags:
+                if _f.get('k_prop_tier') != 'sharp':
+                    continue
+                _mins = ''
+                _gt = _f.get('game_time')
+                if _gt:
+                    try:
+                        _t  = datetime.strptime(_gt.replace(' ET', '').strip(), '%I:%M %p').time()
+                        _fp = _et.localize(datetime.combine(_now_et.date(), _t))
+                        _mins = int((_fp - _now_et).total_seconds() // 60)
+                    except Exception:
+                        pass
+                _fk = flag_key(_f)
+                _delivered = ('now' if _f in new_kprop_sharp
+                              else 'earlier' if _fk in ksharp_sent else 'NEVER')
+                print(f"[SHARP-AUDIT] {_f.get('pitcher_name')} dk={_f.get('kprop_dk_over')} "
+                      f"opp_f5={_f.get('kprop_opp_f5')} mins_to_fp={_mins} delivered={_delivered}")
+        except Exception as _e:
+            print(f"[SHARP-AUDIT] error: {_e}")
+
         return jsonify({'status': 'ok',
                         'new': (len(new_under) + len(new_pq) + len(new_kprop) + len(new_off)
                                 + len(new_joint) + len(new_fg_tt) + len(new_f5_over)
