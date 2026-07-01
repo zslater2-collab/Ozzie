@@ -1249,8 +1249,18 @@ def _kprop_tg_bet(f):
     thin = ''
     if f.get('kprop_sharp_blocked_thin'):
         thin = f" (F5<2.0 but {f.get('kprop_prior_starts')} starts <7 — held at base)"
+    # Kalshi over price (exchange), shown for comparison vs the sportsbook. Stored cents are the
+    # yes-ask (cost to buy the over) at the implied strike; convert to American for apples-to-apples.
+    # Different venue/strike, so show the strike too -- it may not equal DK's line.
+    kal_s    = ''
+    k_strike = f.get('kalshi_k_strike')
+    k_cents  = f.get('kalshi_k_yes_bid')
+    if k_strike is not None and k_cents:
+        k_am   = _kalshi_dec_to_american(100.0 / k_cents)
+        k_am_s = f"{k_am:+d}" if k_am is not None else '—'
+        kal_s  = f", Kalshi {k_strike}+ {k_am_s} ({k_cents}¢)"
     return (f"🎯 K-PROP OVER {line if line is not None else '—'} [{tier}] — "
-            f"DK {dk_s}{dk_mark}, best {best_s} ({book}), "
+            f"DK {dk_s}{dk_mark}, best {best_s} ({book}){kal_s}, "
             f"opp F5 {f5 if f5 is not None else '—'}{thin}")
 
 
@@ -1838,18 +1848,20 @@ def get_kalshi_k_props(games, force=False):
 
 
 def _lookup_kalshi_k(kalshi_k_props, pair_key, pitcher_name):
-    """Match a pitcher (MLB 'First Last' format) to their Kalshi K prop entry.
-    Falls back to last-name match for accented / hyphenated names.
+    """Match a pitcher to their Kalshi K prop entry. Accent- and format-insensitive:
+    normalizes both sides via _kprop_norm_name (same accent-stripping as the sportsbook
+    K-prop join), then falls back to a last-name match for hyphenated / multi-part names.
     Returns the prop dict or None if not found."""
     game_props = kalshi_k_props.get(pair_key, {})
     if not game_props or not pitcher_name or pitcher_name == 'TBD':
         return None
-    name_lower = pitcher_name.strip().lower()
-    if name_lower in game_props:
-        return game_props[name_lower]
-    last = name_lower.split()[-1]
-    for key, val in game_props.items():
-        if key.split()[-1] == last:
+    target     = _kprop_norm_name(pitcher_name)
+    norm_props = {_kprop_norm_name(k): v for k, v in game_props.items()}
+    if target in norm_props:
+        return norm_props[target]
+    last = target.split()[-1] if target else ''
+    for key, val in norm_props.items():
+        if key and key.split()[-1] == last:
             return val
     return None
 
