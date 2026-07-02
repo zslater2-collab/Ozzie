@@ -4572,6 +4572,67 @@ def api_backfill_outcomes():
         return jsonify({'error': str(e)}), 500
 
 
+def _probe_kprop_open():
+    """TEMPORARY (~1 week, then remove) — measure WHEN tomorrow's DK pitcher-strikeout props first
+    post, so we can collapse night-before flagging to a single well-timed 'open' pull instead of
+    pulling all evening. Runs only in the ET evening window; lean (kprop market, us region only);
+    each of tomorrow's events is checked every run until its props appear, then added to a Redis
+    'seen' set and skipped -- this bounds cost and captures each game's first-appearance time (so we
+    see the ramp shape, not just the first game). Fully fail-safe: any error just logs and returns."""
+    if not ODDS_API_KEY:
+        return
+    from datetime import timedelta
+    et = pytz.timezone('America/New_York')
+    now_et = datetime.now(et)
+    if not (18 <= now_et.hour <= 23):   # evening only; after midnight 'tomorrow' becomes 'today'
+        return
+    tomorrow = (now_et + timedelta(days=1)).strftime('%Y-%m-%d')
+    try:
+        ev = requests.get(f"{ODDS_API_BASE}/sports/baseball_mlb/events",
+                          params={'apiKey': ODDS_API_KEY}, timeout=15)
+        events = ev.json() if ev.ok else []
+    except Exception as e:
+        print(f"[KPROP-OPEN] events fetch error: {e}")
+        return
+    tmw = []
+    for e in events:
+        ct = e.get('commence_time')
+        if not ct:
+            continue
+        try:
+            if pd.to_datetime(ct, utc=True).tz_convert(et).strftime('%Y-%m-%d') == tomorrow:
+                tmw.append(e)
+        except Exception:
+            continue
+    if not tmw:
+        print(f"[KPROP-OPEN] {now_et:%H:%M} ET: no events listed for {tomorrow} yet")
+        return
+    seen_key = f"ozzie:kprop_probe_seen:{tomorrow}"
+    seen_raw = redis_get(seen_key)
+    seen     = set(seen_raw.split(',')) if seen_raw else set()
+    newly    = []
+    for e in tmw:
+        eid = e.get('id')
+        if not eid or eid in seen:
+            continue
+        try:
+            r = requests.get(f"{ODDS_API_BASE}/sports/baseball_mlb/events/{eid}/odds",
+                             params={'apiKey': ODDS_API_KEY, 'regions': 'us',
+                                     'markets': ODDS_KPROP_MARKET, 'oddsFormat': 'american'},
+                             timeout=15)
+            data = r.json() if r.ok else {}
+        except Exception:
+            continue
+        if any(m.get('key') == ODDS_KPROP_MARKET
+               for b in data.get('bookmakers', []) for m in b.get('markets', [])):
+            seen.add(eid)
+            newly.append(f"{e.get('away_team','?')}@{e.get('home_team','?')}")
+    if newly:
+        redis_set(seen_key, ','.join(seen), ex=172800)   # 48h
+    print(f"[KPROP-OPEN] {now_et:%H:%M} ET: {len(seen)}/{len(tmw)} of {tomorrow} games have DK K-props"
+          + (f"  NEW: {', '.join(newly)}" if newly else ""))
+
+
 @app.route('/api/notify')
 def api_notify():
     secret = request.args.get('secret', '')
@@ -4580,6 +4641,11 @@ def api_notify():
     try:
         # TRACKING-ONLY MODE (see comment above get_tracking_only_flags): Drive loading paused.
         today   = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        # TEMP probe (~1wk): logs when tomorrow's K-props post so we can time a single 'open' pull.
+        try:
+            _probe_kprop_open()
+        except Exception as _pe:
+            print(f"[KPROP-OPEN] probe error: {_pe}")
         games   = get_lineups_and_starters(today)
         flags   = get_tracking_only_flags(games)
 
