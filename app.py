@@ -4712,8 +4712,18 @@ def api_notify():
         # visible on the dashboard (which already carries its own inline warning) -- only the
         # Telegram push is gated.
         PQ_BF_STALE_THRESHOLD = 20
-        new_pq_for_telegram = [f for f in new_pq if (f.get('pq_current_bf') or 0) >= PQ_BF_STALE_THRESHOLD]
-        new_pq_stale = [f for f in new_pq if f not in new_pq_for_telegram]
+        # A PQ play is only ACTIONABLE once a non-Pinnacle (bettable) book posts an F5 line. Pinnacle
+        # posts its F5 lines hours before other books and is validation-only, so a Pinnacle-only flag
+        # can't be acted on yet -- hold the Telegram ping until at least one bettable book shows a line.
+        # The dedup key is written only for what's actually sent (see all_sent below), so a held flag
+        # isn't marked and fires exactly once, the moment a bettable book appears.
+        def _pq_has_bettable_book(f):
+            return any(b != PINNACLE_BOOK_LABEL and (v or {}).get('point') is not None
+                       for b, v in (f.get('odds_lines') or {}).items())
+        _pq_bf_ok = lambda f: (f.get('pq_current_bf') or 0) >= PQ_BF_STALE_THRESHOLD
+        new_pq_for_telegram = [f for f in new_pq if _pq_bf_ok(f) and _pq_has_bettable_book(f)]
+        new_pq_stale   = [f for f in new_pq if not _pq_bf_ok(f)]
+        new_pq_no_book = [f for f in new_pq if _pq_bf_ok(f) and not _pq_has_bettable_book(f)]
 
         if new_pq_for_telegram:
             if len(lines) > 1:
@@ -4749,6 +4759,9 @@ def api_notify():
             print(f"PQ Telegram suppression: {len(new_pq_stale)} flag(s) held back for stale prior "
                   f"(current-season BF < {PQ_BF_STALE_THRESHOLD}): "
                   f"{[(f.get('pitcher_name'), f.get('pq_current_bf')) for f in new_pq_stale]}")
+        if new_pq_no_book:
+            print(f"PQ Telegram hold: {len(new_pq_no_book)} flag(s) Pinnacle-only, no bettable book yet "
+                  f"-- will fire once another book posts: {[f.get('pitcher_name') for f in new_pq_no_book]}")
 
         # NOTE: the K-prop section was moved to the TOP of the message (consolidated, all K plays)
         # June 27, 2026 — see the new_kprop block right after the header. The old standalone-only
@@ -4853,8 +4866,10 @@ def api_notify():
             append_off_fade_to_sheet(new_off_fade)
         # Persist prefixed "<signal>|game|team" keys (matches _unsent above) so each signal dedups
         # only against its own prior sends, never against another signal on the same game.
+        # NOTE: PQ is keyed off new_pq_for_telegram (what actually pinged), not new_pq -- a flag held
+        # for "no bettable book yet" stays unmarked so it fires once a book posts (latch, see above).
         all_sent = (already_sent | {f"under|{flag_key(f)}" for f in new_under}
-                    | {f"pq|{flag_key(f)}" for f in new_pq} | {f"kprop|{flag_key(f)}" for f in new_kprop}
+                    | {f"pq|{flag_key(f)}" for f in new_pq_for_telegram} | {f"kprop|{flag_key(f)}" for f in new_kprop}
                     | {f"off|{flag_key(f)}" for f in new_off}
                     | {f"joint|{flag_key(f)}" for f in new_joint} | {f"fg_tt|{flag_key(f)}" for f in new_fg_tt}
                     | {f"f5_over|{flag_key(f)}" for f in new_f5_over} | {f"fg_joint|{flag_key(f)}" for f in new_fg_joint}
