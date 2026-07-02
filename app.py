@@ -3554,6 +3554,10 @@ def append_pq_to_sheet(flags):
         print(f"Google Sheets (PitcherQuality) error: {e}")
 
 
+LINE_ARCHIVE_TAB    = 'LineArchive'
+LINE_ARCHIVE_HEADER = ['ts_utc', 'et_date', 'market', 'entity', 'book', 'point', 'over', 'under']
+LINE_ARCHIVE_DAYS   = 30   # auto-prune: keep ~30 days on the tab (well under the 10M-cell cap)
+
 KPROP_SHEET_TAB    = 'KProp'
 # Rebuilt June 27, 2026 for the over-favorite price-bias signal (replaced the leaked proj_gap
 # columns). 'k_hit' now = 1 if actual_k > kprop_line (over wins). Kalshi/projected_k kept as
@@ -4572,6 +4576,82 @@ def api_backfill_outcomes():
         return jsonify({'error': str(e)}), 500
 
 
+def archive_lines(team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines):
+    """Comprehensive line archive -- persist EVERY line we pull (all games, all markets, all books),
+    not just flagged games, so paid odds data isn't discarded after the 4h cache expires. Writes to
+    a dedicated LineArchive tab. CHANGE-ONLY: a (market, entity, book) row is written only when its
+    point/over/under differs from the last value logged today (state kept in Redis, reset daily), so
+    identical re-pulls across notify runs don't bloat the sheet. Batched (one API call per snapshot).
+    Daily auto-prune to LINE_ARCHIVE_DAYS so it never approaches the 10M-cell cap and needs no manual
+    wipe. Fully fail-safe -- any error just logs and returns, never blocks notify.
+    NOTE: granularity is bounded by the odds cache (~4h) -- we archive exactly what we actually pull."""
+    if not SHEETS_CREDS:
+        return
+    try:
+        import json as _json
+        from datetime import timedelta
+        et  = pytz.timezone('America/New_York')
+        now = datetime.now(pytz.utc)
+        ts  = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+        now_et  = now.astimezone(et)
+        et_date = now_et.strftime('%Y-%m-%d')
+
+        # flatten every market into uniform (market, entity, book, point, over, under) rows
+        rows = []
+        def add(market, entity, books):
+            for book, v in (books or {}).items():
+                if isinstance(v, dict):
+                    rows.append((market, str(entity), book, v.get('point'), v.get('over'), v.get('under')))
+        for tabb, books in (team_lines or {}).items():    add('f5_tt', tabb, books)
+        for tabb, books in (fg_lines or {}).items():       add('fg_tt', tabb, books)
+        for key, books in (joint_lines or {}).items():     add('f5_joint', '@'.join(key) if isinstance(key, tuple) else key, books)
+        for key, books in (fg_joint_lines or {}).items():  add('fg_joint', '@'.join(key) if isinstance(key, tuple) else key, books)
+        for pit, books in (kprop_lines or {}).items():     add('kprop', pit, books)
+        if not rows:
+            return
+
+        # change detection -- only log rows whose value moved since the last snapshot today
+        seen_key = f"ozzie:linearchive_seen:{et_date}"
+        seen_raw = redis_get(seen_key)
+        seen = _json.loads(seen_raw) if seen_raw else {}
+        changed = []
+        for market, entity, book, point, over, under in rows:
+            k, val = f"{market}|{entity}|{book}", f"{point},{over},{under}"
+            if seen.get(k) != val:
+                seen[k] = val
+                changed.append([ts, et_date, market, entity, book, point, over, under])
+        if not changed:
+            return
+
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, LINE_ARCHIVE_TAB, LINE_ARCHIVE_HEADER)
+        ws.append_rows(changed, value_input_option='USER_ENTERED')
+        redis_set(seen_key, _json.dumps(seen), ex=172800)
+        print(f"LineArchive: +{len(changed)} changed line-rows (of {len(rows)} pulled)")
+
+        # daily auto-prune (once per ET day): rows are appended chronologically, so all rows older
+        # than the cutoff are a contiguous block at the top -> one range delete.
+        prune_key = f"ozzie:linearchive_pruned:{et_date}"
+        if not redis_get(prune_key):
+            try:
+                cutoff = (now_et - timedelta(days=LINE_ARCHIVE_DAYS)).strftime('%Y-%m-%d')
+                dates = ws.col_values(2)   # col B = et_date; dates[0] is the header
+                n_old = 0
+                for d in dates[1:]:
+                    if d and d < cutoff:
+                        n_old += 1
+                    else:
+                        break
+                if n_old:
+                    ws.delete_rows(2, 1 + n_old)
+                    print(f"LineArchive prune: removed {n_old} rows older than {cutoff}")
+                redis_set(prune_key, '1', ex=172800)
+            except Exception as pe:
+                print(f"LineArchive prune error: {pe}")
+    except Exception as e:
+        print(f"LineArchive error: {e}")
+
+
 def _probe_kprop_open():
     """TEMPORARY (~1 week, then remove) — measure WHEN tomorrow's DK pitcher-strikeout props first
     post, so we can collapse night-before flagging to a single well-timed 'open' pull instead of
@@ -4663,6 +4743,15 @@ def api_notify():
                 redis_set(f"ozzie:picks:{today}", _json.dumps(picks_payload), ex=ttl)
         except Exception as cache_err:
             print(f"Picks cache refresh from notify failed: {cache_err}")
+
+        # Comprehensive line archive (change-only) -- persist EVERY line pulled, not just flagged
+        # games. get_odds_api_lines here is a Redis cache HIT (get_tracking_only_flags just populated
+        # it), so this spends no extra API credits. Best-effort; never blocks the Telegram send.
+        try:
+            _tl, _jl, _fl, _fjl, _kl = get_odds_api_lines(games)
+            archive_lines(_tl, _jl, _fl, _fjl, _kl)
+        except Exception as _ae:
+            print(f"Line archive error: {_ae}")
 
         # VISIBILITY vs TRACKING, per Zach (June 22, 2026; updated June 28, 2026): every signal
         # below still gets logged to its own Sheet tab every cycle (see the unconditional
