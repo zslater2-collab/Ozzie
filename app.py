@@ -2346,11 +2346,14 @@ def get_tracking_only_flags(games, force=False):
             if _ofav.get('f5_sharp_now'):
                 _f5_latch.add(_opp_abb_f5)   # remember this matchup posted <2.0 -> stays sharp today
             _k_prop_signal = _ofav['signal']
-            # DRIFT-IN watchlist: pre-band over price (+100..-119) + opp F5<=1.5 + pq_q4 top-quintile
-            # arm -> the arms we expect to steam INTO the band. Tracking-only (see KPROP_DRIFTIN note).
-            _kprop_driftin = bool(pq_q4 and _ofav.get('driftin_price')
+            # DRIFT-IN: pre-band over (+100..-119) + opp F5<=1.5 = arms we expect to steam INTO the
+            # band. kprop_preband LOGS the whole pool (PQ + non-PQ) so we can learn the targeting cut;
+            # kprop_driftin (the PQ subset) is what pings Telegram. Drift-in itself is self-captured: an
+            # arm that crosses into -120 later fires as a SHARP pick and upgrades its row's tier in place.
+            _kprop_preband = bool(_ofav.get('driftin_price')
                                   and _ofav.get('opp_f5_total') is not None
                                   and _ofav['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
+            _kprop_driftin = bool(_kprop_preband and pq_q4)
             _kprop_diag['checked'] += 1
             if _kprop_norm_name(pitcher_name) in kprop_lines:
                 _kprop_diag['matched'] += 1
@@ -2407,6 +2410,7 @@ def get_tracking_only_flags(games, force=False):
                 'k_comp_score':     _kc,
                 'k_prop_flag':      _k_prop_signal,
                 'k_prop_tier':      _ofav['tier'],
+                'kprop_preband':    _kprop_preband,
                 'kprop_driftin':    _kprop_driftin,
                 'kprop_dk_over':    _ofav['dk_over'],
                 'kprop_best_over':  _ofav['best_over'],
@@ -2824,9 +2828,10 @@ def get_heatmap_flags(games, model):
                                               prior_starts=(pq_info.get('gs') if pq_info
                                                          else _pq_current_gs.get(pitcher_id)))
             _k_prop_signal2 = _ofav2['signal']
-            _kprop_driftin2 = bool(pq_q4 and _ofav2.get('driftin_price')
+            _kprop_preband2 = bool(_ofav2.get('driftin_price')
                                    and _ofav2.get('opp_f5_total') is not None
                                    and _ofav2['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
+            _kprop_driftin2 = bool(_kprop_preband2 and pq_q4)
 
             flag = {
                 'game':             game_str,
@@ -2864,6 +2869,7 @@ def get_heatmap_flags(games, model):
                 'k_comp_score':     _kc,
                 'k_prop_flag':      _k_prop_signal2,
                 'k_prop_tier':      _ofav2['tier'],
+                'kprop_preband':    _kprop_preband2,
                 'kprop_driftin':    _kprop_driftin2,
                 'kprop_dk_over':    _ofav2['dk_over'],
                 'kprop_best_over':  _ofav2['best_over'],
@@ -3665,9 +3671,11 @@ KPROP_SHEET_HEADER = [
     'game_id',
     'kprop_prior_starts',            # season-to-date prior starts (SHARP needs >=7); appended last
                                      # to avoid shifting the manually-filled actual_k/k_hit columns
-    'kprop_driftin',                 # TRUE = pre-band drift-in watchlist (over +100..-119, opp F5<=1.5,
-                                     # pq_q4); k_prop_tier is blank on these (band signal didn't fire).
-                                     # actual_k/k_hit still auto-grade the over vs the line for tracking.
+    'kprop_preband',                 # TRUE = pre-band pool: over +100..-119, opp F5<=1.5 (PQ or not).
+                                     # k_prop_tier is blank at first log; if it later DRIFTS INTO the band
+                                     # it fires SHARP and its tier upgrades in place -> tier=sharp on a
+                                     # preband row = it drifted in. actual_k/k_hit auto-grade the over.
+    'kprop_driftin',                 # TRUE = the PQ subset of preband (fip_pctile>=80) -- Telegram-fired.
 ]
 
 
@@ -3688,9 +3696,10 @@ def append_kprop_to_sheet(flags):
         rows_added    = 0
         rows_upgraded = 0
         for f in flags:
-            # log band-signal rows (k_prop_flag) AND pre-band drift-in watchlist rows (kprop_driftin),
-            # so the drift-in play accumulates a forward record and auto-grades via actual_k/k_hit.
-            if not f.get('k_prop_flag') and not f.get('kprop_driftin'):
+            # log band-signal rows (k_prop_flag) AND the whole pre-band pool (kprop_preband: PQ + non-PQ,
+            # opp F5<=1.5, over +100..-119) so the drift-in play accumulates a forward record and
+            # auto-grades via actual_k/k_hit. kprop_driftin marks the PQ subset (the Telegram-fired ones).
+            if not f.get('k_prop_flag') and not f.get('kprop_preband'):
                 continue
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_row:
@@ -3725,6 +3734,7 @@ def append_kprop_to_sheet(flags):
                 '', '',  # actual_k / k_hit — filled manually after game
                 f.get('game_id', ''),
                 f.get('kprop_prior_starts', ''),
+                'TRUE' if f.get('kprop_preband') else '',
                 'TRUE' if f.get('kprop_driftin') else '',
             ], value_input_option='USER_ENTERED')
             existing_row[key] = (None, f.get('k_prop_tier', ''))
@@ -4968,14 +4978,15 @@ def api_notify():
         under_flags  = [f for f in flags if f.get('signal') == 'under']
         pq_flags     = [f for f in flags if f.get('pq_q4')]
         kprop_flags  = [f for f in flags if f.get('k_prop_flag')]
-        kprop_driftin_flags = [f for f in flags if f.get('kprop_driftin')]
+        kprop_preband_flags = [f for f in flags if f.get('kprop_preband')]   # whole pool -> sheet log
+        kprop_driftin_flags = [f for f in flags if f.get('kprop_driftin')]   # PQ subset -> Telegram
         off_flags    = [f for f in flags if f.get('off_q3_gate')]
         joint_flags  = [f for f in flags if f.get('joint_signal')]
         fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
         f5_over_flags = [f for f in flags if f.get('signal') == 'f5_tt_over']
         fg_joint_flags = [f for f in flags if f.get('signal') == 'fg_joint_total']
         off_fade_flags = [f for f in flags if f.get('signal') == 'fg_joint_off_under']
-        if not (under_flags or pq_flags or kprop_flags or kprop_driftin_flags or off_flags or joint_flags
+        if not (under_flags or pq_flags or kprop_flags or kprop_preband_flags or off_flags or joint_flags
                 or fg_tt_flags or f5_over_flags or fg_joint_flags or off_fade_flags):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No flags today'})
 
@@ -5021,7 +5032,8 @@ def api_notify():
         new_f5_over = _unsent('f5_over', f5_over_flags)
         new_fg_joint = _unsent('fg_joint', fg_joint_flags)
         new_off_fade = _unsent('off_fade', off_fade_flags)
-        new_kprop_driftin = _unsent('kdrift', kprop_driftin_flags)
+        new_kprop_preband = _unsent('kpreband', kprop_preband_flags)   # sheet log (PQ + non-PQ)
+        new_kprop_driftin = _unsent('kdrift', kprop_driftin_flags)     # Telegram (PQ subset)
         # Sharp K-prop upgrades dedup independently (ksharp_sent) -- computed off the FULL
         # kprop_flags list (not already_sent-filtered new_kprop) so a pick that opened base
         # (its flag_key already in already_sent, Telegram-silent) can still fire its first
@@ -5029,7 +5041,8 @@ def api_notify():
         new_kprop_sharp = [f for f in kprop_flags
                            if f.get('k_prop_tier') == 'sharp' and flag_key(f) not in ksharp_sent]
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
-                or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp or new_kprop_driftin):
+                or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp
+                or new_kprop_driftin or new_kprop_preband):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
@@ -5234,10 +5247,11 @@ def api_notify():
             append_to_sheet(new_under)
         if new_pq:
             append_pq_to_sheet(new_pq)
-        if new_kprop or new_kprop_driftin:
-            # drift-in rows are disjoint from band rows (mutually-exclusive price zones); the sheet
-            # logger gates on k_prop_flag OR kprop_driftin and dedups by date|game|team.
-            append_kprop_to_sheet(new_kprop + new_kprop_driftin)
+        if new_kprop or new_kprop_preband:
+            # pre-band rows are disjoint from band rows (mutually-exclusive price zones); the sheet
+            # logger gates on k_prop_flag OR kprop_preband and dedups by date|game|team. Logs the whole
+            # pre-band pool (PQ + non-PQ) so PQ vs non-PQ hit-rate is comparable forward.
+            append_kprop_to_sheet(new_kprop + new_kprop_preband)
         if new_off:
             append_off_to_sheet(new_off)
         if new_joint:
@@ -5260,7 +5274,8 @@ def api_notify():
                     | {f"joint|{flag_key(f)}" for f in new_joint} | {f"fg_tt|{flag_key(f)}" for f in new_fg_tt}
                     | {f"f5_over|{flag_key(f)}" for f in new_f5_over} | {f"fg_joint|{flag_key(f)}" for f in new_fg_joint}
                     | {f"off_fade|{flag_key(f)}" for f in new_off_fade}
-                    | {f"kdrift|{flag_key(f)}" for f in new_kprop_driftin})
+                    | {f"kdrift|{flag_key(f)}" for f in new_kprop_driftin}
+                    | {f"kpreband|{flag_key(f)}" for f in new_kprop_preband})
         redis_set(redis_key, ','.join(all_sent), ex=86400)
         # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
         # upgrades are remembered independently of the shared game|team flag_key set above.
