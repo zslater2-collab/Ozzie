@@ -3646,17 +3646,26 @@ def append_kprop_to_sheet(flags):
         ws = _get_or_create_ws(gspread, sh, KPROP_SHEET_TAB, KPROP_SHEET_HEADER)
 
         existing = ws.get_all_values()
-        existing_keys = set()
-        for row in existing[1:]:
+        existing_row = {}   # 'date|game|team' -> (sheet_row_index, current_tier); sheet rows 1-indexed
+        for i, row in enumerate(existing[1:], start=2):   # existing[0] is the header (sheet row 1)
             if len(row) >= 3:
-                existing_keys.add(f"{row[0]}|{row[1]}|{row[2]}")
-        today      = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-        rows_added = 0
+                existing_row[f"{row[0]}|{row[1]}|{row[2]}"] = (i, row[4] if len(row) >= 5 else '')
+        today         = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added    = 0
+        rows_upgraded = 0
         for f in flags:
             if not f.get('k_prop_flag'):
                 continue
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
-            if key in existing_keys:
+            if key in existing_row:
+                # Already logged today -- but UPGRADE the row in place if it has since become sharp
+                # (base->sharp: e.g. opp F5 posted 1.5 after the first 'base' log). Tier + opp F5.
+                _ridx, _cur = existing_row[key]
+                if f.get('k_prop_tier') == 'sharp' and _cur != 'sharp' and _ridx is not None:
+                    ws.update_cell(_ridx, 5, 'sharp')                      # col 5  = k_prop_tier
+                    ws.update_cell(_ridx, 11, f.get('kprop_opp_f5', ''))   # col 11 = kprop_opp_f5
+                    existing_row[key] = (_ridx, 'sharp')
+                    rows_upgraded += 1
                 continue
             team_odds = f.get('odds_lines') or {}
             def _lo(book):
@@ -3681,9 +3690,9 @@ def append_kprop_to_sheet(flags):
                 f.get('game_id', ''),
                 f.get('kprop_prior_starts', ''),
             ], value_input_option='USER_ENTERED')
-            existing_keys.add(key)
+            existing_row[key] = (None, f.get('k_prop_tier', ''))
             rows_added += 1
-        print(f"Google Sheets (KProp): {rows_added} rows added")
+        print(f"Google Sheets (KProp): {rows_added} rows added, {rows_upgraded} upgraded base->sharp")
     except ImportError:
         print("gspread not installed — skipping KProp sheet append")
     except Exception as e:
