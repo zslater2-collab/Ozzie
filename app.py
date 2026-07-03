@@ -3558,6 +3558,12 @@ LINE_ARCHIVE_TAB    = 'LineArchive'
 LINE_ARCHIVE_HEADER = ['ts_utc', 'et_date', 'market', 'entity', 'book', 'point', 'over', 'under']
 LINE_ARCHIVE_DAYS   = 30   # auto-prune: keep ~30 days on the tab (well under the 10M-cell cap)
 
+# Diagnostic tabs (temporary probes -> written to Sheets so Zach can see them, not just Render logs)
+KPROP_OPEN_TAB      = 'KPropOpen'
+KPROP_OPEN_HEADER   = ['ts_et', 'tomorrow_date', 'games_with_kprops', 'total_games', 'newly_appeared']
+SHARP_AUDIT_TAB     = 'SharpAudit'
+SHARP_AUDIT_HEADER  = ['ts_et', 'pitcher', 'dk_price', 'opp_f5', 'mins_to_fp', 'delivered']
+
 KPROP_SHEET_TAB    = 'KProp'
 # Rebuilt June 27, 2026 for the over-favorite price-bias signal (replaced the leaked proj_gap
 # columns). 'k_hit' now = 1 if actual_k > kprop_line (over wins). Kalshi/projected_k kept as
@@ -4576,6 +4582,19 @@ def api_backfill_outcomes():
         return jsonify({'error': str(e)}), 500
 
 
+def _append_sheet_rows(tab, header, rows):
+    """Append rows to a diagnostic Sheet tab (creating it with `header` if needed). Batched, and
+    fully fail-safe -- any error just logs, never blocks the caller."""
+    if not SHEETS_CREDS or not rows:
+        return
+    try:
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, tab, header)
+        ws.append_rows(rows, value_input_option='USER_ENTERED')
+    except Exception as e:
+        print(f"[{tab}] sheet append error: {e}")
+
+
 def archive_lines(team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines):
     """Comprehensive line archive -- persist EVERY line we pull (all games, all markets, all books),
     not just flagged games, so paid odds data isn't discarded after the 4h cache expires. Writes to
@@ -4711,6 +4730,8 @@ def _probe_kprop_open():
         redis_set(seen_key, ','.join(seen), ex=172800)   # 48h
     print(f"[KPROP-OPEN] {now_et:%H:%M} ET: {len(seen)}/{len(tmw)} of {tomorrow} games have DK K-props"
           + (f"  NEW: {', '.join(newly)}" if newly else ""))
+    _append_sheet_rows(KPROP_OPEN_TAB, KPROP_OPEN_HEADER,
+                       [[now_et.strftime('%Y-%m-%d %H:%M'), tomorrow, len(seen), len(tmw), ', '.join(newly)]])
 
 
 @app.route('/api/notify')
@@ -5043,9 +5064,15 @@ def api_notify():
         try:
             _et = pytz.timezone('America/New_York')
             _now_et = datetime.now(_et)
+            # log each sharp ONCE per day (Redis dedup) so the tab has one clean row per play
+            _sa_key = f"ozzie:sharp_audit_logged:{today}"
+            _sa_raw = redis_get(_sa_key)
+            _sa_logged = set(_sa_raw.split('|')) if _sa_raw else set()
+            _sa_rows = []
             for _f in kprop_flags:
                 if _f.get('k_prop_tier') != 'sharp':
                     continue
+                _pn = _f.get('pitcher_name') or ''
                 _mins = ''
                 _gt = _f.get('game_time')
                 if _gt:
@@ -5058,8 +5085,15 @@ def api_notify():
                 _fk = flag_key(_f)
                 _delivered = ('now' if _f in new_kprop_sharp
                               else 'earlier' if _fk in ksharp_sent else 'NEVER')
-                print(f"[SHARP-AUDIT] {_f.get('pitcher_name')} dk={_f.get('kprop_dk_over')} "
+                print(f"[SHARP-AUDIT] {_pn} dk={_f.get('kprop_dk_over')} "
                       f"opp_f5={_f.get('kprop_opp_f5')} mins_to_fp={_mins} delivered={_delivered}")
+                if _pn and _pn not in _sa_logged:
+                    _sa_rows.append([_now_et.strftime('%Y-%m-%d %H:%M'), _pn, _f.get('kprop_dk_over'),
+                                     _f.get('kprop_opp_f5'), _mins, _delivered])
+                    _sa_logged.add(_pn)
+            if _sa_rows:
+                _append_sheet_rows(SHARP_AUDIT_TAB, SHARP_AUDIT_HEADER, _sa_rows)
+                redis_set(_sa_key, '|'.join(_sa_logged), ex=172800)
         except Exception as _e:
             print(f"[SHARP-AUDIT] error: {_e}")
 
