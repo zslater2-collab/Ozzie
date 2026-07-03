@@ -1376,7 +1376,7 @@ def _odds_american_to_profit(price):
     return price / 100.0 if price > 0 else 100.0 / abs(price)
 
 
-def get_odds_api_lines(games, force=False):
+def get_odds_api_lines(games, force=False, cache_key=None, markets=None, regions=None, ttl=None):
     """
     Returns a tuple (team_lines, joint_lines, fg_lines, fg_joint_lines, kprop_lines):
       team_lines:  team_abb -> {book_key: {'point', 'over', 'under', 'over_profit', 'under_profit'}}
@@ -1404,7 +1404,10 @@ def get_odds_api_lines(games, force=False):
 
     import json as _json
     today     = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
-    cache_key = f"ozzie:odds_lines:{today}"
+    cache_key = cache_key or f"ozzie:odds_lines:{today}"
+    markets   = markets or f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET},{ODDS_FG_MARKET},{ODDS_FG_JOINT_MARKET},{ODDS_KPROP_MARKET}'
+    regions   = regions or ODDS_REGIONS
+    ttl       = ttl or ODDS_API_TTL
     cached    = None if force else redis_get(cache_key)
     if cached:
         try:
@@ -1456,8 +1459,8 @@ def get_odds_api_lines(games, force=False):
         try:
             r = requests.get(
                 f"{ODDS_API_BASE}/sports/baseball_mlb/events/{event_id}/odds",
-                params={'apiKey': ODDS_API_KEY, 'regions': ODDS_REGIONS,
-                        'markets': f'{ODDS_F5_MARKET},{ODDS_JOINT_MARKET},{ODDS_FG_MARKET},{ODDS_FG_JOINT_MARKET},{ODDS_KPROP_MARKET}',
+                params={'apiKey': ODDS_API_KEY, 'regions': regions,
+                        'markets': markets,
                         'oddsFormat': 'american'},
                 timeout=15)
             if not r.ok:
@@ -1544,7 +1547,7 @@ def get_odds_api_lines(games, force=False):
             'fg_joint': {f"{h}|{a}": v for (h, a), v in fg_joint_lines.items()},
             'kprop': kprop,
         }
-        redis_set(cache_key, _json.dumps(cache_payload), ex=ODDS_API_TTL)
+        redis_set(cache_key, _json.dumps(cache_payload), ex=ttl)
     except Exception as e:
         print(f"Odds lines cache write error: {e}")
     return lines, joint_lines, fg_lines, fg_joint_lines, kprop
@@ -4787,6 +4790,93 @@ def _probe_kprop_open():
                        [[now_et.strftime('%Y-%m-%d %H:%M'), tomorrow, len(seen), len(tmw), ', '.join(newly)]])
 
 
+KPROP_TOMORROW_START_HOUR = 21     # ET; only pull tomorrow's slate this late (K-props post ~10:40pm)
+KPROP_TOMORROW_TTL        = 1800   # 30 min -- tomorrow's K-prop prices are freshly posting/moving
+
+
+def flag_tomorrow_kprops():
+    """Night-before K-prop flagging. In the late ET evening, pull TOMORROW's slate's F5 + K-prop
+    lines (lean: us,us2 regions, 2 markets, 30-min cache) and fire the same over-favorite SHARP
+    signal, so tomorrow's plays surface as soon as DK posts them (~10:40-11:40pm per the KPropOpen
+    probe) instead of at midnight. Telegram-only (a '🔮 TOMORROW' section); dedup + sharp latch are
+    keyed to TOMORROW's date -- the SAME keys tomorrow's own run uses -- so it never double-pings, and
+    tomorrow's normal run handles the KProp-sheet logging. Isolated from the today flow; fail-safe."""
+    if not ODDS_API_KEY:
+        return
+    from datetime import timedelta
+    et = pytz.timezone('America/New_York')
+    now_et = datetime.now(et)
+    if now_et.hour < KPROP_TOMORROW_START_HOUR:
+        return
+    tomorrow = (now_et + timedelta(days=1)).strftime('%Y-%m-%d')
+    try:
+        games = get_lineups_and_starters(tomorrow)
+    except Exception as e:
+        print(f"[TOMORROW] lineups error: {e}"); return
+    if not games:
+        return
+    try:  # lean tomorrow pull: F5 (for the sharp gate) + K-prop only, us+us2, own 30-min cache
+        team_lines, _j, _f, _fj, kprop_lines = get_odds_api_lines(
+            games, cache_key=f"ozzie:odds_tomorrow:{tomorrow}",
+            markets=f"{ODDS_F5_MARKET},{ODDS_KPROP_MARKET}", regions='us,us2', ttl=KPROP_TOMORROW_TTL)
+    except Exception as e:
+        print(f"[TOMORROW] odds error: {e}"); return
+    if not kprop_lines:
+        print(f"[TOMORROW] {now_et:%H:%M} ET: no K-prop lines up yet for {tomorrow}")
+        return
+    try:
+        pq_pop = get_pitcher_quality_population()
+    except Exception:
+        pq_pop = {}
+    latch_key   = f"ozzie:kprop_f5sharp:{tomorrow}"
+    f5_latch    = set(x for x in (redis_get(latch_key) or '').split(',') if x)
+    ksharp_key  = f"ozzie:kprop_sharp_notified:{tomorrow}"
+    ksharp_sent = set(x for x in (redis_get(ksharp_key) or '').split(',') if x)
+
+    flags = []
+    for game in games:
+        gstr = f"{game['away_team']}@{game['home_team']}"
+        for pid, pname, batting_team in (
+                (game.get('home_pitcher_id'), game.get('home_pitcher_name'), game['away_team']),
+                (game.get('away_pitcher_id'), game.get('away_pitcher_name'), game['home_team'])):
+            if not pid or not pname:
+                continue
+            pq_info = pq_pop.get(pid)
+            opp_abb = NAME_TO_ABB.get(batting_team, batting_team)
+            ofav = _kprop_over_fav(pname, kprop_lines, batting_team, team_lines,
+                                   prior_starts=(pq_info.get('gs') if pq_info else _pq_current_gs.get(pid)),
+                                   f5_sharp_latched=(opp_abb in f5_latch))
+            if ofav.get('f5_sharp_now'):
+                f5_latch.add(opp_abb)
+            if not ofav['signal']:
+                continue
+            flags.append({
+                'game': gstr, 'batting_team': batting_team, 'pitcher_name': pname,
+                'game_time': game.get('game_time'), 'k_prop_flag': True,
+                'k_prop_tier': ofav['tier'], 'kprop_line': ofav['line'],
+                'kprop_dk_over': ofav['dk_over'], 'kprop_best_over': ofav['best_over'],
+                'kprop_best_book': ofav['best_book'], 'kprop_opp_f5': ofav['opp_f5_total'],
+                'kprop_prior_starts': ofav['prior_starts'],
+                'kprop_sharp_blocked_thin': ofav['sharp_blocked_thin'],
+            })
+    redis_set(latch_key, ','.join(sorted(f5_latch)), ex=172800)
+
+    new_sharp = [f for f in flags if f['k_prop_tier'] == 'sharp' and flag_key(f) not in ksharp_sent]
+    n_sharp   = sum(1 for f in flags if f['k_prop_tier'] == 'sharp')
+    print(f"[TOMORROW] {now_et:%H:%M} ET {tomorrow}: {len(flags)} K signal(s), {n_sharp} sharp, {len(new_sharp)} new")
+    if new_sharp:
+        lines = [f"🔮 <b>TOMORROW ({tomorrow}) — K-Prop OVER SHARP (early)</b>",
+                 f"{len(new_sharp)} sharp start(s) already posted for tomorrow — shop the best over price.\n"]
+        for f in new_sharp:
+            t = f" — {f['game_time']}" if f.get('game_time') else ''
+            lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · {_kprop_tg_bet(f)}{t}")
+        try:
+            send_telegram('\n'.join(lines))
+        except Exception as e:
+            print(f"[TOMORROW] telegram error: {e}")
+        redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_sharp}), ex=172800)
+
+
 @app.route('/api/notify')
 def api_notify():
     secret = request.args.get('secret', '')
@@ -4800,6 +4890,11 @@ def api_notify():
             _probe_kprop_open()
         except Exception as _pe:
             print(f"[KPROP-OPEN] probe error: {_pe}")
+        # Night-before flagging: surface TOMORROW's sharp K-props as they post (late evening only).
+        try:
+            flag_tomorrow_kprops()
+        except Exception as _te:
+            print(f"[TOMORROW] error: {_te}")
         games   = get_lineups_and_starters(today)
         flags   = get_tracking_only_flags(games)
 
