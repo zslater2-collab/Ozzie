@@ -138,6 +138,10 @@ _pq_prior        = {}
 _pq_prior_loaded = False
 _pq_population_cache      = None
 _pq_population_cache_time = None
+# Current-season games-started per mlbID for ALL fetched pitchers (incl. rookies with no career
+# prior, who are absent from the population). Lets the K-prop SHARP gate see a debut arm's real
+# start count instead of treating it as unknown-and-not-thin. Rebuilt each population build.
+_pq_current_gs            = {}
 
 
 def load_pitcher_quality_prior():
@@ -209,7 +213,7 @@ def get_pitcher_quality_population(force=False):
     Cached PQ_SEASON_TTL seconds since current-season stats don't change minute to minute.
     force=True bypasses this cache (see /api/picks?refresh=1).
     """
-    global _pq_population_cache, _pq_population_cache_time
+    global _pq_population_cache, _pq_population_cache_time, _pq_current_gs
     now = datetime.now().timestamp()
     if not force and _pq_population_cache and _pq_population_cache_time and \
             (now - _pq_population_cache_time < PQ_SEASON_TTL):
@@ -220,6 +224,9 @@ def get_pitcher_quality_population(force=False):
         return {}
 
     season = _pq_fetch_current_season()
+    # start counts for EVERY fetched pitcher (rookies included -- they're in `season` but not the
+    # career-prior `blended`), so the K-prop SHARP gate can read a debut arm's real start count.
+    _pq_current_gs = {int(pid): (v.get('gs', 0) or 0) for pid, v in season.items()}
     blended = {}
     current_bf_by_pid = {}
     exp_bf_by_pid = {}
@@ -2290,7 +2297,8 @@ def get_tracking_only_flags(games, force=False):
             _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
             _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines,
-                                           prior_starts=pq_info.get('gs') if pq_info else None)
+                                           prior_starts=(pq_info.get('gs') if pq_info
+                                                         else _pq_current_gs.get(pitcher_id)))
             _k_prop_signal = _ofav['signal']
             _kprop_diag['checked'] += 1
             if _kprop_norm_name(pitcher_name) in kprop_lines:
@@ -2758,7 +2766,8 @@ def get_heatmap_flags(games, model):
                                               pq_info.get('exp_bf') if pq_info else None)
             _kal_k2         = None
             _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines,
-                                              prior_starts=pq_info.get('gs') if pq_info else None)
+                                              prior_starts=(pq_info.get('gs') if pq_info
+                                                         else _pq_current_gs.get(pitcher_id)))
             _k_prop_signal2 = _ofav2['signal']
 
             flag = {
