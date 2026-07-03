@@ -242,9 +242,16 @@ def get_pitcher_quality_population(force=False):
             blend[stat] = (ph * prior[stat] + bf * season_rates[stat]) / (ph + bf)
         blended[pid] = blend
 
-    if n_zero_current > len(_pq_prior) * 0.5:
-        print(f"Warning: pitcher quality current-season data missing for {n_zero_current}/{len(_pq_prior)} "
-              f"pitchers -- most blended scores this cycle are degraded to pure career prior")
+    # Health check. The real failure mode is the current-season FETCH breaking (returns ~0 -- e.g.
+    # the June 2026 pybaseball incident), NOT the inactive tail: a 4-year career prior always has
+    # ~half its arms inactive in any single season (verified 2026-07: 547/1132 prior pitchers have
+    # no 2026 appearance; 85% of actual 2026 starters ARE matched and blended correctly). The old
+    # ">50% of prior is zero-BF" trigger therefore fired every night on dead weight and buried the
+    # signal. Fire only when the fetch itself looks broken (abnormally few pitchers with BF).
+    if len(season) < 300:   # healthy mid-season is ~700+; a broken fetch is ~0
+        print(f"Warning: pitcher quality current-season FETCH looks broken -- only {len(season)} "
+              f"pitchers with BF>0 (expected 600+ mid-season). Scores this cycle fall back toward "
+              f"pure career prior; check the MLB Stats API fetch.")
 
     if len(blended) < 10:
         return {}
