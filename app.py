@@ -1569,7 +1569,8 @@ def _kprop_norm_name(name):
     return ' '.join(n.lower().replace('.', '').split())
 
 
-def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_starts=None):
+def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_starts=None,
+                    f5_sharp_latched=False):
     """The rebuilt K-prop signal: bet the OVER when the book prices it a moderate favorite
     (KPROP_OVER_FAV_LO..HI on DraftKings, where the edge was measured), sharpened when the
     opposing offense's F5 team total < KPROP_SHARP_F5_TOTAL AND the pitcher has >= 7 prior
@@ -1579,7 +1580,7 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     over price. Classifies on DK; reports the BEST over price across books for the actual bet."""
     out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
            'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
-           'prior_starts': prior_starts, 'sharp_blocked_thin': False}
+           'prior_starts': prior_starts, 'sharp_blocked_thin': False, 'f5_sharp_now': False}
     books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
     if not books:
         return out
@@ -1599,20 +1600,35 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
         best_book, best_over = ('DraftKings', dk_over) if dk_over is not None else (None, None)
     out.update({'dk_over': dk_over, 'best_over': best_over, 'best_book': best_book,
                 'line': dk_line, 'n_books': len(same_line)})
-    # opposing offense's F5 team total (median across books). team_lines is keyed by ABBREVIATION
-    # ('BOS'); opp_team arrives as a full name ('Boston Red Sox') -> convert first, else it never
-    # resolves and the SHARP tier (opp F5 < 2.0) can never fire.
+    # Opposing offense's F5 team total, from the SHARPEST book that posts EARLIEST: Pinnacle ->
+    # DraftKings -> median across books. Pinnacle can show 1.5 while the cross-book median sits at
+    # 2.0 (divergence), or post hours before other books -- reading it first stops a genuine 1.5
+    # matchup from being scored 'base'. team_lines is keyed by ABBREVIATION ('BOS'); opp_team arrives
+    # as a full name ('Boston Red Sox') -> convert first, else it never resolves.
     opp_abb = NAME_TO_ABB.get(opp_team, opp_team)
-    opp_pts = [v.get('point') for v in (team_lines.get(opp_abb) or {}).values()
-               if v.get('point') is not None]
-    opp_f5 = round(sorted(opp_pts)[len(opp_pts) // 2], 1) if opp_pts else None
+    opp_bk  = team_lines.get(opp_abb) or {}
+    opp_f5  = None
+    for _pref in (PINNACLE_BOOK_LABEL, 'DraftKings'):
+        _pt = (opp_bk.get(_pref) or {}).get('point')
+        if _pt is not None:
+            opp_f5 = round(_pt, 1)
+            break
+    if opp_f5 is None:
+        _pts = [v.get('point') for v in opp_bk.values() if v.get('point') is not None]
+        opp_f5 = round(sorted(_pts)[len(_pts) // 2], 1) if _pts else None
     out['opp_f5_total'] = opp_f5
     # classify on DK over price (the measured edge)
     if dk_over is not None and KPROP_OVER_FAV_LO <= dk_over <= KPROP_OVER_FAV_HI:
         out['signal'] = True
-        f5_sharp = opp_f5 is not None and opp_f5 < KPROP_SHARP_F5_TOTAL
+        # SHARP if opp F5 is below 2.0 now OR was earlier today (f5_sharp_latched, maintained by the
+        # caller). The latch means a matchup that posted at 1.5 STAYS sharp even if the line later
+        # drifts or a snapshot is missing it -- fixes late-posting F5 lines scoring 'base' (e.g.
+        # Castillo 7/3: his opp F5 hadn't posted when first logged, so the row froze at 'base').
+        f5_now   = opp_f5 is not None and opp_f5 < KPROP_SHARP_F5_TOTAL
+        f5_sharp = f5_now or f5_sharp_latched
+        out['f5_sharp_now'] = f5_now
         # prior-start gate: only demote when we positively know the count is too low. Unknown
-        # (prior_starts is None, e.g. missing current-season fetch) keeps the F5-based tier.
+        # (prior_starts is None) keeps the F5-based tier.
         thin = prior_starts is not None and prior_starts < KPROP_SHARP_MIN_STARTS
         out['sharp_blocked_thin'] = bool(f5_sharp and thin)
         out['tier'] = 'sharp' if (f5_sharp and not thin) else 'base'
@@ -2199,6 +2215,11 @@ def get_tracking_only_flags(games, force=False):
     # how many fired the over-favorite signal, and any unmatched names to investigate.
     _kprop_diag = {'checked': 0, 'matched': 0, 'fired': 0, 'unmatched': []}
 
+    # SHARP F5 latch: opponents whose F5 total hit <2.0 (Pinnacle/DK) at ANY point today stay
+    # sharp-eligible even if the line later drifts or a snapshot is missing it. Persisted per ET day.
+    _f5_today = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+    _f5_latch = set(x for x in (redis_get(f"ozzie:kprop_f5sharp:{_f5_today}") or '').split(',') if x)
+
     for game in games:
         home_abb = NAME_TO_ABB.get(game['home_team'], game['home_team'])
         matchups = [
@@ -2296,9 +2317,13 @@ def get_tracking_only_flags(games, force=False):
             _away_abb_ks = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
             _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
+            _opp_abb_f5  = NAME_TO_ABB.get(batting_team, batting_team)
             _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines,
                                            prior_starts=(pq_info.get('gs') if pq_info
-                                                         else _pq_current_gs.get(pitcher_id)))
+                                                         else _pq_current_gs.get(pitcher_id)),
+                                           f5_sharp_latched=(_opp_abb_f5 in _f5_latch))
+            if _ofav.get('f5_sharp_now'):
+                _f5_latch.add(_opp_abb_f5)   # remember this matchup posted <2.0 -> stays sharp today
             _k_prop_signal = _ofav['signal']
             _kprop_diag['checked'] += 1
             if _kprop_norm_name(pitcher_name) in kprop_lines:
@@ -2616,6 +2641,9 @@ def get_tracking_only_flags(games, force=False):
     f5_over_only_flags  = [f for f in flags if f['signal'] == 'f5_tt_over']
     off_fade_only_flags = [f for f in flags if f['signal'] == 'fg_joint_off_under']
     result = pq_only_flags + kprop_only_flags + f5_over_only_flags + off_fade_only_flags
+    # persist the SHARP F5 latch (opponents that hit <2.0 today) so it survives to later runs
+    if _f5_latch:
+        redis_set(f"ozzie:kprop_f5sharp:{_f5_today}", ','.join(sorted(_f5_latch)), ex=172800)
     return [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
 
 
