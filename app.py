@@ -1594,7 +1594,7 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
            'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
            'prior_starts': prior_starts, 'sharp_blocked_thin': False, 'f5_sharp_now': False,
-           'driftin_price': False}
+           'driftin_price': False, 'sharp_blocked_nonpq': False}
     books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
     if not books:
         return out
@@ -2345,6 +2345,14 @@ def get_tracking_only_flags(games, force=False):
                                            f5_sharp_latched=(_opp_abb_f5 in _f5_latch))
             if _ofav.get('f5_sharp_now'):
                 _f5_latch.add(_opp_abb_f5)   # remember this matchup posted <2.0 -> stays sharp today
+            # SHARP now REQUIRES a top-quintile arm (pq_q4). OOS backtest 2025+2026 (test_nonpq_lowtotal):
+            # at low opp totals the K-over edge is ENTIRELY the elite arms (PQ+F5<=1.5 = +9.8%/+4.0% both
+            # years; PQ+FG<=3.5 = +9.6%/+5.6%), while NON-PQ arms in the same spot are dead both ways
+            # (-6 to -10% over, fade also negative). Pure opp-F5<2.0 looked year-fragile (+0.5% 2025) only
+            # because it blended dead non-PQ arms in. So a would-be SHARP that isn't pq_q4 drops to 'base'
+            # (still logged to the tracker, just Telegram-silent -- not fired as a bet).
+            if _ofav.get('tier') == 'sharp' and not pq_q4:
+                _ofav['tier'] = 'base'; _ofav['sharp_blocked_nonpq'] = True
             _k_prop_signal = _ofav['signal']
             # DRIFT-IN: pre-band over (+100..-119) + opp F5<=1.5 = arms we expect to steam INTO the
             # band. kprop_preband LOGS the whole pool (PQ + non-PQ) so we can learn the targeting cut;
@@ -2827,6 +2835,9 @@ def get_heatmap_flags(games, model):
             _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines,
                                               prior_starts=(pq_info.get('gs') if pq_info
                                                          else _pq_current_gs.get(pitcher_id)))
+            # SHARP requires pq_q4 (see the OOS note at the first _kprop_over_fav call site).
+            if _ofav2.get('tier') == 'sharp' and not pq_q4:
+                _ofav2['tier'] = 'base'; _ofav2['sharp_blocked_nonpq'] = True
             _k_prop_signal2 = _ofav2['signal']
             _kprop_preband2 = bool(_ofav2.get('driftin_price')
                                    and _ofav2.get('opp_f5_total') is not None
@@ -4205,6 +4216,18 @@ def append_line_history(flags):
                     new_rows.append([now_utc, today, gid, game, market, book,
                                      pt if pt is not None else '', u if u is not None else '',
                                      o if o is not None else '', gtime])
+            # K-prop OVER-price drift (open->close), per pitcher, so opening-vs-drift is tracked
+            # across EVERY K play -- the long-term CLV dataset. market carries the pitcher name so two
+            # starters in one game don't collide; point=strike, over=DK over price. Change-tracked like
+            # the team-total markets above (a new row only when the line/price moves vs the last seen).
+            _kov = f.get('kprop_dk_over')
+            if _kov is not None:
+                _pit, _kln = f.get('pitcher_name', ''), f.get('kprop_line')
+                k, val = f"{gid}|KPROP:{_pit}|DraftKings", f"{_kln}||{_kov}"
+                if state.get(k) != val:
+                    state[k] = val
+                    new_rows.append([now_utc, today, gid, game, f'KPROP:{_pit}', 'DraftKings',
+                                     _kln if _kln is not None else '', '', _kov, gtime])
         if not new_rows:
             return
 
@@ -4994,7 +5017,8 @@ def api_notify():
         # set BEFORE the new-flag dedup below, so it still records the CLOSING line on later runs
         # when every flag is "already sent" and the route returns early at "No new flags".
         append_line_history(under_flags + pq_flags + off_flags + joint_flags + fg_tt_flags
-                            + f5_over_flags + fg_joint_flags + off_fade_flags)
+                            + f5_over_flags + fg_joint_flags + off_fade_flags
+                            + kprop_flags + kprop_preband_flags)   # K over-price drift, open->close
 
         redis_key    = f"ozzie:notified:{today}"
         existing_raw = redis_get(redis_key)
@@ -5059,9 +5083,11 @@ def api_notify():
         # survive the already_sent dedup that new_kprop is subject to.
         if new_kprop_sharp:
             lines.append("🎯 <b>K-Prop OVER · SHARP only — TRACKING ONLY (not yet a validated bet signal)</b>")
-            lines.append(f"{len(new_kprop_sharp)} SHARP start(s) — over-favorite price + strong matchup "
-                         "(DK over -120..-160, opp F5 total &lt;2.0, ≥7 prior starts). SHARP is where the edge "
-                         "lives (~+18% 2026, both months); base plays log to the tracker only. Shop best over price.\n")
+            lines.append(f"{len(new_kprop_sharp)} SHARP start(s) — over-favorite price + strong matchup + "
+                         "ELITE arm (DK over -120..-160, opp F5 total &lt;2.0, ≥7 prior starts, top-quintile Q4). "
+                         "OOS 2025+2026: the low-total K-over edge is entirely the elite arms (PQ+F5≤1.5 "
+                         "+9.8%/+4.0%); non-PQ in the same spot is dead. base plays log to the tracker only. "
+                         "Shop best over price.\n")
             for f in new_kprop_sharp:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 also = ' · also 📊Q4' if f.get('pq_q4') else ''
