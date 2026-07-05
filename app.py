@@ -1883,10 +1883,13 @@ def get_kalshi_k_props(games, force=False):
                     continue
                 # Bet IS the implied-line threshold: proj_gap > 0.5 means we think
                 # there's >50% chance of hitting the implied-line strike, so buy it.
+                # ladder = {threshold(int) -> yes_ask(0..1 implied over-prob)} so the drift-in
+                # trigger can read Kalshi's over-prob at ANY DK strike (see _kprop_kalshi_over_prob).
                 out.setdefault(pk, {})[name_lower] = {
                     'implied_line':  implied_line,
                     'bet_threshold': implied_thr,
                     'yes_bid':       round(implied_ya * 100) if implied_ya else None,
+                    'ladder':        {thr: ya for _fl, thr, ya in ladder if ya is not None},
                 }
     except Exception as e:
         print(f"Kalshi K props fetch error: {e}")
@@ -1915,6 +1918,55 @@ def _lookup_kalshi_k(kalshi_k_props, pair_key, pitcher_name):
         if key and key.split()[-1] == last:
             return val
     return None
+
+
+def _kprop_kalshi_over_prob(kalshi_k_props, pair_key, pitcher_name, dk_line):
+    """Kalshi's implied probability of going OVER the DraftKings strike `dk_line`.
+    A DK 'over X.5' wins on X+1 or more Ks, and 'over X.0' wins on X+1 or more (X pushes),
+    so both map to Kalshi's 'floor(dk_line)+1 or more' market -> yes_ask at that threshold.
+    Ladder keys may be ints (fresh build) or strings (JSON-cached), so try both.
+    Returns a float in [0,1], or None if no matching Kalshi strike. FREE data (public exchange)
+    -- this is the near-gametime trigger that decides when to spend a paid DK re-pull."""
+    if dk_line is None:
+        return None
+    prop = _lookup_kalshi_k(kalshi_k_props, pair_key, pitcher_name)
+    if not prop:
+        return None
+    ladder = prop.get('ladder') or {}
+    thr = int(math.floor(float(dk_line))) + 1
+    ya = ladder.get(thr)
+    if ya is None:
+        ya = ladder.get(str(thr))
+    try:
+        return float(ya) if ya is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _classify_kprop_fields(pitcher_name, batting_team, prior_starts, pq_q4,
+                           kprop_lines, team_lines, f5_latch):
+    """Compute the K-prop over-favorite tier/flags for one starter. Shared by the main tracking
+    loop AND the Kalshi-triggered re-classification so the two paths can never silently diverge.
+    Mutates `f5_latch` (adds the opponent if its F5 total posted <2.0 now -> stays sharp today).
+    Returns (ofav_dict, preband_bool, driftin_bool).
+
+    SHARP now REQUIRES a top-quintile arm (pq_q4). OOS backtest 2025+2026 (test_nonpq_lowtotal):
+    at low opp totals the K-over edge is ENTIRELY the elite arms (PQ+F5<=1.5 = +9.8%/+4.0% both
+    years); NON-PQ arms in the same spot are dead both ways. So a would-be SHARP that isn't pq_q4
+    drops to 'base' (still logged/tracked, just Telegram-silent -- not fired as a bet)."""
+    opp_abb = NAME_TO_ABB.get(batting_team, batting_team)
+    ofav = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines,
+                           prior_starts=prior_starts,
+                           f5_sharp_latched=(opp_abb in f5_latch))
+    if ofav.get('f5_sharp_now'):
+        f5_latch.add(opp_abb)   # remember this matchup posted <2.0 -> stays sharp today
+    if ofav.get('tier') == 'sharp' and not pq_q4:
+        ofav['tier'] = 'base'; ofav['sharp_blocked_nonpq'] = True
+    preband = bool(ofav.get('driftin_price')
+                   and ofav.get('opp_f5_total') is not None
+                   and ofav['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
+    driftin = bool(preband and pq_q4)
+    return ofav, preband, driftin
 
 
 def _pick_kalshi(ladder, target_pt):
@@ -2155,7 +2207,7 @@ def apply_k_modifier(overlap_raw, pitcher_k_rate):
 DISABLED_SIGNALS = {'fg_joint_total', 'fg_tt_under'}
 
 
-def get_tracking_only_flags(games, force=False):
+def get_tracking_only_flags(games, force=False, kalshi_repull=False):
     flags = []
     pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5 or a park exception
     pinnacle_suppressed_missing = 0  # gate active but no Pinnacle line found for this team/game
@@ -2338,30 +2390,17 @@ def get_tracking_only_flags(games, force=False):
             _away_abb_ks = NAME_TO_ABB.get(game.get('away_team', ''), game.get('away_team', ''))
             _pk_ks       = '|'.join(sorted([home_abb, _away_abb_ks]))
             _kal_k       = _lookup_kalshi_k(kalshi_k_props, _pk_ks, pitcher_name)
-            _opp_abb_f5  = NAME_TO_ABB.get(batting_team, batting_team)
-            _ofav        = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, team_lines,
-                                           prior_starts=(pq_info.get('gs') if pq_info
-                                                         else _pq_current_gs.get(pitcher_id)),
-                                           f5_sharp_latched=(_opp_abb_f5 in _f5_latch))
-            if _ofav.get('f5_sharp_now'):
-                _f5_latch.add(_opp_abb_f5)   # remember this matchup posted <2.0 -> stays sharp today
-            # SHARP now REQUIRES a top-quintile arm (pq_q4). OOS backtest 2025+2026 (test_nonpq_lowtotal):
-            # at low opp totals the K-over edge is ENTIRELY the elite arms (PQ+F5<=1.5 = +9.8%/+4.0% both
-            # years; PQ+FG<=3.5 = +9.6%/+5.6%), while NON-PQ arms in the same spot are dead both ways
-            # (-6 to -10% over, fade also negative). Pure opp-F5<2.0 looked year-fragile (+0.5% 2025) only
-            # because it blended dead non-PQ arms in. So a would-be SHARP that isn't pq_q4 drops to 'base'
-            # (still logged to the tracker, just Telegram-silent -- not fired as a bet).
-            if _ofav.get('tier') == 'sharp' and not pq_q4:
-                _ofav['tier'] = 'base'; _ofav['sharp_blocked_nonpq'] = True
+            _prior_starts = pq_info.get('gs') if pq_info else _pq_current_gs.get(pitcher_id)
+            # Classify the K over-favorite tier via the shared helper -- keeps this in lockstep with
+            # the Kalshi-triggered re-classification after the loop (see _classify_kprop_fields for the
+            # pq_q4-requires-SHARP rationale and the drift-in / pre-band definition).
+            _ofav, _kprop_preband, _kprop_driftin = _classify_kprop_fields(
+                pitcher_name, batting_team, _prior_starts, pq_q4, kprop_lines, team_lines, _f5_latch)
             _k_prop_signal = _ofav['signal']
-            # DRIFT-IN: pre-band over (+100..-119) + opp F5<=1.5 = arms we expect to steam INTO the
-            # band. kprop_preband LOGS the whole pool (PQ + non-PQ) so we can learn the targeting cut;
-            # kprop_driftin (the PQ subset) is what pings Telegram. Drift-in itself is self-captured: an
-            # arm that crosses into -120 later fires as a SHARP pick and upgrades its row's tier in place.
-            _kprop_preband = bool(_ofav.get('driftin_price')
-                                  and _ofav.get('opp_f5_total') is not None
-                                  and _ofav['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
-            _kprop_driftin = bool(_kprop_preband and pq_q4)
+            # FREE Kalshi over-prob at the DK strike -- logged on every row (builds the dataset for a
+            # future Kalshi-only band) AND used post-loop to trigger a paid DK re-pull when a pre-band
+            # arm steams toward the -120..-160 band on Kalshi before our 4h DK snapshot catches it.
+            _kalshi_over_prob = _kprop_kalshi_over_prob(kalshi_k_props, _pk_ks, pitcher_name, _ofav['line'])
             _kprop_diag['checked'] += 1
             if _kprop_norm_name(pitcher_name) in kprop_lines:
                 _kprop_diag['matched'] += 1
@@ -2420,6 +2459,9 @@ def get_tracking_only_flags(games, force=False):
                 'k_prop_tier':      _ofav['tier'],
                 'kprop_preband':    _kprop_preband,
                 'kprop_driftin':    _kprop_driftin,
+                'kprop_pair_key':   _pk_ks,             # for the post-loop Kalshi drift-in trigger
+                'kalshi_over_prob': _kalshi_over_prob,  # Kalshi implied over-prob at the DK strike
+                'kalshi_forced':    False,              # set True if a Kalshi-triggered DK re-pull touched it
                 'kprop_dk_over':    _ofav['dk_over'],
                 'kprop_best_over':  _ofav['best_over'],
                 'kprop_best_book':  _ofav['best_book'],
@@ -2657,6 +2699,60 @@ def get_tracking_only_flags(games, force=False):
           f"line | {len(_kprop_diag['unmatched'])} no match"
           + (f" (no line posted OR name mismatch): {_kprop_diag['unmatched'][:8]}"
              if _kprop_diag['unmatched'] else ""))
+
+    # ── KALSHI-TRIGGERED DRIFT-IN RE-PULL (July 5, 2026) ── our DK prices are a 4h Redis cache
+    # (ODDS_API_TTL), so a pre-band arm that STEAMS INTO the -120..-160 band late (e.g. Joe Ryan to
+    # -122 by gametime) drifts in BETWEEN snapshots and its tier never upgrades -- the drift-in loop
+    # never closes. Kalshi's K ladder is FREE and refreshes every ~20min, so use it as the trigger:
+    # if a pre-band arm's Kalshi over-prob has crossed the band floor (>= the -120 implied prob) while
+    # our cached DK still says pre-band, spend ONE paid DK re-pull (force=True) and re-classify. Any
+    # arm now inside the band upgrades to sharp -> fires Telegram + flips its sheet row in place via
+    # the existing base->sharp path. Bounded cost: at most one refresh per notify cycle, only when
+    # Kalshi actually shows a crossing. Goal over time: validate a Kalshi-only band from the logged
+    # kalshi_over_prob column and drop the DK dependency. See project_kprop_clv_direction.
+    _band_floor_imp = (-KPROP_OVER_FAV_HI) / (-KPROP_OVER_FAV_HI + 100.0)   # -120 -> 0.5455
+    _kalshi_trigger = [f for f in flags
+                       if f.get('kprop_preband') and not f.get('k_prop_flag')
+                       and (f.get('kalshi_over_prob') or 0.0) >= _band_floor_imp]
+    # Only the notify cron spends the paid re-pull (kalshi_repull=True). Dashboard loads never do, so
+    # viewing picks stays free; and when the primary pull was already force-fresh there's no stale DK
+    # to fix, so skip it there too.
+    if _kalshi_trigger and ODDS_API_KEY and kalshi_repull and not force:
+        print(f"[KDRIFT] Kalshi trigger: {len(_kalshi_trigger)} pre-band arm(s) crossed the band floor "
+              f"on Kalshi ({[f['pitcher_name'] for f in _kalshi_trigger]}) -> forcing a fresh DK pull")
+        try:
+            _ft, _j, _fg, _fj, _fkp = get_odds_api_lines(games, force=True)
+        except Exception as _ke:
+            print(f"[KDRIFT] forced DK re-pull failed: {_ke}")
+            _ft, _fkp = None, None
+        if _fkp is not None:
+            _upg = 0
+            for f in flags:
+                if not (f.get('k_prop_flag') or f.get('kprop_preband')):
+                    continue
+                _ov, _pb, _dr = _classify_kprop_fields(
+                    f['pitcher_name'], f['batting_team'], f.get('kprop_prior_starts'),
+                    f.get('pq_q4'), _fkp, _ft or team_lines, _f5_latch)
+                _was_sharp = f.get('k_prop_tier') == 'sharp'
+                f['k_prop_flag']     = _ov['signal']
+                f['k_prop_tier']     = _ov['tier']
+                f['kprop_preband']   = _pb
+                f['kprop_driftin']   = _dr
+                f['kprop_dk_over']   = _ov['dk_over']
+                f['kprop_best_over'] = _ov['best_over']
+                f['kprop_best_book'] = _ov['best_book']
+                f['kprop_line']      = _ov['line']
+                f['kprop_opp_f5']    = _ov['opp_f5_total']
+                f['kprop_n_books']   = _ov['n_books']
+                f['kprop_sharp_blocked_thin'] = _ov['sharp_blocked_thin']
+                f['kalshi_over_prob'] = _kprop_kalshi_over_prob(
+                    kalshi_k_props, f.get('kprop_pair_key'), f['pitcher_name'], _ov['line'])
+                f['k_prop_note']     = _kprop_note(_ov, _lookup_kalshi_k(
+                    kalshi_k_props, f.get('kprop_pair_key'), f['pitcher_name']))
+                f['kalshi_forced']   = True
+                if _ov['tier'] == 'sharp' and not _was_sharp:
+                    _upg += 1
+            print(f"[KDRIFT] re-classified off fresh DK: {_upg} arm(s) upgraded to sharp")
 
     # SURFACED SIGNALS (June 23, 2026, per Zach): collapse the live output to exactly the three
     # signals actively tracked right now -- Q4 pitcher F5 U1.5, the derived F5 TT over, and the
@@ -3687,6 +3783,10 @@ KPROP_SHEET_HEADER = [
                                      # it fires SHARP and its tier upgrades in place -> tier=sharp on a
                                      # preband row = it drifted in. actual_k/k_hit auto-grade the over.
     'kprop_driftin',                 # TRUE = the PQ subset of preband (fip_pctile>=80) -- Telegram-fired.
+    'kalshi_over_prob',              # FREE Kalshi implied over-prob at the DK strike, logged every row.
+                                     # Builds the dataset to validate a KALSHI-ONLY band later (drop DK).
+    'kalshi_forced',                 # TRUE = a Kalshi drift-in trigger forced a fresh DK re-pull on this
+                                     # row (July 5, 2026) -- audits whether the trigger catches drift-ins.
 ]
 
 
@@ -3720,6 +3820,12 @@ def append_kprop_to_sheet(flags):
                 if f.get('k_prop_tier') == 'sharp' and _cur != 'sharp' and _ridx is not None:
                     ws.update_cell(_ridx, 5, 'sharp')                      # col 5  = k_prop_tier
                     ws.update_cell(_ridx, 11, f.get('kprop_opp_f5', ''))   # col 11 = kprop_opp_f5
+                    # a Kalshi-triggered re-pull is what usually catches a late drift-in -> stamp the
+                    # audit cols so a drift-in caught via Kalshi is visible on the row it upgraded.
+                    if f.get('kalshi_over_prob') is not None:
+                        ws.update_cell(_ridx, 31, round(f['kalshi_over_prob'], 4))  # col 31 = kalshi_over_prob
+                    if f.get('kalshi_forced'):
+                        ws.update_cell(_ridx, 32, 'TRUE')                  # col 32 = kalshi_forced
                     existing_row[key] = (_ridx, 'sharp')
                     rows_upgraded += 1
                 continue
@@ -3747,6 +3853,8 @@ def append_kprop_to_sheet(flags):
                 f.get('kprop_prior_starts', ''),
                 'TRUE' if f.get('kprop_preband') else '',
                 'TRUE' if f.get('kprop_driftin') else '',
+                round(f['kalshi_over_prob'], 4) if f.get('kalshi_over_prob') is not None else '',
+                'TRUE' if f.get('kalshi_forced') else '',
             ], value_input_option='USER_ENTERED')
             existing_row[key] = (None, f.get('k_prop_tier', ''))
             rows_added += 1
@@ -4963,7 +5071,9 @@ def api_notify():
         except Exception as _te:
             print(f"[TOMORROW] error: {_te}")
         games   = get_lineups_and_starters(today)
-        flags   = get_tracking_only_flags(games)
+        # kalshi_repull=True: this cron is the ONLY caller allowed to spend a paid DK re-pull when a
+        # pre-band arm steams into the band on (free) Kalshi -- closes the drift-in loop near gametime.
+        flags   = get_tracking_only_flags(games, kalshi_repull=True)
 
         # PICKS CACHE / NOTIFY SYNC: refresh /api/picks' Redis cache with what was just computed
         # here, so the dashboard reflects a new flag immediately instead of waiting up to 30 min
