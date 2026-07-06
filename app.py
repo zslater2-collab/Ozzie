@@ -1138,7 +1138,7 @@ KPROP_DRIFTIN_F5_MAX   = 1.5    # opp F5 total at/below this (the sharp weak-off
 # ── K-PROP UNDER · WHIFF-K DIVERGENCE (July 6, 2026) ── the INVERSE of the over-fav signal.
 # Thesis (Zach): the market prices whiff/stuff, so a pitcher whose K's chronically NEVER
 # MATERIALIZE relative to his whiff has a line set too high -> the UNDER is the value. Trait is
-# PRIOR-YEAR (2025) divergence, prior_gap = whiff-implied K% - actual K% (div_q4 = top-quartile),
+# PRIOR-YEAR (2025) divergence, prior_gap = whiff-implied K% - actual K% (div_q4 = gap >= 0.02, a
 # loaded from KDIV_PRIOR_CSV. Leak-safe: a completed season, not current form (recency is already
 # priced -- blending it in DEGRADED the signal; see project_kprop_whiff_riser_deadend). Two tiers,
 # mirroring the over signal: WATCH = div_q4 + >= KDIV_MIN_STARTS current-yr starts (any line);
@@ -1147,7 +1147,10 @@ KPROP_DRIFTIN_F5_MAX   = 1.5    # opp F5 total at/below this (the sharp weak-off
 # lines carry it, mid 5.5 dead. TRACKING ONLY -- watch/track, not a sized bet.
 KDIV_PRIOR_CSV       = 'pitcher_divergence_prior_2026.csv'
 KDIV_MIN_STARTS      = 5      # current-yr appearance min (monotonic dose-response; biggest lever)
-KDIV_STRONG_LINE_MAX = 4.5    # STRONG tier: DK K-line at/below this (edge concentrates at low lines)
+KDIV_WATCH_LINE_MAX  = 5.5    # WATCH cap: line ABOVE this = a K stud, not a non-converter -> excluded
+                             # from BOTH tiers (else e.g. C.Sánchez @7.5K/start false-flags). gap>=0.02
+                             # + line<=5.5: n=22 under-hit 63.6% +25.5%; keeps studs out, holds the edge.
+KDIV_STRONG_LINE_MAX = 4.5    # STRONG (Telegram) tier: the lowest-K, purest non-converter fade
 _kdiv_trait = {}             # pitcher_id -> {'prior_gap': float, 'div_q4': bool}
 try:
     _kdiv_df = pd.read_csv(KDIV_PRIOR_CSV)
@@ -1290,9 +1293,10 @@ def _kprop_under_divergence(pitcher_id, k_line, prior_starts):
     out['prior_gap'] = t['prior_gap']
     if prior_starts is None or prior_starts < KDIV_MIN_STARTS:
         return out                       # appearance-minimum gate (biggest lever)
+    if k_line is None or k_line > KDIV_WATCH_LINE_MAX:
+        return out                       # high-line arm = K stud, not a non-converter -> no flag
     out['signal'] = True
-    out['tier'] = ('strong' if (k_line is not None and k_line <= KDIV_STRONG_LINE_MAX)
-                   else 'watch')
+    out['tier'] = 'strong' if k_line <= KDIV_STRONG_LINE_MAX else 'watch'
     return out
 
 
@@ -5376,7 +5380,7 @@ def api_notify():
                 lines.append("")
             lines.append("🧊 <b>K-Prop UNDER · STRONG only — TRACKING ONLY (not yet a validated bet signal)</b>")
             lines.append(f"{len(new_kunder_strong)} STRONG start(s) — prior-year chronic non-converter "
-                         f"(top-quartile whiff-K gap) + ≥{KDIV_MIN_STARTS} starts + DK line ≤{KDIV_STRONG_LINE_MAX:g}. "
+                         f"(whiff-K gap ≥0.02) + ≥{KDIV_MIN_STARTS} starts + DK line ≤{KDIV_STRONG_LINE_MAX:g}. "
                          "Market prices the whiff; the K's never materialize, so the UNDER is the value. "
                          "In-sample only (~⅓ season), watch tier logs to the tracker.\n")
             for f in new_kunder_strong:
