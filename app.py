@@ -1134,6 +1134,31 @@ KPROP_SHARP_MIN_STARTS = 7
 # PQ arms. TRACKING ONLY: in-sample May-Jun 2026, n=34 PQ cut, thin -- forward-validate before sizing.
 # The open work is TARGETING which pre-band arms drift the RIGHT way (see project_kprop_clv_direction).
 KPROP_DRIFTIN_F5_MAX   = 1.5    # opp F5 total at/below this (the sharp weak-offense matchup)
+
+# ── K-PROP UNDER · WHIFF-K DIVERGENCE (July 6, 2026) ── the INVERSE of the over-fav signal.
+# Thesis (Zach): the market prices whiff/stuff, so a pitcher whose K's chronically NEVER
+# MATERIALIZE relative to his whiff has a line set too high -> the UNDER is the value. Trait is
+# PRIOR-YEAR (2025) divergence, prior_gap = whiff-implied K% - actual K% (div_q4 = top-quartile),
+# loaded from KDIV_PRIOR_CSV. Leak-safe: a completed season, not current form (recency is already
+# priced -- blending it in DEGRADED the signal; see project_kprop_whiff_riser_deadend). Two tiers,
+# mirroring the over signal: WATCH = div_q4 + >= KDIV_MIN_STARTS current-yr starts (any line);
+# STRONG = also DK line <= KDIV_STRONG_LINE_MAX (where the edge concentrates). In-sample only
+# (n=384, ~⅓ season): monotonic under-hit 47->49->53->57% Q1->Q4; Q4+>=5 starts ~64%/+24%; low
+# lines carry it, mid 5.5 dead. TRACKING ONLY -- watch/track, not a sized bet.
+KDIV_PRIOR_CSV       = 'pitcher_divergence_prior_2026.csv'
+KDIV_MIN_STARTS      = 5      # current-yr appearance min (monotonic dose-response; biggest lever)
+KDIV_STRONG_LINE_MAX = 4.5    # STRONG tier: DK K-line at/below this (edge concentrates at low lines)
+_kdiv_trait = {}             # pitcher_id -> {'prior_gap': float, 'div_q4': bool}
+try:
+    _kdiv_df = pd.read_csv(KDIV_PRIOR_CSV)
+    for _r in _kdiv_df.itertuples(index=False):
+        _kdiv_trait[int(_r.pitcher_id)] = {'prior_gap': float(_r.prior_gap),
+                                           'div_q4': bool(int(_r.div_q4))}
+    print(f"K-div trait loaded: {len(_kdiv_trait)} pitchers "
+          f"({sum(1 for v in _kdiv_trait.values() if v['div_q4'])} Q4)")
+except Exception as _e:
+    print(f"K-div trait load failed ({KDIV_PRIOR_CSV}): {_e}")
+
 ODDS_REGIONS        = 'us,us2,eu'
 ODDS_API_TTL        = 14400  # 4h
 PINNACLE_BOOK_LABEL = 'Pinnacle'
@@ -1251,6 +1276,37 @@ def _kprop_note(ofav, kal_k):
             f'Opp F5 total {f5_s}.{thin_s}{kal_s} '
             f'(2026 DK over-favorite bias: ~+9% ROI base / +18% sharp [opp F5<2.0 & >=7 starts], '
             f'replicates May+June; UNVALIDATED OOS — tracking only, shop the best over price.)')
+
+
+def _kprop_under_divergence(pitcher_id, k_line, prior_starts):
+    """K-prop UNDER classifier — the whiff-K divergence fade (see KDIV_* block).
+    Returns {'signal', 'tier', 'prior_gap'}. WATCH = prior-year Q4 diverger with
+    >= KDIV_MIN_STARTS current-year starts (any line). STRONG (Telegram-eligible) =
+    also DK line <= KDIV_STRONG_LINE_MAX. TRACKING ONLY."""
+    out = {'signal': False, 'tier': None, 'prior_gap': None}
+    t = _kdiv_trait.get(int(pitcher_id)) if pitcher_id is not None else None
+    if not t or not t['div_q4']:
+        return out
+    out['prior_gap'] = t['prior_gap']
+    if prior_starts is None or prior_starts < KDIV_MIN_STARTS:
+        return out                       # appearance-minimum gate (biggest lever)
+    out['signal'] = True
+    out['tier'] = ('strong' if (k_line is not None and k_line <= KDIV_STRONG_LINE_MAX)
+                   else 'watch')
+    return out
+
+
+def _kprop_under_tg(f):
+    """One-line K-prop UNDER (divergence) bet for Telegram, from a flag dict."""
+    line = f.get('kprop_line')
+    dk   = f.get('kprop_dk_over')   # over price shown for reference (we fade it -> take under)
+    gap  = f.get('kprop_under_gap')
+    line_s = f"{line:g}" if line is not None else '—'
+    gap_s  = f"+{gap:.3f}" if gap is not None else '—'
+    f5     = f.get('kprop_opp_f5')
+    return (f"🧊 K-PROP UNDER {line_s} [STRONG] — chronic non-converter "
+            f"(2025 whiff-K gap {gap_s}), line ≤{KDIV_STRONG_LINE_MAX:g}. "
+            f"Opp F5 {f5 if f5 is not None else '—'}. TRACKING — unvalidated.")
 
 
 def _kprop_tg_bet(f):
@@ -2397,6 +2453,8 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             _ofav, _kprop_preband, _kprop_driftin = _classify_kprop_fields(
                 pitcher_name, batting_team, _prior_starts, pq_q4, kprop_lines, team_lines, _f5_latch)
             _k_prop_signal = _ofav['signal']
+            # K-prop UNDER (whiff-K divergence) — independent of the over signal; same line/starts.
+            _kunder = _kprop_under_divergence(pitcher_id, _ofav.get('line'), _prior_starts)
             # FREE Kalshi over-prob at the DK strike -- logged on every row (builds the dataset for a
             # future Kalshi-only band) AND used post-loop to trigger a paid DK re-pull when a pre-band
             # arm steams toward the -120..-160 band on Kalshi before our 4h DK snapshot catches it.
@@ -2469,6 +2527,9 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_opp_f5':     _ofav['opp_f5_total'],
                 'kprop_n_books':    _ofav['n_books'],
                 'kprop_prior_starts':      _ofav['prior_starts'],
+                'kprop_under_flag':        _kunder['signal'],
+                'kprop_under_tier':        _kunder['tier'],
+                'kprop_under_gap':         _kunder['prior_gap'],
                 'kprop_sharp_blocked_thin': _ofav['sharp_blocked_thin'],
                 'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
                 'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
@@ -2939,6 +3000,9 @@ def get_heatmap_flags(games, model):
                                    and _ofav2.get('opp_f5_total') is not None
                                    and _ofav2['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
             _kprop_driftin2 = bool(_kprop_preband2 and pq_q4)
+            _kunder2 = _kprop_under_divergence(
+                pitcher_id, _ofav2.get('line'),
+                pq_info.get('gs') if pq_info else _pq_current_gs.get(pitcher_id))
 
             flag = {
                 'game':             game_str,
@@ -2986,6 +3050,9 @@ def get_heatmap_flags(games, model):
                 'kprop_n_books':    _ofav2['n_books'],
                 'kprop_prior_starts':      _ofav2['prior_starts'],
                 'kprop_sharp_blocked_thin': _ofav2['sharp_blocked_thin'],
+                'kprop_under_flag':        _kunder2['signal'],
+                'kprop_under_tier':        _kunder2['tier'],
+                'kprop_under_gap':         _kunder2['prior_gap'],
                 'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
                 'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
                 'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,
@@ -3354,6 +3421,7 @@ def build_picks_payload(today, games, heatmap_flags):
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
     kprop_only_flags = [f for f in heatmap_flags if f.get('signal') == 'k_prop_only']
+    kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
@@ -3378,6 +3446,7 @@ def build_picks_payload(today, games, heatmap_flags):
         'over_info_flags':   over_info_flags,
         'pq_flags':          pq_flags,
         'kprop_only_flags':  kprop_only_flags,
+        'kunder_flags':      kunder_flags,
         'off_flags':         off_flags,
         'joint_flags':       joint_flags,
         'fg_tt_flags':       fg_tt_flags,
@@ -3863,6 +3932,68 @@ def append_kprop_to_sheet(flags):
         print("gspread not installed — skipping KProp sheet append")
     except Exception as e:
         print(f"Google Sheets (KProp) error: {e}")
+
+
+KUNDER_SHEET_TAB    = 'KPropUnder'
+KUNDER_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'pitcher_name',
+    'kunder_tier',          # 'watch' or 'strong' (strong = line<=4.5, the Telegram tier)
+    'kprop_line',           # the K line we take the UNDER at
+    'kprop_dk_over',        # DK over price (reference — we fade it)
+    'prior_gap',            # 2025 whiff-implied K% minus actual K% (the divergence trait)
+    'kprop_opp_f5',         # opp F5 total (context)
+    'kprop_prior_starts',   # current-yr starts (>=5 gate)
+    'game_time', 'game_id',
+    'actual_k',             # fill after game
+    'k_under_hit',          # 1 if actual_k < kprop_line (UNDER won) — fill after game
+]
+
+
+def append_kunder_to_sheet(flags):
+    """Dedicated K-prop UNDER (whiff-K divergence) tracking tab. Logs BOTH tiers (watch +
+    strong) so the forward record accrues; upgrades watch->strong in place (col 5)."""
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, KUNDER_SHEET_TAB, KUNDER_SHEET_HEADER)
+        existing = ws.get_all_values()
+        existing_row = {}   # 'date|game|team' -> (row_index, current_tier)
+        for i, row in enumerate(existing[1:], start=2):
+            if len(row) >= 3:
+                existing_row[f"{row[0]}|{row[1]}|{row[2]}"] = (i, row[4] if len(row) >= 5 else '')
+        today         = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added    = 0
+        rows_upgraded = 0
+        for f in flags:
+            if not f.get('kprop_under_flag'):
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_row:
+                _ridx, _cur = existing_row[key]
+                if f.get('kprop_under_tier') == 'strong' and _cur != 'strong' and _ridx is not None:
+                    ws.update_cell(_ridx, 5, 'strong')   # col 5 = kunder_tier
+                    existing_row[key] = (_ridx, 'strong')
+                    rows_upgraded += 1
+                continue
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
+                f.get('kprop_under_tier', ''),
+                f.get('kprop_line', ''),
+                f.get('kprop_dk_over', ''),
+                round(f['kprop_under_gap'], 4) if f.get('kprop_under_gap') is not None else '',
+                f.get('kprop_opp_f5', ''),
+                f.get('kprop_prior_starts', ''),
+                f.get('game_time', ''), f.get('game_id', ''),
+                '', '',  # actual_k / k_under_hit — filled after game
+            ], value_input_option='USER_ENTERED')
+            existing_row[key] = (None, f.get('kprop_under_tier', ''))
+            rows_added += 1
+        print(f"Google Sheets (KPropUnder): {rows_added} rows added, {rows_upgraded} upgraded watch->strong")
+    except ImportError:
+        print("gspread not installed — skipping KPropUnder sheet append")
+    except Exception as e:
+        print(f"Google Sheets (KPropUnder) error: {e}")
 
 
 OFF_SHEET_TAB    = 'OffenseQuality'
@@ -5113,6 +5244,7 @@ def api_notify():
         kprop_flags  = [f for f in flags if f.get('k_prop_flag')]
         kprop_preband_flags = [f for f in flags if f.get('kprop_preband')]   # whole pool -> sheet log
         kprop_driftin_flags = [f for f in flags if f.get('kprop_driftin')]   # PQ subset -> Telegram
+        kunder_flags = [f for f in flags if f.get('kprop_under_flag')]        # both tiers -> sheet+app
         off_flags    = [f for f in flags if f.get('off_q3_gate')]
         joint_flags  = [f for f in flags if f.get('joint_signal')]
         fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
@@ -5147,6 +5279,11 @@ def api_notify():
             # doesn't re-ping them once.
             ksharp_sent |= {flag_key(f) for f in kprop_flags
                             if f.get('k_prop_tier') == 'sharp' and flag_key(f) in already_sent}
+        # K-prop UNDER (divergence) STRONG tier dedups independently, like ksharp: a pick that
+        # opened as 'watch' (Telegram-silent) can still fire its first STRONG ping on upgrade.
+        kunder_key   = f"ozzie:kunder_strong_notified:{today}"
+        kunder_raw   = redis_get(kunder_key)
+        kunder_sent  = set(kunder_raw.split(',')) if kunder_raw else set()
         # Per-signal dedup namespaces: each signal keys on "<signal>|game|team" so different
         # signals on the SAME game (e.g. a K-prop and a Pitcher-Quality flag, which share
         # game|batting_team) no longer suppress each other -- previously whichever fired first
@@ -5174,9 +5311,12 @@ def api_notify():
         # sharp ping. Added to the new-flag guard so a base->sharp upgrade doesn't early-return.
         new_kprop_sharp = [f for f in kprop_flags
                            if f.get('k_prop_tier') == 'sharp' and flag_key(f) not in ksharp_sent]
+        new_kunder = _unsent('kunder', kunder_flags)   # sheet + dashboard (both tiers)
+        new_kunder_strong = [f for f in kunder_flags   # Telegram (STRONG only), independent dedup
+                             if f.get('kprop_under_tier') == 'strong' and flag_key(f) not in kunder_sent]
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
                 or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp
-                or new_kprop_driftin or new_kprop_preband):
+                or new_kprop_driftin or new_kprop_preband or new_kunder or new_kunder_strong):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
@@ -5227,6 +5367,21 @@ def api_notify():
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · "
                              f"🎯 K-PROP OVER {line if line is not None else '—'} [DRIFT-IN] — "
                              f"DK {dk_s}, best {best_s} ({book}), opp F5 {f5 if f5 is not None else '—'}{time}")
+
+        # ── K-PROP UNDER · WHIFF-K DIVERGENCE (July 6, 2026) — STRONG tier only in Telegram (the
+        # watch tier is visible in-app + logged to the sheet, never pinged), 🧊 to distinguish it
+        # from the 🎯 over signal. Fade the chronic non-converter's inflated line. TRACKING ONLY.
+        if new_kunder_strong:
+            if len(lines) > 1:
+                lines.append("")
+            lines.append("🧊 <b>K-Prop UNDER · STRONG only — TRACKING ONLY (not yet a validated bet signal)</b>")
+            lines.append(f"{len(new_kunder_strong)} STRONG start(s) — prior-year chronic non-converter "
+                         f"(top-quartile whiff-K gap) + ≥{KDIV_MIN_STARTS} starts + DK line ≤{KDIV_STRONG_LINE_MAX:g}. "
+                         "Market prices the whiff; the K's never materialize, so the UNDER is the value. "
+                         "In-sample only (~⅓ season), watch tier logs to the tracker.\n")
+            for f in new_kunder_strong:
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · {_kprop_under_tg(f)}{time}")
 
         # NOTE: the F5 TT U1.5 UNDER block was removed from Telegram June 28, 2026 per Zach
         # (focusing notifications on K props) -- still computed above and still logged to its
@@ -5379,10 +5534,17 @@ def api_notify():
         # appends + dedup below still run regardless, so base picks keep logging on a no-message day.
         if len(lines) > 1:
             send_telegram('\n'.join(lines))
+        # Persist the STRONG K-under dedup so an upgraded/added strong pick pings only once/day.
+        if new_kunder_strong:
+            redis_set(kunder_key,
+                      ','.join(kunder_sent | {flag_key(f) for f in new_kunder_strong}), ex=172800)
         if new_under:
             append_to_sheet(new_under)
         if new_pq:
             append_pq_to_sheet(new_pq)
+        if new_kunder:
+            # both tiers -> KPropUnder tab, dedup date|game|team, so the forward record accrues
+            append_kunder_to_sheet(new_kunder)
         if new_kprop or new_kprop_preband:
             # pre-band rows are disjoint from band rows (mutually-exclusive price zones); the sheet
             # logger gates on k_prop_flag OR kprop_preband and dedups by date|game|team. Logs the whole

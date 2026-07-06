@@ -192,6 +192,19 @@
     <div id="kprop-list"></div>
   </div>
 </div>
+
+<div id="kprop-under-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="kprop-under-count"></div>
+      <div class="section-label" style="margin:0">🧊 K-Prop UNDER (Whiff-K Divergence)
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#6ab7ff;margin-left:8px;text-transform:uppercase">Fade Chronic Non-Converters — Tracking Only</span>
+      </div>
+    </div>
+    <div id="kprop-under-list"></div>
+  </div>
+</div>
 <div id="off-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -609,6 +622,41 @@
     return card;
   }
 
+  function buildKunderCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'pq-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.style.borderColor = 'rgba(106,183,255,.4)';
+    const strong = f.kprop_under_tier === 'strong';
+    const tier = strong ? 'STRONG' : 'watch';
+    const tierColor = strong ? '#6ab7ff' : '#8a97a8';
+    const line = f.kprop_line != null ? f.kprop_line : '—';
+    const dkOver = f.kprop_dk_over != null ? f.kprop_dk_over : '—';
+    const gap = f.kprop_under_gap != null ? ('+' + f.kprop_under_gap.toFixed(3)) : '—';
+    const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
+    const starts = f.kprop_prior_starts != null ? f.kprop_prior_starts : '—';
+    const betStr = `BUY <b>Under ${line}K</b> (fade the inflated line)`;
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#6ab7ff">🧊 K-PROP UNDER</div>
+          <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">'25 whiff-K gap</div><div class="hm-stat-value">${gap}</div></div>
+        <div><div class="hm-stat-label">Starts / Opp F5</div><div class="hm-stat-value">${starts} / ${oppF5}</div></div>
+      </div>
+      <div class="pq-detail" style="margin-top:8px;color:#6ab7ff;font-weight:600">${betStr}</div>
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Chronic non-converter: market prices the whiff, the K's never materialize. ${strong ? 'STRONG = line &le;4.5 (edge concentrates at low lines).' : 'watch = any line; STRONG requires line &le;4.5.'} DK over ${dkOver} (ref — we take the under). In-sample only (~⅓ season) — TRACKING, unvalidated.</div>
+      ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
+    return card;
+  }
+
   function buildOffCard(f, i) {
     const card = document.createElement('div');
     card.className = 'off-card';
@@ -778,7 +826,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','off-section','joint-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
 
     fetch('/api/picks')
@@ -837,6 +885,17 @@
           document.getElementById('kprop-count').textContent = `${kpropOnlyFlags.length} Start${kpropOnlyFlags.length!==1?'s':''}`;
           kpropOnlyFlags.forEach((f,i) => kpropList.appendChild(buildKpropOnlyCard(f,i)));
           document.getElementById('kprop-section').style.display = 'block';
+        }
+
+        // ── K-Prop UNDER (whiff-K divergence — both tiers shown; strong-only pings Telegram) ──
+        const kunderList = document.getElementById('kprop-under-list'); kunderList.innerHTML='';
+        const kunderFlags = (data.kunder_flags||[]).filter(f=>f.kprop_under_flag);
+        if (kunderFlags.length > 0) {
+          // strong first, then watch
+          kunderFlags.sort((a,b)=> (b.kprop_under_tier==='strong') - (a.kprop_under_tier==='strong'));
+          document.getElementById('kprop-under-count').textContent = `${kunderFlags.length} Start${kunderFlags.length!==1?'s':''}`;
+          kunderFlags.forEach((f,i) => kunderList.appendChild(buildKunderCard(f,i)));
+          document.getElementById('kprop-under-section').style.display = 'block';
         }
 
         // ── Offense Quality Composite (tracking only) ───────────────────
