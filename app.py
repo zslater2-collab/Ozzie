@@ -5225,8 +5225,7 @@ def flag_tomorrow_kprops():
     n_sharp   = sum(1 for f in flags if f['k_prop_tier'] == 'sharp')
     print(f"[TOMORROW] {now_et:%H:%M} ET {tomorrow}: {len(flags)} K signal(s), {n_sharp} sharp, {len(new_sharp)} new")
     if new_sharp:
-        lines = [f"🔮 <b>TOMORROW ({tomorrow}) — K-Prop OVER SHARP (early)</b>",
-                 f"{len(new_sharp)} sharp start(s) already posted for tomorrow — shop the best over price.\n"]
+        lines = [f"🔮 <b>TOMORROW ({tomorrow}) · K-Prop OVER SHARP early ({len(new_sharp)})</b> <i>tracking</i>"]
         for f in new_sharp:
             t = f" — {f['game_time']}" if f.get('game_time') else ''
             lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · {_kprop_tg_bet(f)}{t}")
@@ -5386,12 +5385,7 @@ def api_notify():
         # new_kprop_sharp is computed above (off kprop_flags via ksharp_sent) so base->sharp upgrades
         # survive the already_sent dedup that new_kprop is subject to.
         if new_kprop_sharp:
-            lines.append("🎯 <b>K-Prop OVER · SHARP only — TRACKING ONLY (not yet a validated bet signal)</b>")
-            lines.append(f"{len(new_kprop_sharp)} SHARP start(s) — over-favorite price + strong matchup + "
-                         "ELITE arm (DK over -120..-160, opp F5 total &lt;2.0, ≥7 prior starts, top-quintile Q4). "
-                         "OOS 2025+2026: the low-total K-over edge is entirely the elite arms (PQ+F5≤1.5 "
-                         "+9.8%/+4.0%); non-PQ in the same spot is dead. base plays log to the tracker only. "
-                         "Shop best over price.\n")
+            lines.append(f"🎯 <b>K-Prop OVER · SHARP ({len(new_kprop_sharp)})</b> <i>tracking</i>")
             for f in new_kprop_sharp:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 also = ' · also 📊Q4' if f.get('pq_q4') else ''
@@ -5404,11 +5398,7 @@ def api_notify():
         # soft price and let it drift in. TRACKING ONLY (in-sample n=34, thin) — logs to the KProp tab
         # for forward grading. See project_kprop_clv_direction / KPROP_DRIFTIN note.
         if new_kprop_driftin:
-            lines.append("\n🎯 <b>K-Prop DRIFT-IN watchlist — pre-band, TRACKING ONLY (buy over EARLY)</b>")
-            lines.append(f"{len(new_kprop_driftin)} pre-band arm(s) — DK over +100..-119 (just below the "
-                         "playable band), opp F5 total ≤1.5, top-quintile arm (Q4). Thesis: these steam "
-                         "INTO -120..-160 by close; the soft early price is the edge. Not yet validated — "
-                         "buy the over now, we track whether it drifts in.\n")
+            lines.append(f"\n🎯 <b>K-Prop DRIFT-IN watchlist ({len(new_kprop_driftin)})</b> <i>buy over early · tracking</i>")
             for f in new_kprop_driftin:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 dk   = f.get('kprop_dk_over')
@@ -5428,11 +5418,7 @@ def api_notify():
         if new_kunder_strong:
             if len(lines) > 1:
                 lines.append("")
-            lines.append("🧊 <b>K-Prop UNDER · STRONG only — TRACKING ONLY (not yet a validated bet signal)</b>")
-            lines.append(f"{len(new_kunder_strong)} STRONG start(s) — prior-year chronic non-converter "
-                         f"(whiff-K gap ≥0.02) + ≥{KDIV_MIN_STARTS} starts + DK line ≤{KDIV_STRONG_LINE_MAX:g}. "
-                         "Market prices the whiff; the K's never materialize, so the UNDER is the value. "
-                         "In-sample only (~⅓ season), watch tier logs to the tracker.\n")
+            lines.append(f"🧊 <b>K-Prop UNDER · STRONG ({len(new_kunder_strong)})</b> <i>tracking</i>")
             for f in new_kunder_strong:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · {_kprop_under_tg(f)}{time}")
@@ -5470,9 +5456,7 @@ def api_notify():
         if new_pq_for_telegram:
             if len(lines) > 1:
                 lines.append("")
-            lines.append(f"📊 <b>Pitcher Quality — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_pq_for_telegram)} Q4 pitcher(s) — only means something if <b>Pinnacle</b> below "
-                         f"shows ✅1.5 (or 🏟️ = validated park exception, thinner sample — see pq_note)\n")
+            lines.append(f"📊 <b>Pitcher Quality · Q4 ({len(new_pq_for_telegram)})</b> <i>tracking · needs Pinnacle ✅1.5</i>")
             for f in new_pq_for_telegram:
                 pct  = f.get('pq_percentile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
@@ -5518,9 +5502,7 @@ def api_notify():
         if new_fg_tt:
             if len(lines) > 1:
                 lines.append("")
-            lines.append(f"🛢️ <b>FG Team Total Under (Bullpen) — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_fg_tt)} top-quartile opposing bullpen(s) — only means something "
-                         f"if a line below shows ✅3.5/4.5/5.5 (see fg_note)\n")
+            lines.append(f"🛢️ <b>FG Team Total Under · Bullpen ({len(new_fg_tt)})</b> <i>tracking · needs ✅3.5/4.5/5.5</i>")
             for f in new_fg_tt:
                 pct  = f.get('fg_bp_pctile')
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
@@ -5535,9 +5517,7 @@ def api_notify():
         if new_f5_over:
             if len(lines) > 1:
                 lines.append("")
-            lines.append(f"🔄 <b>F5 Team Total Over (Other Side) — NEW, UNTESTED, tracking only</b>")
-            lines.append(f"{len(new_f5_over)} game(s): joint F5 over flagged, one team already "
-                         f"F5-under flagged — surfacing the other side\n")
+            lines.append(f"🔄 <b>F5 Team Total Over · Other Side ({len(new_f5_over)})</b> <i>tracking</i>")
             for f in new_f5_over:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 odds = format_odds_lines(f.get('f5_over_odds_lines'))
@@ -5551,11 +5531,7 @@ def api_notify():
         if new_fg_joint:
             if len(lines) > 1:
                 lines.append("")
-            lines.append(f"🎰 <b>FG Joint/Combined Total (Bullpen) — TRACKING ONLY, not a bet signal</b>")
-            lines.append(f"{len(new_fg_joint)} game(s) — combined (both teams') bullpen strength vs "
-                         f"the whole-game total. UNDER tiered 🥇Gold 1.5u / 🥈Silver 1.0u / 🥉Bronze "
-                         f"0.5u; OVER single 1.0u. ✅ = {FG_JOINT_GATE_BOOK} line in "
-                         f"{FG_JOINT_LINE_MIN}-{FG_JOINT_LINE_MAX}\n")
+            lines.append(f"🎰 <b>FG Joint/Combined Total · Bullpen ({len(new_fg_joint)})</b> <i>tracking</i>")
             for f in new_fg_joint:
                 direction = f.get('fg_joint_direction', '')
                 tier  = f.get('fg_joint_tier', '')
