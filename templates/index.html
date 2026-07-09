@@ -579,7 +579,7 @@
         <div><div class="hm-stat-label">Score</div><div class="hm-stat-value">${f.pq_score}</div></div>
       </div>
       ${f.projected_k ? `<div class="pq-detail" style="margin-top:8px;color:var(--text)">📊 Projected ~${f.projected_k} K vs ${f.batting_team} <span style="color:var(--muted)">— ${f.o_k_rate != null ? (f.o_k_rate >= 0.221 ? '<b>high-K lineup</b>' : 'contact lineup') : 'informational'}, not a bet</span></div>` : ''}
-      ${f.k_prop_flag ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP OVER [${f.k_prop_tier === 'sharp' ? 'SHARP' : 'base'}] — BUY Over ${f.kprop_line != null ? f.kprop_line : '—'}K. DK over ${f.kprop_dk_over != null ? f.kprop_dk_over : '—'}, best ${f.kprop_best_over != null ? (f.kprop_best_over>=0?'+':'')+f.kprop_best_over : '—'} (${f.kprop_best_book||'—'}). <span style="font-weight:normal">Opp F5 tot ${f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—'}. TRACKING — unvalidated.</span></div>` : ''}
+      ${(f.k_prop_flag && f.k_prop_tier === 'sharp') ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600">🎯 K-PROP OVER [SHARP] — BUY Over ${f.kprop_line != null ? f.kprop_line : '—'}K. DK over ${f.kprop_dk_over != null ? f.kprop_dk_over : '—'}, best ${f.kprop_best_over != null ? (f.kprop_best_over>=0?'+':'')+f.kprop_best_over : '—'} (${f.kprop_best_book||'—'}). <span style="font-weight:normal">Opp F5 tot ${f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—'}. TRACKING — unvalidated.</span></div>` : ''}
       ${bfHtml}
       <div class="pq-detail" style="margin-top:8px">${f.pq_note||''}</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
