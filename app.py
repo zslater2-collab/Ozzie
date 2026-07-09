@@ -2025,7 +2025,11 @@ def _classify_kprop_fields(pitcher_name, batting_team, prior_starts, pq_q4,
     preband = bool(ofav.get('driftin_price')
                    and ofav.get('opp_f5_total') is not None
                    and ofav['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
-    driftin = bool(preband and pq_q4)
+    # DRIFT-IN surfacing mirrors the SHARP gate's start requirement (same constant so they can't
+    # diverge): only surface a candidate that could ACTUALLY become sharp if its price drifts in.
+    # A thin-start elite arm (e.g. Henderson, 5 starts) can only reach 'base' in-band, so it stays
+    # in the kprop_preband sheet log but is NOT pinged as a drift-in until it clears the start gate.
+    driftin = bool(preband and pq_q4 and (prior_starts or 0) >= KPROP_SHARP_MIN_STARTS)
     return ofav, preband, driftin
 
 
@@ -3003,7 +3007,8 @@ def get_heatmap_flags(games, model):
             _kprop_preband2 = bool(_ofav2.get('driftin_price')
                                    and _ofav2.get('opp_f5_total') is not None
                                    and _ofav2['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
-            _kprop_driftin2 = bool(_kprop_preband2 and pq_q4)
+            _kprop_driftin2 = bool(_kprop_preband2 and pq_q4
+                                   and (_ofav2.get('prior_starts') or 0) >= KPROP_SHARP_MIN_STARTS)
             _kunder2 = _kprop_under_divergence(
                 pitcher_id, _ofav2.get('line'),
                 pq_info.get('gs') if pq_info else _pq_current_gs.get(pitcher_id))
