@@ -3424,7 +3424,13 @@ def build_picks_payload(today, games, heatmap_flags):
     fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
-    kprop_only_flags = [f for f in heatmap_flags if f.get('signal') == 'k_prop_only']
+    # VISIBILITY, per Zach (July 9, 2026): show ONLY SHARP K-props on the dashboard; hide 'base'.
+    # Base picks are still fully computed, Telegram-muted-as-before, and logged to the KProp sheet
+    # (append_kprop_to_sheet in api_notify runs off the unfiltered `flags`, not this list) so nothing
+    # about tracking/drift-in changes -- this filter is display-only. A base pick that later drifts
+    # into the band upgrades to 'sharp' and will then appear here automatically.
+    kprop_only_flags = [f for f in heatmap_flags
+                        if f.get('signal') == 'k_prop_only' and f.get('k_prop_tier') == 'sharp']
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
@@ -3860,6 +3866,13 @@ KPROP_SHEET_HEADER = [
                                      # Builds the dataset to validate a KALSHI-ONLY band later (drop DK).
     'kalshi_forced',                 # TRUE = a Kalshi drift-in trigger forced a fresh DK re-pull on this
                                      # row (July 5, 2026) -- audits whether the trigger catches drift-ins.
+    'drifted_in',                    # (July 9, 2026) TRUE once a PREBAND arm's price is observed INSIDE the
+                                     # -160..-120 band -- the price actually drifted in, whether or not it
+                                     # then qualified SHARP. Blank on a preband row = never drifted in.
+    'drift_time',                    # ET HH:MM the price was first seen in-band (when drifted_in flipped).
+    'ever_sharp',                    # TRUE if the row qualified as SHARP at ANY point. Distinguishes a
+                                     # drift-in that became sharp (drifted_in+ever_sharp) from one that
+                                     # drifted into the band but stayed base (drifted_in, no ever_sharp).
 ]
 
 
@@ -3871,14 +3884,27 @@ def append_kprop_to_sheet(flags):
         gspread, sh = _open_sheet()
         ws = _get_or_create_ws(gspread, sh, KPROP_SHEET_TAB, KPROP_SHEET_HEADER)
 
+        def _in_band_price(dk):
+            try:
+                return dk not in (None, '') and KPROP_OVER_FAV_LO <= float(dk) <= KPROP_OVER_FAV_HI
+            except (TypeError, ValueError):
+                return False
+
         existing = ws.get_all_values()
-        existing_row = {}   # 'date|game|team' -> (sheet_row_index, current_tier); sheet rows 1-indexed
+        # 'date|game|team' -> [row_idx, tier, preband, drifted_in, ever_sharp]; sheet rows 1-indexed
+        existing_row = {}
         for i, row in enumerate(existing[1:], start=2):   # existing[0] is the header (sheet row 1)
             if len(row) >= 3:
-                existing_row[f"{row[0]}|{row[1]}|{row[2]}"] = (i, row[4] if len(row) >= 5 else '')
-        today         = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+                def _c(n):   # 1-based sheet col -> value, '' if the row is short (old rows lack new cols)
+                    return row[n - 1] if len(row) >= n else ''
+                existing_row[f"{row[0]}|{row[1]}|{row[2]}"] = [
+                    i, _c(5), _c(29), _c(33), _c(35)]   # tier, preband, drifted_in, ever_sharp
+        _now          = datetime.now(pytz.timezone('America/New_York'))
+        today         = _now.strftime('%Y-%m-%d')
+        _hm           = _now.strftime('%H:%M')
         rows_added    = 0
         rows_upgraded = 0
+        rows_drifted  = 0
         for f in flags:
             # log band-signal rows (k_prop_flag) AND the whole pre-band pool (kprop_preband: PQ + non-PQ,
             # opp F5<=1.5, over +100..-119) so the drift-in play accumulates a forward record and
@@ -3887,10 +3913,13 @@ def append_kprop_to_sheet(flags):
                 continue
             key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
             if key in existing_row:
-                # Already logged today -- but UPGRADE the row in place if it has since become sharp
-                # (base->sharp: e.g. opp F5 posted 1.5 after the first 'base' log). Tier + opp F5.
-                _ridx, _cur = existing_row[key]
-                if f.get('k_prop_tier') == 'sharp' and _cur != 'sharp' and _ridx is not None:
+                # Already logged today -- update the row IN PLACE to record its intraday path:
+                #   (a) base->sharp tier upgrade (opp F5 posted 1.5 after the first 'base' log), and
+                #   (b) the explicit drift-in / ever-sharp taxonomy (drifted_in, drift_time, ever_sharp).
+                _ridx, _cur, _preband, _drifted, _eversharp = existing_row[key]
+                if _ridx is None:
+                    continue
+                if f.get('k_prop_tier') == 'sharp' and _cur != 'sharp':
                     ws.update_cell(_ridx, 5, 'sharp')                      # col 5  = k_prop_tier
                     ws.update_cell(_ridx, 11, f.get('kprop_opp_f5', ''))   # col 11 = kprop_opp_f5
                     # a Kalshi-triggered re-pull is what usually catches a late drift-in -> stamp the
@@ -3899,8 +3928,21 @@ def append_kprop_to_sheet(flags):
                         ws.update_cell(_ridx, 31, round(f['kalshi_over_prob'], 4))  # col 31 = kalshi_over_prob
                     if f.get('kalshi_forced'):
                         ws.update_cell(_ridx, 32, 'TRUE')                  # col 32 = kalshi_forced
-                    existing_row[key] = (_ridx, 'sharp')
+                    _cur = 'sharp'
                     rows_upgraded += 1
+                # ever_sharp: sticky TRUE the first time the row is sharp (independent of preband/drift)
+                if f.get('k_prop_tier') == 'sharp' and _eversharp != 'TRUE':
+                    ws.update_cell(_ridx, 35, 'TRUE')                      # col 35 = ever_sharp
+                    _eversharp = 'TRUE'
+                # drifted_in: a row that was logged PREBAND (below band) whose price is now in the band
+                # actually drifted in -- stamp it once, with the time, regardless of sharp vs base.
+                if (_preband == 'TRUE' and _drifted != 'TRUE'
+                        and _in_band_price(f.get('kprop_dk_over'))):
+                    ws.update_cell(_ridx, 33, 'TRUE')                      # col 33 = drifted_in
+                    ws.update_cell(_ridx, 34, _hm)                        # col 34 = drift_time
+                    _drifted = 'TRUE'
+                    rows_drifted += 1
+                existing_row[key] = [_ridx, _cur, _preband, _drifted, _eversharp]
                 continue
             team_odds = f.get('odds_lines') or {}
             def _lo(book):
@@ -3928,10 +3970,18 @@ def append_kprop_to_sheet(flags):
                 'TRUE' if f.get('kprop_driftin') else '',
                 round(f['kalshi_over_prob'], 4) if f.get('kalshi_over_prob') is not None else '',
                 'TRUE' if f.get('kalshi_forced') else '',
+                # drifted_in: '' at first log. A preband arm born in-band (rare) counts as drifted now;
+                # otherwise it stays blank until a later run observes its price inside the band.
+                'TRUE' if (f.get('kprop_preband') and _in_band_price(f.get('kprop_dk_over'))) else '',
+                _hm if (f.get('kprop_preband') and _in_band_price(f.get('kprop_dk_over'))) else '',
+                'TRUE' if f.get('k_prop_tier') == 'sharp' else '',   # ever_sharp (sharp at first log)
             ], value_input_option='USER_ENTERED')
-            existing_row[key] = (None, f.get('k_prop_tier', ''))
+            existing_row[key] = [None, f.get('k_prop_tier', ''),
+                                 'TRUE' if f.get('kprop_preband') else '',
+                                 '', 'TRUE' if f.get('k_prop_tier') == 'sharp' else '']
             rows_added += 1
-        print(f"Google Sheets (KProp): {rows_added} rows added, {rows_upgraded} upgraded base->sharp")
+        print(f"Google Sheets (KProp): {rows_added} added, {rows_upgraded} base->sharp, "
+              f"{rows_drifted} drifted into band")
     except ImportError:
         print("gspread not installed — skipping KProp sheet append")
     except Exception as e:
