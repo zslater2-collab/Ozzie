@@ -2857,6 +2857,10 @@ def get_heatmap_flags(games, model):
     contact_rates   = model.get('pitcher_contact_rates', {})
     bb_gb_rates_all = model.get('pitcher_bb_gb_rates', {}) or {}
     flags           = []
+    # Local F5 sharp-latch for _classify_kprop_fields (this dormant fallback path doesn't persist
+    # the latch to Redis like get_tracking_only_flags does; a per-run set still latches within the
+    # run and keeps classification identical to the live path).
+    _hm_f5_latch    = set()
 
     try:
         odds_lines, _joint_lines_unused, _fg_lines_unused, _fg_joint_unused, kprop_lines = get_odds_api_lines(games)
@@ -2997,21 +3001,14 @@ def get_heatmap_flags(games, model):
                                               off_info['o_k_rate'] if off_info else None,
                                               pq_info.get('exp_bf') if pq_info else None)
             _kal_k2         = None
-            _ofav2          = _kprop_over_fav(pitcher_name, kprop_lines, batting_team, odds_lines,
-                                              prior_starts=(pq_info.get('gs') if pq_info
-                                                         else _pq_current_gs.get(pitcher_id)))
-            # SHARP requires pq_q4 (see the OOS note at the first _kprop_over_fav call site).
-            if _ofav2.get('tier') == 'sharp' and not pq_q4:
-                _ofav2['tier'] = 'base'; _ofav2['sharp_blocked_nonpq'] = True
+            # Use the SHARED classifier (same call as get_tracking_only_flags) so this dormant
+            # fallback path can't silently drift from the live K-prop logic — the pq_q4 SHARP
+            # downgrade, preband, and drift-in rules all live in _classify_kprop_fields now.
+            _prior_starts2  = pq_info.get('gs') if pq_info else _pq_current_gs.get(pitcher_id)
+            _ofav2, _kprop_preband2, _kprop_driftin2 = _classify_kprop_fields(
+                pitcher_name, batting_team, _prior_starts2, pq_q4, kprop_lines, odds_lines, _hm_f5_latch)
             _k_prop_signal2 = _ofav2['signal']
-            _kprop_preband2 = bool(_ofav2.get('driftin_price')
-                                   and _ofav2.get('opp_f5_total') is not None
-                                   and _ofav2['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
-            _kprop_driftin2 = bool(_kprop_preband2 and pq_q4
-                                   and (_ofav2.get('prior_starts') or 0) >= KPROP_SHARP_MIN_STARTS)
-            _kunder2 = _kprop_under_divergence(
-                pitcher_id, _ofav2.get('line'),
-                pq_info.get('gs') if pq_info else _pq_current_gs.get(pitcher_id))
+            _kunder2 = _kprop_under_divergence(pitcher_id, _ofav2.get('line'), _prior_starts2)
 
             flag = {
                 'game':             game_str,
