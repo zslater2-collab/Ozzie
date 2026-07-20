@@ -3431,8 +3431,15 @@ def build_picks_payload(today, games, heatmap_flags):
     # (append_kprop_to_sheet in api_notify runs off the unfiltered `flags`, not this list) so nothing
     # about tracking/drift-in changes -- this filter is display-only. A base pick that later drifts
     # into the band upgrades to 'sharp' and will then appear here automatically.
+    # K-PROP SECTION SCOPE (July 20, 2026, per Zach): surface EVERY sharp K-over start here so all
+    # K-props sit in one place. Previously this was gated on signal=='k_prop_only', which excluded a
+    # pq_q4 arm that ALSO fired the K-over (its signal label is 'pitcher_quality_only', pq wins the
+    # label at build time) -- those were buried as a tag inside the U1.5/PQ section and were hard to
+    # find. Now the feed is simply "k_prop_flag AND tier==sharp". pq_q4 arms still ALSO appear in
+    # pq_flags (kept in both, per Zach) -- this is additive, nothing leaves the PQ section. Still
+    # SHARP-only display filter (July 9 decision); base picks stay computed/logged/Telegram-muted.
     kprop_only_flags = [f for f in heatmap_flags
-                        if f.get('signal') == 'k_prop_only' and f.get('k_prop_tier') == 'sharp']
+                        if f.get('k_prop_flag') and f.get('k_prop_tier') == 'sharp']
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']

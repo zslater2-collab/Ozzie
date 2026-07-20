@@ -185,8 +185,8 @@
   <div style="padding-top:20px">
     <div class="flags-header">
       <div class="flags-count" id="kprop-count"></div>
-      <div class="section-label" style="margin:0">🎯 K-Prop Signal (Standalone)
-        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0a500;margin-left:8px;text-transform:uppercase">Independent — No U1.5 Gate Required</span>
+      <div class="section-label" style="margin:0">🎯 K-Prop Signal (Over)
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#f0a500;margin-left:8px;text-transform:uppercase">All Sharp K-Overs — Incl. Arms Also In U1.5</span>
       </div>
     </div>
     <div id="kprop-list"></div>
@@ -601,6 +601,18 @@
     const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
     const betStr = `BUY <b>Over ${line}K</b> @ best ${bestOver} (${bestBook})`;
+    // UNDER-RISK warning keyed on the TRAIT, not the fully-gated under flag (per Zach, July 20 2026).
+    // div_q4 (prior-year chronic whiff->K non-converter) is static and known the MOMENT the over
+    // fires -- long before the under's line<=5.5 display gate trips. kprop_under_gap != null <=> div_q4.
+    // The under thesis says this arm's Ks systematically don't materialize -- the opposite of a K-over
+    // -- so warn on every over card for such an arm, and escalate if the under is live right now too.
+    let conflict = '';
+    if (f.kprop_under_gap != null) {
+      const gapS = '+' + f.kprop_under_gap.toFixed(3);
+      conflict = f.kprop_under_flag
+        ? `<div class="pq-detail" style="margin-top:6px;color:#6ab7ff;font-weight:600;font-size:.62rem">⚠ CONFLICT — this arm ALSO flags 🧊 K-PROP UNDER right now ('25 whiff-K gap ${gapS}). Contradictory bets; both tracking-only.</div>`
+        : `<div class="pq-detail" style="margin-top:6px;color:#6ab7ff;font-weight:600;font-size:.62rem">⚠ UNDER RISK — prior-year chronic non-converter ('25 whiff-K gap ${gapS}); Ks systematically under-materialize. Under gate not tripped yet (line still above the &le;5.5 zone), but the trait argues against this over.</div>`;
+    }
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -609,7 +621,7 @@
           <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${conflict}
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
@@ -636,6 +648,8 @@
     const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const starts = f.kprop_prior_starts != null ? f.kprop_prior_starts : '—';
     const betStr = `BUY <b>Under ${line}K</b> (fade the inflated line)`;
+    // Same pitcher also trips the sharp OVER gate -> contradictory bets. Both tracking-only; surface it.
+    const conflict = (f.k_prop_flag && f.k_prop_tier === 'sharp') ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600;font-size:.62rem">⚠ CONFLICT — also flags 🎯 K-PROP OVER (SHARP). Contradictory; both tracking-only.</div>` : '';
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -644,7 +658,7 @@
           <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${conflict}
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
