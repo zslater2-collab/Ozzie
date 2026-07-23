@@ -592,8 +592,8 @@
     card.style.animationDelay = `${i * 0.06}s`;
     card.style.borderColor = 'rgba(240,165,0,.4)';
     const ok = f.o_k_rate;
-    const tier = f.k_prop_tier === 'sharp' ? 'SHARP' : 'base';
-    const tierColor = f.k_prop_tier === 'sharp' ? '#4caf50' : '#f0a500';
+    const tier = f.k_prop_tier === 'sharp' ? 'SHARP' : (f.k_prop_tier === 'line5' ? '5.5+' : 'base');
+    const tierColor = f.k_prop_tier === 'sharp' ? '#4caf50' : (f.k_prop_tier === 'line5' ? '#4fb8ff' : '#f0a500');
     const line = f.kprop_line != null ? f.kprop_line : '—';
     const dkOver = f.kprop_dk_over != null ? f.kprop_dk_over : '—';
     const bestOver = f.kprop_best_over != null ? ((f.kprop_best_over >= 0 ? '+' : '') + f.kprop_best_over) : '—';
@@ -629,7 +629,7 @@
         <div><div class="hm-stat-label">Opp F5 tot</div><div class="hm-stat-value">${oppF5}</div></div>
       </div>
       <div class="pq-detail" style="margin-top:8px;color:#f0a500;font-weight:600">${betStr}</div>
-      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Over-favorite price bias (DK over -120..-160${f.k_prop_tier === 'sharp' ? ', opp F5&lt;2.0' : ''}). 2026: ~+9% base / +18% sharp, replicates May+June. UNVALIDATED OOS — tracking only, shop best over. [ref Kalshi line ${kalshiLine}]</div>
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">${f.k_prop_tier === 'line5' ? `5.5+ tier: DK over -120..-160 AND K-line&ge;5.5. Full-sample 2025+2026: +2.9%/+8.8% (line&ge;5.5+favband). Broader than SHARP.` : `Over-favorite price bias (DK over -120..-160${f.k_prop_tier === 'sharp' ? ', opp F5&lt;2.0' : ''}). 2026: ~+9% base / +18% sharp, replicates May+June.`} UNVALIDATED OOS — tracking only, shop best over. [ref Kalshi line ${kalshiLine}]</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }

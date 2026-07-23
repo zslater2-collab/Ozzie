@@ -1024,6 +1024,7 @@ def get_lineups_and_starters(game_date):
             except Exception:
                 pass
             game_time = None
+            first_pitch_utc = None
             try:
                 raw_time = g.get('gameDate', '')
                 if raw_time:
@@ -1031,6 +1032,7 @@ def get_lineups_and_starters(game_date):
                     utc_dt  = utc_dt.replace(tzinfo=pytz.utc)
                     et_dt   = utc_dt.astimezone(pytz.timezone('America/New_York'))
                     game_time = et_dt.strftime('%-I:%M %p') + ' ET'
+                    first_pitch_utc = raw_time   # machine-readable, drives the K-prop-over T-45 send gate
             except Exception:
                 pass
             games.append({
@@ -1044,6 +1046,7 @@ def get_lineups_and_starters(game_date):
                 'home_lineup':       home_lineup,
                 'away_lineup':       away_lineup,
                 'game_time':         game_time,
+                'first_pitch_utc':   first_pitch_utc,
             })
     return games
 
@@ -1116,6 +1119,18 @@ ODDS_KPROP_MARKET   = 'pitcher_strikeouts'
 KPROP_OVER_FAV_LO   = -160   # most negative over price still in the band
 KPROP_OVER_FAV_HI   = -120   # least negative (closest to even)
 KPROP_SHARP_F5_TOTAL = 2.0   # opp F5 total below this = 'sharp' tier
+# SHARP K-prop OVER fires only inside this window before first pitch. The +11.2% edge was measured
+# on the CLOSING price, captured at a fixed T-45min in the open/close data (open=T-540); firing
+# hours early caught overs that later drift OUT of the favorite band to pickem (-15.4% traps).
+# So hold the ping until ~45 min out, then send the still-in-band close price. Per-game (staggered),
+# not one batch. See project_k_prop_signal (2026-07-23 timing finding). Does NOT gate the DRIFT-IN
+# watchlist, whose thesis is the opposite (buy the soft price EARLY and let it steam in).
+KPROP_OVER_SEND_LEAD_MIN = 45
+# 'line5' tier: any favorite-band OVER on a K-line >= 5.5, when NOT already SHARP. Broader than the
+# opp-F5 SHARP gate and independent of it -- line>=5.5 + favband replicated +2.9%(2025)/+8.8%(2026)
+# on the full clean 2025+2026 sample (real statcast outcomes), while line>=5.5 alone or favband alone
+# are breakeven. Fires Telegram + app like SHARP, differentiated by tier label; SHARP wins on overlap.
+KPROP_LINE5_MIN = 5.5
 # SHARP-pocket prior-start gate (June 27, 2026). Within the over-favorite pocket, the +12.8% ROI
 # is concentrated in pitchers with >= 7 prior starts this season (n=118, 68.6% over, +18.4%);
 # the <=3-prior slice is ~breakeven (-0.9%, n=50) and the out-of-pocket thin-prior plays bled
@@ -1265,7 +1280,8 @@ def _kprop_note(ofav, kal_k):
     bk     = ofav.get('best_book')
     line_s = f"{ofav['line']:g}" if ofav.get('line') is not None else '—'
     f5_s   = f"{ofav['opp_f5_total']:g}" if ofav.get('opp_f5_total') is not None else '—'
-    tier_s = 'SHARP (opp F5<2.0, >=7 starts)' if ofav.get('tier') == 'sharp' else 'base'
+    tier_s = ('SHARP (opp F5<2.0, >=7 starts)' if ofav.get('tier') == 'sharp'
+              else '5.5+ (line>=5.5, favband)' if ofav.get('tier') == 'line5' else 'base')
     best_s = f"{best:+d} ({bk})" if best is not None else '—'
     kal_s  = ''
     if kal_k and kal_k.get('implied_line') is not None:
@@ -1317,7 +1333,7 @@ def _kprop_tg_bet(f):
     """One-line K-prop OVER bet for Telegram, from a flag dict. Used both for standalone K-prop
     pitchers and for pitchers that ALSO fired pitcher-quality (so the actual bet always shows
     instead of a bare tag)."""
-    tier = 'SHARP' if f.get('k_prop_tier') == 'sharp' else 'base'
+    tier = {'sharp': 'SHARP', 'line5': '5.5+'}.get(f.get('k_prop_tier'), 'base')
     line = f.get('kprop_line')
     dk   = f.get('kprop_dk_over')
     best = f.get('kprop_best_over')
@@ -2022,6 +2038,12 @@ def _classify_kprop_fields(pitcher_name, batting_team, prior_starts, pq_q4,
         f5_latch.add(opp_abb)   # remember this matchup posted <2.0 -> stays sharp today
     if ofav.get('tier') == 'sharp' and not pq_q4:
         ofav['tier'] = 'base'; ofav['sharp_blocked_nonpq'] = True
+    # NEW 'line5' tier (July 23, 2026): a favband over on a K-line >= 5.5 that ISN'T sharp. Independent
+    # of the opp-F5 sharp gate (no pq_q4/F5/start requirement) -- the line>=5.5 + favband edge stands on
+    # its own (see KPROP_LINE5_MIN). SHARP keeps precedence; this only relabels would-be 'base' picks.
+    if ofav.get('tier') != 'sharp' and ofav.get('signal') \
+            and ofav.get('line') is not None and ofav['line'] >= KPROP_LINE5_MIN:
+        ofav['tier'] = 'line5'
     preband = bool(ofav.get('driftin_price')
                    and ofav.get('opp_f5_total') is not None
                    and ofav['opp_f5_total'] <= KPROP_DRIFTIN_F5_MAX)
@@ -3438,8 +3460,9 @@ def build_picks_payload(today, games, heatmap_flags):
     # find. Now the feed is simply "k_prop_flag AND tier==sharp". pq_q4 arms still ALSO appear in
     # pq_flags (kept in both, per Zach) -- this is additive, nothing leaves the PQ section. Still
     # SHARP-only display filter (July 9 decision); base picks stay computed/logged/Telegram-muted.
+    # Surface SHARP and the new 'line5' tier (favband + K-line>=5.5); 'base' stays hidden/muted.
     kprop_only_flags = [f for f in heatmap_flags
-                        if f.get('k_prop_flag') and f.get('k_prop_tier') == 'sharp']
+                        if f.get('k_prop_flag') and f.get('k_prop_tier') in ('sharp', 'line5')]
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
@@ -5341,6 +5364,12 @@ def api_notify():
             # doesn't re-ping them once.
             ksharp_sent |= {flag_key(f) for f in kprop_flags
                             if f.get('k_prop_tier') == 'sharp' and flag_key(f) in already_sent}
+        # 'line5' tier (favband + K-line>=5.5, non-sharp) dedups in its own namespace, exactly like
+        # ksharp -- so it fires once, and a line5 that later upgrades to sharp can still fire its
+        # first sharp ping (base->sharp upgrade philosophy). Mutually exclusive with sharp per cycle.
+        kline5_key   = f"ozzie:kprop_line5_notified:{today}"
+        kline5_raw   = redis_get(kline5_key)
+        kline5_sent  = set(kline5_raw.split(',')) if kline5_raw else set()
         # K-prop UNDER (divergence) STRONG tier dedups independently, like ksharp: a pick that
         # opened as 'watch' (Telegram-silent) can still fire its first STRONG ping on upgrade.
         kunder_key   = f"ozzie:kunder_strong_notified:{today}"
@@ -5373,11 +5402,47 @@ def api_notify():
         # sharp ping. Added to the new-flag guard so a base->sharp upgrade doesn't early-return.
         new_kprop_sharp = [f for f in kprop_flags
                            if f.get('k_prop_tier') == 'sharp' and flag_key(f) not in ksharp_sent]
+        # T-45 SEND GATE (July 23, 2026) — hold each SHARP K-prop OVER until ~45 min before its OWN
+        # first pitch, then send the closing price. The +11.2% edge is on the CLOSING line (measured
+        # at a fixed T-45min in the open/close data); firing hours early caught overs that later drift
+        # OUT of the favorite band to pickem (-15.4% traps). A held pick is just dropped from
+        # new_kprop_sharp this cycle -- since ksharp_sent is written ONLY for what's in new_kprop_sharp
+        # (see redis_set below), it isn't marked and fires exactly once on the cron run that lands
+        # inside the window (same hold-without-dedup trick as the PQ bettable-book gate). Missing/
+        # unparseable first pitch -> send now (fail open; never worse than pre-gate behavior). This is
+        # per-game/staggered by design. Does NOT touch DRIFT-IN (opposite thesis: buy the soft price
+        # early). See project_k_prop_signal (timing finding) + KPROP_OVER_SEND_LEAD_MIN.
+        _fp_by_gid = {g.get('game_id'): g.get('first_pitch_utc') for g in games}
+        def _kprop_over_in_send_window(f):
+            fp = _fp_by_gid.get(f.get('game_id'))
+            if not fp:
+                return True   # fail open on missing first pitch
+            try:
+                fp_dt = datetime.strptime(fp, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.utc)
+                mins  = (fp_dt - datetime.now(pytz.utc)).total_seconds() / 60.0
+                return mins <= KPROP_OVER_SEND_LEAD_MIN
+            except Exception:
+                return True
+        def _hold_for_send_window(new_list, label):
+            """Drop over picks not yet inside the T-45 window (held picks fire on a later cron run
+            once in-window, since their dedup key is only written for what's returned here)."""
+            held = [f for f in new_list if not _kprop_over_in_send_window(f)]
+            if held:
+                print(f"[KPROP-OVER] holding {len(held)} {label} over(s) until "
+                      f"T-{KPROP_OVER_SEND_LEAD_MIN}min: "
+                      + ", ".join(f.get('pitcher_name', '?') for f in held))
+            return [f for f in new_list if _kprop_over_in_send_window(f)]
+        new_kprop_sharp = _hold_for_send_window(new_kprop_sharp, 'sharp')
+        # NEW 'line5' over tier (favband + K-line>=5.5, non-sharp) -- own dedup, same T-45 gate as
+        # sharp (the T-45 close-price edge was measured on exactly this line>=5.5 subset).
+        new_kprop_line5 = [f for f in kprop_flags
+                           if f.get('k_prop_tier') == 'line5' and flag_key(f) not in kline5_sent]
+        new_kprop_line5 = _hold_for_send_window(new_kprop_line5, '5.5+')
         new_kunder = _unsent('kunder', kunder_flags)   # sheet + dashboard (both tiers)
         new_kunder_strong = [f for f in kunder_flags   # Telegram (STRONG only), independent dedup
                              if f.get('kprop_under_tier') == 'strong' and flag_key(f) not in kunder_sent]
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
-                or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp
+                or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp or new_kprop_line5
                 or new_kprop_driftin or new_kprop_preband or new_kunder or new_kunder_strong):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
@@ -5396,6 +5461,18 @@ def api_notify():
         if new_kprop_sharp:
             lines.append(f"🎯 <b>K-Prop OVER · SHARP ({len(new_kprop_sharp)})</b> <i>tracking</i>")
             for f in new_kprop_sharp:
+                time = f" — {f['game_time']}" if f.get('game_time') else ''
+                also = ' · also 📊Q4' if f.get('pq_q4') else ''
+                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
+                             f"{_kprop_tg_bet(f)}{time}")
+
+        # ── K-PROP OVER · 5.5+ (July 23, 2026) — the broader line>=5.5 + favband tier (non-sharp).
+        # Separate block/label from SHARP so the two are visually distinct; same T-45 send timing.
+        if new_kprop_line5:
+            if len(lines) > 1:
+                lines.append("")
+            lines.append(f"🎯 <b>K-Prop OVER · 5.5+ ({len(new_kprop_line5)})</b> <i>tracking</i>")
+            for f in new_kprop_line5:
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 also = ' · also 📊Q4' if f.get('pq_q4') else ''
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
@@ -5617,6 +5694,9 @@ def api_notify():
         # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
         # upgrades are remembered independently of the shared game|team flag_key set above.
         redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_kprop_sharp}), ex=86400)
+        # Same, for the 'line5' tier (own namespace; only what actually sent this cycle is marked, so
+        # T-45-held picks fire on the later in-window cron run).
+        redis_set(kline5_key, ','.join(kline5_sent | {flag_key(f) for f in new_kprop_line5}), ex=86400)
 
         # ── SHARP-AUDIT (TEMPORARY, ~1 week — remove after review) ──────────────────────────────
         # Validates two things so we can decide whether faster K-prop pulls are worth the credits:
@@ -5646,11 +5726,16 @@ def api_notify():
                     except Exception:
                         pass
                 _fk = flag_key(_f)
+                # 'held' = intentionally waiting for the T-45 window (not an error). Only 'now'/'earlier'
+                # are TERMINAL and get written+locked once, so a pick held early still records its real
+                # delivery row when it finally fires at ~T-45 (a first-seen 'held'/'NEVER' must NOT lock
+                # _sa_logged or the audit would freeze it as undelivered).
                 _delivered = ('now' if _f in new_kprop_sharp
-                              else 'earlier' if _fk in ksharp_sent else 'NEVER')
+                              else 'earlier' if _fk in ksharp_sent
+                              else 'held' if not _kprop_over_in_send_window(_f) else 'NEVER')
                 print(f"[SHARP-AUDIT] {_pn} dk={_f.get('kprop_dk_over')} "
                       f"opp_f5={_f.get('kprop_opp_f5')} mins_to_fp={_mins} delivered={_delivered}")
-                if _pn and _pn not in _sa_logged:
+                if _pn and _pn not in _sa_logged and _delivered in ('now', 'earlier'):
                     _sa_rows.append([_now_et.strftime('%Y-%m-%d %H:%M'), _pn, _f.get('kprop_dk_over'),
                                      _f.get('kprop_opp_f5'), _mins, _delivered])
                     _sa_logged.add(_pn)
