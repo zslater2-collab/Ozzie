@@ -138,8 +138,24 @@ def get_lineups(game_date):
             games.append(dict(home=tmap.get(hid,str(hid)),away=tmap.get(aid,str(aid)),
                 home_lineup=hl,away_lineup=al,
                 home_starter=g['teams']['home'].get('probablePitcher',{}).get('id'),
-                away_starter=g['teams']['away'].get('probablePitcher',{}).get('id')))
+                away_starter=g['teams']['away'].get('probablePitcher',{}).get('id'),
+                start=g.get('gameDate'),   # ISO UTC first-pitch
+                state=g.get('status',{}).get('abstractGameState','')))
     return games
+
+def game_start_et(iso):
+    """'2026-07-30T23:05:00Z' -> ('7:05p', datetime UTC) or ('', None)."""
+    if not iso: return '', None
+    try:
+        dt = datetime.fromisoformat(iso.replace('Z','+00:00'))
+        try:
+            et = pd.Timestamp(dt).tz_convert('America/New_York')
+            h = et.hour%12 or 12
+            return f"{h}:{et.minute:02d}{'a' if et.hour<12 else 'p'}", dt
+        except Exception:
+            return dt.strftime('%H:%MZ'), dt
+    except Exception:
+        return '', None
 
 def prob_to_american(gp):
     gp = min(max(gp/100.0, 0.005), 0.95)
@@ -151,9 +167,16 @@ def hr_prob(pa_hr, avg_pa=AVG_PA_VS_GAME):
 
 # ---------------- board ----------------
 def build_board(game_date, H, P, meta):
+    from datetime import timezone
+    now = datetime.now(timezone.utc)
     lg, lg_xw = meta['lg_hr_rate'], meta['lg_xwoba']
     rows=[]
     for g in get_lineups(game_date):
+        gtime, gstart = game_start_et(g.get('start'))
+        gstart_ms = int(gstart.timestamp()*1000) if gstart is not None else None
+        # upcoming = first pitch still in the future (and not Live/Final). Full slate is
+        # kept for grading; only the display filters to upcoming (see main()).
+        upcoming = not (g.get('state') in ('Live','Final') or (gstart is not None and gstart <= now))
         wx=get_weather_factor(g['home'])
         for starter, lineup, bat, field in [
             (g['home_starter'],g['away_lineup'],g['away'],g['home']),
@@ -173,7 +196,7 @@ def build_board(game_date, H, P, meta):
                 exp_pa=SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME   # slot-weighted PA
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',
-                    slot=slot,pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,slot=slot,pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -231,7 +254,7 @@ def main():
     df = build_board(date, H, P, meta)
 
     if not df.empty:
-        keep=['batter','pitcher','game','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
+        keep=['batter','pitcher','game','gtime','gstart_ms','upcoming','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
               'pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if os.path.exists(ARCH_CSV):
@@ -252,10 +275,14 @@ def main():
               f'{perf.get("buckets",{}).get("top25",{}).get("hit_rate","-")}% '
               f'vs base {perf.get("base_hr_rate","-")}%')
 
-    # write display artifact: recalibrated probability + DFS tier tags
+    # write display artifact: only UPCOMING games (first pitch still ahead),
+    # recalibrated probability + DFS tier tags. Archive kept the full slate above.
     if not df.empty:
         cal = perf.get('calib', {'slope':1.0,'intercept':0.0})
-        d = day.copy()
+        d = day[day['upcoming']==True].copy() if 'upcoming' in day.columns else day.copy()
+        if d.empty:
+            print(f'No upcoming games left for {date} (slate already started/done).')
+            return
         d['hr_prob_raw'] = d['hr_prob']
         d['hr_prob'] = (cal['intercept'] + cal['slope']*d['hr_prob_raw']).clip(0.5, 60).round(1)
         d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
