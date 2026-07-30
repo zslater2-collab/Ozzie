@@ -1,0 +1,47 @@
+name: hr-board
+
+# Builds the HR/DFS board daily and commits the artifacts back to this repo,
+# which auto-redeploys the app on Render. Two runs so the later one refines the
+# board once more lineups are posted (archive dedups by date, newest wins).
+#   15:00 UTC = 11:00 ET (day-game lineups)
+#   20:00 UTC = 16:00 ET (main slate lineups, pre-DFS-lock)
+
+on:
+  schedule:
+    - cron: '0 15 * * *'
+    - cron: '0 20 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hr-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install pybaseball pandas numpy requests
+
+      - name: Build board + grade
+        run: python scripts/hr_board_cron.py
+
+      - name: Commit artifacts
+        run: |
+          git config user.name  "hr-board-bot"
+          git config user.email "hr-board-bot@users.noreply.github.com"
+          git add hr_board_latest.json hr_board_perf.json hr_board_archive.csv data/hr_pa_2026.csv.gz
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            git commit -m "hr-board $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
