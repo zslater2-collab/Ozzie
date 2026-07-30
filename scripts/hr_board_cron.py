@@ -24,6 +24,9 @@ PERF     = os.path.join(REPO, 'hr_board_perf.json')
 K_HIT, K_PIT = 120, 150
 MIN_HITTER_PA, MIN_PITCHER_BF = 80, 100
 AVG_PA_VS_GAME = 4.1
+TEAM_PA_PER_GAME = 38.0   # slot expected PA = share * this (lineup_slot_pa_weights.csv)
+SLOT_PA_SHARE = {1:0.1242,2:0.1210,3:0.1181,4:0.1175,5:0.1129,
+                 6:0.1089,7:0.1036,8:0.0995,9:0.0943}
 PA_COLS = ['game_date','game_pk','at_bat_number','batter','pitcher','events',
            'stand','estimated_woba_using_speedangle','launch_speed']
 
@@ -136,10 +139,13 @@ def get_lineups(game_date):
                 away_starter=g['teams']['away'].get('probablePitcher',{}).get('id')))
     return games
 
+def prob_to_american(gp):
+    gp = min(max(gp/100.0, 0.005), 0.95)
+    return round(-(gp/(1-gp))*100) if gp>=0.5 else round(((1-gp)/gp)*100)
+
 def hr_prob(pa_hr, avg_pa=AVG_PA_VS_GAME):
     gp = 1-(1-pa_hr/100)**avg_pa
-    amer = round(-(gp/(1-gp))*100) if gp>=0.5 else round(((1-gp)/gp)*100)
-    return round(gp*100,1), amer
+    return round(gp*100,1), prob_to_american(gp*100)
 
 # ---------------- board ----------------
 def build_board(game_date, H, P, meta):
@@ -154,7 +160,7 @@ def build_board(game_date, H, P, meta):
             pit=P.get(int(starter))
             if not pit or pit['bf']<MIN_PITCHER_BF: continue
             supp=float(np.clip(pit['xwoba']/lg_xw,0.90,1.12))
-            for bid in lineup:
+            for slot, bid in enumerate(lineup, start=1):
                 bid=int(bid)
                 if bid not in b2a: continue
                 h=H.get(bid)
@@ -162,9 +168,10 @@ def build_board(game_date, H, P, meta):
                 ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
                 park=get_park_factor(g['home'],hand,ak)
                 pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp
-                prob,amer=hr_prob(pa_hr)
+                exp_pa=SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME   # slot-weighted PA
+                prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',
-                    arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    slot=slot,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -205,6 +212,14 @@ def grade(archive, pa):
             perf['calibration'].append({'q':int(q),'pred':round(s['hr_prob'].mean(),1),
                 'actual':round(100*s['had_hr'].mean(),1),'n':int(len(s))})
     except Exception: pass
+    # self-updating linear recalibration: regress realized HR (0/1)*100 on predicted %.
+    # identity until enough graded picks so a thin sample can't distort the board.
+    slope, intercept = 1.0, 0.0
+    if len(g) >= 400:
+        x = g['hr_prob'].to_numpy(); y = 100.0*g['had_hr'].to_numpy()
+        slope, intercept = np.polyfit(x, y, 1)
+        slope = float(np.clip(slope, 0.2, 1.0))
+    perf['calib'] = {'slope': round(slope,4), 'intercept': round(float(intercept),3), 'n': int(len(g))}
     return perf
 
 def main():
@@ -212,10 +227,9 @@ def main():
     pa = refresh_pa_cache()
     H,P,meta = build_stats(pa)
     df = build_board(date, H, P, meta)
-    if df.empty:
-        print(f'No board rows for {date} (lineups not posted?). Grading only.')
-    else:
-        keep=['batter','pitcher','game','arch','hit_hr','pit_hr','park','wx','supp',
+
+    if not df.empty:
+        keep=['batter','pitcher','game','slot','arch','hit_hr','pit_hr','park','wx','supp',
               'pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if os.path.exists(ARCH_CSV):
@@ -223,17 +237,35 @@ def main():
             arch_df=pd.concat([old[old['date']!=date],day],ignore_index=True)
         else:
             arch_df=day
-        arch_df.to_csv(ARCH_CSV,index=False)
-        top=day.sort_values('hr_prob',ascending=False).head(30)
-        json.dump({'date':date,'asof':meta['asof'],'rows':top.to_dict(orient='records')},
-                  open(LATEST,'w'),indent=2)
-        print(f'Board {date}: {len(day)} rows (asof {meta["asof"]}).')
+        arch_df.to_csv(ARCH_CSV,index=False)   # archive keeps RAW hr_prob (stable calib base)
+    else:
+        print(f'No board rows for {date} (lineups not posted?). Grading only.')
+
+    # grade the archive -> perf + self-updating calibration
+    perf = {}
     if os.path.exists(ARCH_CSV):
         arch_df=pd.read_csv(ARCH_CSV); arch_df['date']=arch_df['date'].astype(str)
         perf=grade(arch_df,pa); json.dump(perf,open(PERF,'w'),indent=2)
         print(f'Graded {perf.get("graded_dates",0)} dates; top25 '
               f'{perf.get("buckets",{}).get("top25",{}).get("hit_rate","-")}% '
               f'vs base {perf.get("base_hr_rate","-")}%')
+
+    # write display artifact: recalibrated probability + DFS tier tags
+    if not df.empty:
+        cal = perf.get('calib', {'slope':1.0,'intercept':0.0})
+        d = day.copy()
+        d['hr_prob_raw'] = d['hr_prob']
+        d['hr_prob'] = (cal['intercept'] + cal['slope']*d['hr_prob_raw']).clip(0.5, 60).round(1)
+        d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
+        d['fair'] = d['hr_prob'].apply(lambda p: ('+%d'%a if (a:=prob_to_american(p))>0 else str(a)))
+        # tier by rank: top 10 = Chalk (model runs hot here, priciest in DFS),
+        # 11-25 = Value (the reliable band, one tier down), rest dropped from the board.
+        d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
+        top = d[d['tier']!='deep']
+        json.dump({'date':date,'asof':meta['asof'],'calib':cal,
+                   'rows':top.to_dict(orient='records')}, open(LATEST,'w'), indent=2)
+        print(f'Board {date}: {len(day)} rows -> {len(top)} shown '
+              f'(recal slope {cal.get("slope")}, asof {meta["asof"]}).')
 
 if __name__=='__main__':
     main()

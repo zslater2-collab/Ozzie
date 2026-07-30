@@ -852,18 +852,27 @@
       const list=document.getElementById('hrboard-list'); list.innerHTML='';
       const p=data.perf||{}; const b=(p.buckets||{});
       document.getElementById('hrboard-count').textContent=data.date?data.date:'';
-      let perfTxt=`Stats through ${data.asof||'—'}. Ranking tool (raw HR probability, not +EV vs vig).`;
+      let perfTxt=`Stats through ${data.asof||'—'}. Probabilities recalibrated from realized results — DFS ranking tool, not +EV vs vig.`;
       if(p.graded_dates){
-        const t25=b.top25?`top25 ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})`:'';
-        perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25} · top of board runs hot (grade mid-tier, not top-10 locks).`;
+        const t25=b.top25?`<b style="color:var(--accent)">Value tier ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})</b>`:'';
+        perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25}. <span style="opacity:.6">Chalk (dimmed) runs hot + priciest in DFS — the Value band one tier down is the reliable play.</span>`;
       }
       document.getElementById('hrboard-perf').innerHTML=perfTxt;
-      data.rows.forEach((r,i)=>{
+      let lastTier='';
+      data.rows.forEach((r)=>{
+        if(r.tier!==lastTier){
+          const hdr=document.createElement('div'); hdr.className='dfs-sub-label';
+          hdr.textContent=r.tier==='chalk'?'Chalk — model runs hot, priciest':'Value — reliable band';
+          if(r.tier==='value')hdr.style.color='var(--accent)';
+          list.appendChild(hdr); lastTier=r.tier;
+        }
         const row=document.createElement('div'); row.className='dfs-batter-row';
+        if(r.tier==='chalk')row.style.opacity='.5';
         const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
-        row.innerHTML=`<span class="dfs-slot">${i+1}</span>`+
+        const probColor=r.tier==='value'?'var(--accent)':'var(--muted)';
+        row.innerHTML=`<span class="dfs-slot" title="batting slot">#${r.slot||'-'}</span>`+
           `<span class="dfs-name">${nm} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}</span></span>`+
-          `<span style="font-size:.7rem;color:var(--accent);width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
+          `<span style="font-size:.7rem;color:${probColor};width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
           `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
         row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
         list.appendChild(row);
