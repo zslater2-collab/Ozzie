@@ -851,8 +851,14 @@
       const sec=document.getElementById('hrboard-section');
       const list=document.getElementById('hrboard-list'); list.innerHTML='';
       const p=data.perf||{}; const b=(p.buckets||{});
-      document.getElementById('hrboard-count').textContent=data.date?data.date:'';
-      let perfTxt=`Stats through ${data.asof||'—'}. Probabilities recalibrated from realized results — DFS ranking tool, not +EV vs vig.`;
+      const todayET=new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+      const stale=data.date && data.date!==todayET;
+      document.getElementById('hrboard-count').textContent=stale?`prev slate ${data.date}`:(data.date||'');
+      let perfTxt='';
+      if(stale){
+        perfTxt=`<span style="color:#e0a020">⏳ Today's board builds as lineups post (afternoon ET). Showing last completed slate — ${data.date}.</span><br>`;
+      }
+      perfTxt+=`Stats through ${data.asof||'—'}. Probabilities recalibrated from realized results — DFS ranking tool, not +EV vs vig.`;
       if(p.graded_dates){
         const t25=b.top25?`<b style="color:var(--accent)">Value tier ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})</b>`:'';
         perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25}. <span style="opacity:.6">Chalk (dimmed) runs hot + priciest in DFS — the Value band one tier down is the reliable play.</span>`;
