@@ -131,8 +131,10 @@ def get_lineups(game_date):
     for d in data.get('dates',[]):
         for g in d.get('games',[]):
             hid,aid=g['teams']['home']['team']['id'],g['teams']['away']['team']['id']
-            hl=[p['id'] for p in g.get('lineups',{}).get('homePlayers',[]) if p.get('id')]
-            al=[p['id'] for p in g.get('lineups',{}).get('awayPlayers',[]) if p.get('id')]
+            def plist(key):
+                return [{'id':p['id'],'pos':p.get('primaryPosition',{}).get('abbreviation','')}
+                        for p in g.get('lineups',{}).get(key,[]) if p.get('id')]
+            hl=plist('homePlayers'); al=plist('awayPlayers')
             games.append(dict(home=tmap.get(hid,str(hid)),away=tmap.get(aid,str(aid)),
                 home_lineup=hl,away_lineup=al,
                 home_starter=g['teams']['home'].get('probablePitcher',{}).get('id'),
@@ -160,8 +162,8 @@ def build_board(game_date, H, P, meta):
             pit=P.get(int(starter))
             if not pit or pit['bf']<MIN_PITCHER_BF: continue
             supp=float(np.clip(pit['xwoba']/lg_xw,0.90,1.12))
-            for slot, bid in enumerate(lineup, start=1):
-                bid=int(bid)
+            for slot, pl in enumerate(lineup, start=1):
+                bid=int(pl['id']); pos=pl.get('pos','')
                 if bid not in b2a: continue
                 h=H.get(bid)
                 if not h or h['pa']<MIN_HITTER_PA: continue
@@ -171,7 +173,7 @@ def build_board(game_date, H, P, meta):
                 exp_pa=SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME   # slot-weighted PA
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',
-                    slot=slot,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    slot=slot,pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -229,7 +231,7 @@ def main():
     df = build_board(date, H, P, meta)
 
     if not df.empty:
-        keep=['batter','pitcher','game','slot','arch','hit_hr','pit_hr','park','wx','supp',
+        keep=['batter','pitcher','game','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
               'pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if os.path.exists(ARCH_CSV):

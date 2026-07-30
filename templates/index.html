@@ -876,8 +876,9 @@
         if(r.tier==='chalk')row.style.opacity='.5';
         const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
         const probColor=r.tier==='value'?'var(--accent)':'var(--muted)';
+        const posBadge=r.pos?`<span style="font-size:.55rem;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:0 3px;margin-left:5px">${r.pos}</span>`:'';
         row.innerHTML=`<span class="dfs-slot" title="batting slot">#${r.slot||'-'}</span>`+
-          `<span class="dfs-name">${nm} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}</span></span>`+
+          `<span class="dfs-name">${nm}${posBadge} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}</span></span>`+
           `<span style="font-size:.7rem;color:${probColor};width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
           `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
         row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
