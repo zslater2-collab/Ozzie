@@ -272,6 +272,19 @@
     </div>
   </div>
 </div>
+<div id="hrboard-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="hrboard-count"></div>
+      <div class="section-label" style="margin:0">HR Board
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">DFS — Tracking</span>
+      </div>
+    </div>
+    <div id="hrboard-perf" style="font-size:.62rem;color:var(--muted);margin:2px 0 12px;line-height:1.5"></div>
+    <div id="hrboard-list"></div>
+  </div>
+</div>
 <div id="picks-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -832,6 +845,33 @@
     return card;
   }
 
+  function loadHrBoard(){
+    fetch('/api/hr_board').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data||!(data.rows||[]).length)return;
+      const sec=document.getElementById('hrboard-section');
+      const list=document.getElementById('hrboard-list'); list.innerHTML='';
+      const p=data.perf||{}; const b=(p.buckets||{});
+      document.getElementById('hrboard-count').textContent=data.date?data.date:'';
+      let perfTxt=`Stats through ${data.asof||'—'}. Ranking tool (raw HR probability, not +EV vs vig).`;
+      if(p.graded_dates){
+        const t25=b.top25?`top25 ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})`:'';
+        perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25} · top of board runs hot (grade mid-tier, not top-10 locks).`;
+      }
+      document.getElementById('hrboard-perf').innerHTML=perfTxt;
+      data.rows.forEach((r,i)=>{
+        const row=document.createElement('div'); row.className='dfs-batter-row';
+        const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
+        row.innerHTML=`<span class="dfs-slot">${i+1}</span>`+
+          `<span class="dfs-name">${nm} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}</span></span>`+
+          `<span style="font-size:.7rem;color:var(--accent);width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
+          `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
+        row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
+        list.appendChild(row);
+      });
+      sec.style.display='block';
+    }).catch(()=>{});
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -840,8 +880,9 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    loadHrBoard();
 
     fetch('/api/picks')
       .then(r=>{

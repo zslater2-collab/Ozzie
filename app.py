@@ -3555,6 +3555,31 @@ def api_picks():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/hr_board')
+def api_hr_board():
+    # HR / DFS board. Static artifacts written offline by hr_track.py (board is built
+    # where statcast lives, not on Render) and committed to the repo. This route only
+    # reads + serves them, so it can't touch the paused Drive model or the live picks path.
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    import json as _json
+    base = os.path.dirname(os.path.abspath(__file__))
+    out = {'date': None, 'asof': None, 'rows': [], 'perf': {}}
+    try:
+        with open(os.path.join(base, 'hr_board_latest.json')) as f:
+            latest = _json.load(f)
+        out.update({'date': latest.get('date'), 'asof': latest.get('asof'),
+                    'rows': latest.get('rows', [])})
+    except Exception:
+        pass
+    try:
+        with open(os.path.join(base, 'hr_board_perf.json')) as f:
+            out['perf'] = _json.load(f)
+    except Exception:
+        pass
+    return jsonify(out)
+
+
 NOTIFY_SECRET       = os.environ.get('NOTIFY_SECRET', '')
 TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
