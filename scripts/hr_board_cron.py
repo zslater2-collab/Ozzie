@@ -136,12 +136,29 @@ def get_lineups(game_date):
                         for p in g.get('lineups',{}).get(key,[]) if p.get('id')]
             hl=plist('homePlayers'); al=plist('awayPlayers')
             games.append(dict(home=tmap.get(hid,str(hid)),away=tmap.get(aid,str(aid)),
-                home_lineup=hl,away_lineup=al,
+                home_id=hid,away_id=aid,home_lineup=hl,away_lineup=al,
                 home_starter=g['teams']['home'].get('probablePitcher',{}).get('id'),
                 away_starter=g['teams']['away'].get('probablePitcher',{}).get('id'),
                 start=g.get('gameDate'),   # ISO UTC first-pitch
                 state=g.get('status',{}).get('abstractGameState','')))
     return games
+
+_ROSTER_CACHE = {}
+def team_proj_batters(team_id):
+    """Archetype hitters on a team's active roster — the projected pool when the
+    official lineup isn't posted yet. Cached per run."""
+    if team_id in _ROSTER_CACHE: return _ROSTER_CACHE[team_id]
+    out=[]
+    try:
+        url=f'https://statsapi.mlb.com/api/v1/teams/{team_id}/roster?rosterType=active'
+        for p in requests.get(url,timeout=15).json().get('roster',[]):
+            pid=p.get('person',{}).get('id')
+            if pid and int(pid) in b2a and p.get('position',{}).get('type')!='Pitcher':
+                out.append({'id':int(pid),'pos':p.get('position',{}).get('abbreviation',''),'proj':True})
+    except Exception as e:
+        print(f'roster fetch failed for {team_id}: {e}')
+    _ROSTER_CACHE[team_id]=out
+    return out
 
 def game_start_et(iso):
     """'2026-07-30T23:05:00Z' -> ('7:05p', datetime UTC) or ('', None)."""
@@ -178,13 +195,18 @@ def build_board(game_date, H, P, meta):
         # kept for grading; only the display filters to upcoming (see main()).
         upcoming = not (g.get('state') in ('Live','Final') or (gstart is not None and gstart <= now))
         wx=get_weather_factor(g['home'])
-        for starter, lineup, bat, field in [
-            (g['home_starter'],g['away_lineup'],g['away'],g['home']),
-            (g['away_starter'],g['home_lineup'],g['home'],g['away'])]:
-            if not starter or not lineup: continue
+        for starter, lineup, bat, bat_id, field in [
+            (g['home_starter'],g['away_lineup'],g['away'],g['away_id'],g['home']),
+            (g['away_starter'],g['home_lineup'],g['home'],g['home_id'],g['away'])]:
+            if not starter: continue
             pit=P.get(int(starter))
             if not pit or pit['bf']<MIN_PITCHER_BF: continue
             supp=float(np.clip(pit['xwoba']/lg_xw,0.90,1.12))
+            # official lineup if posted; else projected pool (upcoming games only)
+            proj = not lineup
+            if proj:
+                if not upcoming: continue
+                lineup = team_proj_batters(bat_id)
             for slot, pl in enumerate(lineup, start=1):
                 bid=int(pl['id']); pos=pl.get('pos','')
                 if bid not in b2a: continue
@@ -193,10 +215,12 @@ def build_board(game_date, H, P, meta):
                 ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
                 park=get_park_factor(g['home'],hand,ak)
                 pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp
-                exp_pa=SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME   # slot-weighted PA
+                # slot-weighted PA when the lineup is official; neutral PA when projected
+                exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',
-                    gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,slot=slot,pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,proj=proj,
+                    slot=(None if proj else slot),pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -254,15 +278,18 @@ def main():
     df = build_board(date, H, P, meta)
 
     if not df.empty:
-        keep=['batter','pitcher','game','gtime','gstart_ms','upcoming','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
+        keep=['batter','pitcher','game','gtime','gstart_ms','upcoming','proj','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
               'pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
+        # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
+        # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
+        official=day[day['proj']==False] if 'proj' in day.columns else day
         if os.path.exists(ARCH_CSV):
             old=pd.read_csv(ARCH_CSV); old['date']=old['date'].astype(str)
-            arch_df=pd.concat([old[old['date']!=date],day],ignore_index=True)
+            arch_df=pd.concat([old[old['date']!=date],official],ignore_index=True)
         else:
-            arch_df=day
-        arch_df.to_csv(ARCH_CSV,index=False)   # archive keeps RAW hr_prob (stable calib base)
+            arch_df=official
+        arch_df.to_csv(ARCH_CSV,index=False)
     else:
         print(f'No board rows for {date} (lineups not posted?). Grading only.')
 
@@ -287,14 +314,15 @@ def main():
         d['hr_prob'] = (cal['intercept'] + cal['slope']*d['hr_prob_raw']).clip(0.5, 60).round(1)
         d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
         d['fair'] = d['hr_prob'].apply(lambda p: ('+%d'%a if (a:=prob_to_american(p))>0 else str(a)))
-        # tier by rank: top 10 = Chalk (model runs hot here, priciest in DFS),
-        # 11-25 = Value (the reliable band, one tier down), rest dropped from the board.
+        # tier by rank: Chalk (top 10, model runs hot + priciest), Value (11-25, the
+        # reliable band), Deep (26+, lower-prob but shown so the full upcoming pool is
+        # visible for DFS research). Whole upcoming slate is written, not just top 25.
         d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
-        top = d[d['tier']!='deep']
+        nproj = int(d['proj'].sum()) if 'proj' in d.columns else 0
         json.dump({'date':date,'asof':meta['asof'],'calib':cal,
-                   'rows':top.to_dict(orient='records')}, open(LATEST,'w'), indent=2)
-        print(f'Board {date}: {len(day)} rows -> {len(top)} shown '
-              f'(recal slope {cal.get("slope")}, asof {meta["asof"]}).')
+                   'rows':d.to_dict(orient='records')}, open(LATEST,'w'), indent=2)
+        print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown '
+              f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')
 
 if __name__=='__main__':
     main()

@@ -866,9 +866,8 @@
       // drop games that have started since the board was built (staleness safety),
       // then re-tier the survivors so Chalk(top10)/Value(11-25) stay meaningful.
       const nowMs=Date.now();
-      let rows=(data.rows||[]).filter(r=>!r.gstart_ms || r.gstart_ms>nowMs);
+      let rows=(data.rows||[]).filter(r=>!r.gstart_ms || r.gstart_ms>nowMs).slice(0,60);
       rows.forEach((r,i)=>{r.tier = i<10?'chalk':(i<25?'value':'deep');});
-      rows=rows.filter(r=>r.tier!=='deep');
       if(!rows.length){
         document.getElementById('hrboard-perf').innerHTML=
           `<span style="color:#e0a020">No games left to play on this slate — next board builds this afternoon (ET).</span>`;
@@ -880,18 +879,19 @@
       rows.forEach((r)=>{
         if(r.tier!==lastTier){
           const hdr=document.createElement('div'); hdr.className='dfs-sub-label';
-          hdr.textContent=r.tier==='chalk'?'Chalk — model runs hot, priciest':'Value — reliable band';
+          hdr.textContent={chalk:'Chalk — model runs hot, priciest',value:'Value — reliable band',deep:'Deep — lower probability'}[r.tier];
           if(r.tier==='value')hdr.style.color='var(--accent)';
           list.appendChild(hdr); lastTier=r.tier;
         }
         const row=document.createElement('div'); row.className='dfs-batter-row';
-        if(r.tier==='chalk')row.style.opacity='.5';
+        if(r.tier==='chalk')row.style.opacity='.5'; else if(r.tier==='deep')row.style.opacity='.65';
         const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
         const probColor=r.tier==='value'?'var(--accent)':'var(--muted)';
         const posBadge=r.pos?`<span style="font-size:.55rem;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:0 3px;margin-left:5px">${r.pos}</span>`:'';
+        const projBadge=r.proj?`<span style="font-size:.5rem;color:#e0a020;border:1px solid #e0a020;border-radius:3px;padding:0 3px;margin-left:4px" title="lineup not yet posted — projected from active roster">PROJ</span>`:'';
         const gt=r.gtime?` ${r.gtime}`:'';
-        row.innerHTML=`<span class="dfs-slot" title="batting slot">#${r.slot||'-'}</span>`+
-          `<span class="dfs-name">${nm}${posBadge} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}${gt}</span></span>`+
+        row.innerHTML=`<span class="dfs-slot" title="batting slot">${r.slot?('#'+r.slot):'·'}</span>`+
+          `<span class="dfs-name">${nm}${posBadge}${projBadge} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}${gt}</span></span>`+
           `<span style="font-size:.7rem;color:${probColor};width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
           `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
         row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
