@@ -319,8 +319,11 @@ def main():
         # visible for DFS research). Whole upcoming slate is written, not just top 25.
         d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
         nproj = int(d['proj'].sum()) if 'proj' in d.columns else 0
+        # to_json converts NaN->null (valid JSON); plain json.dump would emit bare NaN,
+        # which Python tolerates but browser JSON.parse rejects -> blank board.
+        rows_json = json.loads(d.to_json(orient='records'))
         json.dump({'date':date,'asof':meta['asof'],'calib':cal,
-                   'rows':d.to_dict(orient='records')}, open(LATEST,'w'), indent=2)
+                   'rows':rows_json}, open(LATEST,'w'), indent=2)
         print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown '
               f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')
 
