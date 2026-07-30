@@ -1,15 +1,18 @@
 name: hr-board
 
 # Builds the HR/DFS board daily and commits the artifacts back to this repo,
-# which auto-redeploys the app on Render. Two runs so the later one refines the
-# board once more lineups are posted (archive dedups by date, newest wins).
+# which auto-redeploys the app on Render. Runs staggered so each slate's lineups
+# are captured once they post (lineups drop ~3-4h before first pitch). The display
+# shows only upcoming games; the archive keeps the full slate for grading.
 #   15:00 UTC = 11:00 ET (day-game lineups)
-#   20:00 UTC = 16:00 ET (main slate lineups, pre-DFS-lock)
+#   20:00 UTC = 16:00 ET (evening ~7pm slate lineups)
+#   23:30 UTC = 19:30 ET (late ~9:40pm west-coast lineups)
 
 on:
   schedule:
     - cron: '0 15 * * *'
     - cron: '0 20 * * *'
+    - cron: '30 23 * * *'
   workflow_dispatch: {}
 
 permissions:
