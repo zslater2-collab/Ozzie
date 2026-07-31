@@ -5579,17 +5579,20 @@ def api_notify():
                 ok   = f.get('o_k_rate')
                 lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
                 kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
-                # only cross-reference SHARP K plays -- those are the only ones shown in the K-Prop
-                # section now (base K plays log to the tracker but don't fire), so a base tag here
-                # would point at a bet that isn't in the message.
-                kprop_tag = ' 🎯K-PROP↑' if (f.get('k_prop_flag') and f.get('k_prop_tier') == 'sharp') else ''
+                # No 🎯K-PROP↑ cross-reference tag here (removed July 31, 2026 per Zach). The PQ
+                # message fires EARLY (when a bettable F5 book posts, often hours before games),
+                # but a SHARP K-prop over is held by the T-45 send gate and doesn't fire until ~45
+                # min before its game -- in its own "K-Prop OVER · SHARP" message with the actual
+                # K line + price. Tagging "SHARP" on the early PQ row therefore pointed at a bet
+                # that (a) hadn't fired yet and (b) carried no line, which read as a phantom signal
+                # (the row's only odds shown are the F5 U1.5 line, not the K-prop). If it's not
+                # SHARP until it clears the gate, it shouldn't be badged SHARP early -- let the
+                # T-45 K-Prop message stand on its own.
                 lines.append(
-                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag}{kprop_tag} "
+                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
                     f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
                     f"HR {f['pq_hr_rate']*100:.1f}%){kp_s}{time}"
                 )
-                # K-prop bet (if this pitcher also fired it) is now shown in the consolidated
-                # K-Prop section at the top; the 🎯K-PROP↑ tag above cross-references it.
                 if odds:
                     lines.append(f"   {odds}")
         if new_pq_stale:
