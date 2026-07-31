@@ -3630,23 +3630,46 @@ def api_squad():
                 if not pmf:
                     continue
                 exp_k = sum(i * p for i, p in enumerate(pmf))
-                # Fanatics softness (None if Fanatics has no line for this pitcher today)
-                soft = None
-                fan = (kprop_lines.get(_kprop_norm_name(name_lower)) or {}).get('Fanatics')
+                # Fanatics softness (None if Fanatics has no line for this pitcher today).
+                # Anchor = the "fair" we hold Fanatics against. Two sources, each with a
+                # tradeoff: PINNACLE is the sharpest book but posts only a single line, so it
+                # only anchors when it quotes the SAME threshold as Fanatics; KALSHI gives a
+                # full ladder (any threshold) but thin rungs are noisier + ask-inflated. We
+                # prefer Pinnacle when line-matched (sharper), else fall back to Kalshi, and
+                # return BOTH so the frontend/user can see if they disagree.
+                soft  = None
+                books = kprop_lines.get(_kprop_norm_name(name_lower)) or {}
+                fan   = books.get('Fanatics')
                 if fan and fan.get('point') is not None and \
                    fan.get('over') is not None and fan.get('under') is not None:
                     thr = int(float(fan['point']) + 0.5)   # x.5 over -> K >= thr
                     po  = _squad_odds_prob(fan['over'])
                     pu  = _squad_odds_prob(fan['under'])
-                    fan_imp = po / (po + pu) if (po + pu) > 0 else None   # two-way de-vig
-                    fair    = sum(pmf[thr:]) if thr < len(pmf) else 0.0   # Kalshi P(K>=thr)
+                    fan_imp  = po / (po + pu) if (po + pu) > 0 else None   # two-way de-vig
+                    kal_fair = sum(pmf[thr:]) if thr < len(pmf) else 0.0   # Kalshi P(K>=thr)
+                    pin      = books.get(PINNACLE_BOOK_LABEL)
+                    pin_imp  = None
+                    if pin and pin.get('point') is not None and \
+                       pin.get('over') is not None and pin.get('under') is not None and \
+                       int(float(pin['point']) + 0.5) == thr:   # same line only -> apples-to-apples
+                        ppo = _squad_odds_prob(pin['over'])
+                        ppu = _squad_odds_prob(pin['under'])
+                        pin_imp = ppo / (ppo + ppu) if (ppo + ppu) > 0 else None
                     if fan_imp is not None:
+                        if pin_imp is not None:               # prefer the sharp Pinnacle anchor
+                            primary, anchor = (pin_imp - fan_imp) * 100, 'Pinnacle'
+                        else:
+                            primary, anchor = (kal_fair - fan_imp) * 100, 'Kalshi'
                         soft = {
                             'point':           fan['point'],
                             'over':            fan['over'],
                             'fan_implied_pct': round(fan_imp * 100, 1),
-                            'kalshi_fair_pct': round(fair * 100, 1),
-                            'edge_pts':        round((fair - fan_imp) * 100, 1),
+                            'kalshi_fair_pct': round(kal_fair * 100, 1),
+                            'kalshi_edge_pts': round((kal_fair - fan_imp) * 100, 1),
+                            'pin_implied_pct': round(pin_imp * 100, 1) if pin_imp is not None else None,
+                            'pin_edge_pts':    round((pin_imp - fan_imp) * 100, 1) if pin_imp is not None else None,
+                            'anchor':          anchor,
+                            'edge_pts':        round(primary, 1),
                         }
                 pitchers.append({
                     'key':          f"{pk}::{name_lower}",

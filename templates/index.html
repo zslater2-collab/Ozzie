@@ -296,10 +296,11 @@
     </div>
     <div style="font-size:.62rem;color:var(--muted);margin:2px 0 12px;line-height:1.5">
       Arms are ranked <b>Fanatics-softest first</b> — <span style="color:var(--accent)">soft +N</span> means Fanatics
-      prices that pitcher's over N points cheaper than our Kalshi-fair (a good leg to stack); a squad total inherits
-      its component lines. Check the pitchers in your Fanatics Squad — we convolve their Kalshi-implied strikeout
-      distributions into a fair combined line, then compare to Fanatics' threshold/price: bet the OVER only when
-      their line sits at/below our break-even.
+      prices that pitcher's over N points cheaper than fair (a good leg to stack); a squad total inherits its component
+      lines. The tiny <b>P</b>/<b>K</b> tag = which anchor set that edge: <b>P</b>=Pinnacle (sharp; used when it quotes
+      the same line) &gt; <b>K</b>=Kalshi (full ladder, noisier) — hover shows both. Check the pitchers in your Fanatics
+      Squad — we convolve their Kalshi-implied distributions into a fair combined line, then compare to Fanatics'
+      threshold/price: bet the OVER only when their line sits at/below our break-even.
       <span style="opacity:.7">Kalshi ask side runs mildly rich, so require a few points of cushion — don't bet a razor-thin edge. Premise (Fanatics softness → squad value) is unproven; grade before sizing.</span>
     </div>
     <div id="squad-picker" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-bottom:14px"></div>
@@ -946,10 +947,13 @@
         lbl.style.cssText='display:flex;align-items:center;gap:7px;font-size:.7rem;cursor:pointer';
         let soft='';
         if(p.fanatics){
-          const e=p.fanatics.edge_pts;
+          const fa=p.fanatics, e=fa.edge_pts;
           const col=e>0?'var(--accent)':(e<0?'#e0705a':'var(--muted)');
-          const tip=`Fanatics ${p.fanatics.point} over ${p.fanatics.over>0?'+':''}${p.fanatics.over} → implied ${p.fanatics.fan_implied_pct}% vs Kalshi-fair ${p.fanatics.kalshi_fair_pct}%`;
-          soft=`<span title="${tip}" style="color:${col};font-size:.6rem;margin-left:6px;white-space:nowrap">${e>0?'soft +'+e:e}</span>`;
+          let tip=`Fanatics ${fa.point} over ${fa.over>0?'+':''}${fa.over} → implied ${fa.fan_implied_pct}%\n`+
+                  `vs Kalshi-fair ${fa.kalshi_fair_pct}% (edge ${fa.kalshi_edge_pts>0?'+':''}${fa.kalshi_edge_pts})`;
+          if(fa.pin_edge_pts!=null) tip+=`\nvs Pinnacle ${fa.pin_implied_pct}% (edge ${fa.pin_edge_pts>0?'+':''}${fa.pin_edge_pts}) ← sharp anchor`;
+          const tag=`<span style="opacity:.5;font-size:.5rem"> ${fa.anchor==='Pinnacle'?'P':'K'}</span>`;
+          soft=`<span title="${tip}" style="color:${col};font-size:.6rem;margin-left:6px;white-space:nowrap">${e>0?'soft +'+e:e}${tag}</span>`;
         } else {
           soft=`<span style="color:var(--muted);opacity:.45;font-size:.55rem;margin-left:6px;white-space:nowrap">no Fanatics</span>`;
         }
