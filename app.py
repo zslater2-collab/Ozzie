@@ -3595,17 +3595,34 @@ def _squad_pmf_from_ladder(ladder):
     return [p / tot for p in pmf] if tot > 0 else None
 
 
+def _squad_odds_prob(american):
+    """American odds -> implied probability."""
+    a = float(american)
+    return (-a) / (-a + 100) if a < 0 else 100 / (a + 100)
+
+
 @app.route('/api/squad')
 def api_squad():
     """Return today's pitchers who have a Kalshi K ladder, each with a PMF over
-    strikeout counts + expected Ks. The frontend convolves the user's picks locally
-    to a fair combined line/odds. Read-only; reuses the cached Kalshi ladders."""
+    strikeout counts + expected Ks, PLUS a Fanatics-softness read (Fanatics' own
+    individual K line vs our Kalshi-fair). The frontend convolves the user's picks
+    locally to a fair combined line/odds and sorts arms softest-first (which arms to
+    stack). Read-only; reuses the cached Kalshi ladders + shared odds cache (no extra
+    API spend -- same get_odds_api_lines call /api/picks already made this cycle)."""
     if not session.get('authenticated'):
         return jsonify({'error': 'Not authenticated'}), 401
     try:
         today  = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
         games  = get_lineups_and_starters(today)
         kprops = get_kalshi_k_props(games)
+        # Fanatics individual K lines for the softness ranking. Where Fanatics prices a
+        # pitcher's OVER cheaper than our Kalshi-fair says it should be (positive edge),
+        # that arm is soft -> a good leg to stack, since a Squad total inherits its
+        # component lines. Shared odds cache -> no extra credit. Fail-open to {}.
+        try:
+            _t, _j, _f, _fj, kprop_lines = get_odds_api_lines(games)
+        except Exception:
+            kprop_lines = {}
         pitchers = []
         for pk, per_pitcher in (kprops or {}).items():
             for name_lower, info in per_pitcher.items():
@@ -3613,6 +3630,24 @@ def api_squad():
                 if not pmf:
                     continue
                 exp_k = sum(i * p for i, p in enumerate(pmf))
+                # Fanatics softness (None if Fanatics has no line for this pitcher today)
+                soft = None
+                fan = (kprop_lines.get(_kprop_norm_name(name_lower)) or {}).get('Fanatics')
+                if fan and fan.get('point') is not None and \
+                   fan.get('over') is not None and fan.get('under') is not None:
+                    thr = int(float(fan['point']) + 0.5)   # x.5 over -> K >= thr
+                    po  = _squad_odds_prob(fan['over'])
+                    pu  = _squad_odds_prob(fan['under'])
+                    fan_imp = po / (po + pu) if (po + pu) > 0 else None   # two-way de-vig
+                    fair    = sum(pmf[thr:]) if thr < len(pmf) else 0.0   # Kalshi P(K>=thr)
+                    if fan_imp is not None:
+                        soft = {
+                            'point':           fan['point'],
+                            'over':            fan['over'],
+                            'fan_implied_pct': round(fan_imp * 100, 1),
+                            'kalshi_fair_pct': round(fair * 100, 1),
+                            'edge_pts':        round((fair - fan_imp) * 100, 1),
+                        }
                 pitchers.append({
                     'key':          f"{pk}::{name_lower}",
                     'name':         name_lower.title(),
@@ -3620,8 +3655,13 @@ def api_squad():
                     'implied_line': info.get('implied_line'),
                     'exp_k':        round(exp_k, 2),
                     'pmf':          [round(p, 5) for p in pmf],
+                    'fanatics':     soft,
                 })
-        pitchers.sort(key=lambda x: -x['exp_k'])
+        # softest Fanatics arms first (edge desc); arms with no Fanatics line fall to the
+        # bottom, ordered by expected Ks.
+        pitchers.sort(key=lambda x: (x['fanatics'] is None,
+                                     -(x['fanatics']['edge_pts'] if x['fanatics'] else 0.0),
+                                     -x['exp_k']))
         return jsonify({'date': today, 'pitchers': pitchers})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

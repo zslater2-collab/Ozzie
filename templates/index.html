@@ -295,10 +295,12 @@
       </div>
     </div>
     <div style="font-size:.62rem;color:var(--muted);margin:2px 0 12px;line-height:1.5">
-      Pick the pitchers in your Fanatics Squad — we convolve their Kalshi-implied strikeout
-      distributions into a fair combined line. Compare our fair number to Fanatics' threshold/price:
-      bet the OVER only when their line sits at/below our break-even.
-      <span style="opacity:.7">Kalshi ask side runs mildly rich, so require a few points of cushion — don't bet a razor-thin edge.</span>
+      Arms are ranked <b>Fanatics-softest first</b> — <span style="color:var(--accent)">soft +N</span> means Fanatics
+      prices that pitcher's over N points cheaper than our Kalshi-fair (a good leg to stack); a squad total inherits
+      its component lines. Check the pitchers in your Fanatics Squad — we convolve their Kalshi-implied strikeout
+      distributions into a fair combined line, then compare to Fanatics' threshold/price: bet the OVER only when
+      their line sits at/below our break-even.
+      <span style="opacity:.7">Kalshi ask side runs mildly rich, so require a few points of cushion — don't bet a razor-thin edge. Premise (Fanatics softness → squad value) is unproven; grade before sizing.</span>
     </div>
     <div id="squad-picker" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-bottom:14px"></div>
     <div id="squad-result" style="display:none;border-top:1px solid var(--border);padding-top:12px">
@@ -937,12 +939,22 @@
       if(!data||!(data.pitchers||[]).length)return;
       SQUAD_PITCHERS=data.pitchers;
       const picker=document.getElementById('squad-picker'); picker.innerHTML='';
-      document.getElementById('squad-count').textContent=`${data.pitchers.length} arms`;
+      const nSoft=data.pitchers.filter(p=>p.fanatics&&p.fanatics.edge_pts>0).length;
+      document.getElementById('squad-count').textContent=`${data.pitchers.length} arms · ${nSoft} Fanatics-soft`;
       data.pitchers.forEach((p,idx)=>{
         const lbl=document.createElement('label');
         lbl.style.cssText='display:flex;align-items:center;gap:7px;font-size:.7rem;cursor:pointer';
+        let soft='';
+        if(p.fanatics){
+          const e=p.fanatics.edge_pts;
+          const col=e>0?'var(--accent)':(e<0?'#e0705a':'var(--muted)');
+          const tip=`Fanatics ${p.fanatics.point} over ${p.fanatics.over>0?'+':''}${p.fanatics.over} → implied ${p.fanatics.fan_implied_pct}% vs Kalshi-fair ${p.fanatics.kalshi_fair_pct}%`;
+          soft=`<span title="${tip}" style="color:${col};font-size:.6rem;margin-left:6px;white-space:nowrap">${e>0?'soft +'+e:e}</span>`;
+        } else {
+          soft=`<span style="color:var(--muted);opacity:.45;font-size:.55rem;margin-left:6px;white-space:nowrap">no Fanatics</span>`;
+        }
         lbl.innerHTML=`<input type="checkbox" data-idx="${idx}" onchange="squadRecalc()">`+
-          `<span><b>${p.name}</b> <span style="color:var(--muted)">${p.matchup} · ~${p.exp_k.toFixed(1)}K</span></span>`;
+          `<span><b>${p.name}</b> <span style="color:var(--muted)">${p.matchup} · ~${p.exp_k.toFixed(1)}K</span>${soft}</span>`;
         picker.appendChild(lbl);
       });
       document.getElementById('squad-section').style.display='block';
