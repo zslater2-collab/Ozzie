@@ -285,6 +285,35 @@
     <div id="hrboard-list"></div>
   </div>
 </div>
+<div id="squad-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="squad-count"></div>
+      <div class="section-label" style="margin:0">Squad Builder
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">Fanatics — Fair Value</span>
+      </div>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);margin:2px 0 12px;line-height:1.5">
+      Pick the pitchers in your Fanatics Squad — we convolve their Kalshi-implied strikeout
+      distributions into a fair combined line. Compare our fair number to Fanatics' threshold/price:
+      bet the OVER only when their line sits at/below our break-even.
+      <span style="opacity:.7">Kalshi ask side runs mildly rich, so require a few points of cushion — don't bet a razor-thin edge.</span>
+    </div>
+    <div id="squad-picker" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-bottom:14px"></div>
+    <div id="squad-result" style="display:none;border-top:1px solid var(--border);padding-top:12px">
+      <div id="squad-summary" style="font-size:.8rem;margin-bottom:8px"></div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;color:var(--muted)">
+        <label>Fanatics threshold <input id="squad-fan-thr" type="number" step="0.5" placeholder="52" oninput="squadVerdict()"
+          style="width:64px;background:#0a0a0f;border:1px solid var(--border);border-radius:6px;color:#fff;padding:4px 6px"></label>
+        <label>price <input id="squad-fan-price" type="number" value="-115" oninput="squadVerdict()"
+          style="width:64px;background:#0a0a0f;border:1px solid var(--border);border-radius:6px;color:#fff;padding:4px 6px"></label>
+        <span id="squad-verdict" style="font-weight:600"></span>
+      </div>
+      <div id="squad-table" style="font-size:.68rem"></div>
+    </div>
+  </div>
+</div>
 <div id="picks-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -901,6 +930,60 @@
     }).catch(()=>{});
   }
 
+  // ── Squad Builder (Fanatics combined-K fair value) ────────────────────────
+  let SQUAD_PITCHERS = [];
+  function loadSquadBuilder(){
+    fetch('/api/squad').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data||!(data.pitchers||[]).length)return;
+      SQUAD_PITCHERS=data.pitchers;
+      const picker=document.getElementById('squad-picker'); picker.innerHTML='';
+      document.getElementById('squad-count').textContent=`${data.pitchers.length} arms`;
+      data.pitchers.forEach((p,idx)=>{
+        const lbl=document.createElement('label');
+        lbl.style.cssText='display:flex;align-items:center;gap:7px;font-size:.7rem;cursor:pointer';
+        lbl.innerHTML=`<input type="checkbox" data-idx="${idx}" onchange="squadRecalc()">`+
+          `<span><b>${p.name}</b> <span style="color:var(--muted)">${p.matchup} · ~${p.exp_k.toFixed(1)}K</span></span>`;
+        picker.appendChild(lbl);
+      });
+      document.getElementById('squad-section').style.display='block';
+    }).catch(()=>{});
+  }
+  function _sqConv(a,b){const o=new Array(a.length+b.length-1).fill(0);for(let i=0;i<a.length;i++){if(!a[i])continue;for(let j=0;j<b.length;j++)o[i+j]+=a[i]*b[j];}return o;}
+  function _sqProbToAm(p){if(p<=0||p>=1)return null;return p>=0.5?Math.round(-100*p/(1-p)):Math.round(100*(1-p)/p);}
+  function _sqAmToProb(a){a=parseFloat(a);return a<0?(-a)/(-a+100):100/(a+100);}
+  function _sqFmtAm(a){return a==null?'—':(a>0?'+'+a:''+a);}
+  let SQUAD_TAIL=null;
+  function squadRecalc(){
+    const checked=[...document.querySelectorAll('#squad-picker input:checked')].map(c=>SQUAD_PITCHERS[+c.dataset.idx]);
+    const res=document.getElementById('squad-result');
+    if(checked.length<2){res.style.display='none';SQUAD_TAIL=null;return;}
+    let pmf=[1];checked.forEach(p=>{pmf=_sqConv(pmf,p.pmf);});
+    let expSum=0,e2=0;pmf.forEach((v,k)=>{expSum+=k*v;e2+=k*k*v;});
+    const sd=Math.sqrt(Math.max(e2-expSum*expSum,0));
+    SQUAD_TAIL=(t)=>{t=Math.ceil(t);let s=0;for(let k=t;k<pmf.length;k++)s+=pmf[k];return s;};
+    document.getElementById('squad-summary').innerHTML=
+      `<b>${checked.length} legs</b> · expected sum <b style="color:var(--accent)">${expSum.toFixed(1)}</b> Ks (sd ${sd.toFixed(1)})`;
+    const c=Math.round(expSum);let rows='';
+    for(let t=Math.max(0,c-6);t<=c+6;t++){const p=SQUAD_TAIL(t);
+      rows+=`<div style="display:flex;justify-content:space-between;padding:1px 0;${t===c?'color:var(--accent);font-weight:600':''}">`+
+        `<span>${t}+ Ks</span><span>${(p*100).toFixed(1)}%</span><span style="color:var(--muted)">${_sqFmtAm(_sqProbToAm(p))}</span></div>`;}
+    document.getElementById('squad-table').innerHTML=
+      `<div style="display:flex;justify-content:space-between;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:3px"><span>Threshold</span><span>P(sum≥T)</span><span>fair price</span></div>`+rows;
+    res.style.display='block';
+    squadVerdict();
+  }
+  function squadVerdict(){
+    const vEl=document.getElementById('squad-verdict');
+    const thrEl=document.getElementById('squad-fan-thr'),priceEl=document.getElementById('squad-fan-price');
+    if(!SQUAD_TAIL||!thrEl||thrEl.value===''){if(vEl)vEl.textContent='';return;}
+    const thr=parseFloat(thrEl.value),price=parseFloat(priceEl.value||'-115');
+    const our=SQUAD_TAIL(thr),impl=_sqAmToProb(price),edge=(our-impl)*100;
+    let beT=null;for(let t=0;t<200;t++){if(SQUAD_TAIL(t)<impl){beT=t-1;break;}}
+    vEl.innerHTML=edge>0
+      ?`<span style="color:var(--accent)">✅ +EV · our ${(our*100).toFixed(1)}% vs ${(impl*100).toFixed(1)}% (edge +${edge.toFixed(1)} pts · fair to ${beT}+)</span>`
+      :`<span style="color:#e0705a">❌ shaded · our ${(our*100).toFixed(1)}% vs ${(impl*100).toFixed(1)}% (${edge.toFixed(1)} pts · fair only to ${beT}+)</span>`;
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -909,9 +992,10 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     loadHrBoard();
+    loadSquadBuilder();
 
     fetch('/api/picks')
       .then(r=>{

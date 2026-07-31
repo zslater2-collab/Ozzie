@@ -3555,6 +3555,78 @@ def api_picks():
         return jsonify({'error': str(e)}), 500
 
 
+# ── SQUAD FAIR VALUE ──────────────────────────────────────────────────────────
+# Fanatics "Squad" bets are a build-your-own combined-strikeout total (sum of N
+# pitchers' Ks vs one threshold at one price) -- a proprietary product with no odds
+# feed, so we can't capture their line. Instead we FAIR-VALUE any basket ourselves
+# from the Kalshi KXMLBKS ladders we already fetch for the K-prop signal, and the
+# user compares our number to whatever Fanatics shows. Each pitcher's ladder gives a
+# survival curve P(K>=k); we convert to a PMF, and since legs are independent games
+# we convolve to get the SUM distribution -> fair P(sum>=T) -> fair price. The heavy
+# interactivity (pick pitchers, try thresholds) is done client-side: this endpoint
+# just returns each available pitcher's PMF once. NOTE: Kalshi ask side is mildly
+# vig-inflated (we store yes_ask, not bid) so the fair prob runs slightly optimistic
+# -- the UI tells the user to require a few points of cushion. TRACKING/utility only:
+# this is a calculator, it does not fire any bet or signal.
+def _squad_pmf_from_ladder(ladder):
+    """ladder = {threshold(int): yes_ask(0..1) = P(K >= threshold)}. Returns a PMF list
+    over integer K counts [0..kmax], survival forced monotone non-increasing. None if empty."""
+    if not ladder:
+        return None
+    clean = {}
+    for t, p in ladder.items():
+        try:
+            clean[int(t)] = min(max(float(p), 0.0), 1.0)
+        except (TypeError, ValueError):
+            continue
+    if not clean:
+        return None
+    kmax = max(clean)
+    surv, run = {0: 1.0, 1: 1.0}, 1.0        # assume P(K>=0)=P(K>=1)=1
+    for k in range(2, kmax + 1):
+        if k in clean:
+            run = min(run, clean[k])          # cumulative min => non-increasing
+        surv[k] = run
+    pmf = []
+    for k in range(0, kmax + 1):
+        s_next = surv[k + 1] if (k + 1) <= kmax else 0.0
+        pmf.append(max(surv[k] - s_next, 0.0))
+    tot = sum(pmf)
+    return [p / tot for p in pmf] if tot > 0 else None
+
+
+@app.route('/api/squad')
+def api_squad():
+    """Return today's pitchers who have a Kalshi K ladder, each with a PMF over
+    strikeout counts + expected Ks. The frontend convolves the user's picks locally
+    to a fair combined line/odds. Read-only; reuses the cached Kalshi ladders."""
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    try:
+        today  = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        games  = get_lineups_and_starters(today)
+        kprops = get_kalshi_k_props(games)
+        pitchers = []
+        for pk, per_pitcher in (kprops or {}).items():
+            for name_lower, info in per_pitcher.items():
+                pmf = _squad_pmf_from_ladder((info or {}).get('ladder') or {})
+                if not pmf:
+                    continue
+                exp_k = sum(i * p for i, p in enumerate(pmf))
+                pitchers.append({
+                    'key':          f"{pk}::{name_lower}",
+                    'name':         name_lower.title(),
+                    'matchup':      pk.replace('|', '/'),
+                    'implied_line': info.get('implied_line'),
+                    'exp_k':        round(exp_k, 2),
+                    'pmf':          [round(p, 5) for p in pmf],
+                })
+        pitchers.sort(key=lambda x: -x['exp_k'])
+        return jsonify({'date': today, 'pitchers': pitchers})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/hr_board')
 def api_hr_board():
     # HR / DFS board. Static artifacts written offline by hr_track.py (board is built
