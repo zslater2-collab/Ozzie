@@ -1,59 +1,59 @@
 {
-  "graded_dates": 14,
-  "graded_picks": 1707,
-  "base_hr_rate": 12.48,
+  "graded_dates": 15,
+  "graded_picks": 1809,
+  "base_hr_rate": 12.55,
   "buckets": {
     "top10": {
-      "n": 138,
-      "hit_rate": 13.04,
-      "lift_vs_base": 0.57
+      "n": 148,
+      "hit_rate": 14.19,
+      "lift_vs_base": 1.64
     },
     "top25": {
-      "n": 195,
+      "n": 210,
       "hit_rate": 20.0,
-      "lift_vs_base": 7.52
+      "lift_vs_base": 7.45
     },
     "rest": {
-      "n": 1374,
-      "hit_rate": 11.35,
-      "lift_vs_base": -1.12
+      "n": 1451,
+      "hit_rate": 11.3,
+      "lift_vs_base": -1.25
     }
   },
   "calibration": [
     {
       "q": 0,
       "pred": 6.4,
-      "actual": 8.7,
-      "n": 343
+      "actual": 8.2,
+      "n": 367
     },
     {
       "q": 1,
-      "pred": 9.5,
+      "pred": 9.6,
       "actual": 8.5,
-      "n": 351
+      "n": 366
     },
     {
       "q": 2,
-      "pred": 12.0,
-      "actual": 14.1,
-      "n": 340
+      "pred": 12.1,
+      "actual": 13.9,
+      "n": 361
     },
     {
       "q": 3,
-      "pred": 15.1,
+      "pred": 15.3,
       "actual": 14.9,
-      "n": 335
+      "n": 356
     },
     {
       "q": 4,
-      "pred": 21.7,
-      "actual": 16.3,
-      "n": 338
+      "pred": 22.0,
+      "actual": 17.5,
+      "n": 359
     }
   ],
   "calib": {
-    "slope": 0.4901,
-    "intercept": 6.148,
-    "n": 1707
+    "slope": 0.5571,
+    "intercept": 5.285,
+    "n": 1809
   }
 }
