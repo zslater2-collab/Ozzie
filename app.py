@@ -16,6 +16,14 @@ import gdown
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FutureTimeoutError
 
+# Weather stay-away veto on K-prop overs (forward-track only; see weather_veto.py + memory
+# project-kprop-weather-veto). Guarded so a missing module / API hiccup never breaks picks.
+try:
+    from weather_veto import weather_veto_cached as _weather_veto_cached
+except Exception as _wx_e:
+    _weather_veto_cached = None
+    print(f"weather_veto unavailable ({_wx_e}) -- K-prop weather annotation disabled")
+
 # Under gunicorn, stdout to a non-tty defaults to block-buffered, not line-buffered -- print()
 # calls from inside request handlers can sit in the buffer indefinitely instead of reaching
 # Render's logs, while only the handful of print()s that happen to fire together at worker
@@ -2528,6 +2536,9 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'game_id':          game.get('game_id'),
                 'batting_team':     batting_team,
                 'fielding_team':    fielding_team,
+                # weather forward-track: park + first pitch drive the K-prop over veto (see append_kprop_to_sheet)
+                'home_abb':         NAME_TO_ABB.get(game['home_team'], game['home_team']),
+                'first_pitch_utc':  game.get('first_pitch_utc'),
                 'pitcher_name':     pitcher_name,
                 'pitcher_id':       pitcher_id,
                 'signal':           'pitcher_quality_only' if pq_q4 else ('k_prop_only' if (_k_prop_signal and not off_q3_gate) else 'offense_quality_only'),
@@ -3037,6 +3048,9 @@ def get_heatmap_flags(games, model):
                 'game_id':          game.get('game_id'),
                 'batting_team':     batting_team,
                 'fielding_team':    fielding_team,
+                # weather forward-track: park + first pitch drive the K-prop over veto (see append_kprop_to_sheet)
+                'home_abb':         NAME_TO_ABB.get(game['home_team'], game['home_team']),
+                'first_pitch_utc':  game.get('first_pitch_utc'),
                 'pitcher_name':     pitcher_name,
                 'pitcher_hand':     pitcher_hand,
                 'pitcher_id':       pitcher_id,
@@ -4065,6 +4079,13 @@ KPROP_SHEET_HEADER = [
     'ever_sharp',                    # TRUE if the row qualified as SHARP at ANY point. Distinguishes a
                                      # drift-in that became sharp (drifted_in+ever_sharp) from one that
                                      # drifted into the band but stayed base (drifted_in, no ever_sharp).
+    # Weather stay-away FORWARD-TRACK (Aug 3, 2026; see weather_veto.py + memory project-kprop-weather-veto).
+    # Non-blocking: logged, not enforced. Open-Meteo FORECAST for the first-pitch 3h window (innings ~1-5)
+    # at open-air parks. wx_veto=TRUE means iffy early rain (>=2mm & >=60% POP) that historically pulls the
+    # starter early and busts the over. Roofed parks blank. Compare wx_veto vs k_hit to confirm forecast skill.
+    'wx_precip_mm',                  # forecast total precip (mm) in the early window
+    'wx_pop_max',                    # forecast max hourly rain probability (%) in the early window
+    'wx_veto',                       # TRUE = would stay away from this OVER on weather
 ]
 
 
@@ -4075,6 +4096,30 @@ def append_kprop_to_sheet(flags):
     try:
         gspread, sh = _open_sheet()
         ws = _get_or_create_ws(gspread, sh, KPROP_SHEET_TAB, KPROP_SHEET_HEADER)
+
+        # Weather forward-track: fetch parks once (cached model); per-flag veto is memoized per game.
+        # Fail-open everywhere -- weather must never block the sheet write.
+        _parks_wx = {}
+        if _weather_veto_cached is not None:
+            try:
+                _parks_wx = load_model().get('all_parks', {})
+            except Exception:
+                _parks_wx = {}
+
+        def _wx_for(f):
+            """(precip_mm, pop_max, veto) for a flag; blanks if disabled/roofed/missing/error."""
+            if _weather_veto_cached is None or not _parks_wx:
+                return ('', '', '')
+            ab, fp = f.get('home_abb'), f.get('first_pitch_utc')
+            if not ab or not fp:
+                return ('', '', '')
+            try:
+                v = _weather_veto_cached(ab, fp, parks=_parks_wx)
+                if v.get('roofed'):
+                    return ('', '', '')
+                return (v.get('precip_mm', ''), v.get('pop_max', ''), 'TRUE' if v.get('veto') else '')
+            except Exception:
+                return ('', '', '')
 
         def _in_band_price(dk):
             try:
@@ -4167,6 +4212,7 @@ def append_kprop_to_sheet(flags):
                 'TRUE' if (f.get('kprop_preband') and _in_band_price(f.get('kprop_dk_over'))) else '',
                 _hm if (f.get('kprop_preband') and _in_band_price(f.get('kprop_dk_over'))) else '',
                 'TRUE' if f.get('k_prop_tier') == 'sharp' else '',   # ever_sharp (sharp at first log)
+                *_wx_for(f),                                          # wx_precip_mm, wx_pop_max, wx_veto
             ], value_input_option='USER_ENTERED')
             existing_row[key] = [None, f.get('k_prop_tier', ''),
                                  'TRUE' if f.get('kprop_preband') else '',
