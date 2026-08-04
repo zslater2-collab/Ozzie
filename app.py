@@ -1218,6 +1218,12 @@ TARGET_BOOKS = {
     'pinnacle':      PINNACLE_BOOK_LABEL,
 }
 
+# Books Zach can actually BET (retail). Pinnacle is a sharp reference only -- it must never win the
+# K-prop "best price" or appear in the shoppable per-book list. Everything else in TARGET_BOOKS is
+# playable. (Bally Bet is in Zach's panel but isn't pulled by the app's odds call -- only the
+# separate multibook logger fetches it -- so it won't appear here until TARGET_BOOKS adds it.)
+PLAYABLE_KPROP_BOOKS = {v for v in TARGET_BOOKS.values() if v != PINNACLE_BOOK_LABEL}
+
 # ── PARK GATE EXCEPTION (June 20, 2026) ──────────────────────────────────────────────
 # The Pinnacle hard gate below only let pq_q4/off_q3 through at exactly F5 1.5 -- but a
 # matchup that's genuinely 1.5-quality often gets bumped to 2.5+ purely because it's in a
@@ -1688,7 +1694,7 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     Returns dict (always) with 'signal' bool + display fields, or signal=False if no qualifying
     over price. Classifies on DK; reports the BEST over price across books for the actual bet."""
     out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
-           'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
+           'book_prices': [], 'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
            'prior_starts': prior_starts, 'sharp_blocked_thin': False, 'f5_sharp_now': False,
            'driftin_price': False, 'sharp_blocked_nonpq': False}
     books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
@@ -1703,13 +1709,24 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     # prop). Fall back to DK if no other book matches the line.
     same_line = {b: v for b, v in books.items()
                  if dk_line is not None and v.get('point') == dk_line and v.get('over') is not None}
-    if same_line:
-        best_book = max(same_line, key=lambda b: same_line[b]['over'])
-        best_over = same_line[best_book]['over']
+    # Only PLAYABLE books can win the "best price" (and the shoppable list the app shows). Pinnacle
+    # is a sharp REFERENCE book Zach can't bet -- letting it be 'best_book' recommended a price he
+    # can't take. PLAYABLE_KPROP_BOOKS = every TARGET_BOOKS label except Pinnacle.
+    playable = {b: v for b, v in same_line.items() if b in PLAYABLE_KPROP_BOOKS}
+    if playable:
+        best_over = max(v['over'] for v in playable.values())
+        best_book = next(b for b, v in sorted(playable.items()) if v['over'] == best_over)
+        # per-book list the frontend renders, best-first; 'best' True on ALL books tied for top price
+        book_prices = sorted(
+            [{'book': b, 'over': v['over'], 'point': v.get('point'), 'best': v['over'] == best_over}
+             for b, v in playable.items()],
+            key=lambda x: (-x['over'], x['book']))
     else:
         best_book, best_over = ('DraftKings', dk_over) if dk_over is not None else (None, None)
+        book_prices = ([{'book': 'DraftKings', 'over': dk_over, 'point': dk_line, 'best': True}]
+                       if dk_over is not None else [])
     out.update({'dk_over': dk_over, 'best_over': best_over, 'best_book': best_book,
-                'line': dk_line, 'n_books': len(same_line)})
+                'book_prices': book_prices, 'line': dk_line, 'n_books': len(playable)})
     # Opposing offense's F5 team total, from the SHARPEST book that posts EARLIEST: Pinnacle ->
     # DraftKings -> median across books. Pinnacle can show 1.5 while the cross-book median sits at
     # 2.0 (divergence), or post hours before other books -- reading it first stops a genuine 1.5
@@ -2576,6 +2593,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_dk_over':    _ofav['dk_over'],
                 'kprop_best_over':  _ofav['best_over'],
                 'kprop_best_book':  _ofav['best_book'],
+                'kprop_book_prices': _ofav['book_prices'],
                 'kprop_line':       _ofav['line'],
                 'kprop_opp_f5':     _ofav['opp_f5_total'],
                 'kprop_n_books':    _ofav['n_books'],
@@ -2855,6 +2873,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 f['kprop_dk_over']   = _ov['dk_over']
                 f['kprop_best_over'] = _ov['best_over']
                 f['kprop_best_book'] = _ov['best_book']
+                f['kprop_book_prices'] = _ov['book_prices']
                 f['kprop_line']      = _ov['line']
                 f['kprop_opp_f5']    = _ov['opp_f5_total']
                 f['kprop_n_books']   = _ov['n_books']
@@ -3099,6 +3118,7 @@ def get_heatmap_flags(games, model):
                 'kprop_dk_over':    _ofav2['dk_over'],
                 'kprop_best_over':  _ofav2['best_over'],
                 'kprop_best_book':  _ofav2['best_book'],
+                'kprop_book_prices': _ofav2['book_prices'],
                 'kprop_line':       _ofav2['line'],
                 'kprop_opp_f5':     _ofav2['opp_f5_total'],
                 'kprop_n_books':    _ofav2['n_books'],
@@ -5465,7 +5485,8 @@ def flag_tomorrow_kprops():
                 'game_time': game.get('game_time'), 'k_prop_flag': True,
                 'k_prop_tier': ofav['tier'], 'kprop_line': ofav['line'],
                 'kprop_dk_over': ofav['dk_over'], 'kprop_best_over': ofav['best_over'],
-                'kprop_best_book': ofav['best_book'], 'kprop_opp_f5': ofav['opp_f5_total'],
+                'kprop_best_book': ofav['best_book'], 'kprop_book_prices': ofav['book_prices'],
+                'kprop_opp_f5': ofav['opp_f5_total'],
                 'kprop_prior_starts': ofav['prior_starts'],
                 'kprop_sharp_blocked_thin': ofav['sharp_blocked_thin'],
             })

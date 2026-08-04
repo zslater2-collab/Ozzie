@@ -646,6 +646,19 @@
     const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
     const betStr = `BUY <b>Over ${line}K</b> @ best ${bestOver} (${bestBook})`;
+    // Per-book price list (playable books only — Pinnacle excluded server-side). Check on the best
+    // price; if two books tie for best, both get the check.
+    const bookPrices = (f.kprop_book_prices || []);
+    const booksHtml = bookPrices.length ? `
+      <div class="pq-detail" style="margin-top:8px">
+        <div class="hm-stat-label" style="margin-bottom:3px">Playable books — best ✓</div>
+        ${bookPrices.map(b => {
+          const price = (b.over >= 0 ? '+' : '') + b.over;
+          const strike = b.point != null ? `o${b.point}` : '';
+          return `<div style="display:flex;justify-content:space-between;font-size:.66rem;padding:1px 0;${b.best ? 'color:#4caf50;font-weight:700' : 'color:var(--text)'}">
+            <span>${b.best ? '✓ ' : '&nbsp;&nbsp;&nbsp;'}${b.book}</span><span>${strike} ${price}</span></div>`;
+        }).join('')}
+      </div>` : '';
     // UNDER-RISK warning keyed on the TRAIT, not the fully-gated under flag (per Zach, July 20 2026).
     // div_q4 (prior-year chronic whiff->K non-converter) is static and known the MOMENT the over
     // fires -- long before the under's line<=5.5 display gate trips. kprop_under_gap != null <=> div_q4.
@@ -674,6 +687,7 @@
         <div><div class="hm-stat-label">Opp F5 tot</div><div class="hm-stat-value">${oppF5}</div></div>
       </div>
       <div class="pq-detail" style="margin-top:8px;color:#f0a500;font-weight:600">${betStr}</div>
+      ${booksHtml}
       <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">${f.k_prop_tier === 'line5' ? `5.5+ tier: DK over -120..-160 AND K-line&ge;5.5. Full-sample 2025+2026: +2.9%/+8.8% (line&ge;5.5+favband). Broader than SHARP.` : `Over-favorite price bias (DK over -120..-160${f.k_prop_tier === 'sharp' ? ', opp F5&lt;2.0' : ''}). 2026: ~+9% base / +18% sharp, replicates May+June.`} UNVALIDATED OOS — tracking only, shop best over. [ref Kalshi line ${kalshiLine}]</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
