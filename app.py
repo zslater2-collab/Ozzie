@@ -18,8 +18,20 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FutureTimeou
 
 # Weather stay-away veto on K-prop overs (forward-track only; see weather_veto.py + memory
 # project-kprop-weather-veto). Guarded so a missing module / API hiccup never breaks picks.
+#
+# DISABLED-IN-REQUEST-PATH 2026-08-04: calling Open-Meteo synchronously PER pitcher-game inside
+# append_kprop_to_sheet blocked the /api/notify handler. On Render each cron is a cold worker (the
+# in-process cache is empty), so every game hit the network; that ran past the 90s gunicorn timeout
+# and killed the request AFTER send_telegram but BEFORE the dedup redis_set at the end of api_notify
+# -> the "already sent" state never persisted -> every 10-min cron re-sent the same notifications
+# (~20 dup Telegrams + a "failed" cron). Weather is a non-critical forward-track, so it must NEVER
+# live in the request path. Env-gated OFF by default; the real fix is to annotate the sheet OFFLINE
+# (e.g. the ozzie-kprop-logs GitHub Action), not inside a web request.
+_WEATHER_IN_REQUEST = os.environ.get('WEATHER_VETO_IN_REQUEST') == '1'
 try:
     from weather_veto import weather_veto_cached as _weather_veto_cached
+    if not _WEATHER_IN_REQUEST:
+        _weather_veto_cached = None      # keep the plumbing, but no HTTP in the notify path
 except Exception as _wx_e:
     _weather_veto_cached = None
     print(f"weather_veto unavailable ({_wx_e}) -- K-prop weather annotation disabled")
