@@ -5896,6 +5896,31 @@ def api_notify():
         if new_kunder_strong:
             redis_set(kunder_key,
                       ','.join(kunder_sent | {flag_key(f) for f in new_kunder_strong}), ex=172800)
+
+        # HARDENING (2026-08-04): persist the "already sent" dedup state RIGHT AFTER send_telegram and
+        # BEFORE the sheet appends below. The appends do network I/O (Google Sheets); if one hangs/fails
+        # and the worker is killed past the 90s gunicorn timeout, the dedup must already be saved or the
+        # next cron re-sends everything (the weather-annotation incident). Telegram already fired above,
+        # so recording "sent" now is correct; the sheets are a secondary log. See feedback_notify_request_path.
+        # Prefixed "<signal>|game|team" keys (matches _unsent above) so each signal dedups only against its
+        # own prior sends. PQ is keyed off new_pq_for_telegram (what actually pinged), not new_pq -- a flag
+        # held for "no bettable book yet" stays unmarked so it fires once a book posts (latch, see above).
+        all_sent = (already_sent | {f"under|{flag_key(f)}" for f in new_under}
+                    | {f"pq|{flag_key(f)}" for f in new_pq_for_telegram} | {f"kprop|{flag_key(f)}" for f in new_kprop}
+                    | {f"off|{flag_key(f)}" for f in new_off}
+                    | {f"joint|{flag_key(f)}" for f in new_joint} | {f"fg_tt|{flag_key(f)}" for f in new_fg_tt}
+                    | {f"f5_over|{flag_key(f)}" for f in new_f5_over} | {f"fg_joint|{flag_key(f)}" for f in new_fg_joint}
+                    | {f"off_fade|{flag_key(f)}" for f in new_off_fade}
+                    | {f"kdrift|{flag_key(f)}" for f in new_kprop_driftin}
+                    | {f"kpreband|{flag_key(f)}" for f in new_kprop_preband})
+        redis_set(redis_key, ','.join(all_sent), ex=86400)
+        # sharp K-prop pings in their own namespace so each fires once and base->sharp upgrades are
+        # remembered independently of the shared game|team flag_key set above.
+        redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_kprop_sharp}), ex=86400)
+        # same, for the 'line5' tier (only what actually sent this cycle is marked, so T-45-held picks
+        # fire on the later in-window cron run).
+        redis_set(kline5_key, ','.join(kline5_sent | {flag_key(f) for f in new_kprop_line5}), ex=86400)
+
         if new_under:
             append_to_sheet(new_under)
         if new_pq:
@@ -5920,25 +5945,7 @@ def api_notify():
             append_fg_joint_to_sheet(new_fg_joint)
         if new_off_fade:
             append_off_fade_to_sheet(new_off_fade)
-        # Persist prefixed "<signal>|game|team" keys (matches _unsent above) so each signal dedups
-        # only against its own prior sends, never against another signal on the same game.
-        # NOTE: PQ is keyed off new_pq_for_telegram (what actually pinged), not new_pq -- a flag held
-        # for "no bettable book yet" stays unmarked so it fires once a book posts (latch, see above).
-        all_sent = (already_sent | {f"under|{flag_key(f)}" for f in new_under}
-                    | {f"pq|{flag_key(f)}" for f in new_pq_for_telegram} | {f"kprop|{flag_key(f)}" for f in new_kprop}
-                    | {f"off|{flag_key(f)}" for f in new_off}
-                    | {f"joint|{flag_key(f)}" for f in new_joint} | {f"fg_tt|{flag_key(f)}" for f in new_fg_tt}
-                    | {f"f5_over|{flag_key(f)}" for f in new_f5_over} | {f"fg_joint|{flag_key(f)}" for f in new_fg_joint}
-                    | {f"off_fade|{flag_key(f)}" for f in new_off_fade}
-                    | {f"kdrift|{flag_key(f)}" for f in new_kprop_driftin}
-                    | {f"kpreband|{flag_key(f)}" for f in new_kprop_preband})
-        redis_set(redis_key, ','.join(all_sent), ex=86400)
-        # Persist the sharp K-prop pings in their own namespace so each fires once and base->sharp
-        # upgrades are remembered independently of the shared game|team flag_key set above.
-        redis_set(ksharp_key, ','.join(ksharp_sent | {flag_key(f) for f in new_kprop_sharp}), ex=86400)
-        # Same, for the 'line5' tier (own namespace; only what actually sent this cycle is marked, so
-        # T-45-held picks fire on the later in-window cron run).
-        redis_set(kline5_key, ','.join(kline5_sent | {flag_key(f) for f in new_kprop_line5}), ex=86400)
+        # (dedup redis_set persistence was moved ABOVE the sheet appends -- see HARDENING note there.)
 
         # ── SHARP-AUDIT (TEMPORARY, ~1 week — remove after review) ──────────────────────────────
         # Validates two things so we can decide whether faster K-prop pulls are worth the credits:
