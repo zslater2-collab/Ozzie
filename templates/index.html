@@ -904,16 +904,26 @@
       if(stale){
         perfTxt=`<span style="color:#e0a020">⏳ Today's board builds as lineups post (afternoon ET). Showing last completed slate — ${data.date}.</span><br>`;
       }
-      perfTxt+=`Stats through ${data.asof||'—'}. Probabilities recalibrated from realized results — DFS ranking tool, not +EV vs vig.`;
-      if(p.graded_dates){
-        const t25=b.top25?`<b style="color:var(--accent)">Value tier ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})</b>`:'';
-        perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25}. <span style="opacity:.6">Chalk (dimmed) runs hot + priciest in DFS — the Value band one tier down is the reliable play.</span>`;
+      const edgeMode = data.ranked_by==='edge';
+      if(edgeMode){
+        perfTxt+=`Stats through ${data.asof||'—'}. Ranked by <b>EDGE</b> = recalibrated model prob − de-vigged market prob — a hitter leads only when the book hasn't already priced in his HR chance.`;
+        const eb=p.edge_buckets;
+        if(eb&&eb.pos_edge){
+          const ng=eb.neg_edge||{};
+          perfTxt+=`<br>Forward-tracked edge: <b style="color:var(--accent)">+edge ${eb.pos_edge.hit_rate}% hit / ${eb.pos_edge.roi>=0?'+':''}${eb.pos_edge.roi}% ROI</b> (n=${eb.pos_edge.n}) vs −edge ${ng.hit_rate!=null?ng.hit_rate+'%':'–'} / ${ng.roi!=null?((ng.roi>=0?'+':'')+ng.roi+'%'):'–'} (n=${ng.n||0}). <span style="opacity:.6">Unproven — grade before sizing.</span>`;
+        } else { perfTxt+=`<br><span style="opacity:.7">Edge accruing — not yet graded.</span>`; }
+      } else {
+        perfTxt+=`Stats through ${data.asof||'—'}. Probabilities recalibrated from realized results — DFS ranking tool, not +EV vs vig.`;
+        if(p.graded_dates){
+          const t25=b.top25?`<b style="color:var(--accent)">Value tier ${b.top25.hit_rate}% (${b.top25.lift_vs_base>=0?'+':''}${b.top25.lift_vs_base})</b>`:'';
+          perfTxt+=`<br>Forward-tracked ${p.graded_dates} days / ${p.graded_picks} picks — base ${p.base_hr_rate}% HR/game · ${t25}. <span style="opacity:.6">Chalk (dimmed) runs hot + priciest in DFS — the Value band one tier down is the reliable play.</span>`;
+        }
       }
-      // drop games that have started since the board was built (staleness safety),
-      // then re-tier the survivors so Chalk(top10)/Value(11-25) stay meaningful.
+      // drop games that have started since the board was built (staleness safety).
       const nowMs=Date.now();
       let rows=(data.rows||[]).filter(r=>!r.gstart_ms || r.gstart_ms>nowMs).slice(0,60);
-      rows.forEach((r,i)=>{r.tier = i<10?'chalk':(i<25?'value':'deep');});
+      // prob-mode re-tiers by rank position; edge-mode keeps the server's edge tiers (value/lean/fade/noodds).
+      if(!edgeMode) rows.forEach((r,i)=>{r.tier = i<10?'chalk':(i<25?'value':'deep');});
       if(!rows.length){
         document.getElementById('hrboard-perf').innerHTML=
           `<span style="color:#e0a020">No games left to play on this slate — next board builds this afternoon (ET).</span>`;
@@ -921,25 +931,39 @@
         sec.style.display='block'; return;
       }
       document.getElementById('hrboard-perf').innerHTML=perfTxt;
+      const TIER_HDR = edgeMode
+        ? {value:'✅ Value — model edge ≥3 pts over the market',lean:'Lean — small positive edge',fade:'Fade — priced richer than the model',noodds:'No market price posted'}
+        : {chalk:'Chalk — model runs hot, priciest',value:'Value — reliable band',deep:'Deep — lower probability'};
+      const amer=(a)=>(a==null?'—':(a>0?'+'+a:''+a));
       let lastTier='';
       rows.forEach((r)=>{
         if(r.tier!==lastTier){
           const hdr=document.createElement('div'); hdr.className='dfs-sub-label';
-          hdr.textContent={chalk:'Chalk — model runs hot, priciest',value:'Value — reliable band',deep:'Deep — lower probability'}[r.tier];
+          hdr.textContent=TIER_HDR[r.tier]||r.tier;
           if(r.tier==='value')hdr.style.color='var(--accent)';
           list.appendChild(hdr); lastTier=r.tier;
         }
         const row=document.createElement('div'); row.className='dfs-batter-row';
-        if(r.tier==='chalk')row.style.opacity='.5'; else if(r.tier==='deep')row.style.opacity='.65';
+        if(edgeMode){ if(r.tier==='fade')row.style.opacity='.5'; else if(r.tier==='noodds')row.style.opacity='.45'; else if(r.tier==='lean')row.style.opacity='.8'; }
+        else { if(r.tier==='chalk')row.style.opacity='.5'; else if(r.tier==='deep')row.style.opacity='.65'; }
         const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
-        const probColor=r.tier==='value'?'var(--accent)':'var(--muted)';
         const posBadge=r.pos?`<span style="font-size:.55rem;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:0 3px;margin-left:5px">${r.pos}</span>`:'';
         const projBadge=r.proj?`<span style="font-size:.5rem;color:#e0a020;border:1px solid #e0a020;border-radius:3px;padding:0 3px;margin-left:4px" title="lineup not yet posted — projected from active roster">PROJ</span>`:'';
         const gt=r.gtime?` ${r.gtime}`:'';
+        let stats;
+        if(edgeMode){
+          const edgeStr=(r.edge==null?'—':(r.edge>=0?'+'+r.edge.toFixed(1):r.edge.toFixed(1)));
+          const edgeColor=(r.edge==null?'var(--muted)':(r.edge>=3?'#39d353':(r.edge>=0?'var(--accent)':'var(--muted)')));
+          stats=`<span style="font-size:.7rem;color:var(--muted);width:42px;text-align:right" title="model HR prob">${(r.hr_prob).toFixed(1)}%</span>`+
+                `<span style="font-size:.62rem;color:var(--text);width:52px;text-align:right" title="best anytime-HR price${r.mkt_book?(' — '+r.mkt_book):''}">${amer(r.mkt_over)}</span>`+
+                `<span style="font-size:.72rem;color:${edgeColor};width:46px;text-align:right;font-weight:600" title="edge = model% − de-vigged market%">${edgeStr}</span>`;
+        } else {
+          const probColor=r.tier==='value'?'var(--accent)':'var(--muted)';
+          stats=`<span style="font-size:.7rem;color:${probColor};width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
+                `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
+        }
         row.innerHTML=`<span class="dfs-slot" title="batting slot">${r.slot?('#'+r.slot):'·'}</span>`+
-          `<span class="dfs-name">${nm}${posBadge}${projBadge} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}${gt}</span></span>`+
-          `<span style="font-size:.7rem;color:${probColor};width:48px;text-align:right">${(r.hr_prob).toFixed(1)}%</span>`+
-          `<span style="font-size:.62rem;color:var(--muted);width:50px;text-align:right">${r.fair}</span>`;
+          `<span class="dfs-name">${nm}${posBadge}${projBadge} <span style="color:var(--muted);font-size:.62rem">vs ${pit} · ${r.game}${gt}</span></span>`+stats;
         row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
         list.appendChild(row);
       });

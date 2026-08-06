@@ -25,6 +25,12 @@ concurrency:
 jobs:
   board:
     runs-on: ubuntu-latest
+    # ODDS_API_KEY (repo secret) powers the anytime-HR edge layer. If it's unset the board still
+    # builds and just ranks by probability as before (fetch_hr_odds fail-opens). HR_ODDS_REGIONS
+    # defaults to 'us' (~1 credit/event); set to 'us,us2' to add theScore/Fanatics at 2x cost.
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      HR_ODDS_REGIONS: us
     steps:
       - uses: actions/checkout@v4
 

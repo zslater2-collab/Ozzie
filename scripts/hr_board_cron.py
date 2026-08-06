@@ -10,7 +10,7 @@ Signal (validated leak-free): hitter power (season HR-rate, shrunk)
   x pitcher HR-rate-allowed (shrunk) / league   [log5]   x park x weather
   x non-suppression (pitcher xwoba allowed vs league).  DFS ranking tool.
 """
-import os, sys, json, math, glob
+import os, sys, json, math, glob, unicodedata
 from datetime import datetime, timedelta
 import pandas as pd, numpy as np, requests
 
@@ -182,6 +182,88 @@ def hr_prob(pa_hr, avg_pa=AVG_PA_VS_GAME):
     gp = 1-(1-pa_hr/100)**avg_pa
     return round(gp*100,1), prob_to_american(gp*100)
 
+# ---------------- market edge layer (anytime-HR odds vs model) ----------------
+# The board ranks by model probability; that answers "who is most likely to homer", NOT "where is
+# the bet". A hitter can top the board and still be a bad wager if the book prices him accordingly.
+# So we pull the real anytime-HR price (batter_home_runs Over 0.5), de-vig it to a market probability,
+# and compute EDGE = recalibrated-model% - market%. Ranking by edge only bets a top-prob guy when his
+# price hasn't already swallowed the value. Fail-open: no key / API error -> board is unchanged.
+ODDS_KEY = os.environ.get('ODDS_API_KEY', '')
+HR_ODDS_REGIONS = os.environ.get('HR_ODDS_REGIONS', 'us')   # 'us' keeps credit cost ~1/event
+PLAYABLE_BOOKS = {'DraftKings','FanDuel','BetMGM','Caesars','theScore Bet','Fanatics','Bally Bet'}
+BOOK_LABELS = {'draftkings':'DraftKings','fanduel':'FanDuel','betmgm':'BetMGM','caesars':'Caesars',
+               'williamhill_us':'Caesars','espnbet':'theScore Bet','thescorebet':'theScore Bet',
+               'fanatics':'Fanatics','ballybet':'Bally Bet'}
+
+def _norm(s):
+    if not isinstance(s,str): return ''
+    s=unicodedata.normalize('NFKD',s).encode('ascii','ignore').decode().lower()
+    s=s.replace('.','').replace("'",'').replace('-',' ').strip()
+    return ' '.join(s.split())
+
+def _implied(a):
+    a=float(a); return (-a)/(-a+100.0) if a<0 else 100.0/(a+100.0)
+def _payout(a):
+    a=float(a); return (a/100.0) if a>0 else (100.0/-a)
+
+def fetch_hr_odds(game_date):
+    """{norm_player: {over, book, mkt_prob(%), n_books}} for anytime-HR (batter_home_runs Over 0.5),
+    playable books only, best over price + de-vigged consensus prob. Fail-open -> {}."""
+    if not ODDS_KEY:
+        print('HR odds: no ODDS_API_KEY -> edge layer skipped (board ranks by probability as before).')
+        return {}
+    base='https://api.the-odds-api.com/v4/sports/baseball_mlb'
+    try:
+        evs=requests.get(f'{base}/events',params={'apiKey':ODDS_KEY},timeout=15).json()
+    except Exception as e:
+        print(f'HR odds: events fetch failed ({e}); edge layer skipped.'); return {}
+    if not isinstance(evs,list):
+        print('HR odds: unexpected events response; edge layer skipped.'); return {}
+    from datetime import timezone
+    now=datetime.now(timezone.utc)
+    acc={}   # norm -> book -> {'over':price,'under':price}
+    n_ev=0
+    for ev in evs:
+        ct=ev.get('commence_time') or ''
+        if ct[:10]!=game_date: continue
+        # only price UPCOMING games -- a started game's odds are gone/stale and we'd never bet them;
+        # skipping them also saves credits (we grade edge off the pre-game price we captured).
+        try:
+            if datetime.fromisoformat(ct.replace('Z','+00:00'))<=now: continue
+        except Exception:
+            pass
+        try:
+            r=requests.get(f"{base}/events/{ev['id']}/odds",
+                params={'apiKey':ODDS_KEY,'regions':HR_ODDS_REGIONS,
+                        'markets':'batter_home_runs','oddsFormat':'american'},timeout=15)
+            if r.status_code!=200: continue
+            data=r.json(); n_ev+=1
+        except Exception:
+            continue
+        for bm in data.get('bookmakers',[]):
+            lbl=BOOK_LABELS.get(bm.get('key'))
+            if lbl not in PLAYABLE_BOOKS: continue
+            for mk in bm.get('markets',[]):
+                if mk.get('key')!='batter_home_runs': continue
+                for o in mk.get('outcomes',[]):
+                    if o.get('point') not in (0.5, None): continue   # anytime-HR line
+                    nm=_norm(o.get('description','')); side=(o.get('name') or '').lower()
+                    if nm and side in ('over','under') and o.get('price') is not None:
+                        acc.setdefault(nm,{}).setdefault(lbl,{})[side]=o['price']
+    out={}
+    for nm,bks in acc.items():
+        overs=[(b,v['over']) for b,v in bks.items() if v.get('over') is not None]
+        if not overs: continue
+        best_book,best_over=max(overs,key=lambda x:_payout(x[1]))
+        novigs=[_implied(v['over'])/(_implied(v['over'])+_implied(v['under']))
+                for v in bks.values() if v.get('over') is not None and v.get('under') is not None]
+        if not novigs: novigs=[_implied(best_over)]   # one-sided quote -> raw implied (slightly rich)
+        out[nm]={'over':int(best_over),'book':best_book,
+                 'mkt_prob':round(100*float(np.median(novigs)),1),'n_books':len(overs)}
+    print(f'HR odds: {n_ev} events priced, {len(out)} players with anytime-HR props '
+          f'(regions={HR_ODDS_REGIONS}).')
+    return out
+
 # ---------------- board ----------------
 def build_board(game_date, H, P, meta):
     from datetime import timezone
@@ -269,6 +351,23 @@ def grade(archive, pa):
         slope, intercept = np.polyfit(x, y, 1)
         slope = float(np.clip(slope, 0.2, 1.0))
     perf['calib'] = {'slope': round(slope,4), 'intercept': round(float(intercept),3), 'n': int(len(g))}
+
+    # EDGE grading (only where the archive captured a market price): does recal-model-vs-market edge
+    # actually predict? Report hit rate AND realized ROI at the taken price for positive vs negative
+    # edge, plus by edge size. Guards against the model manufacturing fake edge where it runs hot.
+    if 'mkt_prob' in g.columns and 'mkt_over' in g.columns:
+        ge = g[g['mkt_prob'].notna() & g['mkt_over'].notna()].copy()
+        if len(ge):
+            ge['edge'] = (slope*ge['hr_prob'] + intercept) - ge['mkt_prob']   # recal model% - market%
+            ge['roi']  = np.where(ge['had_hr']==1, ge['mkt_over'].apply(_payout), -1.0)
+            eb={}
+            for lab,mask in [('pos_edge', ge['edge']>0), ('neg_edge', ge['edge']<=0),
+                             ('edge_ge3', ge['edge']>=3)]:
+                s=ge[mask]
+                if len(s): eb[lab]={'n':int(len(s)),'hit_rate':round(100*s['had_hr'].mean(),2),
+                                    'roi':round(100*s['roi'].mean(),2)}
+            perf['edge_buckets']=eb
+            perf['edge_graded_picks']=int(len(ge))
     return perf
 
 def main():
@@ -277,10 +376,20 @@ def main():
     H,P,meta = build_stats(pa)
     df = build_board(date, H, P, meta)
 
+    # anytime-HR market odds (once per run) -> attach best price + de-vigged prob to every row so the
+    # archive can grade edge forward, and the display can rank by it. Fail-open -> empty dict.
+    hr_odds = fetch_hr_odds(date) if not df.empty else {}
+
     if not df.empty:
         keep=['batter','pitcher','game','gtime','gstart_ms','upcoming','proj','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
               'pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
+        if hr_odds:
+            _k=day['Batter'].map(_norm)
+            day['mkt_over']=_k.map(lambda n:hr_odds.get(n,{}).get('over'))
+            day['mkt_book']=_k.map(lambda n:hr_odds.get(n,{}).get('book'))
+            day['mkt_prob']=_k.map(lambda n:hr_odds.get(n,{}).get('mkt_prob'))
+            day['mkt_n_books']=_k.map(lambda n:hr_odds.get(n,{}).get('n_books'))
         # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
         official=day[day['proj']==False] if 'proj' in day.columns else day
@@ -312,19 +421,35 @@ def main():
             return
         d['hr_prob_raw'] = d['hr_prob']
         d['hr_prob'] = (cal['intercept'] + cal['slope']*d['hr_prob_raw']).clip(0.5, 60).round(1)
-        d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
         d['fair'] = d['hr_prob'].apply(lambda p: ('+%d'%a if (a:=prob_to_american(p))>0 else str(a)))
-        # tier by rank: Chalk (top 10, model runs hot + priciest), Value (11-25, the
-        # reliable band), Deep (26+, lower-prob but shown so the full upcoming pool is
-        # visible for DFS research). Whole upcoming slate is written, not just top 25.
-        d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
+        # EDGE = recalibrated model% - de-vigged market% (present only where a book priced the player).
+        # Ranking by edge is the fix for "why skip the top-prob guys": a chalk hitter stays on top
+        # UNLESS his price already ate the value; a mid-prob hitter the book underrates rises.
+        if hr_odds and 'mkt_prob' in d.columns and d['mkt_prob'].notna().any():
+            d['edge'] = (d['hr_prob'] - d['mkt_prob']).round(1)
+            ranked_by = 'edge'
+            # priced rows first, ranked by edge desc; unpriced fall below, by probability
+            d['_priced'] = d['mkt_prob'].notna()
+            d = d.sort_values(['_priced','edge','hr_prob'], ascending=[False,False,False]).drop(columns='_priced').reset_index(drop=True)
+            def _etier(r):
+                e=r['edge']
+                if pd.isna(e): return 'noodds'          # no market -> can't call value
+                if e>=3: return 'value'                 # >=3 pts model over market = the play
+                if e>=0: return 'lean'                  # small positive edge
+                return 'fade'                           # market prices it richer than the model
+            d['tier']=d.apply(_etier,axis=1)
+        else:
+            d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
+            ranked_by = 'prob'
+            # legacy DFS tiers by rank: Chalk (top 10, model runs hot), Value (11-25), Deep (26+).
+            d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
         nproj = int(d['proj'].sum()) if 'proj' in d.columns else 0
         # to_json converts NaN->null (valid JSON); plain json.dump would emit bare NaN,
         # which Python tolerates but browser JSON.parse rejects -> blank board.
         rows_json = json.loads(d.to_json(orient='records'))
-        json.dump({'date':date,'asof':meta['asof'],'calib':cal,
+        json.dump({'date':date,'asof':meta['asof'],'calib':cal,'ranked_by':ranked_by,
                    'rows':rows_json}, open(LATEST,'w'), indent=2)
-        print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown '
+        print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown, ranked_by={ranked_by} '
               f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')
 
 if __name__=='__main__':
