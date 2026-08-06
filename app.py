@@ -3745,12 +3745,14 @@ def api_hr_board():
         return jsonify({'error': 'Not authenticated'}), 401
     import json as _json
     base = os.path.dirname(os.path.abspath(__file__))
-    out = {'date': None, 'asof': None, 'rows': [], 'perf': {}}
+    out = {'date': None, 'asof': None, 'rows': [], 'perf': {}, 'ranked_by': 'prob'}
     try:
         with open(os.path.join(base, 'hr_board_latest.json')) as f:
             latest = _json.load(f)
+        # ranked_by drives edge vs probability rendering in the frontend -- MUST pass it through, or
+        # the page shows edge-ordered rows under the old Chalk/Value/Deep + Model/Fair labels.
         out.update({'date': latest.get('date'), 'asof': latest.get('asof'),
-                    'rows': latest.get('rows', [])})
+                    'rows': latest.get('rows', []), 'ranked_by': latest.get('ranked_by', 'prob')})
     except Exception:
         pass
     try:
