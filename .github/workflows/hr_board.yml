@@ -26,11 +26,13 @@ jobs:
   board:
     runs-on: ubuntu-latest
     # ODDS_API_KEY (repo secret) powers the anytime-HR edge layer. If it's unset the board still
-    # builds and just ranks by probability as before (fetch_hr_odds fail-opens). HR_ODDS_REGIONS
-    # defaults to 'us' (~1 credit/event); set to 'us,us2' to add theScore/Fanatics at 2x cost.
+    # builds and just ranks by probability as before (fetch_hr_odds fail-opens). Regions DON'T
+    # overlap: us = DK/FanDuel/BetMGM/Caesars/BetRivers; us2 = theScore/Fanatics/Bally Bet/Hard Rock.
+    # HR props from the majors post late, so 'us' alone is often 1 book early -> use both for real
+    # multi-book shopping + de-vig (2 credits/event, ~90/day).
     env:
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-      HR_ODDS_REGIONS: us
+      HR_ODDS_REGIONS: us,us2
     steps:
       - uses: actions/checkout@v4
 
