@@ -5055,7 +5055,7 @@ def backfill_sheet_outcomes():
     """
     summary = {'pq_filled': 0, 'off_filled': 0, 'joint_filled': 0,
                'fg_tt_filled': 0, 'fg_joint_filled': 0, 'f5_over_filled': 0, 'off_fade_filled': 0,
-               'kprop_filled': 0}
+               'kprop_filled': 0, 'kunder_filled': 0}
     if not SHEETS_CREDS:
         return summary
     try:
@@ -5267,6 +5267,62 @@ def backfill_sheet_outcomes():
                         print(f"Backfill ({KPROP_SHEET_TAB}): write error on row {r_idx}: {e}")
                 summary['kprop_filled'] = filled
                 print(f"Backfill ({KPROP_SHEET_TAB}): {filled} row(s) filled")
+
+    # ── KPropUnder backfill (2026-08-07) ── the UNDER analog of the KProp backfill above; was missing,
+    # so every under pick logged with a blank outcome and could only be graded offline. Same boxscore K
+    # fetch, but k_under_hit = 1 if actual_k < kprop_line (the under won). Grades all tiers (watch /
+    # watch_wide / strong). Lines are half-integers so there is never a push.
+    try:
+        ws = sh.worksheet(KUNDER_SHEET_TAB)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = None
+    except Exception as e:
+        print(f"Backfill ({KUNDER_SHEET_TAB}): worksheet lookup error: {e}")
+        ws = None
+    if ws is not None:
+        try:
+            rows = ws.get_all_values()
+        except Exception as e:
+            print(f"Backfill ({KUNDER_SHEET_TAB}): read error: {e}")
+            rows = []
+        if len(rows) >= 2:
+            hdr = rows[0]
+            try:
+                i_pitcher = hdr.index('pitcher_name')
+                i_line    = hdr.index('kprop_line')
+                i_k       = hdr.index('actual_k')
+                i_hit     = hdr.index('k_under_hit')
+                i_gameid  = hdr.index('game_id')
+            except ValueError:
+                print(f"Backfill ({KUNDER_SHEET_TAB}): header missing expected columns, skipping")
+            else:
+                def cell(row, i):
+                    return row[i] if i < len(row) else ''
+                filled = 0
+                for r_idx, row in enumerate(rows[1:], start=2):
+                    if cell(row, i_k):                       # already filled
+                        continue
+                    line_str = cell(row, i_line)
+                    game_id  = cell(row, i_gameid)
+                    pitcher  = cell(row, i_pitcher)
+                    if not line_str or not game_id or not pitcher:
+                        continue
+                    try:
+                        line_val = float(line_str)
+                    except ValueError:
+                        continue
+                    ks = get_pitcher_ks_for_game(game_id, pitcher)
+                    if ks is None:                           # game not Final / pitcher not found
+                        continue
+                    k_under_hit = 1 if ks < line_val else 0
+                    try:
+                        ws.update_cell(r_idx, i_k + 1, ks)
+                        ws.update_cell(r_idx, i_hit + 1, k_under_hit)
+                        filled += 1
+                    except Exception as e:
+                        print(f"Backfill ({KUNDER_SHEET_TAB}): write error on row {r_idx}: {e}")
+                summary['kunder_filled'] = filled
+                print(f"Backfill ({KUNDER_SHEET_TAB}): {filled} row(s) filled")
 
     return summary
 
