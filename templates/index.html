@@ -709,8 +709,9 @@
     card.style.animationDelay = `${i * 0.06}s`;
     card.style.borderColor = 'rgba(106,183,255,.4)';
     const strong = f.kprop_under_tier === 'strong';
-    const tier = strong ? 'STRONG' : 'watch';
-    const tierColor = strong ? '#6ab7ff' : '#8a97a8';
+    const wide = f.kprop_under_tier === 'watch_wide';   // expanded ≥.015 tracking tier (unproven)
+    const tier = strong ? 'STRONG' : (wide ? 'WATCH-WIDE' : 'watch');
+    const tierColor = strong ? '#6ab7ff' : (wide ? '#6a7788' : '#8a97a8');
     const line = f.kprop_line != null ? f.kprop_line : '—';
     const dkOver = f.kprop_dk_over != null ? f.kprop_dk_over : '—';
     const gap = f.kprop_under_gap != null ? ('+' + f.kprop_under_gap.toFixed(3)) : '—';
@@ -735,7 +736,7 @@
         <div><div class="hm-stat-label">Starts / Opp F5</div><div class="hm-stat-value">${starts} / ${oppF5}</div></div>
       </div>
       <div class="pq-detail" style="margin-top:8px;color:#6ab7ff;font-weight:600">${betStr}</div>
-      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Chronic non-converter: market prices the whiff, the K's never materialize. ${strong ? 'STRONG = line &le;4.5 (edge concentrates at low lines).' : 'watch = any line; STRONG requires line &le;4.5.'} DK over ${dkOver} (ref — we take the under). In-sample only (~⅓ season) — TRACKING, unvalidated.</div>
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Chronic non-converter: market prices the whiff, the K's never materialize. ${strong ? 'STRONG = line &le;4.5 (edge concentrates at low lines).' : (wide ? 'WATCH-WIDE = looser prior-gap floor (0.015 vs 0.02) — an in-sample expansion (62%/+19.5% YTD), forward-grading before promotion.' : 'watch = gap&ge;0.02, any line; STRONG requires line &le;4.5.')} DK over ${dkOver} (ref — we take the under). In-sample only (~⅓ season) — TRACKING, unvalidated.</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
   }

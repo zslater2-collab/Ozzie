@@ -1186,6 +1186,13 @@ KDIV_WATCH_LINE_MAX  = 5.5    # WATCH cap: line ABOVE this = a K stud, not a non
                              # from BOTH tiers (else e.g. C.Sánchez @7.5K/start false-flags). gap>=0.02
                              # + line<=5.5: n=22 under-hit 63.6% +25.5%; keeps studs out, holds the edge.
 KDIV_STRONG_LINE_MAX = 4.5    # STRONG (Telegram) tier: the lowest-K, purest non-converter fade
+KDIV_GAP_MIN  = 0.02          # deployed WATCH/STRONG floor (== div_q4). Real 2pt prior-yr divergence.
+# WATCH-WIDE (2026-08-07): a TRACKING-ONLY expansion. YTD backtest (06_tests/backtest_kunder_expansions.py,
+# May1-Aug2, leak-safe): loosening the prior-gap floor 0.02 -> 0.015 grew the pool 25->29 picks and still
+# graded 62% under / +19.5% ROI. In-sample only, so it is logged + shown as its OWN tier and does NOT ping
+# Telegram -- forward-grade before promoting into WATCH/STRONG. Deeper loosening (0.010) dilutes; newly-
+# diverging (current-yr form) is DEAD (priced); see project_kprop_whiff_riser_deadend.
+KDIV_WIDE_GAP = 0.015
 _kdiv_trait = {}             # pitcher_id -> {'prior_gap': float, 'div_q4': bool}
 try:
     _kdiv_df = pd.read_csv(KDIV_PRIOR_CSV)
@@ -1330,15 +1337,21 @@ def _kprop_under_divergence(pitcher_id, k_line, prior_starts):
     also DK line <= KDIV_STRONG_LINE_MAX. TRACKING ONLY."""
     out = {'signal': False, 'tier': None, 'prior_gap': None}
     t = _kdiv_trait.get(int(pitcher_id)) if pitcher_id is not None else None
-    if not t or not t['div_q4']:
+    if not t:
         return out
-    out['prior_gap'] = t['prior_gap']
+    gap = t['prior_gap']
+    if gap < KDIV_WIDE_GAP:              # below even the wide tracking floor -> not a diverger
+        return out
+    out['prior_gap'] = gap
     if prior_starts is None or prior_starts < KDIV_MIN_STARTS:
         return out                       # appearance-minimum gate (biggest lever)
     if k_line is None or k_line > KDIV_WATCH_LINE_MAX:
         return out                       # high-line arm = K stud, not a non-converter -> no flag
     out['signal'] = True
-    out['tier'] = 'strong' if k_line <= KDIV_STRONG_LINE_MAX else 'watch'
+    if gap >= KDIV_GAP_MIN:              # deployed edge: strong (Telegram) at low line, else watch
+        out['tier'] = 'strong' if k_line <= KDIV_STRONG_LINE_MAX else 'watch'
+    else:                               # 0.015 <= gap < 0.02 -> WATCH-WIDE, tracking-only, no Telegram
+        out['tier'] = 'watch_wide'
     return out
 
 
