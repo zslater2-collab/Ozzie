@@ -377,22 +377,33 @@ def grade(archive, pa):
 # forecast window = first pitch -1h .. +3h (pregame + early innings). Thresholds tuned to CLEARLY
 # wet, not marginal. Written as a small JSON the app READS (no live weather in the request path --
 # same safe pattern as the HR board; the /api/notify weather incident is why).
+_RAIN_MODELS = ['gfs_hrrr', 'ecmwf_ifs025', 'icon_seamless']   # US hi-res + ECMWF + ICON
 def _rain_forecast(lat, lon, fp_utc):
-    """(precip_mm_sum, pop_max) over [first_pitch-1h, +3h]; None on error."""
-    try:
-        r = requests.get('https://api.open-meteo.com/v1/forecast', params={
-            'latitude': lat, 'longitude': lon, 'hourly': 'precipitation,precipitation_probability',
-            'forecast_days': 3, 'timezone': 'UTC'}, timeout=15)
-        r.raise_for_status(); h = r.json()['hourly']
-        start = fp_utc - timedelta(hours=1); end = fp_utc + timedelta(hours=3)
-        precip, pop = 0.0, 0.0
-        for t, p, pp in zip(h['time'], h['precipitation'], h['precipitation_probability']):
-            tt = datetime.fromisoformat(t).replace(tzinfo=fp_utc.tzinfo)
-            if start <= tt < end:
-                precip += (p or 0); pop = max(pop, pp or 0)
-        return round(precip, 2), pop
-    except Exception:
-        return None
+    """(max precip_mm, max pop) over [first_pitch-1h, +3h], taking the MAX across several models.
+    A SINGLE model badly under-forecasts fast storm lines: on 8/7 the default (GFS) showed 19-42% POP
+    for 4 parks that all went to rain delay, while ECMWF had them at 69-92%. For a STAY-AWAY veto,
+    catching a real system matters more than a false skip, so we trust whichever model sees the rain.
+    None only if EVERY model errored (a genuinely dry day returns (0, 0), not None)."""
+    got = False
+    precip_max, pop_max = 0.0, 0.0
+    start = fp_utc - timedelta(hours=1); end = fp_utc + timedelta(hours=3)
+    for mdl in _RAIN_MODELS:
+        try:
+            r = requests.get('https://api.open-meteo.com/v1/forecast', params={
+                'latitude': lat, 'longitude': lon, 'hourly': 'precipitation,precipitation_probability',
+                'forecast_days': 3, 'timezone': 'UTC', 'models': mdl}, timeout=15)
+            r.raise_for_status(); h = r.json().get('hourly', {})
+            if 'time' not in h:
+                continue
+            pr, po = 0.0, 0.0
+            for t, p, pp in zip(h['time'], h.get('precipitation', []), h.get('precipitation_probability', [])):
+                tt = datetime.fromisoformat(t).replace(tzinfo=fp_utc.tzinfo)
+                if start <= tt < end:
+                    pr += (p or 0); po = max(po, pp or 0)
+            precip_max = max(precip_max, pr); pop_max = max(pop_max, po); got = True
+        except Exception:
+            continue
+    return (round(precip_max, 2), pop_max) if got else None
 
 def build_rain_flags(date):
     """Write rain_flags_latest.json: open-air games with considerable rain around gametime."""
@@ -415,7 +426,11 @@ def build_rain_flags(date):
         if fc is None:
             continue
         precip, pop = fc
-        risk = 'high' if (pop >= 65 and precip >= 3) else ('moderate' if (pop >= 50 and precip >= 1) else None)
+        # OR logic, not AND (fixed 8/7): a confident ACCUMULATION or a high PROBABILITY each counts on
+        # its own. Requiring both missed PIT on 8/7 -- 6mm of forecast rain but the model hedged POP at
+        # 19%, so the game went to a rain delay unflagged. POP alone is unreliable for fast storm lines.
+        risk = ('high' if (pop >= 60 or precip >= 4) else
+                'moderate' if (pop >= 50 or precip >= 2) else None)
         if not risk:
             continue
         flagged.append({'home': home, 'away': g['away'], 'game': f"{g['away']}@{home}",
