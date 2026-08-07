@@ -20,6 +20,7 @@ PA_CACHE = os.path.join(DATA, 'hr_pa_2026.csv.gz')
 ARCH_CSV = os.path.join(REPO, 'hr_board_archive.csv')
 LATEST   = os.path.join(REPO, 'hr_board_latest.json')
 PERF     = os.path.join(REPO, 'hr_board_perf.json')
+RAIN     = os.path.join(REPO, 'rain_flags_latest.json')   # K-prop "rain around gametime" stay-away
 
 K_HIT, K_PIT = 120, 150
 MIN_HITTER_PA, MIN_PITCHER_BF = 80, 100
@@ -370,6 +371,62 @@ def grade(archive, pa):
             perf['edge_graded_picks']=int(len(ge))
     return perf
 
+# ---------------- K-prop rain stay-away flags ----------------
+# Simple, glanceable "don't take a pitcher's OVER when there's clearly considerable rain around
+# gametime" flag (a 30+ min delay usually ends the starter's night early). Open-air parks only,
+# forecast window = first pitch -1h .. +3h (pregame + early innings). Thresholds tuned to CLEARLY
+# wet, not marginal. Written as a small JSON the app READS (no live weather in the request path --
+# same safe pattern as the HR board; the /api/notify weather incident is why).
+def _rain_forecast(lat, lon, fp_utc):
+    """(precip_mm_sum, pop_max) over [first_pitch-1h, +3h]; None on error."""
+    try:
+        r = requests.get('https://api.open-meteo.com/v1/forecast', params={
+            'latitude': lat, 'longitude': lon, 'hourly': 'precipitation,precipitation_probability',
+            'forecast_days': 3, 'timezone': 'UTC'}, timeout=15)
+        r.raise_for_status(); h = r.json()['hourly']
+        start = fp_utc - timedelta(hours=1); end = fp_utc + timedelta(hours=3)
+        precip, pop = 0.0, 0.0
+        for t, p, pp in zip(h['time'], h['precipitation'], h['precipitation_probability']):
+            tt = datetime.fromisoformat(t).replace(tzinfo=fp_utc.tzinfo)
+            if start <= tt < end:
+                precip += (p or 0); pop = max(pop, pp or 0)
+        return round(precip, 2), pop
+    except Exception:
+        return None
+
+def build_rain_flags(date):
+    """Write rain_flags_latest.json: open-air games with considerable rain around gametime."""
+    from datetime import timezone
+    flagged = []
+    try:
+        lineups = get_lineups(date)
+    except Exception as e:
+        print(f'rain flags: lineup fetch failed ({e})'); lineups = []
+    for g in lineups:
+        home = g['home']; p = parks.get(home)
+        if not p or p.get('roof'):
+            continue                                   # unknown or roofed -> immune
+        _, fp = game_start_et(g.get('start'))
+        if fp is None:
+            continue
+        if fp.tzinfo is None:
+            fp = fp.replace(tzinfo=timezone.utc)
+        fc = _rain_forecast(p['lat'], p['lon'], fp)
+        if fc is None:
+            continue
+        precip, pop = fc
+        risk = 'high' if (pop >= 65 and precip >= 3) else ('moderate' if (pop >= 50 and precip >= 1) else None)
+        if not risk:
+            continue
+        flagged.append({'home': home, 'away': g['away'], 'game': f"{g['away']}@{home}",
+                        'park': p.get('name', home), 'precip_mm': precip, 'pop_max': pop,
+                        'risk': risk, 'first_pitch': g.get('start')})
+    json.dump({'date': date, 'generated_at': datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'),
+               'games': flagged}, open(RAIN, 'w'), indent=2)
+    print(f'Rain flags {date}: {len(flagged)} open-air game(s) with considerable rain around gametime'
+          + (': ' + ', '.join(x['game'] for x in flagged) if flagged else ''))
+
+
 def main():
     date = sys.argv[1] if len(sys.argv)>1 else datetime.utcnow().strftime('%Y-%m-%d')
     pa = refresh_pa_cache()
@@ -410,6 +467,8 @@ def main():
         print(f'Graded {perf.get("graded_dates",0)} dates; top25 '
               f'{perf.get("buckets",{}).get("top25",{}).get("hit_rate","-")}% '
               f'vs base {perf.get("base_hr_rate","-")}%')
+
+    build_rain_flags(date)   # K-prop rain stay-away flags (independent of the HR board)
 
     # write display artifact: only UPCOMING games (first pitch still ahead),
     # recalibrated probability + DFS tier tags. Archive kept the full slate above.

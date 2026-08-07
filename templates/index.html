@@ -681,6 +681,10 @@
         ? `<div class="pq-detail" style="margin-top:6px;color:#6ab7ff;font-weight:600;font-size:.62rem">⚠ CONFLICT — this arm ALSO flags 🧊 K-PROP UNDER right now ('25 whiff-K gap ${gapS}). Contradictory bets; both tracking-only.</div>`
         : `<div class="pq-detail" style="margin-top:6px;color:#6ab7ff;font-weight:600;font-size:.62rem">⚠ UNDER RISK — prior-year chronic non-converter ('25 whiff-K gap ${gapS}); Ks systematically under-materialize. Under gate not tripped yet (line still above the &le;5.5 zone), but the trait argues against this over.</div>`;
     }
+    // ⛈ Considerable rain around gametime at an open-air park -> a 30+ min delay usually ends the
+    // starter's night early (fewer innings -> over busts). Precomputed by the HR-board cron.
+    const rr = f.rain_risk;
+    const rainWarn = rr ? `<div class="pq-detail" style="margin-top:6px;color:#6ab7ff;font-weight:700;font-size:.62rem">⛈ ${rr.risk === 'high' ? 'CONSIDERABLE RAIN' : 'RAIN RISK'} around gametime — ${Math.round(rr.pop_max)}% / ${Math.round(rr.precip_mm)}mm at ${rr.park}. Starter-delay risk; consider passing this over.</div>` : '';
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -689,7 +693,7 @@
           <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${conflict}
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${rainWarn}${conflict}
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>

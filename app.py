@@ -3490,6 +3490,24 @@ def logout():
     return redirect(url_for('login'))
 
 
+def load_rain_flags():
+    """{home_abb: {risk, precip_mm, pop_max, park, game}} from rain_flags_latest.json (written by the
+    HR-board cron -- see build_rain_flags there). Read-only LOCAL file, so it's safe in the request
+    path (unlike the live per-game weather fetch that broke /api/notify on Aug 4). Returns {} on any
+    error or if the file is stale (not today's date), so a picks day never shows yesterday's rain."""
+    import json as _json
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(base, 'rain_flags_latest.json')) as f:
+            data = _json.load(f)
+        today = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        if data.get('date') != today:
+            return {}
+        return {g['home']: g for g in data.get('games', []) if g.get('home')}
+    except Exception:
+        return {}
+
+
 def build_picks_payload(today, games, heatmap_flags):
     """Shared payload shape for /api/picks' response and its Redis cache entry. Also called
     from /api/notify so a Telegram-triggered flag computation can refresh the dashboard's
@@ -3504,6 +3522,14 @@ def build_picks_payload(today, games, heatmap_flags):
                   'complete': bool(g['home_lineup'] and g['away_lineup']),
                   'game_time': g.get('game_time')}
                  for g in games]
+    # attach a "considerable rain around gametime" flag to each pick's game (open-air only), so the
+    # K-prop OVER card can warn you off a starter-delay risk. Precomputed file -> no live weather call.
+    _rain = load_rain_flags()
+    if _rain:
+        for f in heatmap_flags:
+            rf = _rain.get(f.get('home_abb'))
+            if rf:
+                f['rain_risk'] = rf
     fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
     pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
@@ -5958,6 +5984,23 @@ def api_notify():
         # captured in line-history, just no longer pushed to Telegram. The old OFF_FADE_PA_STALE
         # Telegram gate went away with the block (it only filtered the notification, never the log).
 
+        # ⛈ Rain-around-gametime advisory (open-air starter-delay risk). Deduped once/day PER GAME via
+        # its own redis key so the 10-min cron doesn't repeat it; read from the precomputed rain file
+        # (no live weather call). Rides the existing send -- appended before the len>1 gate so a rain-
+        # only day still delivers the heads-up once.
+        _rain_today = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rain_key  = f"ozzie:rain_notified:{_rain_today}"
+        rain_sent = set(x for x in (redis_get(rain_key) or '').split(',') if x)
+        rain_map  = load_rain_flags()
+        new_rain  = [g for h, g in sorted(rain_map.items()) if h not in rain_sent] if rain_map else []
+        if new_rain:
+            lines.append("")
+            lines.append("⛈ <b>Rain around gametime</b> — starter delay risk, consider passing overs")
+            for g in new_rain:
+                dot = '🔴' if g.get('risk') == 'high' else '🟡'
+                lines.append(f"   {dot} {g['game']} — {g.get('pop_max',0):.0f}% rain / "
+                             f"{g.get('precip_mm',0):.0f}mm ({g.get('park','')})")
+
         # Only push if a real section rendered (len>1 = more than the bare header). With base K plays
         # now tracker-only, a base-K-only day would otherwise send a header with no body. The Sheet
         # appends + dedup below still run regardless, so base picks keep logging on a no-message day.
@@ -5967,6 +6010,8 @@ def api_notify():
         if new_kunder_strong:
             redis_set(kunder_key,
                       ','.join(kunder_sent | {flag_key(f) for f in new_kunder_strong}), ex=172800)
+        if new_rain:      # mark rain games advised today (only if the message actually went out)
+            redis_set(rain_key, ','.join(rain_sent | {g['home'] for g in new_rain}), ex=86400)
 
         # HARDENING (2026-08-04): persist the "already sent" dedup state RIGHT AFTER send_telegram and
         # BEFORE the sheet appends below. The appends do network I/O (Google Sheets); if one hangs/fails

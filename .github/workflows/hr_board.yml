@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name  "hr-board-bot"
           git config user.email "hr-board-bot@users.noreply.github.com"
-          git add hr_board_latest.json hr_board_perf.json hr_board_archive.csv data/hr_pa_2026.csv.gz
+          git add hr_board_latest.json hr_board_perf.json hr_board_archive.csv data/hr_pa_2026.csv.gz rain_flags_latest.json
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
