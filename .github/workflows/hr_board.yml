@@ -4,12 +4,14 @@ name: hr-board
 # which auto-redeploys the app on Render. Runs staggered so each slate's lineups
 # are captured once they post (lineups drop ~3-4h before first pitch). The display
 # shows only upcoming games; the archive keeps the full slate for grading.
+#   14:00 UTC = 10:00 ET (early getaway-day ~12-1pm lineups -- more lead on the early slate)
 #   15:00 UTC = 11:00 ET (day-game lineups)
 #   20:00 UTC = 16:00 ET (evening ~7pm slate lineups)
 #   23:30 UTC = 19:30 ET (late ~9:40pm west-coast lineups)
 
 on:
   schedule:
+    - cron: '0 14 * * *'
     - cron: '0 15 * * *'
     - cron: '0 20 * * *'
     - cron: '30 23 * * *'
