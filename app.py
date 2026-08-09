@@ -1697,6 +1697,29 @@ def _kprop_norm_name(name):
     return ' '.join(n.lower().replace('.', '').split())
 
 
+def _shop_playable(books, side, ref_line=None):
+    """Best-price shopping list for ANY market with per-book {point, over, under}. Returns
+    [{book, price, point, best}] for PLAYABLE books (Pinnacle/non-bettable excluded) quoting `side`
+    ('over'/'under') at ONE line, best-first (best = highest American = best payout; ties all get it).
+    ref_line=None -> uses the modal point across playable books (so F5 totals shop apples-to-apples).
+    Shared by K-prop over/under and F5 TT over so every card can show which book(s) have the best odds."""
+    pk = {b: v for b, v in (books or {}).items()
+          if b in PLAYABLE_KPROP_BOOKS and v.get(side) is not None and v.get('point') is not None}
+    if not pk:
+        return []
+    if ref_line is None:
+        pts = [v['point'] for v in pk.values()]
+        ref_line = max(set(pts), key=pts.count)
+    rows = [{'book': b, 'price': int(v[side]), 'point': v['point']}
+            for b, v in pk.items() if v['point'] == ref_line]
+    if not rows:
+        return []
+    best = max(r['price'] for r in rows)
+    for r in rows:
+        r['best'] = r['price'] == best
+    return sorted(rows, key=lambda r: (-r['price'], r['book']))
+
+
 def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_starts=None,
                     f5_sharp_latched=False):
     """The rebuilt K-prop signal: bet the OVER when the book prices it a moderate favorite
@@ -1707,7 +1730,8 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     Returns dict (always) with 'signal' bool + display fields, or signal=False if no qualifying
     over price. Classifies on DK; reports the BEST over price across books for the actual bet."""
     out = {'signal': False, 'dk_over': None, 'best_over': None, 'best_book': None,
-           'book_prices': [], 'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
+           'book_prices': [], 'under_book_prices': [], 'best_under': None, 'best_under_book': None,
+           'line': None, 'opp_f5_total': None, 'tier': None, 'n_books': 0,
            'prior_starts': prior_starts, 'sharp_blocked_thin': False, 'f5_sharp_now': False,
            'driftin_price': False, 'sharp_blocked_nonpq': False}
     books = kprop_lines.get(_kprop_norm_name(pitcher_name)) or {}
@@ -1720,26 +1744,22 @@ def _kprop_over_fav(pitcher_name, kprop_lines, opp_team, team_lines, prior_start
     # different strikes is meaningless — e.g. over 4.5 at -157 vs another book's over 6.5 at +240
     # are different bets, and naively taking max(price) recommended the +240 (a totally different
     # prop). Fall back to DK if no other book matches the line.
-    same_line = {b: v for b, v in books.items()
-                 if dk_line is not None and v.get('point') == dk_line and v.get('over') is not None}
-    # Only PLAYABLE books can win the "best price" (and the shoppable list the app shows). Pinnacle
-    # is a sharp REFERENCE book Zach can't bet -- letting it be 'best_book' recommended a price he
-    # can't take. PLAYABLE_KPROP_BOOKS = every TARGET_BOOKS label except Pinnacle.
-    playable = {b: v for b, v in same_line.items() if b in PLAYABLE_KPROP_BOOKS}
-    if playable:
-        best_over = max(v['over'] for v in playable.values())
-        best_book = next(b for b, v in sorted(playable.items()) if v['over'] == best_over)
-        # per-book list the frontend renders, best-first; 'best' True on ALL books tied for top price
-        book_prices = sorted(
-            [{'book': b, 'over': v['over'], 'point': v.get('point'), 'best': v['over'] == best_over}
-             for b, v in playable.items()],
-            key=lambda x: (-x['over'], x['book']))
+    # Shop the best price ONLY among books at DK's line (comparing across strikes is meaningless) and
+    # ONLY among PLAYABLE books (Pinnacle is a sharp reference Zach can't bet). Both the OVER (the bet)
+    # and the UNDER (so the K-under card can shop too) are shopped from the same per-book quotes.
+    book_prices = _shop_playable(books, 'over', dk_line)
+    under_prices = _shop_playable(books, 'under', dk_line)
+    if book_prices:
+        best_over, best_book = book_prices[0]['price'], book_prices[0]['book']
     else:
-        best_book, best_over = ('DraftKings', dk_over) if dk_over is not None else (None, None)
-        book_prices = ([{'book': 'DraftKings', 'over': dk_over, 'point': dk_line, 'best': True}]
-                       if dk_over is not None else [])
+        best_over, best_book = (dk_over, 'DraftKings') if dk_over is not None else (None, None)
+        if dk_over is not None:
+            book_prices = [{'book': 'DraftKings', 'price': dk_over, 'point': dk_line, 'best': True}]
     out.update({'dk_over': dk_over, 'best_over': best_over, 'best_book': best_book,
-                'book_prices': book_prices, 'line': dk_line, 'n_books': len(playable)})
+                'book_prices': book_prices, 'under_book_prices': under_prices,
+                'best_under': under_prices[0]['price'] if under_prices else None,
+                'best_under_book': under_prices[0]['book'] if under_prices else None,
+                'line': dk_line, 'n_books': len(book_prices)})
     # Opposing offense's F5 team total, from the SHARPEST book that posts EARLIEST: Pinnacle ->
     # DraftKings -> median across books. Pinnacle can show 1.5 while the cross-book median sits at
     # 2.0 (divergence), or post hours before other books -- reading it first stops a genuine 1.5
@@ -2614,6 +2634,9 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_under_flag':        _kunder['signal'],
                 'kprop_under_tier':        _kunder['tier'],
                 'kprop_under_gap':         _kunder['prior_gap'],
+                'kprop_under_best':        _ofav['best_under'],
+                'kprop_under_book':        _ofav['best_under_book'],
+                'kprop_under_prices':      _ofav['under_book_prices'],
                 'kprop_sharp_blocked_thin': _ofav['sharp_blocked_thin'],
                 'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
                 'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
@@ -2760,6 +2783,9 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                             # pattern as pq_q4/fg_tt_under's odds_lines, so the sheet-append
                             # function doesn't need to re-fetch or cache anything separately.
                             'f5_over_odds_lines':   team_lines.get(other_abb, {}),
+                            # best-book shopping for the OVER at the modal F5 total (playable books only),
+                            # so the card can show which book(s) have the best price (same as K-prop).
+                            'f5_over_prices':       _shop_playable(team_lines.get(other_abb, {}), 'over'),
                             'f5_over_note': (
                                 f'Joint F5 over flagged, but {flagged_team} alone is already '
                                 f'F5-under flagged (elite opposing pitcher) — hypothesis: the '
@@ -3140,6 +3166,9 @@ def get_heatmap_flags(games, model):
                 'kprop_under_flag':        _kunder2['signal'],
                 'kprop_under_tier':        _kunder2['tier'],
                 'kprop_under_gap':         _kunder2['prior_gap'],
+                'kprop_under_best':        _ofav2['best_under'],
+                'kprop_under_book':        _ofav2['best_under_book'],
+                'kprop_under_prices':      _ofav2['under_book_prices'],
                 'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
                 'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
                 'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,

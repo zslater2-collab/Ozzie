@@ -562,6 +562,22 @@
     return parts.join(' &nbsp;|&nbsp; ');
   }
 
+  // Shared "which book(s) have the best odds" list: prices = [{book, price, point, best}] from the
+  // server (_shop_playable, playable books only). Green ✓ on the best; two checks if two books tie.
+  function renderBookList(prices, pfx) {
+    if (!prices || !prices.length) return '';
+    pfx = pfx || 'o';
+    return `<div class="pq-detail" style="margin-top:8px">
+      <div class="hm-stat-label" style="margin-bottom:3px">Playable books — best ✓</div>
+      ${prices.map(b => {
+        const price = (b.price >= 0 ? '+' : '') + b.price;
+        const strike = b.point != null ? `${pfx}${b.point}` : '';
+        return `<div style="display:flex;justify-content:space-between;font-size:.66rem;padding:1px 0;${b.best ? 'color:#4caf50;font-weight:700' : 'color:var(--text)'}">
+          <span>${b.best ? '✓ ' : '&nbsp;&nbsp;&nbsp;'}${b.book}</span><span>${strike} ${price}</span></div>`;
+      }).join('')}
+    </div>`;
+  }
+
   function formatJointOddsLines(oddsLines) {
     // Same shape as formatOddsLines, but marks 3.5 (JOINT_LINE_TARGET) not 1.5, and leads with
     // FanDuel (the gate book for this signal -- see JOINT_GATE_BOOK) instead of Pinnacle.
@@ -656,19 +672,8 @@
     const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const kalshiLine = f.kalshi_k_line != null ? f.kalshi_k_line : '—';
     const betStr = `BUY <b>Over ${line}K</b> @ best ${bestOver} (${bestBook})`;
-    // Per-book price list (playable books only — Pinnacle excluded server-side). Check on the best
-    // price; if two books tie for best, both get the check.
-    const bookPrices = (f.kprop_book_prices || []);
-    const booksHtml = bookPrices.length ? `
-      <div class="pq-detail" style="margin-top:8px">
-        <div class="hm-stat-label" style="margin-bottom:3px">Playable books — best ✓</div>
-        ${bookPrices.map(b => {
-          const price = (b.over >= 0 ? '+' : '') + b.over;
-          const strike = b.point != null ? `o${b.point}` : '';
-          return `<div style="display:flex;justify-content:space-between;font-size:.66rem;padding:1px 0;${b.best ? 'color:#4caf50;font-weight:700' : 'color:var(--text)'}">
-            <span>${b.best ? '✓ ' : '&nbsp;&nbsp;&nbsp;'}${b.book}</span><span>${strike} ${price}</span></div>`;
-        }).join('')}
-      </div>` : '';
+    // Per-book price list (playable books only — Pinnacle excluded server-side), best ✓.
+    const booksHtml = renderBookList(f.kprop_book_prices, 'o');
     // UNDER-RISK warning keyed on the TRAIT, not the fully-gated under flag (per Zach, July 20 2026).
     // div_q4 (prior-year chronic whiff->K non-converter) is static and known the MOMENT the over
     // fires -- long before the under's line<=5.5 display gate trips. kprop_under_gap != null <=> div_q4.
@@ -721,7 +726,9 @@
     const gap = f.kprop_under_gap != null ? ('+' + f.kprop_under_gap.toFixed(3)) : '—';
     const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
     const starts = f.kprop_prior_starts != null ? f.kprop_prior_starts : '—';
-    const betStr = `BUY <b>Under ${line}K</b> (fade the inflated line)`;
+    const bestU = f.kprop_under_best != null ? ((f.kprop_under_best >= 0 ? '+' : '') + f.kprop_under_best) : null;
+    const betStr = `BUY <b>Under ${line}K</b>${bestU ? ` @ best ${bestU} (${f.kprop_under_book || '—'})` : ''} (fade the inflated line)`;
+    const underBooksHtml = renderBookList(f.kprop_under_prices, 'u');
     // Same pitcher also trips the sharp OVER gate -> contradictory bets. Both tracking-only; surface it.
     const conflict = (f.k_prop_flag && f.k_prop_tier === 'sharp') ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600;font-size:.62rem">⚠ CONFLICT — also flags 🎯 K-PROP OVER (SHARP). Contradictory; both tracking-only.</div>` : '';
     card.innerHTML = `
@@ -740,6 +747,7 @@
         <div><div class="hm-stat-label">Starts / Opp F5</div><div class="hm-stat-value">${starts} / ${oppF5}</div></div>
       </div>
       <div class="pq-detail" style="margin-top:8px;color:#6ab7ff;font-weight:600">${betStr}</div>
+      ${underBooksHtml}
       <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">Chronic non-converter: market prices the whiff, the K's never materialize. ${strong ? 'STRONG = line &le;4.5 (edge concentrates at low lines).' : (wide ? 'WATCH-WIDE = looser prior-gap floor (0.015 vs 0.02) — an in-sample expansion (62%/+19.5% YTD), forward-grading before promotion.' : 'watch = gap&ge;0.02, any line; STRONG requires line &le;4.5.')} DK over ${dkOver} (ref — we take the under). In-sample only (~⅓ season) — TRACKING, unvalidated.</div>
       ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
     return card;
@@ -805,6 +813,9 @@
     const card = document.createElement('div');
     card.className = 'joint-card';
     card.style.animationDelay = `${i * 0.06}s`;
+    const f5Best = (f.f5_over_prices && f.f5_over_prices.length) ? f.f5_over_prices[0] : null;
+    const f5BetStr = f5Best ? `<div class="joint-detail" style="margin-top:8px;color:#e066ff;font-weight:600">BUY <b>${f.batting_team} F5 team total OVER ${f5Best.point}</b> @ best ${(f5Best.price >= 0 ? '+' : '') + f5Best.price} (${f5Best.book})</div>` : '';
+    const f5BooksHtml = renderBookList(f.f5_over_prices, 'o');
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -820,7 +831,7 @@
         <div><div class="hm-stat-label">Joint Off Pctile</div><div class="hm-stat-value">${f.joint_off_pctile}</div></div>
         <div><div class="hm-stat-label">FanDuel Joint Line</div><div class="hm-stat-value">${f.joint_fanduel_point ?? '—'}</div></div>
       </div>
-      <div class="joint-detail" style="margin-top:8px">${f.f5_over_note||''}</div>`;
+      <div class="joint-detail" style="margin-top:8px">${f.f5_over_note||''}</div>${f5BetStr}${f5BooksHtml}`;
     return card;
   }
 
