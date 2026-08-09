@@ -218,12 +218,30 @@ def _pq_fetch_current_season():
                 'bf': bf, 'so': stat.get('strikeOuts', 0) or 0,
                 'bb': stat.get('baseOnBalls', 0) or 0, 'hr': stat.get('homeRuns', 0) or 0,
                 'gs': stat.get('gamesStarted', 0) or 0,   # for per-pitcher expected outing length
+                'g':  stat.get('gamesPlayed', 0) or 0,    # appearances -> BF/appearance = opener detector
             }
         print(f"Pitcher quality current-season fetch: {len(season)} pitchers with BF>0")
         return season
     except Exception as e:
         print(f"Warning: pitcher quality current-season fetch failed: {e}")
         return {}
+
+
+# OPENER GUARD (2026-08-09): an announced "starter" who is really an opener/reliever (Erik Miller
+# type) won't pitch the first 5 innings, so his pitcher-quality is irrelevant to the F5 team total --
+# firing a PQ U1.5 on him is a false signal. Detect from season usage: batters faced per appearance
+# (a bulk starter ~22+/G; an opener/reliever ~5), plus gs==0 = pitched only in relief all year.
+PQ_OPENER_BF_PER_G = 15   # < ~3.5 innings/appearance = not a bulk starter
+
+def _is_opener(s):
+    bf = s.get('bf', 0) or 0
+    g  = s.get('g', 0) or 0
+    gs = s.get('gs', 0) or 0
+    if gs == 0:                                        # no starts all season -> reliever/opener
+        return True
+    if g >= 3 and (bf / g) < PQ_OPENER_BF_PER_G:       # short outings even when "starting"
+        return True
+    return False
 
 
 def get_pitcher_quality_population(force=False):
@@ -318,6 +336,8 @@ def get_pitcher_quality_population(force=False):
             # season-to-date games started (point-in-time prior-start count, pregame). Gates the
             # K-prop SHARP tier -- see KPROP_SHARP_MIN_STARTS.
             'gs':          season.get(pid, {}).get('gs', 0),
+            # opener/reliever guard -- if True the PQ U1.5 signal is suppressed (won't pitch the F5).
+            'opener':      _is_opener(season.get(pid, {})),
         }
 
     print(f"Pitcher quality population built: {len(population)} pitchers, "
@@ -2474,7 +2494,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             pq_info = pq_population.get(pitcher_id) if pitcher_id else None
             # NOT gated on `lineup` (see EARLY-FIRE above): fires on probable pitcher + Q4 + the Pinnacle
             # 1.5 gate below. Offense fields on the flag stay None pre-lineup and fill in once it posts.
-            pq_q4   = bool(pq_info and pq_info['quartile'] == 'Q4')
+            pq_q4   = bool(pq_info and pq_info['quartile'] == 'Q4' and not pq_info.get('opener'))
 
             off_info = get_lineup_offense_quality(lineup, off_population) if (off_population and lineup) else None
             off_q3_gate = bool(
@@ -3028,7 +3048,7 @@ def get_heatmap_flags(games, model):
                 pq_info = pq_population.get(pitcher_id) if pitcher_id else None
             except Exception as e:
                 print(f"Pitcher quality lookup error: {e}")
-            pq_q4 = bool(pq_info and pq_info['quartile'] == 'Q4')
+            pq_q4 = bool(pq_info and pq_info['quartile'] == 'Q4' and not pq_info.get('opener'))
 
             # ── OFFENSE QUALITY COMPOSITE (research/tracking only, see notes above) ──
             off_info = None
