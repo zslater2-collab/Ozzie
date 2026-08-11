@@ -136,10 +136,12 @@ def get_lineups(game_date):
                 return [{'id':p['id'],'pos':p.get('primaryPosition',{}).get('abbreviation','')}
                         for p in g.get('lineups',{}).get(key,[]) if p.get('id')]
             hl=plist('homePlayers'); al=plist('awayPlayers')
+            hp=g['teams']['home'].get('probablePitcher',{}); ap=g['teams']['away'].get('probablePitcher',{})
             games.append(dict(home=tmap.get(hid,str(hid)),away=tmap.get(aid,str(aid)),
                 home_id=hid,away_id=aid,home_lineup=hl,away_lineup=al,
-                home_starter=g['teams']['home'].get('probablePitcher',{}).get('id'),
-                away_starter=g['teams']['away'].get('probablePitcher',{}).get('id'),
+                home_starter=hp.get('id'), away_starter=ap.get('id'),
+                home_starter_hand=(hp.get('pitchHand',{}) or {}).get('code'),
+                away_starter_hand=(ap.get('pitchHand',{}) or {}).get('code'),
                 start=g.get('gameDate'),   # ISO UTC first-pitch
                 state=g.get('status',{}).get('abstractGameState','')))
     return games
@@ -259,7 +261,10 @@ def fetch_hr_odds(game_date):
         novigs=[_implied(v['over'])/(_implied(v['over'])+_implied(v['under']))
                 for v in bks.values() if v.get('over') is not None and v.get('under') is not None]
         if not novigs: novigs=[_implied(best_over)]   # one-sided quote -> raw implied (slightly rich)
-        out[nm]={'over':int(best_over),'book':best_book,
+        # full per-book list for the Explorer's odds-by-book expander (best flagged, ties all get it)
+        bp=sorted([{'book':b,'price':int(v['over']),'best':int(v['over'])==int(best_over)}
+                   for b,v in bks.items() if v.get('over') is not None], key=lambda x:-_payout(x['price']))
+        out[nm]={'over':int(best_over),'book':best_book,'book_prices':bp,
                  'mkt_prob':round(100*float(np.median(novigs)),1),'n_books':len(overs)}
     print(f'HR odds: {n_ev} events priced, {len(out)} players with anytime-HR props '
           f'(regions={HR_ODDS_REGIONS}).')
@@ -278,9 +283,9 @@ def build_board(game_date, H, P, meta):
         # kept for grading; only the display filters to upcoming (see main()).
         upcoming = not (g.get('state') in ('Live','Final') or (gstart is not None and gstart <= now))
         wx=get_weather_factor(g['home'])
-        for starter, lineup, bat, bat_id, field in [
-            (g['home_starter'],g['away_lineup'],g['away'],g['away_id'],g['home']),
-            (g['away_starter'],g['home_lineup'],g['home'],g['home_id'],g['away'])]:
+        for starter, sthand, lineup, bat, bat_id, field in [
+            (g['home_starter'],g.get('home_starter_hand'),g['away_lineup'],g['away'],g['away_id'],g['home']),
+            (g['away_starter'],g.get('away_starter_hand'),g['home_lineup'],g['home'],g['home_id'],g['away'])]:
             if not starter: continue
             pit=P.get(int(starter))
             if not pit or pit['bf']<MIN_PITCHER_BF: continue
@@ -301,9 +306,10 @@ def build_board(game_date, H, P, meta):
                 # slot-weighted PA when the lineup is official; neutral PA when projected
                 exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
                 prob,amer=hr_prob(pa_hr, exp_pa)
-                rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',
+                rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',team=bat,
                     gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,proj=proj,
-                    slot=(None if proj else slot),pos=pos,arch=arch[ak]['name'],hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    slot=(None if proj else slot),pos=pos,arch=arch[ak]['name'],bat_hand=hand,pit_hand=sthand,
+                    hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -453,8 +459,8 @@ def main():
     hr_odds = fetch_hr_odds(date) if not df.empty else {}
 
     if not df.empty:
-        keep=['batter','pitcher','game','gtime','gstart_ms','upcoming','proj','slot','pos','arch','hit_hr','pit_hr','park','wx','supp',
-              'pa_hr','hr_prob','fair','Batter','Pitcher']
+        keep=['batter','pitcher','game','team','gtime','gstart_ms','upcoming','proj','slot','pos','arch','bat_hand','pit_hand',
+              'hit_hr','pit_hr','park','wx','supp','pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if hr_odds:
             _k=day['Batter'].map(_norm)
@@ -462,9 +468,11 @@ def main():
             day['mkt_book']=_k.map(lambda n:hr_odds.get(n,{}).get('book'))
             day['mkt_prob']=_k.map(lambda n:hr_odds.get(n,{}).get('mkt_prob'))
             day['mkt_n_books']=_k.map(lambda n:hr_odds.get(n,{}).get('n_books'))
+            day['book_prices']=_k.map(lambda n:hr_odds.get(n,{}).get('book_prices') or [])
         # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
-        official=day[day['proj']==False] if 'proj' in day.columns else day
+        # Drop the display-only book_prices list column so it doesn't bloat/round-trip in the CSV.
+        official=(day[day['proj']==False] if 'proj' in day.columns else day).drop(columns=['book_prices'], errors='ignore')
         if os.path.exists(ARCH_CSV):
             old=pd.read_csv(ARCH_CSV); old['date']=old['date'].astype(str)
             arch_df=pd.concat([old[old['date']!=date],official],ignore_index=True)

@@ -109,6 +109,24 @@
   .hrb-sub{font-size:.58rem;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hrb-col{width:52px;flex-shrink:0;text-align:right;font-size:.75rem;font-variant-numeric:tabular-nums}
   .hrb-col.hd{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  /* Explorer: filterable/sortable hitter & pitcher tables */
+  .exp-tabs{display:flex;gap:6px;margin-bottom:10px}
+  .exp-tab{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.08em;padding:5px 16px;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;background:var(--surface)}
+  .exp-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(232,255,71,.06)}
+  .exp-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;font-size:.62rem}
+  .exp-filters select,.exp-filters input{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:.62rem}
+  .exp-filters label{color:var(--muted);display:flex;align-items:center;gap:4px}
+  .exp-count{font-size:.6rem;color:var(--muted);margin:4px 0 8px}
+  .exp-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:6px}
+  table.exp{border-collapse:collapse;width:100%;font-size:.66rem;white-space:nowrap}
+  table.exp th{position:sticky;top:0;background:var(--surface);color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-size:.52rem;font-weight:600;padding:6px 8px;text-align:right;cursor:pointer;border-bottom:1px solid var(--dim);user-select:none}
+  table.exp th.l,table.exp td.l{text-align:left}
+  table.exp th.sorted{color:var(--accent)}
+  table.exp td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;color:var(--text)}
+  table.exp tr.exp-row{cursor:pointer}
+  table.exp tr.exp-row:hover td{background:rgba(255,255,255,.03)}
+  .exp-badge{font-size:.48rem;border:1px solid;border-radius:3px;padding:0 3px;margin-left:4px;vertical-align:middle}
+  .exp-books td{background:var(--surface2);color:var(--muted);white-space:normal;font-size:.6rem;padding:6px 12px}
   #no-picks{display:none;text-align:center;padding:36px 20px;color:var(--muted);font-size:.78rem;line-height:1.8}
   #error-box{display:none;margin:14px 20px 0;background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.25);border-radius:8px;padding:12px;font-size:.72rem;color:#ff8080;line-height:1.6}
   .divider{height:1px;background:var(--border);margin:20px 20px 0}
@@ -293,6 +311,24 @@
     </div>
     <div id="hrboard-perf" style="font-size:.62rem;color:var(--muted);margin:2px 0 12px;line-height:1.5"></div>
     <div id="hrboard-list"></div>
+  </div>
+</div>
+<div id="explorer-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="section-label" style="margin:0">Explorer
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">All Hitters &amp; Pitchers — filter / sort</span>
+      </div>
+    </div>
+    <div class="exp-tabs">
+      <div class="exp-tab active" id="exp-tab-hitters" onclick="setExplorerTab('hitters')">Hitters</div>
+      <div class="exp-tab" id="exp-tab-pitchers" onclick="setExplorerTab('pitchers')">Pitchers</div>
+    </div>
+    <div class="exp-filters" id="exp-filters"></div>
+    <div class="exp-count" id="exp-count"></div>
+    <div class="exp-wrap"><table class="exp"><thead id="exp-thead"></thead><tbody id="exp-tbody"></tbody></table></div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Click a header to sort · click a row to see odds by book · projections are tracking/unvalidated (HR edge runs hot at the top; K props have no validated edge, shown as context).</div>
   </div>
 </div>
 <div id="squad-section" style="display:none">
@@ -1072,6 +1108,129 @@
       :`<span style="color:#e0705a">❌ shaded · our ${(our*100).toFixed(1)}% vs ${(impl*100).toFixed(1)}% (${edge.toFixed(1)} pts · fair only to ${beT}+)</span>`;
   }
 
+  // ── Explorer: filterable/sortable Hitters & Pitchers ──────────────────────
+  var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
+    sort:{hitters:{col:'edge',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
+    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:''}, expanded:null, _rows:[]};
+  function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+  function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
+  function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
+  function _exPct(v,d){return v==null?'—':(+v*100).toFixed(d);}
+  function _exEdgeCol(e){return e==null?'':(e>=3?'#39d353':(e>=0?'var(--accent)':'var(--muted)'));}
+  const _RAIN_B=' <span class="exp-badge" style="color:#6ab7ff;border-color:#6ab7ff" title="considerable rain around gametime">⛈</span>';
+  const EXP_COLS={
+    hitters:[
+      {k:'Batter',t:'Batter',l:1,f:r=>_exEsc(r.Batter||r.batter)+(r.rain_risk?_RAIN_B:'')},
+      {k:'team',t:'Tm',l:1,f:r=>r.team||''},
+      {k:'bat_hand',t:'B',l:1,f:r=>r.bat_hand||''},
+      {k:'pos',t:'Pos',l:1,f:r=>r.pos||''},
+      {k:'slot',t:'Ord',f:r=>r.slot==null?'—':r.slot},
+      {k:'game',t:'Game',l:1,f:r=>r.game+(r.proj?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020" title="lineup not posted; projected roster">PROJ</span>':'')},
+      {k:'Pitcher',t:'vs Pitcher',l:1,f:r=>_exEsc(r.Pitcher||'')+(r.pit_hand?' ('+r.pit_hand+')':'')},
+      {k:'hr_prob',t:'HR%',f:r=>r.hr_prob==null?'—':(+r.hr_prob).toFixed(1)+'%'},
+      {k:'fair',t:'Fair',f:r=>r.fair||'—'},
+      {k:'mkt_over',t:'Best',f:r=>_exAm(r.mkt_over)},
+      {k:'mkt_book',t:'Book',l:1,f:r=>r.mkt_book||'—'},
+      {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exEdgeCol(r.edge)},
+      {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
+      {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},
+      {k:'park',t:'Park',f:r=>_exN(r.park,2)},
+      {k:'wx',t:'Wx',f:r=>_exN(r.wx,2)},
+      {k:'arch',t:'Archetype',l:1,f:r=>r.arch||''},
+    ],
+    pitchers:[
+      {k:'pitcher',t:'Pitcher',l:1,f:r=>_exEsc(r.pitcher)+(r.hand?' ('+r.hand+')':'')+(r.opener?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020">OPENER</span>':'')+(r.rain_risk?_RAIN_B:'')},
+      {k:'team',t:'Tm',l:1,f:r=>r.team||''},
+      {k:'opp',t:'vs',l:1,f:r=>r.opp||''},
+      {k:'pq_percentile',t:'PQ %ile',f:r=>_exN(r.pq_percentile,0),c:r=>r.pq_quartile==='Q4'?'#39d353':''},
+      {k:'projected_k',t:'Proj K',f:r=>_exN(r.projected_k,1)},
+      {k:'kprop_line',t:'K Line',f:r=>r.kprop_line==null?'—':r.kprop_line},
+      {k:'kprop_best_over',t:'Best O',f:r=>_exAm(r.kprop_best_over)},
+      {k:'kprop_best_book',t:'Book',l:1,f:r=>r.kprop_best_book||'—'},
+      {k:'k_rate',t:'K%',f:r=>_exPct(r.k_rate,1)},
+      {k:'bb_rate',t:'BB%',f:r=>_exPct(r.bb_rate,1)},
+      {k:'hr_rate',t:'HR%',f:r=>_exPct(r.hr_rate,1)},
+      {k:'exp_bf',t:'Exp BF',f:r=>_exN(r.exp_bf,0)},
+      {k:'opp_f5',t:'Opp F5',f:r=>r.opp_f5==null?'—':r.opp_f5},
+      {k:'o_k_rate',t:'Opp K%',f:r=>_exPct(r.o_k_rate,1)},
+      {k:'div_gap',t:'Whiff-K',f:r=>r.div_gap==null?'—':((r.div_gap>=0?'+':'')+(+r.div_gap).toFixed(3))},
+    ],
+  };
+  function setExplorerTab(tab){EXP.tab=tab;EXP.expanded=null;
+    document.getElementById('exp-tab-hitters').classList.toggle('active',tab==='hitters');
+    document.getElementById('exp-tab-pitchers').classList.toggle('active',tab==='pitchers');
+    renderExplorerFilters();renderExplorer();}
+  function loadExplorer(){
+    Promise.all([
+      fetch('/api/hr_board').then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch('/api/picks').then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([hr,pk])=>{
+      EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()):[];
+      EXP.data.pitchers=(pk&&pk.pitcher_explorer)?pk.pitcher_explorer:[];
+      if(!EXP.data.hitters.length&&!EXP.data.pitchers.length)return;
+      document.getElementById('explorer-section').style.display='block';
+      renderExplorerFilters();renderExplorer();
+    }).catch(()=>{});
+  }
+  function expSetFilter(k,v){EXP.filters[k]=v;EXP.expanded=null;renderExplorer();}
+  function sortExplorer(col){const s=EXP.sort[EXP.tab];if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1;}EXP.expanded=null;renderExplorer();}
+  function toggleExplorerBooks(i){EXP.expanded=(EXP.expanded===i?null:i);renderExplorer();}
+  function _exFiltered(){
+    const F=EXP.filters;let rows=EXP.data[EXP.tab].slice();
+    if(F.game)rows=rows.filter(r=>r.game===F.game);
+    if(F.team)rows=rows.filter(r=>r.team===F.team||r.opp===F.team);
+    if(F.confirmed&&EXP.tab==='hitters')rows=rows.filter(r=>!r.proj);
+    if(F.search){const q=F.search.toLowerCase();rows=rows.filter(r=>(''+(r.Batter||r.batter||r.pitcher||'')).toLowerCase().includes(q)||(''+(r.Pitcher||'')).toLowerCase().includes(q));}
+    if(F.minEdge!==''&&EXP.tab==='hitters'){const m=+F.minEdge;rows=rows.filter(r=>r.edge!=null&&r.edge>=m);}
+    if(F.minProb!==''&&EXP.tab==='hitters'){const m=+F.minProb;rows=rows.filter(r=>r.hr_prob!=null&&r.hr_prob>=m);}
+    const s=EXP.sort[EXP.tab];
+    rows.sort((a,b)=>{let x=a[s.col],y=b[s.col];
+      x=(x==null||x==='')?-Infinity:(isNaN(+x)?(''+x).toLowerCase():+x);
+      y=(y==null||y==='')?-Infinity:(isNaN(+y)?(''+y).toLowerCase():+y);
+      return x<y?-s.dir:(x>y?s.dir:0);});
+    return rows;
+  }
+  function renderExplorer(){
+    const cols=EXP_COLS[EXP.tab],s=EXP.sort[EXP.tab];
+    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" onclick="sortExplorer('${c.k}')">${c.t}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    const rows=_exFiltered();EXP._rows=rows;
+    const tb=document.getElementById('exp-tbody');tb.innerHTML='';
+    rows.forEach((r,i)=>{
+      const tr=document.createElement('tr');tr.className='exp-row';tr.setAttribute('onclick',`toggleExplorerBooks(${i})`);
+      tr.innerHTML=cols.map(c=>{const col=c.c?c.c(r):'';return `<td class="${c.l?'l':''}"${col?` style="color:${col}"`:''}>${c.f(r)}</td>`;}).join('');
+      tb.appendChild(tr);
+      if(EXP.expanded===i){
+        const bp=(EXP.tab==='hitters'?r.book_prices:r.kprop_book_prices)||[];
+        const bt=document.createElement('tr');bt.className='exp-books';
+        bt.innerHTML=`<td colspan="${cols.length}">${bp.length?('Odds by book (best ✓): '+bp.map(b=>`${b.best?'✓ ':''}${b.book} ${(b.price>=0?'+':'')+b.price}`).join('  ·  ')):'no per-book odds posted for this one'}</td>`;
+        tb.appendChild(bt);
+      }
+    });
+    document.getElementById('exp-count').textContent=`${rows.length} ${EXP.tab}`+(EXP.filters.game?` · ${EXP.filters.game}`:'');
+  }
+  function renderExplorerFilters(){
+    const all=EXP.data[EXP.tab],F=EXP.filters;
+    const games=[...new Set(all.map(r=>r.game).filter(Boolean))].sort();
+    const teams=[...new Set(all.flatMap(r=>[r.team,r.opp]).filter(Boolean))].sort();
+    let h=`<label>Game <select onchange="expSetFilter('game',this.value)"><option value="">All</option>${games.map(g=>`<option ${g===F.game?'selected':''}>${g}</option>`).join('')}</select></label>`;
+    h+=`<label>Team <select onchange="expSetFilter('team',this.value)"><option value="">All</option>${teams.map(t=>`<option ${t===F.team?'selected':''}>${t}</option>`).join('')}</select></label>`;
+    h+=`<label><input type="text" placeholder="search name" value="${F.search}" oninput="expSetFilter('search',this.value)" style="width:110px"></label>`;
+    if(EXP.tab==='hitters'){
+      h+=`<label><input type="checkbox" ${F.confirmed?'checked':''} onchange="expSetFilter('confirmed',this.checked)"> confirmed only</label>`;
+      h+=`<label>min edge <input type="number" step="0.5" value="${F.minEdge}" oninput="expSetFilter('minEdge',this.value)" style="width:50px"></label>`;
+      h+=`<label>min HR% <input type="number" step="0.5" value="${F.minProb}" oninput="expSetFilter('minProb',this.value)" style="width:50px"></label>`;
+    }
+    h+=`<button onclick="exportExplorerCSV()" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:.62rem;cursor:pointer">Export CSV</button>`;
+    document.getElementById('exp-filters').innerHTML=h;
+  }
+  function exportExplorerCSV(){
+    const cols=EXP_COLS[EXP.tab],rows=EXP._rows.length?EXP._rows:_exFiltered();
+    const strip=s=>String(s).replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/"/g,'""').trim();
+    const csv=cols.map(c=>c.t).join(',')+'\n'+rows.map(r=>cols.map(c=>`"${strip(c.f(r))}"`).join(',')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download=`explorer_${EXP.tab}_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -1080,9 +1239,10 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','squad-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     loadHrBoard();
+    loadExplorer();
     loadSquadBuilder();
 
     fetch('/api/picks')

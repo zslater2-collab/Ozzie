@@ -1083,6 +1083,8 @@ def get_lineups_and_starters(game_date):
                 'away_pitcher_id':   ap.get('id'),
                 'home_pitcher_name': hp.get('fullName', 'TBD'),
                 'away_pitcher_name': ap.get('fullName', 'TBD'),
+                'home_pitcher_hand': (hp.get('pitchHand', {}) or {}).get('code'),
+                'away_pitcher_hand': (ap.get('pitchHand', {}) or {}).get('code'),
                 'home_lineup':       home_lineup,
                 'away_lineup':       away_lineup,
                 'game_time':         game_time,
@@ -2385,6 +2387,7 @@ DISABLED_SIGNALS = {'fg_joint_total', 'fg_tt_under'}
 
 def get_tracking_only_flags(games, force=False, kalshi_repull=False):
     flags = []
+    explorer_rows = []   # ungated per-pitcher rows for the Explorer tab (every probable starter)
     pinnacle_suppressed_wrong   = 0  # Pinnacle posted a line, but it wasn't 1.5 or a park exception
     pinnacle_suppressed_missing = 0  # gate active but no Pinnacle line found for this team/game
     pinnacle_park_exceptions    = 0  # passed via the park gate exception, not the base 1.5 line
@@ -2586,6 +2589,38 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 _kprop_diag['unmatched'].append(pitcher_name)
             if _k_prop_signal:
                 _kprop_diag['fired'] += 1
+
+            # EXPLORER: collect an ungated row for EVERY probable starter (before the signal gate below),
+            # reusing all the per-pitcher values already computed above. Powers the Pitcher explorer tab.
+            _phand = game.get('home_pitcher_hand') if fielding_team == game['home_team'] else game.get('away_pitcher_hand')
+            explorer_rows.append({
+                'pitcher': pitcher_name, 'hand': _phand,
+                'team': NAME_TO_ABB.get(fielding_team, fielding_team),
+                'opp': NAME_TO_ABB.get(batting_team, batting_team),
+                'game': game_str, 'game_time': game.get('game_time'), 'home_abb': home_abb,
+                'pq_percentile': pq_info['percentile'] if pq_info else None,
+                'pq_quartile':   pq_info['quartile'] if pq_info else None,
+                'k_rate':        pq_info['k_rate'] if pq_info else None,
+                'bb_rate':       pq_info['bb_rate'] if pq_info else None,
+                'hr_rate':       pq_info['hr_rate'] if pq_info else None,
+                'exp_bf':        pq_info.get('exp_bf') if pq_info else None,
+                'gs':            _prior_starts,
+                'opener':        bool(pq_info.get('opener')) if pq_info else None,
+                'projected_k':   _proj_k_val,
+                'o_k_rate':      off_info.get('o_k_rate') if off_info else None,
+                'opp_f5':        _ofav['opp_f5_total'],
+                'kprop_line':    _ofav['line'],
+                'kprop_best_over':  _ofav['best_over'],
+                'kprop_best_book':  _ofav['best_book'],
+                'kprop_book_prices': _ofav['book_prices'],
+                'kprop_best_under':  _ofav['best_under'],
+                'kprop_under_book':  _ofav['best_under_book'],
+                'kprop_under_prices': _ofav['under_book_prices'],
+                'div_gap':       _kunder['prior_gap'],
+                'div_tier':      _kunder['tier'],
+                'k_over_signal': bool(_k_prop_signal),
+                'pq_under_signal': bool(pq_q4),
+            })
 
             if not pq_q4 and not off_q3_gate and not _k_prop_signal:
                 continue
@@ -2971,7 +3006,8 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
     # persist the SHARP F5 latch (opponents that hit <2.0 today) so it survives to later runs
     if _f5_latch:
         redis_set(f"ozzie:kprop_f5sharp:{_f5_today}", ','.join(sorted(_f5_latch)), ex=172800)
-    return [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
+    flags_out = [f for f in result if f.get('signal') not in DISABLED_SIGNALS]
+    return flags_out, explorer_rows
 
 
 def get_heatmap_flags(games, model):
@@ -3557,7 +3593,7 @@ def load_rain_flags():
         return {}
 
 
-def build_picks_payload(today, games, heatmap_flags):
+def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
     """Shared payload shape for /api/picks' response and its Redis cache entry. Also called
     from /api/notify so a Telegram-triggered flag computation can refresh the dashboard's
     cache immediately instead of leaving it to show stale data until the cache's own TTL
@@ -3576,6 +3612,10 @@ def build_picks_payload(today, games, heatmap_flags):
     _rain = load_rain_flags()
     if _rain:
         for f in heatmap_flags:
+            rf = _rain.get(f.get('home_abb'))
+            if rf:
+                f['rain_risk'] = rf
+        for f in (pitcher_explorer or []):
             rf = _rain.get(f.get('home_abb'))
             if rf:
                 f['rain_risk'] = rf
@@ -3618,6 +3658,7 @@ def build_picks_payload(today, games, heatmap_flags):
         'picks':             [],
         'dfs_picks':         {},
         'heatmap_flags':     heatmap_flags,
+        'pitcher_explorer':  pitcher_explorer or [],   # ungated per-pitcher rows for the Explorer tab
         'fg_under_flags':    fg_under_flags,
         'over_info_flags':   over_info_flags,
         'pq_flags':          pq_flags,
@@ -3669,8 +3710,8 @@ def api_picks():
                 pass
 
         games         = get_lineups_and_starters(today)
-        heatmap_flags = get_tracking_only_flags(games, force=force)
-        payload       = build_picks_payload(today, games, heatmap_flags)
+        heatmap_flags, pitcher_explorer = get_tracking_only_flags(games, force=force)
+        payload       = build_picks_payload(today, games, heatmap_flags, pitcher_explorer)
 
         ttl = picks_cache_ttl(et_now)
         if ttl > 0 and heatmap_flags:
@@ -3839,8 +3880,18 @@ def api_hr_board():
             latest = _json.load(f)
         # ranked_by drives edge vs probability rendering in the frontend -- MUST pass it through, or
         # the page shows edge-ordered rows under the old Chalk/Value/Deep + Model/Fair labels.
+        rows = latest.get('rows', [])
+        # attach the rain-around-gametime flag to each hitter row (match on the game's home abbrev,
+        # parsed from "AWAY@HOME") so the Explorer can show/filter delay-risk games. Precomputed file.
+        _rain = load_rain_flags()
+        if _rain:
+            for r in rows:
+                home = (r.get('game') or '').split('@')[-1]
+                rf = _rain.get(home)
+                if rf:
+                    r['rain_risk'] = rf
         out.update({'date': latest.get('date'), 'asof': latest.get('asof'),
-                    'rows': latest.get('rows', []), 'ranked_by': latest.get('ranked_by', 'prob')})
+                    'rows': rows, 'ranked_by': latest.get('ranked_by', 'prob')})
     except Exception:
         pass
     try:
@@ -5674,7 +5725,7 @@ def api_notify():
         games   = get_lineups_and_starters(today)
         # kalshi_repull=True: this cron is the ONLY caller allowed to spend a paid DK re-pull when a
         # pre-band arm steams into the band on (free) Kalshi -- closes the drift-in loop near gametime.
-        flags   = get_tracking_only_flags(games, kalshi_repull=True)
+        flags, pitcher_explorer = get_tracking_only_flags(games, kalshi_repull=True)
 
         # PICKS CACHE / NOTIFY SYNC: refresh /api/picks' Redis cache with what was just computed
         # here, so the dashboard reflects a new flag immediately instead of waiting up to 30 min
@@ -5684,7 +5735,7 @@ def api_notify():
         # should not block the Telegram send below.
         try:
             import json as _json
-            picks_payload = build_picks_payload(today, games, flags)
+            picks_payload = build_picks_payload(today, games, flags, pitcher_explorer)
             ttl = picks_cache_ttl()
             if ttl > 0 and flags:
                 redis_set(f"ozzie:picks:{today}", _json.dumps(picks_payload), ex=ttl)
