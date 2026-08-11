@@ -1026,6 +1026,22 @@ def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
     return round(avg, 2), category
 
 
+def _pitcher_hands(pitcher_ids):
+    """Batch MLB /people lookup -> {id: 'R'/'L'}. The schedule's probablePitcher hydrate omits
+    pitchHand, so fetch it separately in one call. Fail-open -> {} (hand columns just show blank)."""
+    ids = [str(i) for i in pitcher_ids if i]
+    if not ids:
+        return {}
+    try:
+        r = requests.get("https://statsapi.mlb.com/api/v1/people",
+                         params={'personIds': ','.join(sorted(set(ids)))}, timeout=15)
+        r.raise_for_status()
+        return {p['id']: (p.get('pitchHand', {}) or {}).get('code')
+                for p in r.json().get('people', []) if p.get('id')}
+    except Exception:
+        return {}
+
+
 def get_lineups_and_starters(game_date):
     url = (f"https://statsapi.mlb.com/api/v1/schedule"
            f"?sportId=1&date={game_date}&hydrate=probablePitcher,lineups")
@@ -1090,6 +1106,12 @@ def get_lineups_and_starters(game_date):
                 'game_time':         game_time,
                 'first_pitch_utc':   first_pitch_utc,
             })
+    # pitcher handedness: the schedule's probablePitcher hydrate omits pitchHand, so batch-fetch it.
+    _hands = _pitcher_hands([g.get('home_pitcher_id') for g in games] +
+                            [g.get('away_pitcher_id') for g in games])
+    for g in games:
+        g['home_pitcher_hand'] = _hands.get(g.get('home_pitcher_id'))
+        g['away_pitcher_hand'] = _hands.get(g.get('away_pitcher_id'))
     return games
 
 

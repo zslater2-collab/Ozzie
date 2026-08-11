@@ -140,10 +140,18 @@ def get_lineups(game_date):
             games.append(dict(home=tmap.get(hid,str(hid)),away=tmap.get(aid,str(aid)),
                 home_id=hid,away_id=aid,home_lineup=hl,away_lineup=al,
                 home_starter=hp.get('id'), away_starter=ap.get('id'),
-                home_starter_hand=(hp.get('pitchHand',{}) or {}).get('code'),
-                away_starter_hand=(ap.get('pitchHand',{}) or {}).get('code'),
                 start=g.get('gameDate'),   # ISO UTC first-pitch
                 state=g.get('status',{}).get('abstractGameState','')))
+    # pitchHand isn't in the probablePitcher hydrate -> batch-fetch it from /people (one call, fail-open)
+    ids=[str(x) for g in games for x in (g['home_starter'],g['away_starter']) if x]
+    hands={}
+    if ids:
+        try:
+            r=requests.get('https://statsapi.mlb.com/api/v1/people',params={'personIds':','.join(sorted(set(ids)))},timeout=15)
+            hands={p['id']:(p.get('pitchHand',{}) or {}).get('code') for p in r.json().get('people',[]) if p.get('id')}
+        except Exception: pass
+    for g in games:
+        g['home_starter_hand']=hands.get(g['home_starter']); g['away_starter_hand']=hands.get(g['away_starter'])
     return games
 
 _ROSTER_CACHE = {}
