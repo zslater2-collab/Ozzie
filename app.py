@@ -3887,6 +3887,110 @@ def api_squad():
         return jsonify({'error': str(e)}), 500
 
 
+# ── LIVE-LINEUP OVERLAY for the HR board (Aug 2026) ───────────────────────────────
+# The board's statcast inputs (pa_hr, park, wx, supp) are built OFFLINE and frozen in
+# hr_board_latest.json (see api_hr_board) -- kept local to avoid re-pulling statcast on
+# Render. The ONLY thing that goes stale between that build and gametime is the LINEUP:
+# rows built before lineups posted carry proj=True and a neutral PA assumption, even after
+# the real lineup is out. This overlays the SAME live lineup the picks page already fetches
+# (get_lineups_and_starters -- no new statcast pull) onto the frozen board: confirm the real
+# batting slot, DROP projected hitters who aren't actually starting, and recompute
+# prob/edge/tier from the stored pa_hr. pa_hr and every other statcast input stay exactly as
+# built. Fail-open: any fetch error or a not-yet-posted lineup leaves the row untouched.
+_HRB_AVG_PA     = 4.1     # neutral PA (matches hr_board_cron.AVG_PA_VS_GAME)
+_HRB_TEAM_PA    = 38.0    # slot expected PA = share * this (hr_board_cron.TEAM_PA_PER_GAME)
+_HRB_SLOT_SHARE = {1:0.1242,2:0.1210,3:0.1181,4:0.1175,5:0.1129,
+                   6:0.1089,7:0.1036,8:0.0995,9:0.0943}
+_hrb_lineup_cache = {}    # date -> (ts, games); short TTL so board refreshes don't re-pull lineups
+
+def _hrb_prob_to_american(p):
+    """Mirrors hr_board_cron.prob_to_american (input is a PERCENT, not a fraction)."""
+    gp = min(max(p/100.0, 0.005), 0.95)
+    return round(-(gp/(1-gp))*100) if gp>=0.5 else round(((1-gp)/gp)*100)
+
+def _hrb_recompute(r, slot, calib):
+    """Recompute prob/fair/edge now that the real batting slot is known. Mirrors
+    hr_board_cron: raw binomial prob at slot-weighted PA, then the board's self-updating
+    linear recalibration (calib slope/intercept). pa_hr -- the statcast part -- is untouched."""
+    pa_hr = r.get('pa_hr')
+    if pa_hr is None:
+        return r
+    exp_pa = _HRB_SLOT_SHARE.get(slot, 0.10) * _HRB_TEAM_PA
+    gp  = 1 - (1 - pa_hr/100.0)**exp_pa
+    raw = round(gp*100, 1)
+    slope     = (calib or {}).get('slope', 1.0)
+    intercept = (calib or {}).get('intercept', 0.0)
+    prob = round(min(max(intercept + slope*raw, 0.5), 60), 1)
+    r['hr_prob_raw'] = raw
+    r['hr_prob']     = prob
+    amer = _hrb_prob_to_american(prob)
+    r['fair'] = ('+%d' % amer) if amer > 0 else str(amer)
+    mkt = r.get('mkt_prob')
+    r['edge'] = round(prob - mkt, 1) if mkt is not None else None
+    return r
+
+def _hrb_overlay_live_lineups(latest):
+    """Overlay live posted lineups onto the frozen board and return it (rows replaced).
+    Fail-open: on any error / missing data, returns latest unchanged."""
+    try:
+        rows = latest.get('rows') or []
+        date = latest.get('date')
+        if not rows or not date:
+            return latest
+        now = time.time()
+        cached = _hrb_lineup_cache.get(date)
+        if cached and now - cached[0] < 90:
+            games = cached[1]
+        else:
+            games = get_lineups_and_starters(date)
+            _hrb_lineup_cache[date] = (now, games)
+        if not games:
+            return latest
+        # (game_str, team) -> {batter_id: {'slot','pos'}} for teams whose lineup is POSTED
+        posted = {}
+        for g in games:
+            gstr = f"{g['away_team']}@{g['home_team']}"
+            for team, lineup in ((g['home_team'], g.get('home_lineup')),
+                                 (g['away_team'], g.get('away_lineup'))):
+                if lineup:
+                    posted[(gstr, team)] = {int(e['id']): {'slot': e['batting_order'],
+                                                           'pos': e.get('position')} for e in lineup}
+        calib = latest.get('calib') or {}
+        out = []
+        for r in rows:
+            slotmap = posted.get((r.get('game'), r.get('team')))
+            if slotmap is None:
+                out.append(r)                       # lineup not posted yet -> leave as built
+                continue
+            bid = r.get('batter')
+            hit = slotmap.get(int(bid)) if bid is not None else None
+            if hit is None:
+                continue                            # projected but not actually starting -> drop
+            r = dict(r)
+            r['proj'] = False
+            r['slot'] = hit['slot']
+            if hit.get('pos'):
+                r['pos'] = hit['pos']
+            r = _hrb_recompute(r, hit['slot'], calib)
+            out.append(r)
+        # re-sort + retier exactly like the cron's final pass so the confirmed board stays consistent
+        if latest.get('ranked_by') == 'edge':
+            out.sort(key=lambda r: (1 if r.get('edge') is not None else 0,
+                                    r.get('edge') if r.get('edge') is not None else -1e9,
+                                    r.get('hr_prob') or 0), reverse=True)
+            for r in out:
+                e = r.get('edge')
+                r['tier'] = ('noodds' if e is None else 'value' if e >= 3 else 'lean' if e >= 0 else 'fade')
+        else:
+            out.sort(key=lambda r: r.get('hr_prob') or 0, reverse=True)
+            for i, r in enumerate(out):
+                r['tier'] = 'chalk' if i < 10 else ('value' if i < 25 else 'deep')
+        latest['rows'] = out
+        return latest
+    except Exception:
+        return latest
+
+
 @app.route('/api/hr_board')
 def api_hr_board():
     # HR / DFS board. Static artifacts written offline by hr_track.py (board is built
@@ -3900,6 +4004,9 @@ def api_hr_board():
     try:
         with open(os.path.join(base, 'hr_board_latest.json')) as f:
             latest = _json.load(f)
+        # Overlay live posted lineups onto the frozen (statcast) board -- confirms real batting
+        # slots, drops projected non-starters, recomputes prob/edge/tier. Fail-open (see helper).
+        latest = _hrb_overlay_live_lineups(latest)
         # ranked_by drives edge vs probability rendering in the frontend -- MUST pass it through, or
         # the page shows edge-ordered rows under the old Chalk/Value/Deep + Model/Fair labels.
         rows = latest.get('rows', [])
