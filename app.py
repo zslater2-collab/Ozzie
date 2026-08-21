@@ -3946,19 +3946,26 @@ def _hrb_overlay_live_lineups(latest):
             _hrb_lineup_cache[date] = (now, games)
         if not games:
             return latest
-        # (game_str, team) -> {batter_id: {'slot','pos'}} for teams whose lineup is POSTED
+        # pitcher_id -> {batter_id: {'slot','pos'}} for POSTED lineups. Keyed on the STARTER, not
+        # team abbreviations: the schedule hydrate omits abbreviation (falls back to full team name),
+        # so team strings won't match the board's abbrevs -- pitcher_id is a stable int in both. A
+        # board row's 'pitcher' is the OPPOSING starter, so the batter's own lineup is the one facing
+        # him: home pitcher faces the away lineup, and vice versa.
         posted = {}
         for g in games:
-            gstr = f"{g['away_team']}@{g['home_team']}"
-            for team, lineup in ((g['home_team'], g.get('home_lineup')),
-                                 (g['away_team'], g.get('away_lineup'))):
-                if lineup:
-                    posted[(gstr, team)] = {int(e['id']): {'slot': e['batting_order'],
-                                                           'pos': e.get('position')} for e in lineup}
+            hp, ap = g.get('home_pitcher_id'), g.get('away_pitcher_id')
+            home_lu, away_lu = g.get('home_lineup'), g.get('away_lineup')
+            if away_lu and hp is not None:
+                posted[int(hp)] = {int(e['id']): {'slot': e['batting_order'],
+                                                  'pos': e.get('position')} for e in away_lu}
+            if home_lu and ap is not None:
+                posted[int(ap)] = {int(e['id']): {'slot': e['batting_order'],
+                                                  'pos': e.get('position')} for e in home_lu}
         calib = latest.get('calib') or {}
         out = []
         for r in rows:
-            slotmap = posted.get((r.get('game'), r.get('team')))
+            pit = r.get('pitcher')
+            slotmap = posted.get(int(pit)) if pit is not None else None
             if slotmap is None:
                 out.append(r)                       # lineup not posted yet -> leave as built
                 continue
