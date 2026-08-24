@@ -162,6 +162,10 @@ _pq_population_cache_time = None
 # prior, who are absent from the population). Lets the K-prop SHARP gate see a debut arm's real
 # start count instead of treating it as unknown-and-not-thin. Rebuilt each population build.
 _pq_current_gs            = {}
+# Point-in-time season K/start (season strikeouts / games started, completed games only -> excludes
+# tonight, so leak-free). Feeds the K-prop FORM-FADE tracked pick: when a starter's recent K rate
+# sits ABOVE his posted line, the market is quietly fading him on matchup and the UNDER cashes.
+_pq_current_kps           = {}
 
 
 def load_pitcher_quality_prior():
@@ -251,7 +255,7 @@ def get_pitcher_quality_population(force=False):
     Cached PQ_SEASON_TTL seconds since current-season stats don't change minute to minute.
     force=True bypasses this cache (see /api/picks?refresh=1).
     """
-    global _pq_population_cache, _pq_population_cache_time, _pq_current_gs
+    global _pq_population_cache, _pq_population_cache_time, _pq_current_gs, _pq_current_kps
     now = datetime.now().timestamp()
     if not force and _pq_population_cache and _pq_population_cache_time and \
             (now - _pq_population_cache_time < PQ_SEASON_TTL):
@@ -265,6 +269,9 @@ def get_pitcher_quality_population(force=False):
     # start counts for EVERY fetched pitcher (rookies included -- they're in `season` but not the
     # career-prior `blended`), so the K-prop SHARP gate can read a debut arm's real start count.
     _pq_current_gs = {int(pid): (v.get('gs', 0) or 0) for pid, v in season.items()}
+    # season K/start per pitcher (through completed games) for the FORM-FADE tracked pick
+    _pq_current_kps = {int(pid): ((v.get('so', 0) or 0) / v['gs'])
+                       for pid, v in season.items() if (v.get('gs', 0) or 0) > 0}
     blended = {}
     current_bf_by_pid = {}
     exp_bf_by_pid = {}
@@ -1396,6 +1403,40 @@ def _kprop_under_divergence(pitcher_id, k_line, prior_starts):
         out['tier'] = 'strong' if k_line <= KDIV_STRONG_LINE_MAX else 'watch'
     else:                               # 0.015 <= gap < 0.02 -> WATCH-WIDE, tracking-only, no Telegram
         out['tier'] = 'watch_wide'
+    return out
+
+
+# ---------------------------------------------------------------------------- K-prop FORM-FADE (under)
+# Deep dive 2026-08-24 (deepdive_kprop_segments.py, 249 graded games Jul27-Aug23): when a starter's
+# point-in-time season K/start sits ABOVE his posted K line, the market has set the number below his
+# recent form on matchup grounds (contact-heavy opp / park / leash) -- and the caution is right, the
+# line still too high, so the UNDER cashes. form_gap = (season K/start) - line.
+#   form>line+0.5 -> UNDER hit 65.6% / +30.2% ROI, n=64; monotonic (form<line -> over +15%); survives
+#   a price-band control (over loses in every band); positive 3/4 weeks. LEAK-CHECKED point-in-time
+#   (K/start is completed-games-only, excludes tonight). IN-SAMPLE 4wk -> TRACKING, not sized.
+FORMFADE_MIN_STARTS = 3      # need >=3 completed starts for a stable K/start (matches the deep dive)
+FORMFADE_GAP_MIN    = 0.5    # season K/start must exceed the line by this much to fire the fade
+FORMFADE_STRONG_GAP = 1.5    # form >> line: the deepest bucket (over craters ~-38%) -> conviction tier
+
+
+def _kprop_form_fade(pitcher_id, k_line, prior_starts):
+    """K-prop UNDER classifier -- the form-vs-line fade (see FORMFADE_* block).
+    Fires when season K/start (point-in-time) exceeds the posted line by >= FORMFADE_GAP_MIN and
+    the arm has >= FORMFADE_MIN_STARTS. 'strong' tier when the gap is >= FORMFADE_STRONG_GAP.
+    Returns {'signal', 'tier', 'form_mean', 'form_gap'}. TRACKING ONLY -- in-sample, unvalidated."""
+    out = {'signal': False, 'tier': None, 'form_mean': None, 'form_gap': None}
+    if pitcher_id is None or k_line is None:
+        return out
+    kps = _pq_current_kps.get(int(pitcher_id))
+    if kps is None or prior_starts is None or prior_starts < FORMFADE_MIN_STARTS:
+        return out
+    out['form_mean'] = round(kps, 2)
+    gap = kps - k_line
+    out['form_gap'] = round(gap, 2)
+    if gap < FORMFADE_GAP_MIN:
+        return out
+    out['signal'] = True
+    out['tier'] = 'strong' if gap >= FORMFADE_STRONG_GAP else 'watch'
     return out
 
 
@@ -2600,6 +2641,8 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             _k_prop_signal = _ofav['signal']
             # K-prop UNDER (whiff-K divergence) — independent of the over signal; same line/starts.
             _kunder = _kprop_under_divergence(pitcher_id, _ofav.get('line'), _prior_starts)
+            # K-prop UNDER (form-vs-line fade) — separate mechanism, tracked independently.
+            _kformfade = _kprop_form_fade(pitcher_id, _ofav.get('line'), _prior_starts)
             # FREE Kalshi over-prob at the DK strike -- logged on every row (builds the dataset for a
             # future Kalshi-only band) AND used post-loop to trigger a paid DK re-pull when a pre-band
             # arm steams toward the -120..-160 band on Kalshi before our 4h DK snapshot catches it.
@@ -2714,6 +2757,10 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_under_best':        _ofav['best_under'],
                 'kprop_under_book':        _ofav['best_under_book'],
                 'kprop_under_prices':      _ofav['under_book_prices'],
+                'kprop_formfade_flag':     _kformfade['signal'],
+                'kprop_formfade_tier':     _kformfade['tier'],
+                'kprop_form_mean':         _kformfade['form_mean'],
+                'kprop_formfade_gap':      _kformfade['form_gap'],
                 'kprop_sharp_blocked_thin': _ofav['sharp_blocked_thin'],
                 'kalshi_k_line':    _kal_k['implied_line'] if _kal_k else None,
                 'kalshi_k_strike':  _kal_k.get('bet_threshold') if _kal_k else None,
@@ -3190,6 +3237,7 @@ def get_heatmap_flags(games, model):
                 pitcher_name, batting_team, _prior_starts2, pq_q4, kprop_lines, odds_lines, _hm_f5_latch)
             _k_prop_signal2 = _ofav2['signal']
             _kunder2 = _kprop_under_divergence(pitcher_id, _ofav2.get('line'), _prior_starts2)
+            _kformfade2 = _kprop_form_fade(pitcher_id, _ofav2.get('line'), _prior_starts2)
 
             flag = {
                 'game':             game_str,
@@ -3247,6 +3295,10 @@ def get_heatmap_flags(games, model):
                 'kprop_under_best':        _ofav2['best_under'],
                 'kprop_under_book':        _ofav2['best_under_book'],
                 'kprop_under_prices':      _ofav2['under_book_prices'],
+                'kprop_formfade_flag':     _kformfade2['signal'],
+                'kprop_formfade_tier':     _kformfade2['tier'],
+                'kprop_form_mean':         _kformfade2['form_mean'],
+                'kprop_formfade_gap':      _kformfade2['form_gap'],
                 'kalshi_k_line':    _kal_k2['implied_line'] if _kal_k2 else None,
                 'kalshi_k_strike':  _kal_k2.get('bet_threshold') if _kal_k2 else None,
                 'kalshi_k_yes_bid': _kal_k2.get('yes_bid') if _kal_k2 else None,
@@ -3660,6 +3712,7 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
     kprop_only_flags = [f for f in heatmap_flags
                         if f.get('k_prop_flag') and f.get('k_prop_tier') in ('sharp', 'line5')]
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
+    formfade_flags   = [f for f in heatmap_flags if f.get('kprop_formfade_flag')]  # form-vs-line fade -> app
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
@@ -3686,6 +3739,7 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
         'pq_flags':          pq_flags,
         'kprop_only_flags':  kprop_only_flags,
         'kunder_flags':      kunder_flags,
+        'formfade_flags':    formfade_flags,
         'off_flags':         off_flags,
         'joint_flags':       joint_flags,
         'fg_tt_flags':       fg_tt_flags,
@@ -4595,6 +4649,71 @@ def append_kunder_to_sheet(flags):
         print("gspread not installed — skipping KPropUnder sheet append")
     except Exception as e:
         print(f"Google Sheets (KPropUnder) error: {e}")
+
+
+FORMFADE_SHEET_TAB    = 'KPropFormFade'
+FORMFADE_SHEET_HEADER = [
+    'date', 'game', 'batting_team', 'pitcher_name',
+    'formfade_tier',        # 'watch' (gap>=0.5) or 'strong' (gap>=1.5)
+    'kprop_line',           # the K line we take the UNDER at
+    'kprop_dk_over',        # DK over price (reference — we fade it)
+    'form_mean',            # season K/start, point-in-time (completed games only)
+    'form_gap',             # form_mean - line (the fade trait; >=0.5 fires)
+    'kprop_opp_f5',         # opp F5 total (context)
+    'kprop_prior_starts',   # current-yr starts (>=3 gate)
+    'game_time', 'game_id',
+    'actual_k',             # fill after game
+    'k_under_hit',          # 1 if actual_k < kprop_line (UNDER won) — fill after game
+]
+
+
+def append_formfade_to_sheet(flags):
+    """Dedicated K-prop FORM-FADE (form-vs-line) UNDER tracking tab. Separate from KPropUnder so the
+    two under mechanisms grade independently. Logs both tiers; upgrades watch->strong in place (col 5).
+    TRACKING ONLY — the fade is in-sample (4wk deep dive), forward-record accrues here before sizing."""
+    if not SHEETS_CREDS or not flags:
+        return
+    try:
+        gspread, sh = _open_sheet()
+        ws = _get_or_create_ws(gspread, sh, FORMFADE_SHEET_TAB, FORMFADE_SHEET_HEADER)
+        existing = ws.get_all_values()
+        existing_row = {}   # 'date|game|team' -> (row_index, current_tier)
+        for i, row in enumerate(existing[1:], start=2):
+            if len(row) >= 3:
+                existing_row[f"{row[0]}|{row[1]}|{row[2]}"] = (i, row[4] if len(row) >= 5 else '')
+        today         = datetime.now(pytz.timezone('America/New_York')).strftime('%Y-%m-%d')
+        rows_added    = 0
+        rows_upgraded = 0
+        for f in flags:
+            if not f.get('kprop_formfade_flag'):
+                continue
+            key = f"{today}|{f.get('game','')}|{f.get('batting_team','')}"
+            if key in existing_row:
+                _ridx, _cur = existing_row[key]
+                if f.get('kprop_formfade_tier') == 'strong' and _cur != 'strong' and _ridx is not None:
+                    ws.update_cell(_ridx, 5, 'strong')   # col 5 = formfade_tier
+                    existing_row[key] = (_ridx, 'strong')
+                    rows_upgraded += 1
+                continue
+            ws.append_row([
+                today, f.get('game', ''), f.get('batting_team', ''), f.get('pitcher_name', ''),
+                f.get('kprop_formfade_tier', ''),
+                f.get('kprop_line', ''),
+                f.get('kprop_dk_over', ''),
+                f.get('kprop_form_mean', ''),
+                f.get('kprop_formfade_gap', ''),
+                f.get('kprop_opp_f5', ''),
+                f.get('kprop_prior_starts', ''),
+                f.get('game_time', ''), f.get('game_id', ''),
+                '', '',  # actual_k / k_under_hit — filled after game
+            ], value_input_option='USER_ENTERED')
+            existing_row[key] = (None, f.get('kprop_formfade_tier', ''))
+            rows_added += 1
+        print(f"Google Sheets (KPropFormFade): {rows_added} rows added, {rows_upgraded} upgraded watch->strong")
+    except ImportError:
+        print("gspread not installed — skipping KPropFormFade sheet append")
+    except Exception as e:
+        print(f"Google Sheets (KPropFormFade) error: {e}")
 
 
 OFF_SHEET_TAB    = 'OffenseQuality'
@@ -5902,6 +6021,7 @@ def api_notify():
         kprop_preband_flags = [f for f in flags if f.get('kprop_preband')]   # whole pool -> sheet log
         kprop_driftin_flags = [f for f in flags if f.get('kprop_driftin')]   # PQ subset -> Telegram
         kunder_flags = [f for f in flags if f.get('kprop_under_flag')]        # both tiers -> sheet+app
+        formfade_flags = [f for f in flags if f.get('kprop_formfade_flag')]   # form-vs-line fade -> sheet+app
         off_flags    = [f for f in flags if f.get('off_q3_gate')]
         joint_flags  = [f for f in flags if f.get('joint_signal')]
         fg_tt_flags  = [f for f in flags if f.get('signal') == 'fg_tt_under']
@@ -6013,9 +6133,11 @@ def api_notify():
         new_kunder = _unsent('kunder', kunder_flags)   # sheet + dashboard (both tiers)
         new_kunder_strong = [f for f in kunder_flags   # Telegram (STRONG only), independent dedup
                              if f.get('kprop_under_tier') == 'strong' and flag_key(f) not in kunder_sent]
+        new_formfade = _unsent('formfade', formfade_flags)   # sheet + dashboard (both tiers, Telegram-muted)
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
                 or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp or new_kprop_line5
-                or new_kprop_driftin or new_kprop_preband or new_kunder or new_kunder_strong):
+                or new_kprop_driftin or new_kprop_preband or new_kunder or new_kunder_strong
+                or new_formfade):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
@@ -6280,6 +6402,9 @@ def api_notify():
         if new_kunder:
             # both tiers -> KPropUnder tab, dedup date|game|team, so the forward record accrues
             append_kunder_to_sheet(new_kunder)
+        if new_formfade:
+            # both tiers -> KPropFormFade tab, dedup date|game|team; forward record for the in-sample fade
+            append_formfade_to_sheet(new_formfade)
         if new_kprop or new_kprop_preband:
             # pre-band rows are disjoint from band rows (mutually-exclusive price zones); the sheet
             # logger gates on k_prop_flag OR kprop_preband and dedups by date|game|team. Logs the whole

@@ -233,6 +233,19 @@
     <div id="kprop-under-list"></div>
   </div>
 </div>
+
+<div id="formfade-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="formfade-count"></div>
+      <div class="section-label" style="margin:0">🧊 K-Prop UNDER (Form &gt; Line Fade)
+        <span style="font-size:.55rem;letter-spacing:.1em;color:#6ab7ff;margin-left:8px;text-transform:uppercase">Market Fades His Recent Form — Tracking Only</span>
+      </div>
+    </div>
+    <div id="formfade-list"></div>
+  </div>
+</div>
 <div id="off-section">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -789,6 +802,47 @@
     return card;
   }
 
+  function buildFormFadeCard(f, i) {
+    const card = document.createElement('div');
+    card.className = 'pq-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.style.borderColor = 'rgba(106,183,255,.4)';
+    const strong = f.kprop_formfade_tier === 'strong';
+    const tier = strong ? 'STRONG' : 'watch';
+    const tierColor = strong ? '#6ab7ff' : '#8a97a8';
+    const line = f.kprop_line != null ? f.kprop_line : '—';
+    const dkOver = f.kprop_dk_over != null ? f.kprop_dk_over : '—';
+    const formMean = f.kprop_form_mean != null ? f.kprop_form_mean.toFixed(2) : '—';
+    const gap = f.kprop_formfade_gap != null ? ('+' + f.kprop_formfade_gap.toFixed(2)) : '—';
+    const oppF5 = f.kprop_opp_f5 != null ? f.kprop_opp_f5 : '—';
+    const starts = f.kprop_prior_starts != null ? f.kprop_prior_starts : '—';
+    const bestU = f.kprop_under_best != null ? ((f.kprop_under_best >= 0 ? '+' : '') + f.kprop_under_best) : null;
+    const betStr = `BUY <b>Under ${line}K</b>${bestU ? ` @ best ${bestU} (${f.kprop_under_book || '—'})` : ''} (line set below his form = matchup fade)`;
+    const underBooksHtml = renderBookList(f.kprop_under_prices, 'u');
+    // Same pitcher also trips the sharp OVER gate -> contradictory bets. Both tracking-only; surface it.
+    const conflict = (f.k_prop_flag && f.k_prop_tier === 'sharp') ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600;font-size:.62rem">⚠ CONFLICT — also flags 🎯 K-PROP OVER (SHARP). Contradictory; both tracking-only.</div>` : '';
+    card.innerHTML = `
+      <div class="hm-top">
+        <div class="hm-team">${f.batting_team}</div>
+        <div class="hm-signal-wrap">
+          <div class="hm-signal" style="font-size:1rem;color:#6ab7ff">🧊 K-PROP UNDER</div>
+          <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
+        </div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${conflict}
+      <div class="hm-divider"></div>
+      <div class="hm-bottom">
+        <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
+        <div><div class="hm-stat-label">K/start vs line</div><div class="hm-stat-value">${formMean} (${gap})</div></div>
+        <div><div class="hm-stat-label">Starts / Opp F5</div><div class="hm-stat-value">${starts} / ${oppF5}</div></div>
+      </div>
+      <div class="pq-detail" style="margin-top:8px;color:#6ab7ff;font-weight:600">${betStr}</div>
+      ${underBooksHtml}
+      <div class="pq-detail" style="margin-top:4px;color:var(--muted);font-size:.6rem">His season K/start (${formMean}) sits above the posted line — the book fades him on matchup, and historically the caution is right (form&gt;line+0.5 &rarr; under 65.6%/+30.2%, n=64). ${strong ? 'STRONG = form&ge;line+1.5 (deepest bucket, over craters).' : 'watch = form&ge;line+0.5.'} DK over ${dkOver} (ref — we take the under). In-sample 4wk deep dive — TRACKING, unvalidated.</div>
+      ${formatOddsLines(f.odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.odds_lines)}</div>` : ''}`;
+    return card;
+  }
+
   function buildOffCard(f, i) {
     const card = document.createElement('div');
     card.className = 'off-card';
@@ -1239,7 +1293,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','off-section','joint-section','dfs-section','hrboard-section','explorer-section','squad-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     loadHrBoard();
     loadExplorer();
@@ -1312,6 +1366,16 @@
           document.getElementById('kprop-under-count').textContent = `${kunderFlags.length} Start${kunderFlags.length!==1?'s':''}`;
           kunderFlags.forEach((f,i) => kunderList.appendChild(buildKunderCard(f,i)));
           document.getElementById('kprop-under-section').style.display = 'block';
+        }
+
+        // ── K-Prop UNDER (form > line fade — both tiers shown; tracking only, Telegram-muted) ──
+        const formfadeList = document.getElementById('formfade-list'); formfadeList.innerHTML='';
+        const formfadeFlags = (data.formfade_flags||[]).filter(f=>f.kprop_formfade_flag);
+        if (formfadeFlags.length > 0) {
+          formfadeFlags.sort((a,b)=> (b.kprop_formfade_tier==='strong') - (a.kprop_formfade_tier==='strong'));
+          document.getElementById('formfade-count').textContent = `${formfadeFlags.length} Start${formfadeFlags.length!==1?'s':''}`;
+          formfadeFlags.forEach((f,i) => formfadeList.appendChild(buildFormFadeCard(f,i)));
+          document.getElementById('formfade-section').style.display = 'block';
         }
 
         // ── Offense Quality Composite (tracking only) ───────────────────
