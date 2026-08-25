@@ -1165,7 +1165,7 @@
   // ── Explorer: filterable/sortable Hitters & Pitchers ──────────────────────
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'edge',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
-    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:''}, expanded:null, _rows:[]};
+    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:''}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1237,6 +1237,14 @@
     if(F.search){const q=F.search.toLowerCase();rows=rows.filter(r=>(''+(r.Batter||r.batter||r.pitcher||'')).toLowerCase().includes(q)||(''+(r.Pitcher||'')).toLowerCase().includes(q));}
     if(F.minEdge!==''&&EXP.tab==='hitters'){const m=+F.minEdge;rows=rows.filter(r=>r.edge!=null&&r.edge>=m);}
     if(F.minProb!==''&&EXP.tab==='hitters'){const m=+F.minProb;rows=rows.filter(r=>r.hr_prob!=null&&r.hr_prob>=m);}
+    if(F.pos&&EXP.tab==='hitters'){
+      if(F.pos==='__OF__')rows=rows.filter(r=>['LF','CF','RF','OF'].includes((r.pos||'').toUpperCase()));
+      else rows=rows.filter(r=>r.pos===F.pos);
+    }
+    if(F.slot!==''&&F.slot!=null&&EXP.tab==='hitters'){
+      if(F.slot==='__TOP4__')rows=rows.filter(r=>r.slot!=null&&+r.slot>=1&&+r.slot<=4);
+      else rows=rows.filter(r=>r.slot!=null&&+r.slot===+F.slot);
+    }
     const s=EXP.sort[EXP.tab];
     rows.sort((a,b)=>{let x=a[s.col],y=b[s.col];
       x=(x==null||x==='')?-Infinity:(isNaN(+x)?(''+x).toLowerCase():+x);
@@ -1270,6 +1278,9 @@
     h+=`<label>Team <select onchange="expSetFilter('team',this.value)"><option value="">All</option>${teams.map(t=>`<option ${t===F.team?'selected':''}>${t}</option>`).join('')}</select></label>`;
     h+=`<label><input type="text" placeholder="search name" value="${F.search}" oninput="expSetFilter('search',this.value)" style="width:110px"></label>`;
     if(EXP.tab==='hitters'){
+      const poss=[...new Set(all.map(r=>r.pos).filter(Boolean))].sort();
+      h+=`<label>Pos <select onchange="expSetFilter('pos',this.value)"><option value="">All</option><option value="__OF__" ${F.pos==='__OF__'?'selected':''}>OF (LF/CF/RF)</option>${poss.map(p=>`<option ${p===F.pos?'selected':''}>${p}</option>`).join('')}</select></label>`;
+      h+=`<label>Order <select onchange="expSetFilter('slot',this.value)"><option value="">All</option><option value="__TOP4__" ${F.slot==='__TOP4__'?'selected':''}>Top 4 (1-4)</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}" ${(''+F.slot)===(''+n)?'selected':''}>${n}</option>`).join('')}</select></label>`;
       h+=`<label><input type="checkbox" ${F.confirmed?'checked':''} onchange="expSetFilter('confirmed',this.checked)"> confirmed only</label>`;
       h+=`<label>min edge <input type="number" step="0.5" value="${F.minEdge}" oninput="expSetFilter('minEdge',this.value)" style="width:50px"></label>`;
       h+=`<label>min HR% <input type="number" step="0.5" value="${F.minProb}" oninput="expSetFilter('minProb',this.value)" style="width:50px"></label>`;
