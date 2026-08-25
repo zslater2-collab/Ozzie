@@ -1165,7 +1165,7 @@
   // ── Explorer: filterable/sortable Hitters & Pitchers ──────────────────────
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'edge',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
-    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:''}, expanded:null, _rows:[]};
+    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[]}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1227,6 +1227,7 @@
     }).catch(()=>{});
   }
   function expSetFilter(k,v){EXP.filters[k]=v;EXP.expanded=null;renderExplorer();}
+  function expToggleTime(t,on){const s=new Set(EXP.filters.times);on?s.add(t):s.delete(t);EXP.filters.times=[...s];EXP.expanded=null;renderExplorer();}
   function sortExplorer(col){const s=EXP.sort[EXP.tab];if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1;}EXP.expanded=null;renderExplorer();}
   function toggleExplorerBooks(i){EXP.expanded=(EXP.expanded===i?null:i);renderExplorer();}
   function _exFiltered(){
@@ -1245,6 +1246,7 @@
       if(F.slot==='__TOP4__')rows=rows.filter(r=>r.slot!=null&&+r.slot>=1&&+r.slot<=4);
       else rows=rows.filter(r=>r.slot!=null&&+r.slot===+F.slot);
     }
+    if(F.times&&F.times.length&&EXP.tab==='hitters')rows=rows.filter(r=>F.times.includes(r.gtime));
     const s=EXP.sort[EXP.tab];
     rows.sort((a,b)=>{let x=a[s.col],y=b[s.col];
       x=(x==null||x==='')?-Infinity:(isNaN(+x)?(''+x).toLowerCase():+x);
@@ -1284,6 +1286,13 @@
       h+=`<label><input type="checkbox" ${F.confirmed?'checked':''} onchange="expSetFilter('confirmed',this.checked)"> confirmed only</label>`;
       h+=`<label>min edge <input type="number" step="0.5" value="${F.minEdge}" oninput="expSetFilter('minEdge',this.value)" style="width:50px"></label>`;
       h+=`<label>min HR% <input type="number" step="0.5" value="${F.minProb}" oninput="expSetFilter('minProb',this.value)" style="width:50px"></label>`;
+      const timeMap={};all.forEach(r=>{if(r.gtime!=null&&!(r.gtime in timeMap))timeMap[r.gtime]=r.gstart_ms||0;});
+      const times=Object.keys(timeMap).sort((a,b)=>(timeMap[a]||0)-(timeMap[b]||0));
+      if(times.length){
+        h+=`<span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="color:var(--muted)">Start</span>`
+          +times.map(t=>`<label style="font-weight:400"><input type="checkbox" ${F.times.includes(t)?'checked':''} onchange="expToggleTime('${t}',this.checked)"> ${t}</label>`).join('')
+          +`</span>`;
+      }
     }
     h+=`<button onclick="exportExplorerCSV()" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:.62rem;cursor:pointer">Export CSV</button>`;
     document.getElementById('exp-filters').innerHTML=h;
