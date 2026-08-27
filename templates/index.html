@@ -1315,9 +1315,11 @@
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
     ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-    loadHrBoard();
+    // HR Board DFS and Squad Builder sections hidden per Zach (the joint Explorer board covers hitters);
+    // data/endpoints untouched, just not rendered. loadExplorer still pulls /api/hr_board for its rows.
+    // loadHrBoard();
     loadExplorer();
-    loadSquadBuilder();
+    // loadSquadBuilder();
 
     fetch('/api/picks')
       .then(r=>{
