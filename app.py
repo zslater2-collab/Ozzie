@@ -10,7 +10,6 @@ import time
 import pandas as pd
 import pytz
 from datetime import datetime, date as _date
-from collections import Counter
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import gdown
 import tempfile
@@ -1016,21 +1015,6 @@ def load_model():
     _model_cache      = model
     _model_cache_time = now
     return model
-
-
-def get_pitcher_avg_score(pitcher_id, pitcher_scores, archetypes):
-    if pitcher_id not in pitcher_scores:
-        return None, 'Unknown'
-    pitcher    = pitcher_scores[pitcher_id]
-    all_scores = [pitcher['archetypes'].get(ak, {}).get('shrunk_rate', LEAGUE_AVG)
-                  for ak in archetypes]
-    avg = sum(all_scores) / len(all_scores)
-    if avg >= 5.5:   category = 'Very Juicy'
-    elif avg >= 4.5: category = 'Juicy'
-    elif avg >= 3.5: category = 'Average'
-    elif avg >= 3.0: category = 'Safe'
-    else:            category = 'Very Safe'
-    return round(avg, 2), category
 
 
 def _pitcher_hands(pitcher_ids):
@@ -2232,10 +2216,6 @@ def pa_rate_to_game_odds(pa_rate_pct):
         return '+9999'
     fair = round((1 / game_prob - 1) * 100)
     return f'+{fair}' if fair > 0 else str(fair)
-
-
-def format_odds(n):
-    return f'+{n}' if n > 0 else str(n)
 
 
 def get_bullpen_score(team, arch_key, model):
@@ -4177,35 +4157,6 @@ def format_odds_lines(odds_lines, gate_book=None, gate_point=None):
     return ' | '.join(parts)
 
 
-def format_joint_odds_lines(odds_lines):
-    """Same shape as format_odds_lines, but shows the OVER price (this signal bets over, not
-    under) and marks JOINT_LINE_TARGET (3.5) instead of 1.5 -- e.g. 'FanDuel 3.5✅ -114'."""
-    if not odds_lines:
-        return ''
-    parts = []
-    for book, info in odds_lines.items():
-        pt = info.get('point')
-        marker = '✅' if pt == JOINT_LINE_TARGET else ''
-        price = info.get('over')
-        price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
-        parts.append(f"{book} {pt}{marker}{price_str}")
-    return ' | '.join(parts)
-
-
-def format_fg_joint_odds_lines(odds_lines, direction):
-    """FG joint/combined total odds, per book, showing the side this flag bets (under or over)
-    and marking lines inside FG_JOINT_LINE_MIN..MAX with ✅ — e.g. 'DraftKings 8.5✅ -110'."""
-    if not odds_lines:
-        return ''
-    side = 'over' if direction == 'over' else 'under'
-    parts = []
-    for book, info in odds_lines.items():
-        pt = info.get('point')
-        marker = '✅' if (pt is not None and FG_JOINT_LINE_MIN <= pt <= FG_JOINT_LINE_MAX) else ''
-        price = info.get(side)
-        price_str = '' if price is None else f" {f'+{price}' if price > 0 else price}"
-        parts.append(f"{book} {pt}{marker}{price_str}")
-    return ' | '.join(parts)
 
 
 # Books tracked as their own Line/Odds column pair on the PitcherQuality/OffenseQuality sheet

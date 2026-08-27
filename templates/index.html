@@ -477,34 +477,6 @@
     return card;
   }
 
-  function buildGtCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'hm-card under';
-    card.style.animationDelay = `${i * 0.06}s`;
-    const lineupTag = f.lineup_complete
-      ? `<span class="hm-lineup-tag confirmed">● Both lineups confirmed</span>`
-      : `<span class="hm-lineup-tag pending">○ Lineups pending</span>`;
-    const teamA=f.team_1||f.team_a||'—'; const teamB=f.team_2||f.team_b||'—';
-    const pitcherA=f.pitcher_1||f.pitcher_a||'—'; const pitcherB=f.pitcher_2||f.pitcher_b||'—';
-    const zA=f.z_team_1||f.z_a||'—'; const zB=f.z_team_2||f.z_b||'—';
-    const scoreA=f.score_a||f.avg_score||'—'; const scoreB=f.score_b||'—';
-    const combZ=f.combined_z||'—';
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${teamA} @ ${teamB}</div>
-        <div class="hm-signal-wrap"><div class="hm-signal">UNDER</div><div class="hm-sigma">${combZ}σ combined</div></div>
-      </div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div><div class="hm-stat-label">${teamA} vs</div><div class="hm-stat-value">${pitcherB}</div></div>
-        <div><div class="hm-stat-label">Score/σ</div><div class="hm-stat-value">${scoreA} (${zA}σ)</div></div>
-        <div><div class="hm-stat-label">${teamB} vs</div><div class="hm-stat-value">${pitcherA}</div></div>
-        <div><div class="hm-stat-label">Score/σ</div><div class="hm-stat-value">${scoreB!=='—'?scoreB:'—'} (${zB}σ)</div></div>
-      </div>
-      ${lineupTag}`;
-    return card;
-  }
-
   function buildCombinedCard(homeFlag, awayFlag, i) {
     const card = document.createElement('div');
     const tier = homeFlag.combined_f5_tier || 'watch';
@@ -874,31 +846,6 @@
     return card;
   }
 
-  function buildFgTtCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'pq-card';
-    card.style.animationDelay = `${i * 0.06}s`;
-    const pct = f.fg_bp_pctile !== null && f.fg_bp_pctile !== undefined ? f.fg_bp_pctile.toFixed(0) + 'th pctile' : '—';
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team">${f.batting_team}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal" style="font-size:1rem;color:#ff9f5a">OPP. BULLPEN Q4</div>
-          <div class="hm-sigma">${pct}</div>
-        </div>
-      </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div><div class="hm-stat-label">Opp.</div><div class="hm-stat-value">${f.fielding_team}</div></div>
-        <div><div class="hm-stat-label">Bullpen Score</div><div class="hm-stat-value">${f.fg_bp_score}</div></div>
-        <div><div class="hm-stat-label"># Relievers</div><div class="hm-stat-value">${f.fg_bp_n_relievers ?? '—'}</div></div>
-      </div>
-      <div class="pq-detail" style="margin-top:8px">${f.fg_note||''}</div>
-      ${formatOddsLines(f.fg_odds_lines) ? `<div class="pq-detail" style="margin-top:4px;color:var(--text)">${formatOddsLines(f.fg_odds_lines)}</div>` : ''}`;
-    return card;
-  }
-
   function buildF5OverCard(f, i) {
     const card = document.createElement('div');
     card.className = 'joint-card';
@@ -967,43 +914,6 @@
       </div>
       <div class="ofj-detail" style="margin-top:8px">${f.ofj_note||''}</div>
       ${oddsStr ? `<div class="ofj-detail" style="margin-top:4px;color:var(--text)">${oddsStr}</div>` : ''}`;
-    return card;
-  }
-
-  function buildFgJointCard(f, i) {
-    const card = document.createElement('div');
-    card.className = 'fgj-card';
-    card.style.animationDelay = `${i * 0.06}s`;
-    const isUnder = f.fg_joint_direction === 'under';
-    const dirColor = isUnder ? 'var(--red)' : 'var(--green)';
-    const arrow = isUnder ? '🔻' : '🔺';
-    const dirLabel = (f.fg_joint_direction || '').toUpperCase();
-    const comb = (f.fgj_combined_pctile !== null && f.fgj_combined_pctile !== undefined) ? f.fgj_combined_pctile : '—';
-    const oddsStr = formatFgJointOddsLines(f.fgj_odds_lines, f.fg_joint_direction);
-    const tier = f.fg_joint_tier || '';
-    const units = (f.fg_joint_units !== null && f.fg_joint_units !== undefined) ? f.fg_joint_units : '';
-    const medal = {Gold:'🥇',Silver:'🥈',Bronze:'🥉'}[tier] || '';
-    const medalColor = {Gold:'#f5c451',Silver:'#c8c8d0',Bronze:'#cd7f4e'}[tier] || 'var(--muted)';
-    const tierBadge = isUnder
-      ? `<span style="font-size:.6rem;font-weight:700;color:${medalColor};border:1px solid ${medalColor};border-radius:4px;padding:1px 7px;letter-spacing:.05em">${medal} ${tier.toUpperCase()} · ${units}u</span>`
-      : `<span style="font-size:.6rem;font-weight:700;color:var(--green);border:1px solid var(--green);border-radius:4px;padding:1px 7px;letter-spacing:.05em">${units}u</span>`;
-    card.innerHTML = `
-      <div class="hm-top">
-        <div class="hm-team" style="font-size:.9rem">${f.away_team} @ ${f.home_team} &nbsp;${tierBadge}</div>
-        <div class="hm-signal-wrap">
-          <div class="hm-signal" style="font-size:1rem;color:${dirColor}">${arrow} JOINT ${dirLabel}</div>
-          <div class="hm-sigma">combined ${comb} pctile</div>
-        </div>
-      </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
-      <div class="hm-divider"></div>
-      <div class="hm-bottom">
-        <div><div class="hm-stat-label">${f.away_team} pen</div><div class="hm-stat-value">${f.fgj_away_bp_pctile ?? '—'}</div></div>
-        <div><div class="hm-stat-label">${f.home_team} pen</div><div class="hm-stat-value">${f.fgj_home_bp_pctile ?? '—'}</div></div>
-        <div><div class="hm-stat-label">DK Total</div><div class="hm-stat-value">${f.fgj_gate_point ?? '—'}</div></div>
-      </div>
-      <div class="fgj-detail" style="margin-top:8px">${f.fg_joint_note||''}</div>
-      ${oddsStr ? `<div class="fgj-detail" style="margin-top:4px;color:var(--text)">${oddsStr}</div>` : ''}`;
     return card;
   }
 
