@@ -2643,6 +2643,10 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             _kunder = _kprop_under_divergence(pitcher_id, _ofav.get('line'), _prior_starts)
             # K-prop UNDER (form-vs-line fade) — separate mechanism, tracked independently.
             _kformfade = _kprop_form_fade(pitcher_id, _ofav.get('line'), _prior_starts)
+            # CONFLICT GUARD: form>line fires structurally on elite arms (their K/start dwarfs any line),
+            # so it collides with the over-favorite signal on aces (e.g. Misiorowski = sharp OVER). The
+            # over signal is price/matchup-defined and more validated -> it wins; suppress the fade there.
+            _kformfade_fire = _kformfade['signal'] and not _ofav['signal']
             # FREE Kalshi over-prob at the DK strike -- logged on every row (builds the dataset for a
             # future Kalshi-only band) AND used post-loop to trigger a paid DK re-pull when a pre-band
             # arm steams toward the -120..-160 band on Kalshi before our 4h DK snapshot catches it.
@@ -2757,7 +2761,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_under_best':        _ofav['best_under'],
                 'kprop_under_book':        _ofav['best_under_book'],
                 'kprop_under_prices':      _ofav['under_book_prices'],
-                'kprop_formfade_flag':     _kformfade['signal'],
+                'kprop_formfade_flag':     _kformfade_fire,
                 'kprop_formfade_tier':     _kformfade['tier'],
                 'kprop_form_mean':         _kformfade['form_mean'],
                 'kprop_formfade_gap':      _kformfade['form_gap'],
@@ -3238,6 +3242,7 @@ def get_heatmap_flags(games, model):
             _k_prop_signal2 = _ofav2['signal']
             _kunder2 = _kprop_under_divergence(pitcher_id, _ofav2.get('line'), _prior_starts2)
             _kformfade2 = _kprop_form_fade(pitcher_id, _ofav2.get('line'), _prior_starts2)
+            _kformfade2_fire = _kformfade2['signal'] and not _ofav2['signal']   # over-favorite wins the conflict
 
             flag = {
                 'game':             game_str,
@@ -3295,7 +3300,7 @@ def get_heatmap_flags(games, model):
                 'kprop_under_best':        _ofav2['best_under'],
                 'kprop_under_book':        _ofav2['best_under_book'],
                 'kprop_under_prices':      _ofav2['under_book_prices'],
-                'kprop_formfade_flag':     _kformfade2['signal'],
+                'kprop_formfade_flag':     _kformfade2_fire,
                 'kprop_formfade_tier':     _kformfade2['tier'],
                 'kprop_form_mean':         _kformfade2['form_mean'],
                 'kprop_formfade_gap':      _kformfade2['form_gap'],

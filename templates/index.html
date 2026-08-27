@@ -819,8 +819,8 @@
     const bestU = f.kprop_under_best != null ? ((f.kprop_under_best >= 0 ? '+' : '') + f.kprop_under_best) : null;
     const betStr = `BUY <b>Under ${line}K</b>${bestU ? ` @ best ${bestU} (${f.kprop_under_book || '—'})` : ''} (line set below his form = matchup fade)`;
     const underBooksHtml = renderBookList(f.kprop_under_prices, 'u');
-    // Same pitcher also trips the sharp OVER gate -> contradictory bets. Both tracking-only; surface it.
-    const conflict = (f.k_prop_flag && f.k_prop_tier === 'sharp') ? `<div class="pq-detail" style="margin-top:6px;color:#f0a500;font-weight:600;font-size:.62rem">⚠ CONFLICT — also flags 🎯 K-PROP OVER (SHARP). Contradictory; both tracking-only.</div>` : '';
+    // No conflict line needed: the fade is suppressed server-side whenever the over-favorite signal
+    // fires (an ace's form is structurally above the line), so the two can no longer co-occur.
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
@@ -829,7 +829,7 @@
           <div class="hm-sigma" style="color:${tierColor}">${tier}</div>
         </div>
       </div>
-      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>${conflict}
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:8px">${f.game_time||''}</div>
       <div class="hm-divider"></div>
       <div class="hm-bottom">
         <div><div class="hm-stat-label">Pitcher</div><div class="hm-stat-value">${f.pitcher_name}</div></div>
