@@ -1490,7 +1490,9 @@
         }
 
         const picks=data.hr_picks||data.picks||[];
-        if(picks.length===0){document.getElementById('no-picks').style.display='block';return;}
+        // legacy HR-picks list is retired (the Explorer board is the centerpiece) -- just stop here
+        // without the "no picks" banner, which would otherwise always show now that picks is empty.
+        if(picks.length===0){return;}
         document.getElementById('picks-count').textContent=`${picks.length} HR Pick${picks.length!==1?'s':''}`;
         const list=document.getElementById('picks-list'); list.innerHTML='';
         picks.forEach((p,i)=>{
