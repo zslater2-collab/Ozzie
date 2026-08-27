@@ -6076,6 +6076,9 @@ def api_notify():
         kunder_key   = f"ozzie:kunder_strong_notified:{today}"
         kunder_raw   = redis_get(kunder_key)
         kunder_sent  = set(kunder_raw.split(',')) if kunder_raw else set()
+        # form-fade UNDER STRONG tier — independent once/day dedup, same pattern as the divergence under.
+        formfade_key  = f"ozzie:formfade_strong_notified:{today}"
+        formfade_sent = set(x for x in (redis_get(formfade_key) or '').split(',') if x)
         # Per-signal dedup namespaces: each signal keys on "<signal>|game|team" so different
         # signals on the SAME game (e.g. a K-prop and a Pitcher-Quality flag, which share
         # game|batting_team) no longer suppress each other -- previously whichever fired first
@@ -6142,11 +6145,13 @@ def api_notify():
         new_kunder = _unsent('kunder', kunder_flags)   # sheet + dashboard (both tiers)
         new_kunder_strong = [f for f in kunder_flags   # Telegram (STRONG only), independent dedup
                              if f.get('kprop_under_tier') == 'strong' and flag_key(f) not in kunder_sent]
-        new_formfade = _unsent('formfade', formfade_flags)   # sheet + dashboard (both tiers, Telegram-muted)
+        new_formfade = _unsent('formfade', formfade_flags)   # sheet + dashboard (both tiers)
+        new_formfade_strong = [f for f in formfade_flags     # Telegram (STRONG only), independent dedup
+                               if f.get('kprop_formfade_tier') == 'strong' and flag_key(f) not in formfade_sent]
         if not (new_under or new_pq or new_kprop or new_off or new_joint or new_fg_tt
                 or new_f5_over or new_fg_joint or new_off_fade or new_kprop_sharp or new_kprop_line5
                 or new_kprop_driftin or new_kprop_preband or new_kunder or new_kunder_strong
-                or new_formfade):
+                or new_formfade or new_formfade_strong):
             return jsonify({'status': 'ok', 'new': 0, 'message': 'No new flags'})
 
         # ⚾ (not 🎯) on the top header so 🎯 is reserved exclusively for K-props (the focus) --
@@ -6169,17 +6174,8 @@ def api_notify():
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
                              f"{_kprop_tg_bet(f)}{time}")
 
-        # ── K-PROP OVER · 5.5+ (July 23, 2026) — the broader line>=5.5 + favband tier (non-sharp).
-        # Separate block/label from SHARP so the two are visually distinct; same T-45 send timing.
-        if new_kprop_line5:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"🎯 <b>K-Prop OVER · 5.5+ ({len(new_kprop_line5)})</b> <i>tracking</i>")
-            for f in new_kprop_line5:
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                also = ' · also 📊Q4' if f.get('pq_q4') else ''
-                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
-                             f"{_kprop_tg_bet(f)}{time}")
+        # ── K-PROP OVER · 5.5+ removed from Telegram per Zach (2026-08) -- still computed + logged
+        # (append_kprop_to_sheet logs all tiers) and dedup/all_sent still track it, just not pinged.
 
         # ── DRIFT-IN WATCHLIST (July 3, 2026) — pre-band arms we expect to STEAM INTO the band.
         # Separate from the SHARP band block above: these are priced JUST BELOW the -120..-160 zone
@@ -6212,6 +6208,25 @@ def api_notify():
                 time = f" — {f['game_time']}" if f.get('game_time') else ''
                 lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · {_kprop_under_tg(f)}{time}")
 
+        # ── K-PROP UNDER · FORM-FADE (2026-08) — the second under signal, per Zach. STRONG tier only
+        # (form >= line+1.5) to match the divergence under's noise gate; 'watch' stays in-app/sheet.
+        # On an ace where the over-favorite also fires, the fade already wins the conflict (over
+        # suppressed), so this replaces — not duplicates — the sharp-over ping there.
+        if new_formfade_strong:
+            if len(lines) > 1:
+                lines.append("")
+            lines.append(f"🧊 <b>K-Prop UNDER · Form-Fade ({len(new_formfade_strong)})</b> <i>tracking</i>")
+            for f in new_formfade_strong:
+                time  = f" — {f['game_time']}" if f.get('game_time') else ''
+                line  = f.get('kprop_line')
+                bestu = f.get('kprop_under_best')
+                bestu_s = f"{bestu:+d}" if isinstance(bestu, int) else '—'
+                book  = f.get('kprop_under_book') or '—'
+                fm, gp = f.get('kprop_form_mean'), f.get('kprop_formfade_gap')
+                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · "
+                             f"🧊 K-PROP UNDER {line if line is not None else '—'} — season {fm} K/start "
+                             f"vs line (+{gp}); best under {bestu_s} ({book}){time}")
+
         # NOTE: the F5 TT U1.5 UNDER block was removed from Telegram June 28, 2026 per Zach
         # (focusing notifications on K props) -- still computed above and still logged to its
         # Sheet tab below (append_to_sheet(new_under), unfiltered), just no longer pushed to
@@ -6242,37 +6257,8 @@ def api_notify():
         new_pq_stale   = [f for f in new_pq if not _pq_bf_ok(f)]
         new_pq_no_book = [f for f in new_pq if _pq_bf_ok(f) and not _pq_has_bettable_book(f)]
 
-        if new_pq_for_telegram:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"📊 <b>Pitcher Quality · Q4 ({len(new_pq_for_telegram)})</b> <i>tracking · needs Pinnacle ✅1.5</i>")
-            for f in new_pq_for_telegram:
-                pct  = f.get('pq_percentile')
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                # ✅ confirms the actual gate: Pinnacle at 1.5. Park-exception flags carry 🏟️ on
-                # the row instead (their Pinnacle line is the park point, not 1.5) -- see _pq_note.
-                odds = format_odds_lines(f.get('odds_lines'), gate_book=PINNACLE_BOOK_LABEL, gate_point=1.5)
-                tag  = ' 🏟️' if f.get('pinnacle_gate_reason') == 'park_exception' else ''
-                kp   = f.get('projected_k')
-                ok   = f.get('o_k_rate')
-                lineup_label = (' · high-K lineup' if ok >= K_PROJ_LEAGUE_K_RATE else ' · contact lineup') if ok is not None else ''
-                kp_s = f" — proj ~{kp} K{lineup_label}" if kp else ''
-                # No 🎯K-PROP↑ cross-reference tag here (removed July 31, 2026 per Zach). The PQ
-                # message fires EARLY (when a bettable F5 book posts, often hours before games),
-                # but a SHARP K-prop over is held by the T-45 send gate and doesn't fire until ~45
-                # min before its game -- in its own "K-Prop OVER · SHARP" message with the actual
-                # K line + price. Tagging "SHARP" on the early PQ row therefore pointed at a bet
-                # that (a) hadn't fired yet and (b) carried no line, which read as a phantom signal
-                # (the row's only odds shown are the F5 U1.5 line, not the K-prop). If it's not
-                # SHARP until it clears the gate, it shouldn't be badged SHARP early -- let the
-                # T-45 K-Prop message stand on its own.
-                lines.append(
-                    f"📊 <b>{f['batting_team']}</b> vs {f['pitcher_name']}{tag} "
-                    f"(pctile {pct:.0f}, K {f['pq_k_rate']*100:.1f}% / BB {f['pq_bb_rate']*100:.1f}% / "
-                    f"HR {f['pq_hr_rate']*100:.1f}%){kp_s}{time}"
-                )
-                if odds:
-                    lines.append(f"   {odds}")
+        # ── Pitcher Quality · Q4 removed from Telegram per Zach (2026-08). Still computed + logged to
+        # the PitcherQuality sheet tab and shown in-app; the stale/no-book diagnostics below still run.
         if new_pq_stale:
             print(f"PQ Telegram suppression: {len(new_pq_stale)} flag(s) held back for stale prior "
                   f"(current-season BF < {PQ_BF_STALE_THRESHOLD}): "
@@ -6291,20 +6277,8 @@ def api_notify():
         # further down, just no longer surfaced in the notification itself. See VISIBILITY note
         # above new_under/new_pq/etc.
 
-        if new_fg_tt:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"🛢️ <b>FG Team Total Under · Bullpen ({len(new_fg_tt)})</b> <i>tracking · needs ✅3.5/4.5/5.5</i>")
-            for f in new_fg_tt:
-                pct  = f.get('fg_bp_pctile')
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds = format_odds_lines(f.get('fg_odds_lines'))
-                lines.append(
-                    f"🛢️ <b>{f['batting_team']}</b> vs {f['fielding_team']} bullpen "
-                    f"(pctile {pct:.0f}, {f.get('fg_bp_n_relievers','—')} relievers){time}"
-                )
-                if odds:
-                    lines.append(f"   {odds}")
+        # ── FG Team Total Under · Bullpen removed from Telegram per Zach (2026-08). Still computed +
+        # logged to its sheet tab; just not pinged.
 
         if new_f5_over:
             if len(lines) > 1:
@@ -6320,30 +6294,8 @@ def api_notify():
                 if odds:
                     lines.append(f"   {odds}")
 
-        if new_fg_joint:
-            if len(lines) > 1:
-                lines.append("")
-            lines.append(f"🎰 <b>FG Joint/Combined Total · Bullpen ({len(new_fg_joint)})</b> <i>tracking</i>")
-            for f in new_fg_joint:
-                direction = f.get('fg_joint_direction', '')
-                tier  = f.get('fg_joint_tier', '')
-                units = f.get('fg_joint_units', '')
-                medal = {'Gold': '🥇', 'Silver': '🥈', 'Bronze': '🥉'}.get(tier, '')
-                arrow = '🔻 UNDER' if direction == 'under' else '🔺 OVER'
-                tier_prefix = f"{medal} {tier} " if direction == 'under' else ''
-                gate_pt = f.get('fgj_gate_point')
-                marker  = '✅' if (gate_pt is not None and
-                                   FG_JOINT_LINE_MIN <= gate_pt <= FG_JOINT_LINE_MAX) else ''
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                odds = format_fg_joint_odds_lines(f.get('fgj_odds_lines'), direction)
-                lines.append(
-                    f"🎰 <b>{f['away_team']} @ {f['home_team']}</b> — {tier_prefix}JOINT {arrow} "
-                    f"({units}u) (combined bullpen pctile {f.get('fgj_combined_pctile')}; "
-                    f"{f.get('fgj_away_bp_pctile')}/{f.get('fgj_home_bp_pctile')} away/home) "
-                    f"[{FG_JOINT_GATE_BOOK} {gate_pt}{marker}]{time}"
-                )
-                if odds:
-                    lines.append(f"   {odds}")
+        # ── FG Joint/Combined Total · Bullpen removed from Telegram per Zach (2026-08). Still computed
+        # + logged to its sheet tab; just not pinged.
 
         # NOTE: the FG Joint Total OFFENSE FADE block was removed from Telegram June 28, 2026 per
         # Zach (focusing notifications on K props) -- still computed above and still logged to the
@@ -6377,6 +6329,9 @@ def api_notify():
         if new_kunder_strong:
             redis_set(kunder_key,
                       ','.join(kunder_sent | {flag_key(f) for f in new_kunder_strong}), ex=172800)
+        if new_formfade_strong:
+            redis_set(formfade_key,
+                      ','.join(formfade_sent | {flag_key(f) for f in new_formfade_strong}), ex=172800)
         if new_rain:      # mark rain games advised today (only if the message actually went out)
             redis_set(rain_key, ','.join(rain_sent | {g['home'] for g in new_rain}), ex=86400)
 
