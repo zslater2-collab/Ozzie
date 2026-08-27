@@ -3722,7 +3722,10 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
-    off_fade_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_off_under']
+    # FG Joint Total — Offense Fade: hidden from the dashboard per Zach (2026-08). Still computed and
+    # tracked in the background (api_notify's Sheets/Telegram path uses the raw `flags` list, not this
+    # payload) — sent as an empty list so the frontend section just stays hidden.
+    off_fade_flags  = []
     # VISIBILITY, per Zach (June 22, 2026): keep computing/logging off_q3_gate and the raw
     # joint_offense_over signal exactly as before (see api_notify's Sheets-append calls, which
     # are NOT gated on this) -- just don't surface them on the dashboard or in Telegram anymore.
