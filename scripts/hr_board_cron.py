@@ -231,18 +231,26 @@ def fetch_hr_odds(game_date):
     if not isinstance(evs,list):
         print('HR odds: unexpected events response; edge layer skipped.'); return {}
     from datetime import timezone
+    try:
+        from zoneinfo import ZoneInfo; ET=ZoneInfo('America/New_York')
+    except Exception:
+        ET=timezone(timedelta(hours=-4))   # MLB season is EDT; fallback if zoneinfo unavailable
     now=datetime.now(timezone.utc)
     acc={}   # norm -> book -> {'over':price,'under':price}
     n_ev=0
     for ev in evs:
         ct=ev.get('commence_time') or ''
-        if ct[:10]!=game_date: continue
+        try:
+            cdt=datetime.fromisoformat(ct.replace('Z','+00:00'))
+        except Exception:
+            continue
+        # match on the ET SLATE date, not the raw UTC prefix: a 8pm+ ET game has a NEXT-DAY UTC
+        # commence, so ct[:10] dropped every late/west-coast game even though its HR props post all
+        # day. (Bug found 2026-08-27 -- late games "never showed odds".)
+        if cdt.astimezone(ET).strftime('%Y-%m-%d')!=game_date: continue
         # only price UPCOMING games -- a started game's odds are gone/stale and we'd never bet them;
         # skipping them also saves credits (we grade edge off the pre-game price we captured).
-        try:
-            if datetime.fromisoformat(ct.replace('Z','+00:00'))<=now: continue
-        except Exception:
-            pass
+        if cdt<=now: continue
         try:
             r=requests.get(f"{base}/events/{ev['id']}/odds",
                 params={'apiKey':ODDS_KEY,'regions':HR_ODDS_REGIONS,
