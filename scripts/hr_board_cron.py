@@ -29,6 +29,14 @@ MIN_HITTER_PA, MIN_PITCHER_BF = 80, 100
 # model prob and the display shows the top of the board, so this floor mainly keeps the archive/JSON
 # lean; ~league-average HR/PA is ~3%, so 2.0 keeps genuine HR threats and trims slap hitters.
 HR_RATE_FLOOR = 2.0
+# log5 (hitter_rate x pitcher_rate / league) OVERSTATES when BOTH sides are above league -- the
+# model was calibrated in 3 of 4 hitter/pitcher cells but ran +5pp hot in the both-high cell (which
+# is exactly the top of the board). Two compounding causes: regression-to-mean gets multiplied, and
+# the true interaction is sub-multiplicative. Fix = dampen ONLY the joint excess: multiply pa_hr by
+# exp(-K * relu(log hitter_ratio) * relu(log pitcher_ratio)) so the penalty is zero unless BOTH ratios
+# exceed league. K=4.5 (grid-searched on the graded archive: halves calibration error 1.92->0.92,
+# both-high gap +5.1->~+1, residual recal slope 0.48->0.77). Mechanistic, not a blunt global haircut.
+KHR_INTERACTION_DAMP = 4.5
 AVG_PA_VS_GAME = 4.1
 TEAM_PA_PER_GAME = 38.0   # slot expected PA = share * this (lineup_slot_pa_weights.csv)
 SLOT_PA_SHARE = {1:0.1242,2:0.1210,3:0.1181,4:0.1175,5:0.1129,
@@ -327,7 +335,9 @@ def build_board(game_date, H, P, meta):
                     park=get_park_factor(g['home'],hand,ak); arch_name=arch[ak]['name']
                 else:                                            # unclassified power hitter -> neutral park, no archetype
                     hand=h.get('stand','R'); park=1.0; arch_name=''
-                pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp
+                # dampen the log5 joint-extreme overstatement (see KHR_INTERACTION_DAMP)
+                _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit['hr_rate']/lg)))
+                pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp*_damp
                 # slot-weighted PA when the lineup is official; neutral PA when projected
                 exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
                 prob,amer=hr_prob(pa_hr, exp_pa)
