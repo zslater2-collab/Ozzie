@@ -8,6 +8,10 @@ name: hr-board
 #   15:00 UTC = 11:00 ET (day-game lineups)
 #   20:00 UTC = 16:00 ET (evening ~7pm slate lineups)
 #   23:30 UTC = 19:30 ET (late ~9:40pm west-coast lineups)
+#   01:00 UTC = 21:00 ET (catches 9pm+ ET games whose HR props post after the 19:30 run)
+#   02:30 UTC = 22:30 ET (catches 10pm+ ET west-coast games) -- prices only the few still-upcoming
+#   late games (started games are skipped), so these late runs are cheap on credits. Carry-forward
+#   in hr_board_cron keeps earlier games' captured odds from being blanked by these later runs.
 
 on:
   schedule:
@@ -15,6 +19,8 @@ on:
     - cron: '0 15 * * *'
     - cron: '0 20 * * *'
     - cron: '30 23 * * *'
+    - cron: '0 1 * * *'
+    - cron: '30 2 * * *'
   workflow_dispatch: {}
 
 permissions:

@@ -481,8 +481,23 @@ def main():
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
         # Drop the display-only book_prices list column so it doesn't bloat/round-trip in the CSV.
         official=(day[day['proj']==False] if 'proj' in day.columns else day).drop(columns=['book_prices'], errors='ignore')
+        # CARRY FORWARD odds: HR props post late, so a game's price is often captured only by a later
+        # run -- but once that game STARTS, fetch_hr_odds skips it (and an empty fetch adds no columns),
+        # so without this each subsequent run would blank a price we already had. Ensure the odds
+        # columns exist, then backfill any missing value from the prior archive for the same
+        # (date, batter). The current run's fetch always wins where it has a value.
+        ODDC=['mkt_over','mkt_book','mkt_prob','mkt_n_books']
+        for c in ODDC:
+            if c not in official.columns: official[c]=np.nan
         if os.path.exists(ARCH_CSV):
             old=pd.read_csv(ARCH_CSV); old['date']=old['date'].astype(str)
+            od=old[old['date']==date]
+            if not od.empty:
+                prior=od.drop_duplicates('batter').set_index('batter')
+                for c in ODDC:
+                    if c in prior.columns:
+                        fill=official['batter'].map(prior[c])
+                        official[c]=official[c].where(official[c].notna(), fill)
             arch_df=pd.concat([old[old['date']!=date],official],ignore_index=True)
         else:
             arch_df=official
