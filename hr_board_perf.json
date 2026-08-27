@@ -1,22 +1,22 @@
 {
-  "graded_dates": 40,
-  "graded_picks": 4822,
-  "base_hr_rate": 12.11,
+  "graded_dates": 41,
+  "graded_picks": 4961,
+  "base_hr_rate": 12.05,
   "buckets": {
     "top10": {
-      "n": 398,
-      "hit_rate": 16.08,
-      "lift_vs_base": 3.97
+      "n": 408,
+      "hit_rate": 16.91,
+      "lift_vs_base": 4.86
     },
     "top25": {
-      "n": 585,
-      "hit_rate": 15.38,
-      "lift_vs_base": 3.27
+      "n": 600,
+      "hit_rate": 15.33,
+      "lift_vs_base": 3.28
     },
     "rest": {
-      "n": 3839,
-      "hit_rate": 11.2,
-      "lift_vs_base": -0.91
+      "n": 3953,
+      "hit_rate": 11.05,
+      "lift_vs_base": -1.0
     }
   },
   "calibration": [
@@ -24,48 +24,48 @@
       "q": 0,
       "pred": 6.3,
       "actual": 6.6,
-      "n": 990
+      "n": 1028
     },
     {
       "q": 1,
       "pred": 9.5,
-      "actual": 10.5,
-      "n": 940
+      "actual": 10.4,
+      "n": 964
     },
     {
       "q": 2,
       "pred": 12.2,
-      "actual": 13.1,
-      "n": 977
+      "actual": 12.8,
+      "n": 1010
     },
     {
       "q": 3,
       "pred": 15.4,
       "actual": 14.9,
-      "n": 959
+      "n": 967
     },
     {
       "q": 4,
-      "pred": 22.3,
-      "actual": 15.6,
-      "n": 956
+      "pred": 22.2,
+      "actual": 15.8,
+      "n": 992
     }
   ],
   "calib": {
-    "slope": 0.4797,
-    "intercept": 5.828,
-    "n": 4822
+    "slope": 0.5084,
+    "intercept": 5.408,
+    "n": 4961
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 49,
-      "hit_rate": 8.16,
-      "roi": -18.37
+      "n": 70,
+      "hit_rate": 7.14,
+      "roi": -27.14
     },
     "neg_edge": {
-      "n": 140,
-      "hit_rate": 17.86,
-      "roi": 0.89
+      "n": 189,
+      "hit_rate": 17.46,
+      "roi": -0.87
     },
     "edge_ge3": {
       "n": 4,
@@ -73,5 +73,11 @@
       "roi": 150.0
     }
   },
-  "edge_graded_picks": 189
+  "edge_graded_picks": 259,
+  "edge_blind": {
+    "n": 259,
+    "roi": -7.97,
+    "actual_hr": 14.67,
+    "mkt_implied": 14.2
+  }
 }
