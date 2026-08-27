@@ -2643,10 +2643,11 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             _kunder = _kprop_under_divergence(pitcher_id, _ofav.get('line'), _prior_starts)
             # K-prop UNDER (form-vs-line fade) — separate mechanism, tracked independently.
             _kformfade = _kprop_form_fade(pitcher_id, _ofav.get('line'), _prior_starts)
-            # CONFLICT GUARD: form>line fires structurally on elite arms (their K/start dwarfs any line),
-            # so it collides with the over-favorite signal on aces (e.g. Misiorowski = sharp OVER). The
-            # over signal is price/matchup-defined and more validated -> it wins; suppress the fade there.
-            _kformfade_fire = _kformfade['signal'] and not _ofav['signal']
+            # CONFLICT: form>line fires structurally on elite arms (K/start dwarfs any line), so it can
+            # collide with the over-favorite signal on aces (e.g. Misiorowski). On the overlap the fade
+            # historically won and the over got crushed (thin n=14; the over edge is contested/not
+            # year-stable), so the FADE wins the conflict: keep _k_prop_signal for the row-build gate,
+            # but suppress the emitted over flag (k_prop_flag) so the under shows and the over hides.
             # FREE Kalshi over-prob at the DK strike -- logged on every row (builds the dataset for a
             # future Kalshi-only band) AND used post-loop to trigger a paid DK re-pull when a pre-band
             # arm steams toward the -120..-160 band on Kalshi before our 4h DK snapshot catches it.
@@ -2740,7 +2741,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 # K-prop signal REBUILT June 27, 2026 — over-favorite price bias (over-fav fields
                 # below drive it). k_comp_score / kalshi_* kept as reference only.
                 'k_comp_score':     _kc,
-                'k_prop_flag':      _k_prop_signal,
+                'k_prop_flag':      _k_prop_signal and not _kformfade['signal'],
                 'k_prop_tier':      _ofav['tier'],
                 'kprop_preband':    _kprop_preband,
                 'kprop_driftin':    _kprop_driftin,
@@ -2761,7 +2762,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'kprop_under_best':        _ofav['best_under'],
                 'kprop_under_book':        _ofav['best_under_book'],
                 'kprop_under_prices':      _ofav['under_book_prices'],
-                'kprop_formfade_flag':     _kformfade_fire,
+                'kprop_formfade_flag':     _kformfade['signal'],
                 'kprop_formfade_tier':     _kformfade['tier'],
                 'kprop_form_mean':         _kformfade['form_mean'],
                 'kprop_formfade_gap':      _kformfade['form_gap'],
@@ -3033,7 +3034,8 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                     f['pitcher_name'], f['batting_team'], f.get('kprop_prior_starts'),
                     f.get('pq_q4'), _fkp, _ft or team_lines, _f5_latch)
                 _was_sharp = f.get('k_prop_tier') == 'sharp'
-                f['k_prop_flag']     = _ov['signal']
+                # keep the fade-wins-conflict rule after the Kalshi re-pull (see build sites)
+                f['k_prop_flag']     = _ov['signal'] and not f.get('kprop_formfade_flag')
                 f['k_prop_tier']     = _ov['tier']
                 f['kprop_preband']   = _pb
                 f['kprop_driftin']   = _dr
@@ -3242,7 +3244,6 @@ def get_heatmap_flags(games, model):
             _k_prop_signal2 = _ofav2['signal']
             _kunder2 = _kprop_under_divergence(pitcher_id, _ofav2.get('line'), _prior_starts2)
             _kformfade2 = _kprop_form_fade(pitcher_id, _ofav2.get('line'), _prior_starts2)
-            _kformfade2_fire = _kformfade2['signal'] and not _ofav2['signal']   # over-favorite wins the conflict
 
             flag = {
                 'game':             game_str,
@@ -3281,7 +3282,7 @@ def get_heatmap_flags(games, model):
                 'projected_k':      _proj_k_val2,
                 'pq_q4':            pq_q4,
                 'k_comp_score':     _kc,
-                'k_prop_flag':      _k_prop_signal2,
+                'k_prop_flag':      _k_prop_signal2 and not _kformfade2['signal'],
                 'k_prop_tier':      _ofav2['tier'],
                 'kprop_preband':    _kprop_preband2,
                 'kprop_driftin':    _kprop_driftin2,
@@ -3300,7 +3301,7 @@ def get_heatmap_flags(games, model):
                 'kprop_under_best':        _ofav2['best_under'],
                 'kprop_under_book':        _ofav2['best_under_book'],
                 'kprop_under_prices':      _ofav2['under_book_prices'],
-                'kprop_formfade_flag':     _kformfade2_fire,
+                'kprop_formfade_flag':     _kformfade2['signal'],
                 'kprop_formfade_tier':     _kformfade2['tier'],
                 'kprop_form_mean':         _kformfade2['form_mean'],
                 'kprop_formfade_gap':      _kformfade2['form_gap'],

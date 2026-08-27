@@ -819,8 +819,8 @@
     const bestU = f.kprop_under_best != null ? ((f.kprop_under_best >= 0 ? '+' : '') + f.kprop_under_best) : null;
     const betStr = `BUY <b>Under ${line}K</b>${bestU ? ` @ best ${bestU} (${f.kprop_under_book || '—'})` : ''} (line set below his form = matchup fade)`;
     const underBooksHtml = renderBookList(f.kprop_under_prices, 'u');
-    // No conflict line needed: the fade is suppressed server-side whenever the over-favorite signal
-    // fires (an ace's form is structurally above the line), so the two can no longer co-occur.
+    // No conflict line needed: on an ace where the over-favorite signal also fires, the over is
+    // suppressed server-side (the fade won that overlap historically), so the two can't co-occur here.
     card.innerHTML = `
       <div class="hm-top">
         <div class="hm-team">${f.batting_team}</div>
