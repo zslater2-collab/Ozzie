@@ -400,6 +400,23 @@ def grade(archive, pa):
                                     'roi':round(100*s['roi'].mean(),2)}
             perf['edge_buckets']=eb
             perf['edge_graded_picks']=int(len(ge))
+            # blind CLV baseline: ROI + fair-vs-market gap on every captured pick (context for eb)
+            perf['edge_blind']={'n':int(len(ge)),'roi':round(100*ge['roi'].mean(),2),
+                                'actual_hr':round(100*ge['had_hr'].mean(),2),
+                                'mkt_implied':round(float(ge['mkt_prob'].mean()),2)}
+    # ---- watchable readout each cron run (logs to the Actions output; also persisted in perf.json) ----
+    print(f"CALIBRATION: actual% = {perf['calib']['intercept']} + {perf['calib']['slope']}*pred%  "
+          f"(slope<1 = runs hot; n={perf['calib']['n']})")
+    eb = perf.get('edge_buckets') or {}
+    if eb:
+        gp = perf.get('edge_graded_picks', 0)
+        parts = [f"{k} n={v['n']} hit={v['hit_rate']}% roi={v['roi']:+}%" for k,v in eb.items()]
+        print(f"EDGE CALIBRATION ({gp} picks w/ odds): " + " | ".join(parts))
+        b = perf.get('edge_blind') or {}
+        if b: print(f"  blind CLV: roi={b['roi']:+}%  actual {b['actual_hr']}% vs market {b['mkt_implied']}%  "
+                    f"[need ~200+ picks-with-odds before trusting pos_edge]")
+    else:
+        print("EDGE CALIBRATION: 0 picks with captured odds yet (coverage grows with the tz/carry-forward fixes)")
     return perf
 
 # ---------------- K-prop rain stay-away flags ----------------
