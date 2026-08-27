@@ -1095,6 +1095,7 @@
       {k:'fair',t:'Fair',f:r=>r.fair||'—'},
       {k:'mkt_over',t:'Best',f:r=>_exAm(r.mkt_over)},
       {k:'mkt_book',t:'Book',l:1,f:r=>r.mkt_book||'—'},
+      {k:'mkt_avg',t:'Mkt Avg',f:r=>_exAm(r.mkt_avg)},
       {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exEdgeCol(r.edge)},
       {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
       {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},

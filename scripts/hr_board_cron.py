@@ -214,11 +214,18 @@ def hr_prob(pa_hr, avg_pa=AVG_PA_VS_GAME):
 # and compute EDGE = recalibrated-model% - market%. Ranking by edge only bets a top-prob guy when his
 # price hasn't already swallowed the value. Fail-open: no key / API error -> board is unchanged.
 ODDS_KEY = os.environ.get('ODDS_API_KEY', '')
-HR_ODDS_REGIONS = os.environ.get('HR_ODDS_REGIONS', 'us')   # 'us' keeps credit cost ~1/event
-PLAYABLE_BOOKS = {'DraftKings','FanDuel','BetMGM','Caesars','theScore Bet','Fanatics','Bally Bet'}
+HR_ODDS_REGIONS = os.environ.get('HR_ODDS_REGIONS', 'us,us2')   # us2 adds the soft books; ~2 credits/event
+# BETTABLE = books Zach has accounts at -> the "best odds"/best-price shopping comes ONLY from these.
+# (DraftKings/FanDuel/BetMGM/Fanatics don't expose batter_home_runs on this feed, so in practice only
+#  Caesars/theScore/Bally return a bettable HR price -- confirmed 2026-08-27.)
+BETTABLE_BOOKS = {'DraftKings','FanDuel','BetMGM','Caesars','theScore Bet','Fanatics','Bally Bet'}
+# TRACK-ONLY soft books: included ONLY in the market-average / de-vig consensus, never in "best odds".
+TRACK_ONLY_BOOKS = {'Fliff','Hard Rock Bet','BetRivers','BetPARX'}
+ALL_BOOKS = BETTABLE_BOOKS | TRACK_ONLY_BOOKS
 BOOK_LABELS = {'draftkings':'DraftKings','fanduel':'FanDuel','betmgm':'BetMGM','caesars':'Caesars',
                'williamhill_us':'Caesars','espnbet':'theScore Bet','thescorebet':'theScore Bet',
-               'fanatics':'Fanatics','ballybet':'Bally Bet'}
+               'fanatics':'Fanatics','ballybet':'Bally Bet',
+               'fliff':'Fliff','hardrockbet':'Hard Rock Bet','betrivers':'BetRivers','betparx':'BetPARX'}
 
 def _norm(s):
     if not isinstance(s,str): return ''
@@ -275,7 +282,7 @@ def fetch_hr_odds(game_date):
             continue
         for bm in data.get('bookmakers',[]):
             lbl=BOOK_LABELS.get(bm.get('key'))
-            if lbl not in PLAYABLE_BOOKS: continue
+            if lbl not in ALL_BOOKS: continue   # bettable + track-only (soft) books both accumulate
             for mk in bm.get('markets',[]):
                 if mk.get('key')!='batter_home_runs': continue
                 for o in mk.get('outcomes',[]):
@@ -287,15 +294,25 @@ def fetch_hr_odds(game_date):
     for nm,bks in acc.items():
         overs=[(b,v['over']) for b,v in bks.items() if v.get('over') is not None]
         if not overs: continue
-        best_book,best_over=max(overs,key=lambda x:_payout(x[1]))
+        # BEST price = only books Zach can actually bet; None if only soft books priced it (tracking-only)
+        overs_bet=[(b,p) for b,p in overs if b in BETTABLE_BOOKS]
+        if overs_bet:
+            best_book,best_over=max(overs_bet,key=lambda x:_payout(x[1]))
+        else:
+            best_book,best_over=None,None
+        # de-vig consensus + AVERAGE across ALL tracked books (bettable + soft) = the broader "market"
         novigs=[_implied(v['over'])/(_implied(v['over'])+_implied(v['under']))
                 for v in bks.values() if v.get('over') is not None and v.get('under') is not None]
-        if not novigs: novigs=[_implied(best_over)]   # one-sided quote -> raw implied (slightly rich)
-        # full per-book list for the Explorer's odds-by-book expander (best flagged, ties all get it)
-        bp=sorted([{'book':b,'price':int(v['over']),'best':int(v['over'])==int(best_over)}
+        if not novigs: novigs=[_implied(p) for _,p in overs]   # one-sided quotes -> raw implied
+        avg_am=prob_to_american(100*float(np.mean([_implied(p) for _,p in overs])))   # market-avg over price
+        # per-book list for the Explorer expander: mark bettable-best + which are track-only/soft
+        bp=sorted([{'book':b,'price':int(v['over']),
+                    'best':(best_over is not None and int(v['over'])==int(best_over) and b in BETTABLE_BOOKS),
+                    'bettable':b in BETTABLE_BOOKS}
                    for b,v in bks.items() if v.get('over') is not None], key=lambda x:-_payout(x['price']))
-        out[nm]={'over':int(best_over),'book':best_book,'book_prices':bp,
-                 'mkt_prob':round(100*float(np.median(novigs)),1),'n_books':len(overs)}
+        out[nm]={'over':(int(best_over) if best_over is not None else None),'book':best_book,'book_prices':bp,
+                 'mkt_prob':round(100*float(np.median(novigs)),1),'mkt_avg':avg_am,
+                 'n_books':len(overs),'n_bettable':len(overs_bet)}
     print(f'HR odds: {n_ev} events priced, {len(out)} players with anytime-HR props '
           f'(regions={HR_ODDS_REGIONS}).')
     return out
@@ -519,7 +536,9 @@ def main():
             day['mkt_over']=_k.map(lambda n:hr_odds.get(n,{}).get('over'))
             day['mkt_book']=_k.map(lambda n:hr_odds.get(n,{}).get('book'))
             day['mkt_prob']=_k.map(lambda n:hr_odds.get(n,{}).get('mkt_prob'))
+            day['mkt_avg']=_k.map(lambda n:hr_odds.get(n,{}).get('mkt_avg'))          # market-avg over price (all books)
             day['mkt_n_books']=_k.map(lambda n:hr_odds.get(n,{}).get('n_books'))
+            day['mkt_n_bettable']=_k.map(lambda n:hr_odds.get(n,{}).get('n_bettable'))
             day['book_prices']=_k.map(lambda n:hr_odds.get(n,{}).get('book_prices') or [])
         # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
@@ -530,7 +549,7 @@ def main():
         # so without this each subsequent run would blank a price we already had. Ensure the odds
         # columns exist, then backfill any missing value from the prior archive for the same
         # (date, batter). The current run's fetch always wins where it has a value.
-        ODDC=['mkt_over','mkt_book','mkt_prob','mkt_n_books']
+        ODDC=['mkt_over','mkt_book','mkt_prob','mkt_avg','mkt_n_books','mkt_n_bettable']
         for c in ODDC:
             if c not in official.columns: official[c]=np.nan
         if os.path.exists(ARCH_CSV):
