@@ -24,6 +24,11 @@ RAIN     = os.path.join(REPO, 'rain_flags_latest.json')   # K-prop "rain around 
 
 K_HIT, K_PIT = 120, 150
 MIN_HITTER_PA, MIN_PITCHER_BF = 80, 100
+# Eligibility is a live POWER floor (shrunk season HR/PA %), replacing the old frozen-archetype gate
+# which benched emerging sluggers (see hr-board archetype analysis 2026-08). The board still ranks by
+# model prob and the display shows the top of the board, so this floor mainly keeps the archive/JSON
+# lean; ~league-average HR/PA is ~3%, so 2.0 keeps genuine HR threats and trims slap hitters.
+HR_RATE_FLOOR = 2.0
 AVG_PA_VS_GAME = 4.1
 TEAM_PA_PER_GAME = 38.0   # slot expected PA = share * this (lineup_slot_pa_weights.csv)
 SLOT_PA_SHARE = {1:0.1242,2:0.1210,3:0.1181,4:0.1175,5:0.1129,
@@ -72,7 +77,8 @@ def build_stats(pa):
     pa['is_hr'] = (pa['events'] == 'home_run').astype(int)
     lg_hr = pa['is_hr'].mean(); lg_xw = pa['estimated_woba_using_speedangle'].mean()
     sh = lambda hr,n,k: (hr + lg_hr*k)/(n+k)
-    H = {int(b): dict(pa=len(g), hr_rate=100*sh(g['is_hr'].sum(),len(g),K_HIT))
+    H = {int(b): dict(pa=len(g), hr_rate=100*sh(g['is_hr'].sum(),len(g),K_HIT),
+                      stand=(g['stand'].mode().iat[0] if not g['stand'].mode().empty else 'R'))
          for b,g in pa.groupby('batter')}
     P = {int(p): dict(bf=len(g), hr_rate=100*sh(g['is_hr'].sum(),len(g),K_PIT),
                       xwoba=g['estimated_woba_using_speedangle'].mean())
@@ -156,15 +162,15 @@ def get_lineups(game_date):
 
 _ROSTER_CACHE = {}
 def team_proj_batters(team_id):
-    """Archetype hitters on a team's active roster — the projected pool when the
-    official lineup isn't posted yet. Cached per run."""
+    """Non-pitcher hitters on a team's active roster — the projected pool when the official
+    lineup isn't posted yet (the power floor is applied later in build_board). Cached per run."""
     if team_id in _ROSTER_CACHE: return _ROSTER_CACHE[team_id]
     out=[]
     try:
         url=f'https://statsapi.mlb.com/api/v1/teams/{team_id}/roster?rosterType=active'
         for p in requests.get(url,timeout=15).json().get('roster',[]):
             pid=p.get('person',{}).get('id')
-            if pid and int(pid) in b2a and p.get('position',{}).get('type')!='Pitcher':
+            if pid and p.get('position',{}).get('type')!='Pitcher':   # power floor applied in build_board
                 out.append({'id':int(pid),'pos':p.get('position',{}).get('abbreviation',''),'proj':True})
     except Exception as e:
         print(f'roster fetch failed for {team_id}: {e}')
@@ -313,18 +319,21 @@ def build_board(game_date, H, P, meta):
                 lineup = team_proj_batters(bat_id)
             for slot, pl in enumerate(lineup, start=1):
                 bid=int(pl['id']); pos=pl.get('pos','')
-                if bid not in b2a: continue
                 h=H.get(bid)
                 if not h or h['pa']<MIN_HITTER_PA: continue
-                ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
-                park=get_park_factor(g['home'],hand,ak)
+                if h['hr_rate']<HR_RATE_FLOOR: continue          # live power gate (was: bid in b2a)
+                if bid in b2a:                                    # archetyped -> keep pitch/zone park geometry + label
+                    ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
+                    park=get_park_factor(g['home'],hand,ak); arch_name=arch[ak]['name']
+                else:                                            # unclassified power hitter -> neutral park, no archetype
+                    hand=h.get('stand','R'); park=1.0; arch_name=''
                 pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp
                 # slot-weighted PA when the lineup is official; neutral PA when projected
                 exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',team=bat,
                     gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,proj=proj,
-                    slot=(None if proj else slot),pos=pos,arch=arch[ak]['name'],bat_hand=hand,pit_hand=sthand,
+                    slot=(None if proj else slot),pos=pos,arch=arch_name,bat_hand=hand,pit_hand=sthand,
                     hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
