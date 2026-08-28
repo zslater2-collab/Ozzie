@@ -2623,6 +2623,12 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             _kunder = _kprop_under_divergence(pitcher_id, _ofav.get('line'), _prior_starts)
             # K-prop UNDER (form-vs-line fade) — separate mechanism, tracked independently.
             _kformfade = _kprop_form_fade(pitcher_id, _ofav.get('line'), _prior_starts)
+            # DISPLAY gate for unders (icon + dashboard sections): divergence (any tier) OR form-fade
+            # STRONG only. The form-fade WATCH tier (gap 0.5-1.5) fires on a large fraction of the board
+            # and churns every 4h as the posted line moves, so it's too broad for an at-a-glance DFS
+            # symbol (Zach, 2026-08-28). The raw _kformfade['signal'] is still logged (both tiers) for
+            # forward-tracking; this only controls what SURFACES.
+            _kunder_show = _kunder['signal'] or (_kformfade['signal'] and _kformfade['tier'] == 'strong')
             # CONFLICT: form>line fires structurally on elite arms (K/start dwarfs any line), so it can
             # collide with the over-favorite signal on aces (e.g. Misiorowski). On the overlap the fade
             # historically won and the over got crushed (thin n=14; the over edge is contested/not
@@ -2676,7 +2682,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 # form-vs-line fade). Display-only tags, no bet logic depends on them.
                 'k_sharp_over': bool(_k_prop_signal and not _kformfade['signal']
                                      and _ofav.get('tier') in ('sharp', 'line5')),
-                'k_under':      bool(_kunder['signal'] or _kformfade['signal']),
+                'k_under':      bool(_kunder_show),
             })
 
             # A K-prop UNDER (whiff-K divergence or form-vs-line fade) is a standalone play — it must
@@ -2685,7 +2691,7 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
             # 🧊 in the Explorer, which is built pre-gate). The under classifiers already carry their own
             # strict criteria, so this widens WHAT is surfaced, not the under quality bar.
             if (not pq_q4 and not off_q3_gate and not _k_prop_signal
-                    and not _kunder['signal'] and not _kformfade['signal']):
+                    and not _kunder_show):
                 continue
 
             # ── PINNACLE GATE ── surface this candidate if Pinnacle's posted F5 line for this
@@ -3719,7 +3725,10 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
     kprop_only_flags = [f for f in heatmap_flags
                         if f.get('k_prop_flag') and f.get('k_prop_tier') in ('sharp', 'line5')]
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
-    formfade_flags   = [f for f in heatmap_flags if f.get('kprop_formfade_flag')]  # form-vs-line fade -> app
+    # form-vs-line fade -> app: STRONG tier only (gap>=1.5). The watch tier (gap 0.5-1.5) is too broad
+    # for the dashboard/DFS icon and churns with line moves; still logged both tiers via api_notify.
+    formfade_flags   = [f for f in heatmap_flags
+                        if f.get('kprop_formfade_flag') and f.get('kprop_formfade_tier') == 'strong']
     fg_tt_flags     = [f for f in heatmap_flags if f.get('signal') == 'fg_tt_under']
     f5_over_flags   = [f for f in heatmap_flags if f.get('signal') == 'f5_tt_over']
     fg_joint_flags  = [f for f in heatmap_flags if f.get('signal') == 'fg_joint_total']
