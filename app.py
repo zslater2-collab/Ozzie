@@ -2679,7 +2679,13 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'k_under':      bool(_kunder['signal'] or _kformfade['signal']),
             })
 
-            if not pq_q4 and not off_q3_gate and not _k_prop_signal:
+            # A K-prop UNDER (whiff-K divergence or form-vs-line fade) is a standalone play — it must
+            # keep its flag row even when the pitcher fires no over/PQ/offense signal, else pure-under
+            # picks get dropped here and never reach the dashboard under sections (they'd still show an
+            # 🧊 in the Explorer, which is built pre-gate). The under classifiers already carry their own
+            # strict criteria, so this widens WHAT is surfaced, not the under quality bar.
+            if (not pq_q4 and not off_q3_gate and not _k_prop_signal
+                    and not _kunder['signal'] and not _kformfade['signal']):
                 continue
 
             # ── PINNACLE GATE ── surface this candidate if Pinnacle's posted F5 line for this
@@ -2715,7 +2721,15 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'first_pitch_utc':  game.get('first_pitch_utc'),
                 'pitcher_name':     pitcher_name,
                 'pitcher_id':       pitcher_id,
-                'signal':           'pitcher_quality_only' if pq_q4 else ('k_prop_only' if (_k_prop_signal and not off_q3_gate) else 'offense_quality_only'),
+                # NOTE: a pure-under row (kprop under fires, no pq/offense/over signal) now reaches here
+                # (see the gate above). Give it its own label so it isn't mislabeled 'offense_quality_only'
+                # (the old else-branch, which was always off_q3_gate before the under was added to the gate).
+                # The under dashboard sections filter on the kprop_under_flag/kprop_formfade_flag booleans,
+                # not this label, so surfacing is unaffected; this just keeps signal semantics honest.
+                'signal':           ('pitcher_quality_only' if pq_q4
+                                     else 'k_prop_only' if (_k_prop_signal and not off_q3_gate)
+                                     else 'offense_quality_only' if off_q3_gate
+                                     else 'kprop_under_only'),
                 'game_time':        game.get('game_time'),
                 'pq_score':         pq_info['score']      if pq_info else None,
                 'pq_percentile':    pq_info['percentile'] if pq_info else None,
