@@ -1104,7 +1104,7 @@
       {k:'arch',t:'Archetype',l:1,f:r=>r.arch||''},
     ],
     pitchers:[
-      {k:'pitcher',t:'Pitcher',l:1,f:r=>_exEsc(r.pitcher)+(r.hand?' ('+r.hand+')':'')+(r.opener?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020">OPENER</span>':'')+(r.rain_risk?_RAIN_B:'')},
+      {k:'pitcher',t:'Pitcher',l:1,f:r=>(r.k_sharp_over?'<span title="SHARP K-prop OVER pick">🔥</span> ':(r.k_under?'<span title="K-prop UNDER pick">🧊</span> ':''))+_exEsc(r.pitcher)+(r.hand?' ('+r.hand+')':'')+(r.opener?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020">OPENER</span>':'')+(r.rain_risk?_RAIN_B:'')},
       {k:'team',t:'Tm',l:1,f:r=>r.team||''},
       {k:'opp',t:'vs',l:1,f:r=>r.opp||''},
       {k:'pq_percentile',t:'PQ %ile',f:r=>_exN(r.pq_percentile,0),c:r=>r.pq_quartile==='Q4'?'#39d353':''},

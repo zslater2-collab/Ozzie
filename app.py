@@ -2670,6 +2670,13 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'div_tier':      _kunder['tier'],
                 'k_over_signal': bool(_k_prop_signal),
                 'pq_under_signal': bool(pq_q4),
+                # DFS eyeball symbols in the Explorer pitcher table (mirrors exactly what the
+                # dashboard surfaces): 🔥 = SHARP/line5 K-prop OVER pick (over fires, not overridden
+                # by the form-fade, in the surfaced tiers); 🧊 = K-prop UNDER pick (divergence fade OR
+                # form-vs-line fade). Display-only tags, no bet logic depends on them.
+                'k_sharp_over': bool(_k_prop_signal and not _kformfade['signal']
+                                     and _ofav.get('tier') in ('sharp', 'line5')),
+                'k_under':      bool(_kunder['signal'] or _kformfade['signal']),
             })
 
             if not pq_q4 and not off_q3_gate and not _k_prop_signal:
