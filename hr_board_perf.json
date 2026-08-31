@@ -1,21 +1,21 @@
 {
-  "graded_dates": 44,
-  "graded_picks": 5436,
-  "base_hr_rate": 12.1,
+  "graded_dates": 45,
+  "graded_picks": 5617,
+  "base_hr_rate": 12.14,
   "buckets": {
     "top10": {
-      "n": 438,
-      "hit_rate": 17.35,
-      "lift_vs_base": 5.25
+      "n": 448,
+      "hit_rate": 17.63,
+      "lift_vs_base": 5.49
     },
     "top25": {
-      "n": 645,
-      "hit_rate": 15.97,
-      "lift_vs_base": 3.86
+      "n": 660,
+      "hit_rate": 15.91,
+      "lift_vs_base": 3.77
     },
     "rest": {
-      "n": 4353,
-      "hit_rate": 11.0,
+      "n": 4509,
+      "hit_rate": 11.04,
       "lift_vs_base": -1.1
     }
   },
@@ -23,61 +23,61 @@
     {
       "q": 0,
       "pred": 6.3,
-      "actual": 6.5,
-      "n": 1102
+      "actual": 6.7,
+      "n": 1124
     },
     {
       "q": 1,
       "pred": 9.5,
-      "actual": 10.7,
-      "n": 1089
+      "actual": 10.5,
+      "n": 1131
     },
     {
       "q": 2,
-      "pred": 12.1,
+      "pred": 12.2,
       "actual": 12.6,
-      "n": 1072
+      "n": 1164
     },
     {
       "q": 3,
-      "pred": 15.2,
-      "actual": 14.4,
-      "n": 1093
+      "pred": 15.3,
+      "actual": 14.6,
+      "n": 1097
     },
     {
       "q": 4,
       "pred": 21.9,
-      "actual": 16.5,
-      "n": 1080
+      "actual": 16.4,
+      "n": 1101
     }
   ],
   "calib": {
-    "slope": 0.5263,
-    "intercept": 5.267,
-    "n": 5436
+    "slope": 0.5307,
+    "intercept": 5.251,
+    "n": 5617
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 130,
-      "hit_rate": 6.92,
-      "roi": -36.15
+      "n": 155,
+      "hit_rate": 5.81,
+      "roi": -46.45
     },
     "neg_edge": {
-      "n": 419,
-      "hit_rate": 16.71,
-      "roi": -1.18
+      "n": 518,
+      "hit_rate": 16.41,
+      "roi": -3.63
     },
     "edge_ge3": {
-      "n": 11,
-      "hit_rate": 9.09,
-      "roi": -9.09
+      "n": 12,
+      "hit_rate": 8.33,
+      "roi": -16.67
     }
   },
-  "edge_graded_picks": 549,
+  "edge_graded_picks": 673,
   "edge_blind": {
-    "n": 549,
-    "roi": -9.46,
-    "actual_hr": 14.39,
-    "mkt_implied": 14.33
+    "n": 673,
+    "roi": -13.49,
+    "actual_hr": 13.97,
+    "mkt_implied": 14.43
   }
 }
