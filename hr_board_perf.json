@@ -1,83 +1,83 @@
 {
-  "graded_dates": 45,
-  "graded_picks": 5617,
-  "base_hr_rate": 12.14,
+  "graded_dates": 46,
+  "graded_picks": 5754,
+  "base_hr_rate": 12.15,
   "buckets": {
     "top10": {
-      "n": 448,
-      "hit_rate": 17.63,
-      "lift_vs_base": 5.49
+      "n": 458,
+      "hit_rate": 17.25,
+      "lift_vs_base": 5.1
     },
     "top25": {
-      "n": 660,
-      "hit_rate": 15.91,
-      "lift_vs_base": 3.77
+      "n": 675,
+      "hit_rate": 15.7,
+      "lift_vs_base": 3.56
     },
     "rest": {
-      "n": 4509,
-      "hit_rate": 11.04,
-      "lift_vs_base": -1.1
+      "n": 4621,
+      "hit_rate": 11.12,
+      "lift_vs_base": -1.02
     }
   },
   "calibration": [
     {
       "q": 0,
-      "pred": 6.3,
-      "actual": 6.7,
-      "n": 1124
+      "pred": 6.4,
+      "actual": 6.8,
+      "n": 1170
     },
     {
       "q": 1,
-      "pred": 9.5,
-      "actual": 10.5,
-      "n": 1131
+      "pred": 9.6,
+      "actual": 10.4,
+      "n": 1182
     },
     {
       "q": 2,
       "pred": 12.2,
-      "actual": 12.6,
-      "n": 1164
+      "actual": 12.8,
+      "n": 1140
     },
     {
       "q": 3,
       "pred": 15.3,
-      "actual": 14.6,
-      "n": 1097
+      "actual": 14.9,
+      "n": 1144
     },
     {
       "q": 4,
-      "pred": 21.9,
-      "actual": 16.4,
-      "n": 1101
+      "pred": 21.8,
+      "actual": 16.2,
+      "n": 1118
     }
   ],
   "calib": {
-    "slope": 0.5307,
-    "intercept": 5.251,
-    "n": 5617
+    "slope": 0.5296,
+    "intercept": 5.273,
+    "n": 5754
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 155,
-      "hit_rate": 5.81,
-      "roi": -46.45
+      "n": 185,
+      "hit_rate": 5.41,
+      "roi": -50.0
     },
     "neg_edge": {
-      "n": 518,
-      "hit_rate": 16.41,
-      "roi": -3.63
+      "n": 621,
+      "hit_rate": 16.26,
+      "roi": -4.25
     },
     "edge_ge3": {
-      "n": 12,
-      "hit_rate": 8.33,
-      "roi": -16.67
+      "n": 13,
+      "hit_rate": 7.69,
+      "roi": -23.08
     }
   },
-  "edge_graded_picks": 673,
+  "edge_graded_picks": 806,
   "edge_blind": {
-    "n": 673,
-    "roi": -13.49,
-    "actual_hr": 13.97,
-    "mkt_implied": 14.43
+    "n": 806,
+    "roi": -14.75,
+    "actual_hr": 13.77,
+    "mkt_implied": 14.51
   }
 }
