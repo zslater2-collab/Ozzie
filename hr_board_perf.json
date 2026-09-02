@@ -1,83 +1,83 @@
 {
-  "graded_dates": 46,
-  "graded_picks": 5754,
-  "base_hr_rate": 12.15,
+  "graded_dates": 47,
+  "graded_picks": 5924,
+  "base_hr_rate": 12.17,
   "buckets": {
     "top10": {
-      "n": 458,
-      "hit_rate": 17.25,
-      "lift_vs_base": 5.1
+      "n": 468,
+      "hit_rate": 16.88,
+      "lift_vs_base": 4.71
     },
     "top25": {
-      "n": 675,
-      "hit_rate": 15.7,
-      "lift_vs_base": 3.56
+      "n": 690,
+      "hit_rate": 15.8,
+      "lift_vs_base": 3.63
     },
     "rest": {
-      "n": 4621,
-      "hit_rate": 11.12,
-      "lift_vs_base": -1.02
+      "n": 4766,
+      "hit_rate": 11.18,
+      "lift_vs_base": -0.99
     }
   },
   "calibration": [
     {
       "q": 0,
       "pred": 6.4,
-      "actual": 6.8,
-      "n": 1170
+      "actual": 6.7,
+      "n": 1191
     },
     {
       "q": 1,
       "pred": 9.6,
-      "actual": 10.4,
-      "n": 1182
+      "actual": 10.5,
+      "n": 1218
     },
     {
       "q": 2,
       "pred": 12.2,
       "actual": 12.8,
-      "n": 1140
+      "n": 1172
     },
     {
       "q": 3,
-      "pred": 15.3,
+      "pred": 15.2,
       "actual": 14.9,
-      "n": 1144
+      "n": 1158
     },
     {
       "q": 4,
-      "pred": 21.8,
-      "actual": 16.2,
-      "n": 1118
+      "pred": 21.6,
+      "actual": 16.1,
+      "n": 1185
     }
   ],
   "calib": {
-    "slope": 0.5296,
-    "intercept": 5.273,
-    "n": 5754
+    "slope": 0.5251,
+    "intercept": 5.352,
+    "n": 5924
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 185,
-      "hit_rate": 5.41,
-      "roi": -50.0
+      "n": 222,
+      "hit_rate": 4.5,
+      "roi": -58.33
     },
     "neg_edge": {
-      "n": 621,
-      "hit_rate": 16.26,
-      "roi": -4.25
+      "n": 747,
+      "hit_rate": 16.2,
+      "roi": -2.05
     },
     "edge_ge3": {
-      "n": 13,
-      "hit_rate": 7.69,
-      "roi": -23.08
+      "n": 17,
+      "hit_rate": 5.88,
+      "roi": -41.18
     }
   },
-  "edge_graded_picks": 806,
+  "edge_graded_picks": 969,
   "edge_blind": {
-    "n": 806,
-    "roi": -14.75,
-    "actual_hr": 13.77,
-    "mkt_implied": 14.51
+    "n": 969,
+    "roi": -14.95,
+    "actual_hr": 13.52,
+    "mkt_implied": 14.57
   }
 }
