@@ -1,22 +1,22 @@
 {
-  "graded_dates": 48,
-  "graded_picks": 6100,
+  "graded_dates": 49,
+  "graded_picks": 6199,
   "base_hr_rate": 12.1,
   "buckets": {
     "top10": {
-      "n": 478,
-      "hit_rate": 16.74,
-      "lift_vs_base": 4.64
+      "n": 488,
+      "hit_rate": 16.8,
+      "lift_vs_base": 4.7
     },
     "top25": {
-      "n": 705,
-      "hit_rate": 15.6,
-      "lift_vs_base": 3.5
+      "n": 720,
+      "hit_rate": 15.42,
+      "lift_vs_base": 3.32
     },
     "rest": {
-      "n": 4917,
-      "hit_rate": 11.15,
-      "lift_vs_base": -0.95
+      "n": 4991,
+      "hit_rate": 11.16,
+      "lift_vs_base": -0.94
     }
   },
   "calibration": [
@@ -24,48 +24,48 @@
       "q": 0,
       "pred": 6.5,
       "actual": 6.8,
-      "n": 1262
+      "n": 1278
     },
     {
       "q": 1,
       "pred": 9.7,
       "actual": 10.3,
-      "n": 1206
+      "n": 1229
     },
     {
       "q": 2,
       "pred": 12.2,
       "actual": 13.0,
-      "n": 1218
+      "n": 1244
     },
     {
       "q": 3,
       "pred": 15.2,
-      "actual": 14.7,
-      "n": 1206
+      "actual": 14.6,
+      "n": 1227
     },
     {
       "q": 4,
-      "pred": 21.6,
+      "pred": 21.5,
       "actual": 16.0,
-      "n": 1208
+      "n": 1221
     }
   ],
   "calib": {
-    "slope": 0.5256,
-    "intercept": 5.278,
-    "n": 6100
+    "slope": 0.5248,
+    "intercept": 5.295,
+    "n": 6199
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 247,
-      "hit_rate": 4.86,
-      "roi": -54.25
+      "n": 257,
+      "hit_rate": 5.06,
+      "roi": -52.92
     },
     "neg_edge": {
-      "n": 866,
-      "hit_rate": 15.36,
-      "roi": -6.67
+      "n": 930,
+      "hit_rate": 15.38,
+      "roi": -6.89
     },
     "edge_ge3": {
       "n": 18,
@@ -73,11 +73,11 @@
       "roi": -44.44
     }
   },
-  "edge_graded_picks": 1113,
+  "edge_graded_picks": 1187,
   "edge_blind": {
-    "n": 1113,
-    "roi": -17.23,
-    "actual_hr": 13.03,
-    "mkt_implied": 14.51
+    "n": 1187,
+    "roi": -16.86,
+    "actual_hr": 13.14,
+    "mkt_implied": 14.56
   }
 }
