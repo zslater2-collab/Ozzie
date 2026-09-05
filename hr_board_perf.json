@@ -1,83 +1,83 @@
 {
-  "graded_dates": 49,
-  "graded_picks": 6199,
-  "base_hr_rate": 12.1,
+  "graded_dates": 50,
+  "graded_picks": 6353,
+  "base_hr_rate": 12.17,
   "buckets": {
     "top10": {
-      "n": 488,
-      "hit_rate": 16.8,
+      "n": 498,
+      "hit_rate": 16.87,
       "lift_vs_base": 4.7
     },
     "top25": {
-      "n": 720,
-      "hit_rate": 15.42,
-      "lift_vs_base": 3.32
+      "n": 735,
+      "hit_rate": 15.24,
+      "lift_vs_base": 3.07
     },
     "rest": {
-      "n": 4991,
-      "hit_rate": 11.16,
-      "lift_vs_base": -0.94
+      "n": 5120,
+      "hit_rate": 11.27,
+      "lift_vs_base": -0.9
     }
   },
   "calibration": [
     {
       "q": 0,
       "pred": 6.5,
-      "actual": 6.8,
-      "n": 1278
+      "actual": 7.2,
+      "n": 1308
     },
     {
       "q": 1,
       "pred": 9.7,
-      "actual": 10.3,
-      "n": 1229
+      "actual": 10.4,
+      "n": 1261
     },
     {
       "q": 2,
       "pred": 12.2,
       "actual": 13.0,
-      "n": 1244
+      "n": 1268
     },
     {
       "q": 3,
       "pred": 15.2,
-      "actual": 14.6,
-      "n": 1227
+      "actual": 14.4,
+      "n": 1246
     },
     {
       "q": 4,
-      "pred": 21.5,
-      "actual": 16.0,
-      "n": 1221
+      "pred": 21.4,
+      "actual": 16.1,
+      "n": 1270
     }
   ],
   "calib": {
-    "slope": 0.5248,
-    "intercept": 5.295,
-    "n": 6199
+    "slope": 0.5087,
+    "intercept": 5.577,
+    "n": 6353
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 257,
-      "hit_rate": 5.06,
-      "roi": -52.92
+      "n": 297,
+      "hit_rate": 5.39,
+      "roi": -48.15
     },
     "neg_edge": {
-      "n": 930,
-      "hit_rate": 15.38,
-      "roi": -6.89
+      "n": 1038,
+      "hit_rate": 15.61,
+      "roi": -3.48
     },
     "edge_ge3": {
-      "n": 18,
-      "hit_rate": 5.56,
-      "roi": -44.44
+      "n": 23,
+      "hit_rate": 4.35,
+      "roi": -56.52
     }
   },
-  "edge_graded_picks": 1187,
+  "edge_graded_picks": 1335,
   "edge_blind": {
-    "n": 1187,
-    "roi": -16.86,
-    "actual_hr": 13.14,
-    "mkt_implied": 14.56
+    "n": 1335,
+    "roi": -13.42,
+    "actual_hr": 13.33,
+    "mkt_implied": 14.64
   }
 }
