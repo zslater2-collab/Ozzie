@@ -107,8 +107,11 @@ def get_park_factor(team, hand, arch_key):
     else:
         pull,pull_c,oppo = dims['left_field'],dims['left_center'],dims['right_field']
         a_pull,a_pull_c,a_oppo = avg['left_field'],avg['left_center'],avg['right_field']
-    cf=dims['center']; a_cf=avg['center']; base=arch_key.replace('_L','')
-    if base in ('middle_ff','middle_sl'):
+    cf=dims['center']; a_cf=avg['center']
+    # arch_key None -> unclassified hitter: use hand-based geometry with a neutral (most-common
+    # power) pull profile so these bats still get a real park factor instead of a flat 1.0.
+    base=arch_key.replace('_L','') if arch_key else 'neutral'
+    if base in ('middle_ff','middle_sl','neutral'):
         rel=0.5*pull+0.3*pull_c+0.2*cf; av=0.5*a_pull+0.3*a_pull_c+0.2*a_cf
     elif base=='oppo_ff':
         rel=0.5*oppo+0.3*dims['right_center']+0.2*cf; av=0.5*a_oppo+0.3*avg['right_center']+0.2*a_cf
@@ -350,8 +353,8 @@ def build_board(game_date, H, P, meta):
                 if bid in b2a:                                    # archetyped -> keep pitch/zone park geometry + label
                     ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
                     park=get_park_factor(g['home'],hand,ak); arch_name=arch[ak]['name']
-                else:                                            # unclassified power hitter -> neutral park, no archetype
-                    hand=h.get('stand','R'); park=1.0; arch_name=''
+                else:                                            # unclassified power hitter -> hand-based neutral park geometry, no archetype label
+                    hand=h.get('stand','R'); park=get_park_factor(g['home'],hand,None); arch_name=''
                 # dampen the log5 joint-extreme overstatement (see KHR_INTERACTION_DAMP)
                 _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit['hr_rate']/lg)))
                 pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp*_damp
