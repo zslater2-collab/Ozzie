@@ -1090,13 +1090,26 @@
 
   // ── Explorer: filterable/sortable Hitters & Pitchers ──────────────────────
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
-    sort:{hitters:{col:'edge',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
+    sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[]}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
   function _exPct(v,d){return v==null?'—':(+v*100).toFixed(d);}
   function _exEdgeCol(e){return e==null?'':(e>=3?'#39d353':(e>=0?'var(--accent)':'var(--muted)'));}
+  // model-vs-market edge is forward-graded as a FADE (positive underperforms), so positive shows amber caution, not green
+  function _exFadeCol(e){return e==null?'':(e>0?'#e0a020':'var(--muted)');}
+  function _exImp(a){return (a==null||a==='')?null:((+a<0?(-a)/(-a+100):100/(+a+100))*100);}   // american -> implied %
+  // derive the edge-at-best-price, line-shop value, and DFS leverage onto each hitter row (sortable/exportable),
+  // always consistent with the row's (possibly overlay-recomputed) hr_prob.
+  function _exDeriveHR(r){
+    const bi=_exImp(r.mkt_over), ai=_exImp(r.mkt_avg);
+    r.edge_best=(r.hr_prob!=null&&bi!=null)?+(+r.hr_prob-bi).toFixed(1):null;   // model% - best bettable price%
+    r.edge_shop=(bi!=null&&ai!=null)?+(ai-bi).toFixed(1):null;                  // best price beats market-avg
+    const p=(r.mkt_prob!=null)?+r.mkt_prob:(r.hr_prob!=null?+r.hr_prob:null);   // trustworthy HR% (market else model)
+    r.leverage=(r.salary!=null&&+r.salary>0&&p!=null)?+(p/(+r.salary/1000)).toFixed(2):null;
+    return r;
+  }
   const _RAIN_B=' <span class="exp-badge" style="color:#6ab7ff;border-color:#6ab7ff" title="considerable rain around gametime">⛈</span>';
   const EXP_COLS={
     hitters:[
@@ -1108,11 +1121,15 @@
       {k:'game',t:'Game',l:1,f:r=>r.game+(r.proj?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020" title="lineup not posted; projected roster">PROJ</span>':'')},
       {k:'Pitcher',t:'vs Pitcher',l:1,f:r=>_exEsc(r.Pitcher||'')+(r.pit_hand?' ('+r.pit_hand+')':'')},
       {k:'hr_prob',t:'HR%',f:r=>r.hr_prob==null?'—':(+r.hr_prob).toFixed(1)+'%'},
+      {k:'salary',t:'$',f:r=>r.salary==null?'—':'$'+(+r.salary/1000).toFixed(1)+'k'},
+      {k:'leverage',t:'Lev',f:r=>r.leverage==null?'—':(+r.leverage).toFixed(2)},
       {k:'fair',t:'Fair',f:r=>r.fair||'—'},
       {k:'mkt_over',t:'Best',f:r=>_exAm(r.mkt_over)},
       {k:'mkt_book',t:'Book',l:1,f:r=>r.mkt_book||'—'},
       {k:'mkt_avg',t:'Mkt Avg',f:r=>_exAm(r.mkt_avg)},
-      {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exEdgeCol(r.edge)},
+      {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exFadeCol(r.edge)},
+      {k:'edge_best',t:'Edge@Best',f:r=>r.edge_best==null?'—':((r.edge_best>=0?'+':'')+(+r.edge_best).toFixed(1)),c:r=>_exFadeCol(r.edge_best)},
+      {k:'edge_shop',t:'Shop',f:r=>r.edge_shop==null?'—':((r.edge_shop>=0?'+':'')+(+r.edge_shop).toFixed(1)),c:r=>r.edge_shop==null?'':(r.edge_shop>0?'#39d353':'var(--muted)')},
       {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
       {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},
       {k:'park',t:'Park',f:r=>_exN(r.park,2)},
@@ -1146,7 +1163,7 @@
       fetch('/api/hr_board').then(r=>r.ok?r.json():null).catch(()=>null),
       fetch('/api/picks').then(r=>r.ok?r.json():null).catch(()=>null),
     ]).then(([hr,pk])=>{
-      EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()):[];
+      EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()).map(_exDeriveHR):[];
       EXP.data.pitchers=(pk&&pk.pitcher_explorer)?pk.pitcher_explorer:[];
       if(!EXP.data.hitters.length&&!EXP.data.pitchers.length)return;
       document.getElementById('explorer-section').style.display='block';
