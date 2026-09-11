@@ -20,6 +20,7 @@ PA_CACHE = os.path.join(DATA, 'hr_pa_2026.csv.gz')
 ARCH_CSV = os.path.join(REPO, 'hr_board_archive.csv')
 LATEST   = os.path.join(REPO, 'hr_board_latest.json')
 PERF     = os.path.join(REPO, 'hr_board_perf.json')
+GRADED   = os.path.join(REPO, 'hr_board_graded.csv')   # row-level prediction+edges+outcome ledger
 RAIN     = os.path.join(REPO, 'rain_flags_latest.json')   # K-prop "rain around gametime" stay-away
 
 K_HIT, K_PIT = 120, 150
@@ -338,6 +339,52 @@ def fetch_hr_odds(game_date):
           f'(regions={HR_ODDS_REGIONS}).')
     return out
 
+# ---------------- DraftKings salary (DFS leverage) ----------------
+# Unofficial public DK JSON (same feed the draft screen uses). We use ONLY the salary NUMBER; who is
+# actually playing comes from statsapi lineups in build_board, so DK's (pre-lock, stale) probable-pitcher
+# flags don't matter. Accent-safe name join (the Rodon/Sanchez landmine). Fail-open -> {} (no salary col).
+DK_UA = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+def _dk_team(t):   # DK/statsapi codes -> our ARI/KCR/TBR space so both sides of the join agree
+    return {'AZ':'ARI','KC':'KCR','TB':'TBR'}.get(str(t).upper(), str(t).upper())
+def fetch_dk_salaries(date):
+    """{norm_name: [(team, salary), ...]} for the date's largest MLB Classic slate. Fail-open -> {}."""
+    try:
+        lob = requests.get('https://www.draftkings.com/lobby/getcontests?sport=MLB', headers=DK_UA, timeout=15).json()
+    except Exception as e:
+        print(f'DK salary: lobby fetch failed ({e}); skipped.'); return {}
+    cand = []
+    for dgp in (lob.get('DraftGroups') or []):
+        sd = (dgp.get('StartDate') or '')[:10]
+        gc = dgp.get('GameCount') or 0
+        # GameTypeId==2 = Classic (the salary format we draft). Other IDs are Showdown/Tiers/Snake/
+        # "Home Runs" variants whose draftables are empty or differently priced -- exclude them.
+        if sd == date and gc and dgp.get('GameTypeId') == 2:
+            cand.append((gc, dgp.get('DraftGroupId')))
+    if not cand:
+        print(f'DK salary: no Classic draft group dated {date}; skipped.'); return {}
+    dgid = max(cand)[1]   # most games = the main Classic slate
+    try:
+        dr = requests.get(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid}/draftables',
+                          headers=DK_UA, timeout=20).json()
+    except Exception as e:
+        print(f'DK salary: draftables fetch failed ({e}); skipped.'); return {}
+    out, seen = {}, set()
+    for p in (dr.get('draftables') or []):
+        pid = p.get('playerId')
+        if pid in seen: continue
+        seen.add(pid)
+        nm = _norm(p.get('displayName','')); sal = p.get('salary'); tm = _dk_team(p.get('teamAbbreviation'))
+        if nm and sal: out.setdefault(nm, []).append((tm, int(sal)))
+    print(f'DK salary: slate {dgid} ({max(cand)[0]} games) -> {len(out)} players priced.')
+    return out
+def _dk_salary(dk, name, team):
+    lst = dk.get(_norm(name))
+    if not lst: return np.nan
+    tm = _dk_team(team)
+    for t, s in lst:
+        if t == tm: return s
+    return max(s for _, s in lst)   # name match, team unknown -> highest-salary entry (the starter)
+
 # ---------------- board ----------------
 def build_board(game_date, H, P, meta):
     from datetime import timezone
@@ -435,26 +482,47 @@ def grade(archive, pa):
         slope = float(np.clip(slope, 0.2, 1.0))
     perf['calib'] = {'slope': round(slope,4), 'intercept': round(float(intercept),3), 'n': int(len(g))}
 
-    # EDGE grading (only where the archive captured a market price): does recal-model-vs-market edge
-    # actually predict? Report hit rate AND realized ROI at the taken price for positive vs negative
-    # edge, plus by edge size. Guards against the model manufacturing fake edge where it runs hot.
-    if 'mkt_prob' in g.columns and 'mkt_over' in g.columns:
-        ge = g[g['mkt_prob'].notna() & g['mkt_over'].notna()].copy()
-        if len(ge):
-            ge['edge'] = (slope*ge['hr_prob'] + intercept) - ge['mkt_prob']   # recal model% - market%
-            ge['roi']  = np.where(ge['had_hr']==1, ge['mkt_over'].apply(_payout), -1.0)
-            eb={}
-            for lab,mask in [('pos_edge', ge['edge']>0), ('neg_edge', ge['edge']<=0),
-                             ('edge_ge3', ge['edge']>=3)]:
-                s=ge[mask]
-                if len(s): eb[lab]={'n':int(len(s)),'hit_rate':round(100*s['had_hr'].mean(),2),
-                                    'roi':round(100*s['roi'].mean(),2)}
-            perf['edge_buckets']=eb
-            perf['edge_graded_picks']=int(len(ge))
-            # blind CLV baseline: ROI + fair-vs-market gap on every captured pick (context for eb)
-            perf['edge_blind']={'n':int(len(ge)),'roi':round(100*ge['roi'].mean(),2),
-                                'actual_hr':round(100*ge['had_hr'].mean(),2),
-                                'mkt_implied':round(float(ge['mkt_prob'].mean()),2)}
+    # ---- recalibrated model + the full edge family (per row) -> persisted graded ledger ----
+    # NOTE: forward grading shows model-vs-market "edge" is INVERTED (pos_edge underperforms
+    # base in every prob band -- it measures where our log5 overrates weak hitters vs an accurate
+    # market, not a bet). Kept + graded so the ledger documents the fade; NOT a bet signal.
+    g['model_recal'] = (slope*g['hr_prob'] + intercept).round(2)
+    _imp = lambda a: (round(_implied(a)*100, 2) if pd.notna(a) else np.nan)   # american -> implied %
+    for c in ('mkt_prob','mkt_over','mkt_avg'):
+        if c not in g.columns: g[c] = np.nan
+    g['best_impl'] = g['mkt_over'].apply(_imp)
+    g['avg_impl']  = g['mkt_avg'].apply(_imp)
+    g['edge']      = (g['model_recal'] - g['mkt_prob']).round(2)    # model - de-vigged consensus
+    g['edge_best'] = (g['model_recal'] - g['best_impl']).round(2)   # model - best bettable price
+    g['edge_shop'] = (g['avg_impl']    - g['best_impl']).round(2)   # best price beats market-avg (line shop)
+    g['roi'] = np.where(g['had_hr']==1, g['mkt_over'].apply(lambda a: _payout(a) if pd.notna(a) else np.nan), -1.0)
+    g.loc[g['mkt_over'].isna(), 'roi'] = np.nan
+
+    led_cols = [c for c in ['date','batter','Batter','Pitcher','game','team','slot','pos','bat_hand',
+                'hit_hr','pit_hr','park','wx','supp','hr_prob','model_recal','mkt_prob','mkt_over','mkt_avg',
+                'salary','leverage','edge','edge_best','edge_shop','had_hr','roi'] if c in g.columns]
+    try:
+        g.sort_values(['date','hr_prob'], ascending=[True,False])[led_cols].to_csv(GRADED, index=False)
+    except Exception as e:
+        print(f'graded ledger write failed: {e}')
+
+    # EDGE grading (picks with a captured market price) -- edge + edge_best (both invert), plus a
+    # Shop CLV stat (avg pts the best bettable price beats the market average -- a real, positive lever).
+    ge = g[g['mkt_prob'].notna() & g['mkt_over'].notna()].copy()
+    if len(ge):
+        eb={}
+        for lab,mask in [('pos_edge', ge['edge']>0), ('neg_edge', ge['edge']<=0), ('edge_ge3', ge['edge']>=3),
+                         ('best_pos', ge['edge_best']>0), ('best_neg', ge['edge_best']<=0)]:
+            s=ge[mask]
+            if len(s): eb[lab]={'n':int(len(s)),'hit_rate':round(100*s['had_hr'].mean(),2),
+                                'roi':round(100*s['roi'].mean(),2)}
+        perf['edge_buckets']=eb
+        perf['edge_graded_picks']=int(len(ge))
+        perf['shop']={'n':int(ge['edge_shop'].notna().sum()),
+                      'avg_pts':round(float(ge['edge_shop'].mean()),2) if ge['edge_shop'].notna().any() else None}
+        perf['edge_blind']={'n':int(len(ge)),'roi':round(100*ge['roi'].mean(),2),
+                            'actual_hr':round(100*ge['had_hr'].mean(),2),
+                            'mkt_implied':round(float(ge['mkt_prob'].mean()),2)}
     # ---- watchable readout each cron run (logs to the Actions output; also persisted in perf.json) ----
     print(f"CALIBRATION: actual% = {perf['calib']['intercept']} + {perf['calib']['slope']}*pred%  "
           f"(slope<1 = runs hot; n={perf['calib']['n']})")
@@ -564,6 +632,14 @@ def main():
             day['mkt_n_books']=_k.map(lambda n:hr_odds.get(n,{}).get('n_books'))
             day['mkt_n_bettable']=_k.map(lambda n:hr_odds.get(n,{}).get('n_bettable'))
             day['book_prices']=_k.map(lambda n:hr_odds.get(n,{}).get('book_prices') or [])
+        # DK salary (DFS leverage). Accent-safe name+team join to the players the board already has;
+        # report coverage so a broken/stale pull is visible. Fail-open -> no salary column.
+        dk_sal = fetch_dk_salaries(date)
+        if dk_sal and 'Batter' in day.columns:
+            teams = day['team'] if 'team' in day.columns else pd.Series(['']*len(day), index=day.index)
+            day['salary'] = [ _dk_salary(dk_sal, nm, tm) for nm, tm in zip(day['Batter'], teams) ]
+            cov = day['salary'].notna().mean()
+            print(f'DK salary join: {int(day["salary"].notna().sum())}/{len(day)} board players matched ({cov:.0%} coverage).')
         # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
         # Drop the display-only book_prices list column so it doesn't bloat/round-trip in the CSV.
@@ -614,27 +690,17 @@ def main():
         d['hr_prob_raw'] = d['hr_prob']
         d['hr_prob'] = (cal['intercept'] + cal['slope']*d['hr_prob_raw']).clip(0.5, 60).round(1)
         d['fair'] = d['hr_prob'].apply(lambda p: ('+%d'%a if (a:=prob_to_american(p))>0 else str(a)))
-        # EDGE = recalibrated model% - de-vigged market% (present only where a book priced the player).
-        # Ranking by edge is the fix for "why skip the top-prob guys": a chalk hitter stays on top
-        # UNLESS his price already ate the value; a mid-prob hitter the book underrates rises.
-        if hr_odds and 'mkt_prob' in d.columns and d['mkt_prob'].notna().any():
+        # EDGE = recalibrated model% - de-vigged market%. Forward grading shows this edge is INVERTED
+        # (pos_edge underperforms base in every prob band -- it's a fade, not a bet; see edge_buckets).
+        # So it is NO LONGER used to rank -- kept as a context column. Rank by the validated signal:
+        # recalibrated model probability. (The Explorer re-sorts client-side; this sets the archive order
+        # + the hidden compact board.) DFS value now comes from salary/leverage, not model-vs-market edge.
+        if 'mkt_prob' in d.columns and d['mkt_prob'].notna().any():
             d['edge'] = (d['hr_prob'] - d['mkt_prob']).round(1)
-            ranked_by = 'edge'
-            # priced rows first, ranked by edge desc; unpriced fall below, by probability
-            d['_priced'] = d['mkt_prob'].notna()
-            d = d.sort_values(['_priced','edge','hr_prob'], ascending=[False,False,False]).drop(columns='_priced').reset_index(drop=True)
-            def _etier(r):
-                e=r['edge']
-                if pd.isna(e): return 'noodds'          # no market -> can't call value
-                if e>=3: return 'value'                 # >=3 pts model over market = the play
-                if e>=0: return 'lean'                  # small positive edge
-                return 'fade'                           # market prices it richer than the model
-            d['tier']=d.apply(_etier,axis=1)
-        else:
-            d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
-            ranked_by = 'prob'
-            # legacy DFS tiers by rank: Chalk (top 10, model runs hot), Value (11-25), Deep (26+).
-            d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
+        d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
+        ranked_by = 'prob'
+        # DFS tiers by rank: Chalk (top 10), Value (11-25, the reliable band), Deep (26+).
+        d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
         nproj = int(d['proj'].sum()) if 'proj' in d.columns else 0
         # to_json converts NaN->null (valid JSON); plain json.dump would emit bare NaN,
         # which Python tolerates but browser JSON.parse rejects -> blank board.
