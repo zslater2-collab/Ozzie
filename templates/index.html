@@ -1092,7 +1092,7 @@
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
-             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:''}, expanded:null, _rows:[]};
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1109,6 +1109,9 @@
     r.edge_shop=(bi!=null&&ai!=null)?+(ai-bi).toFixed(1):null;                  // best price beats market-avg
     const p=(r.mkt_prob!=null)?+r.mkt_prob:(r.hr_prob!=null?+r.hr_prob:null);   // trustworthy HR% (market else model)
     r.leverage=(r.salary!=null&&+r.salary>0&&p!=null)?+(p/(+r.salary/1000)).toFixed(2):null;
+    // HR-prop angle (forward-track lead): edge −3..−6 = mid-tier bat the market underprices (+EV over);
+    // edge ≥ +1 = model at/above market = fade (inverted). Deep chalk (edge<−6) is overpriced -> blank.
+    r.prop=(r.edge!=null&&r.edge>=-6&&r.edge<-3)?'over':((r.edge!=null&&r.edge>=1)?'fade':'');
     return r;
   }
   const _RAIN_B=' <span class="exp-badge" style="color:#6ab7ff;border-color:#6ab7ff" title="considerable rain around gametime">⛈</span>';
@@ -1129,6 +1132,7 @@
     edge:'Model% − de-vigged market consensus%. ⚠ FADE: positive historically UNDERperforms (model overrates weak hitters) — not a bet',
     edge_best:'Model% − implied% of the best bettable price. ⚠ Same fade caveat as Edge',
     edge_shop:'How much the best price beats the market-average book (line-shopping value). Positive = better-than-average price',
+    prop:'HR-prop angle (forward-track, ~5 wks, both halves stable). ✅ over = model 3–6 pts BELOW market — mid-tier bat the market underprices (+2.3pp over implied, ~+13% ROI). ⛔ fade = model at/above market (inverted). Blank = deep chalk (overpriced) or unpriced. Always shop the best price.',
     hit_hr:'Hitter shrunk season HR rate per PA (%)', pit_hr:'Opposing pitcher shrunk HR-allowed rate per PA (%)',
     park:'Empirical HR park factor, hand-specific (1.0 = neutral)',
     wx:'Weather factor — temp/wind (1.0 = neutral; roofed parks = 1.0)',
@@ -1161,6 +1165,7 @@
       {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exFadeCol(r.edge)},
       {k:'edge_best',t:'Edge@Best',f:r=>r.edge_best==null?'—':((r.edge_best>=0?'+':'')+(+r.edge_best).toFixed(1)),c:r=>_exFadeCol(r.edge_best)},
       {k:'edge_shop',t:'Shop',f:r=>r.edge_shop==null?'—':((r.edge_shop>=0?'+':'')+(+r.edge_shop).toFixed(1)),c:r=>r.edge_shop==null?'':(r.edge_shop>0?'#39d353':'var(--muted)')},
+      {k:'prop',t:'Prop',f:r=>r.prop==='over'?'✅ over':(r.prop==='fade'?'⛔ fade':''),c:r=>r.prop==='over'?'#39d353':(r.prop==='fade'?'#e0a020':'')},
       {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
       {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},
       {k:'park',t:'Park',f:r=>_exN(r.park,2)},
@@ -1218,6 +1223,7 @@
     if(F.minLev!==''&&EXP.tab==='hitters'){const m=+F.minLev;rows=rows.filter(r=>r.leverage!=null&&+r.leverage>=m);}
     if(F.minShop!==''&&EXP.tab==='hitters'){const m=+F.minShop;rows=rows.filter(r=>r.edge_shop!=null&&+r.edge_shop>=m);}
     if(F.minEdgeBest!==''&&EXP.tab==='hitters'){const m=+F.minEdgeBest;rows=rows.filter(r=>r.edge_best!=null&&+r.edge_best>=m);}
+    if(F.propOver&&EXP.tab==='hitters')rows=rows.filter(r=>r.prop==='over');
     if(F.pos&&EXP.tab==='hitters'){
       if(F.pos==='__OF__')rows=rows.filter(r=>['LF','CF','RF','OF'].includes((r.pos||'').toUpperCase()));
       else rows=rows.filter(r=>r.pos===F.pos);
@@ -1271,6 +1277,7 @@
       h+=`<label title="min leverage = HR% per $1k">min Lev <input type="number" step="0.1" value="${F.minLev}" oninput="expSetFilter('minLev',this.value)" style="width:50px"></label>`;
       h+=`<label title="min line-shop value (best price vs market avg)">min Shop <input type="number" step="0.5" value="${F.minShop}" oninput="expSetFilter('minShop',this.value)" style="width:50px"></label>`;
       h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
+      h+=`<label title="show only the HR-prop sweet spot: model 3-6 pts below market (market underprices)"><input type="checkbox" ${F.propOver?'checked':''} onchange="expSetFilter('propOver',this.checked)"> ✅ prop overs</label>`;
       const timeMap={};all.forEach(r=>{if(r.gtime!=null&&!(r.gtime in timeMap))timeMap[r.gtime]=r.gstart_ms||0;});
       const times=Object.keys(timeMap).sort((a,b)=>(timeMap[a]||0)-(timeMap[b]||0));
       if(times.length){
