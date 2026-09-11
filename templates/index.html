@@ -101,13 +101,13 @@
   .dfs-name{font-size:.78rem;flex:1}
   /* HR board — compact, width-capped table so it scans instead of spreading edge-to-edge */
   #hrboard-list{max-width:600px}
-  .hrb-head{display:flex;align-items:flex-end;gap:8px;padding:2px 0 5px;border-bottom:1px solid var(--dim)}
-  .hrb-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
-  .hrb-rank{width:22px;flex-shrink:0;font-size:.58rem;color:var(--muted);text-align:center}
+  .hrb-head{display:flex;align-items:flex-end;gap:6px;padding:2px 0 5px;border-bottom:1px solid var(--dim)}
+  .hrb-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)}
+  .hrb-rank{width:20px;flex-shrink:0;font-size:.58rem;color:var(--muted);text-align:center}
   .hrb-main{flex:1;min-width:0}
   .hrb-name{font-size:.78rem;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hrb-sub{font-size:.58rem;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hrb-col{width:52px;flex-shrink:0;text-align:right;font-size:.75rem;font-variant-numeric:tabular-nums}
+  .hrb-col{width:44px;flex-shrink:0;text-align:right;font-size:.72rem;font-variant-numeric:tabular-nums}
   .hrb-col.hd{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
   /* Explorer: filterable/sortable hitter & pitcher tables */
   .exp-tabs{display:flex;gap:6px;margin-bottom:10px}
@@ -932,7 +932,7 @@
       }
       const edgeMode = data.ranked_by==='edge';
       if(edgeMode){
-        perfTxt+=`Stats through ${data.asof||'—'}. Ranked by <b>EDGE</b> = recalibrated model prob − de-vigged market prob — a hitter leads only when the book hasn't already priced in his HR chance.`;
+        perfTxt+=`Stats through ${data.asof||'—'}. Ranked by <b>EDGE</b> = recalibrated model prob − de-vigged market prob — a hitter leads only when the book hasn't already priced in his HR chance. <b>Best</b> = model − best bettable price (your EV edge at the price you can get, incl. vig). <b>Shop</b> = how much the best price beats the market-average book (line-shopping value, +=better).`;
         const eb=p.edge_buckets;
         if(eb&&eb.pos_edge){
           const ng=eb.neg_edge||{};
@@ -961,8 +961,12 @@
         ? {value:'✅ Value — model edge ≥3 pts over the market',lean:'Lean — small positive edge',fade:'Fade — priced richer than the model',noodds:'No market price posted'}
         : {chalk:'Chalk — model runs hot, priciest',value:'Value — reliable band',deep:'Deep — lower probability'};
       const amer=(a)=>(a==null?'—':(a>0?'+'+a:''+a));
-      // one column header so the numbers read as an aligned table, not scattered to the edges
-      const colHd = edgeMode ? ['Model','Price','Edge'] : ['Model','Fair'];
+      // american odds -> implied probability % (raw, incl. vig)
+      const amImpPct=(a)=>(a==null?null:(a<0?(-a)/(-a+100):100/(a+100))*100);
+      // one column header so the numbers read as an aligned table, not scattered to the edges.
+      // edge mode: Edge = model − de-vigged consensus; Best = model − best bettable price (your EV
+      // edge at the price you can get); Shop = best price − market-avg price (line-shopping value).
+      const colHd = edgeMode ? ['Model','Price','Edge','Best','Shop'] : ['Model','Fair'];
       const head=document.createElement('div'); head.className='hrb-head';
       head.innerHTML=`<span class="hrb-rank"></span>`+
         `<span class="hrb-main hd" style="font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Batter</span>`+
@@ -987,9 +991,21 @@
         if(edgeMode){
           const edgeStr=(r.edge==null?'—':(r.edge>=0?'+'+r.edge.toFixed(1):r.edge.toFixed(1)));
           const edgeColor=(r.edge==null?'var(--muted)':(r.edge>=3?'#39d353':(r.edge>=0?'var(--accent)':'var(--muted)')));
+          // Best = model% − implied% of best bettable over price (EV edge at the price you can bet)
+          const bImp=amImpPct(r.mkt_over);
+          const eBest=(bImp==null?null:r.hr_prob-bImp);
+          const bestStr=(eBest==null?'—':(eBest>=0?'+'+eBest.toFixed(1):eBest.toFixed(1)));
+          const bestColor=(eBest==null?'var(--muted)':(eBest>=3?'#39d353':(eBest>=0?'var(--accent)':'var(--muted)')));
+          // Shop = implied%(market-avg price) − implied%(best price) = how much the best price beats average
+          const aImp=amImpPct(r.mkt_avg);
+          const eShop=((bImp==null||aImp==null)?null:aImp-bImp);
+          const shopStr=(eShop==null?'—':(eShop>=0?'+'+eShop.toFixed(1):eShop.toFixed(1)));
+          const shopColor=(eShop==null?'var(--muted)':(eShop>0?'#39d353':'var(--muted)'));
           cells=`<span class="hrb-col" style="color:var(--muted)" title="model HR probability">${(r.hr_prob).toFixed(1)}%</span>`+
-                `<span class="hrb-col" title="best anytime-HR price${r.mkt_book?(' — '+r.mkt_book):''}">${amer(r.mkt_over)}</span>`+
-                `<span class="hrb-col" style="color:${edgeColor};font-weight:700" title="edge = model% − de-vigged market%">${edgeStr}</span>`;
+                `<span class="hrb-col" title="best bettable anytime-HR price${r.mkt_book?(' — '+r.mkt_book):''}">${amer(r.mkt_over)}</span>`+
+                `<span class="hrb-col" style="color:${edgeColor};font-weight:700" title="Edge = model% − de-vigged market consensus%">${edgeStr}</span>`+
+                `<span class="hrb-col" style="color:${bestColor};font-weight:700" title="Best = model% − implied% of best bettable price (${r.mkt_book||'—'}) — your EV edge at the price you can actually bet (raw, incl. vig)">${bestStr}</span>`+
+                `<span class="hrb-col" style="color:${shopColor}" title="Shop = implied%(market-avg price ${amer(r.mkt_avg)}) − implied%(best price) — how much the best bettable price beats the average book">${shopStr}</span>`;
         } else {
           const probColor=r.tier==='value'?'var(--accent)':'var(--text)';
           cells=`<span class="hrb-col" style="color:${probColor}">${(r.hr_prob).toFixed(1)}%</span>`+
