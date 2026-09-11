@@ -58,22 +58,36 @@
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 509,
-      "hit_rate": 5.11,
-      "roi": -49.51
+      "n": 508,
+      "hit_rate": 5.12,
+      "roi": -49.41
     },
     "neg_edge": {
-      "n": 1605,
-      "hit_rate": 16.26,
-      "roi": 2.52
+      "n": 1606,
+      "hit_rate": 16.25,
+      "roi": 2.45
     },
     "edge_ge3": {
       "n": 51,
       "hit_rate": 3.92,
       "roi": -64.71
+    },
+    "best_pos": {
+      "n": 560,
+      "hit_rate": 5.71,
+      "roi": -42.32
+    },
+    "best_neg": {
+      "n": 1554,
+      "hit_rate": 16.41,
+      "roi": 1.63
     }
   },
   "edge_graded_picks": 2114,
+  "shop": {
+    "n": 1855,
+    "avg_pts": 1.07
+  },
   "edge_blind": {
     "n": 2114,
     "roi": -10.01,
