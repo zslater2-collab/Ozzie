@@ -52,6 +52,22 @@ b2a = {}
 for ak, ids in hmap.items():
     for i in ids: b2a.setdefault(int(i), []).append(ak)
 
+# empirical HR-specific park factor (built offline, leak-free 2021-2025; ATH=2025 Sacramento only;
+# see ozzie_data/build_hr_park_factor.py). Hand-specific HR multiplier centered on 1.0 -- captures
+# altitude/air the fence-geometry factor misses (Coors scores <1.0 on geometry alone). Fail-open.
+try:
+    HRPF = pickle.load(open(os.path.join(DATA,'hr_park_factor.pkl'),'rb'))
+except Exception as e:
+    print(f'HR park factor load failed ({e}); board falls back to geometry park factor.'); HRPF = {}
+# statsapi/board team codes -> parks.pkl / HRPF keys (statsapi uses AZ/KC/TB; our data uses ARI/KCR/TBR).
+# Without this, AZ/KC/TB home games silently got a neutral 1.0 park AND weather (bug found 2026-09-08).
+TEAM_CODE = {'AZ':'ARI','KC':'KCR','TB':'TBR'}
+def _pk(team): return TEAM_CODE.get(team, team)
+def hr_park_factor(team, hand):
+    r = HRPF.get(_pk(team))
+    if not r: return None
+    return r.get(f'pf_{hand}', r.get('pf'))
+
 # ---------------- PA cache: load + incremental pull ----------------
 def refresh_pa_cache():
     pa = pd.read_csv(PA_CACHE)
@@ -97,6 +113,7 @@ def build_stats(pa):
 
 # ---------------- park / weather / lineups (ported) ----------------
 def get_park_factor(team, hand, arch_key):
+    team = _pk(team)
     if team not in parks: return 1.0
     dims = parks[team]['dimensions']
     avg = {k: sum(p['dimensions'][k] for p in parks.values())/len(parks)
@@ -123,6 +140,7 @@ def get_park_factor(team, hand, arch_key):
     return max(0.85, min(1.15, round(av/rel,3)))
 
 def get_weather_factor(team):
+    team = _pk(team)
     if team not in parks or parks[team].get('roof', False): return 1.0
     p = parks[team]
     try:
@@ -350,11 +368,14 @@ def build_board(game_date, H, P, meta):
                 h=H.get(bid)
                 if not h or h['pa']<MIN_HITTER_PA: continue
                 if h['hr_rate']<HR_RATE_FLOOR: continue          # live power gate (was: bid in b2a)
-                if bid in b2a:                                    # archetyped -> keep pitch/zone park geometry + label
-                    ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'
-                    park=get_park_factor(g['home'],hand,ak); arch_name=arch[ak]['name']
-                else:                                            # unclassified power hitter -> hand-based neutral park geometry, no archetype label
-                    hand=h.get('stand','R'); park=get_park_factor(g['home'],hand,None); arch_name=''
+                if bid in b2a:                                    # archetyped -> hand from archetype + display label
+                    ak=b2a[bid][0]; hand='L' if ak.endswith('_L') else 'R'; arch_name=arch[ak]['name']
+                else:                                            # unclassified power hitter -> hand from batting side, no label
+                    ak=None; hand=h.get('stand','R'); arch_name=''
+                # empirical HR park factor (hand-specific, leak-free 2021-2025); fence geometry is the fallback
+                park=hr_park_factor(g['home'],hand)
+                if park is None:
+                    park=get_park_factor(g['home'],hand,ak)
                 # dampen the log5 joint-extreme overstatement (see KHR_INTERACTION_DAMP)
                 _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit['hr_rate']/lg)))
                 pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp*_damp
