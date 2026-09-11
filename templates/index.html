@@ -1091,7 +1091,8 @@
   // ── Explorer: filterable/sortable Hitters & Pitchers ──────────────────────
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
-    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[]}, expanded:null, _rows:[]};
+    filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:''}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1111,6 +1112,36 @@
     return r;
   }
   const _RAIN_B=' <span class="exp-badge" style="color:#6ab7ff;border-color:#6ab7ff" title="considerable rain around gametime">⛈</span>';
+  // column header tooltips (hover) -- keyed by column key so we don't touch every column def
+  const EXP_DESC={
+    Batter:'Hitter (⛈ = considerable rain around gametime)', team:'Team', opp:'Opponent',
+    bat_hand:'Bats L/R', pos:'DraftKings position',
+    slot:'Batting order slot (— = lineup not posted yet)',
+    game:'Game (PROJ = lineup not posted; projected from active roster)',
+    Pitcher:'Opposing starting pitcher (throws L/R)',
+    hr_prob:'Model HR probability for the game, recalibrated to realized results — the validated ranking signal',
+    salary:"DraftKings Classic salary (today's main slate)",
+    leverage:'Leverage = HR% per $1k salary (market price where posted, else model). Higher = cheaper HR ceiling — the DFS value metric',
+    fair:'Fair odds implied by the model HR%',
+    mkt_over:'Best available anytime-HR price across your bettable books',
+    mkt_book:'Book offering that best price',
+    mkt_avg:'Average anytime-HR price across all tracked books',
+    edge:'Model% − de-vigged market consensus%. ⚠ FADE: positive historically UNDERperforms (model overrates weak hitters) — not a bet',
+    edge_best:'Model% − implied% of the best bettable price. ⚠ Same fade caveat as Edge',
+    edge_shop:'How much the best price beats the market-average book (line-shopping value). Positive = better-than-average price',
+    hit_hr:'Hitter shrunk season HR rate per PA (%)', pit_hr:'Opposing pitcher shrunk HR-allowed rate per PA (%)',
+    park:'Empirical HR park factor, hand-specific (1.0 = neutral)',
+    wx:'Weather factor — temp/wind (1.0 = neutral; roofed parks = 1.0)',
+    arch:'Power-archetype label (blank if unclassified)',
+    pitcher:'Pitcher (🔥 SHARP K-over, 🧊 K-under, OPENER, ⛈ rain)',
+    pq_percentile:'Pitcher Quality composite percentile (Q4 = top). Research/tracking, not validated for betting',
+    projected_k:'Projected strikeouts', kprop_line:'Posted strikeout prop line',
+    kprop_best_over:'Best available over price', kprop_best_book:'Book with the best over price',
+    k_rate:'Strikeout rate (per batter faced)', bb_rate:'Walk rate (per batter faced)',
+    hr_rate:'HR-allowed rate (per batter faced)', exp_bf:'Expected batters faced',
+    opp_f5:'Opponent first-5-innings team total', o_k_rate:'Opponent lineup strikeout rate',
+    div_gap:'Whiff−K divergence — whiff rate above the strikeout rate; a chronic gap is a fade signal',
+  };
   const EXP_COLS={
     hitters:[
       {k:'Batter',t:'Batter',l:1,f:r=>_exEsc(r.Batter||r.batter)+(r.rain_risk?_RAIN_B:'')},
@@ -1182,6 +1213,11 @@
     if(F.search){const q=F.search.toLowerCase();rows=rows.filter(r=>(''+(r.Batter||r.batter||r.pitcher||'')).toLowerCase().includes(q)||(''+(r.Pitcher||'')).toLowerCase().includes(q));}
     if(F.minEdge!==''&&EXP.tab==='hitters'){const m=+F.minEdge;rows=rows.filter(r=>r.edge!=null&&r.edge>=m);}
     if(F.minProb!==''&&EXP.tab==='hitters'){const m=+F.minProb;rows=rows.filter(r=>r.hr_prob!=null&&r.hr_prob>=m);}
+    if(F.maxSalary!==''&&EXP.tab==='hitters'){const m=+F.maxSalary;rows=rows.filter(r=>r.salary!=null&&+r.salary<=m);}
+    if(F.minSalary!==''&&EXP.tab==='hitters'){const m=+F.minSalary;rows=rows.filter(r=>r.salary!=null&&+r.salary>=m);}
+    if(F.minLev!==''&&EXP.tab==='hitters'){const m=+F.minLev;rows=rows.filter(r=>r.leverage!=null&&+r.leverage>=m);}
+    if(F.minShop!==''&&EXP.tab==='hitters'){const m=+F.minShop;rows=rows.filter(r=>r.edge_shop!=null&&+r.edge_shop>=m);}
+    if(F.minEdgeBest!==''&&EXP.tab==='hitters'){const m=+F.minEdgeBest;rows=rows.filter(r=>r.edge_best!=null&&+r.edge_best>=m);}
     if(F.pos&&EXP.tab==='hitters'){
       if(F.pos==='__OF__')rows=rows.filter(r=>['LF','CF','RF','OF'].includes((r.pos||'').toUpperCase()));
       else rows=rows.filter(r=>r.pos===F.pos);
@@ -1200,7 +1236,7 @@
   }
   function renderExplorer(){
     const cols=EXP_COLS[EXP.tab],s=EXP.sort[EXP.tab];
-    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" onclick="sortExplorer('${c.k}')">${c.t}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" title="${(EXP_DESC[c.k]||'').replace(/"/g,'&quot;')}" onclick="sortExplorer('${c.k}')">${c.t}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const rows=_exFiltered();EXP._rows=rows;
     const tb=document.getElementById('exp-tbody');tb.innerHTML='';
     rows.forEach((r,i)=>{
@@ -1230,6 +1266,11 @@
       h+=`<label><input type="checkbox" ${F.confirmed?'checked':''} onchange="expSetFilter('confirmed',this.checked)"> confirmed only</label>`;
       h+=`<label>min edge <input type="number" step="0.5" value="${F.minEdge}" oninput="expSetFilter('minEdge',this.value)" style="width:50px"></label>`;
       h+=`<label>min HR% <input type="number" step="0.5" value="${F.minProb}" oninput="expSetFilter('minProb',this.value)" style="width:50px"></label>`;
+      h+=`<label title="max DraftKings salary">max $ <input type="number" step="100" value="${F.maxSalary}" oninput="expSetFilter('maxSalary',this.value)" style="width:62px"></label>`;
+      h+=`<label title="min DraftKings salary">min $ <input type="number" step="100" value="${F.minSalary}" oninput="expSetFilter('minSalary',this.value)" style="width:62px"></label>`;
+      h+=`<label title="min leverage = HR% per $1k">min Lev <input type="number" step="0.1" value="${F.minLev}" oninput="expSetFilter('minLev',this.value)" style="width:50px"></label>`;
+      h+=`<label title="min line-shop value (best price vs market avg)">min Shop <input type="number" step="0.5" value="${F.minShop}" oninput="expSetFilter('minShop',this.value)" style="width:50px"></label>`;
+      h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
       const timeMap={};all.forEach(r=>{if(r.gtime!=null&&!(r.gtime in timeMap))timeMap[r.gtime]=r.gstart_ms||0;});
       const times=Object.keys(timeMap).sort((a,b)=>(timeMap[a]||0)-(timeMap[b]||0));
       if(times.length){
