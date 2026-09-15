@@ -4613,6 +4613,8 @@ KUNDER_SHEET_HEADER = [
     'game_time', 'game_id',
     'actual_k',             # fill after game
     'k_under_hit',          # 1 if actual_k < kprop_line (UNDER won) — fill after game
+    'under_price',          # best UNDER price at pick time (the side we bet) — real ROI, not a -110 proxy
+    'under_book',           # book offering that best under price
 ]
 
 
@@ -4653,6 +4655,7 @@ def append_kunder_to_sheet(flags):
                 f.get('kprop_prior_starts', ''),
                 f.get('game_time', ''), f.get('game_id', ''),
                 '', '',  # actual_k / k_under_hit — filled after game
+                f.get('kprop_under_best', ''), f.get('kprop_under_book', ''),
             ], value_input_option='USER_ENTERED')
             existing_row[key] = (None, f.get('kprop_under_tier', ''))
             rows_added += 1
@@ -4676,6 +4679,8 @@ FORMFADE_SHEET_HEADER = [
     'game_time', 'game_id',
     'actual_k',             # fill after game
     'k_under_hit',          # 1 if actual_k < kprop_line (UNDER won) — fill after game
+    'under_price',          # best UNDER price at pick time (the side we bet) — real ROI, not a -110 proxy
+    'under_book',           # book offering that best under price
 ]
 
 
@@ -4718,6 +4723,7 @@ def append_formfade_to_sheet(flags):
                 f.get('kprop_prior_starts', ''),
                 f.get('game_time', ''), f.get('game_id', ''),
                 '', '',  # actual_k / k_under_hit — filled after game
+                f.get('kprop_under_best', ''), f.get('kprop_under_book', ''),
             ], value_input_option='USER_ENTERED')
             existing_row[key] = (None, f.get('kprop_formfade_tier', ''))
             rows_added += 1
