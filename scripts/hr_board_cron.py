@@ -376,6 +376,26 @@ def fetch_dk_salaries(date):
         nm = _norm(p.get('displayName','')); sal = p.get('salary'); tm = _dk_team(p.get('teamAbbreviation'))
         if nm and sal: out.setdefault(nm, []).append((tm, int(sal)))
     print(f'DK salary: slate {dgid} ({max(cand)[0]} games) -> {len(out)} players priced.')
+    # Backfill ONLY players the main slate never priced (e.g. early ~6pm-ET games that sit before the
+    # Main slate's first-pitch cutoff). We do NOT touch anyone already priced above -- other Classic
+    # groups (early/all-day) just fill the gaps. seen (playerId) prevents re-adding main-slate players.
+    added = 0
+    for gc, dgid2 in sorted(cand, reverse=True):
+        if dgid2 == dgid: continue
+        try:
+            dr2 = requests.get(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid2}/draftables',
+                               headers=DK_UA, timeout=20).json()
+        except Exception as e:
+            print(f'DK salary: backfill slate {dgid2} fetch failed ({e}); skipped.'); continue
+        for p in (dr2.get('draftables') or []):
+            pid = p.get('playerId')
+            if pid in seen: continue
+            seen.add(pid)
+            nm = _norm(p.get('displayName','')); sal = p.get('salary'); tm = _dk_team(p.get('teamAbbreviation'))
+            if nm and sal and nm not in out:   # name-level guard: never overwrite a main-slate price
+                out.setdefault(nm, []).append((tm, int(sal))); added += 1
+    if added:
+        print(f'DK salary: backfilled {added} players from {len(cand)-1} other Classic slate(s).')
     return out
 def _dk_salary(dk, name, team):
     lst = dk.get(_norm(name))
