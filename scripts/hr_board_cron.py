@@ -390,6 +390,18 @@ def _dk_get_json(url, timeout=20, tries=4):
     return None
 def _dk_team(t):   # DK/statsapi codes -> our ARI/KCR/TBR space so both sides of the join agree
     return {'AZ':'ARI','KC':'KCR','TB':'TBR'}.get(str(t).upper(), str(t).upper())
+def _dk_players(dgid):
+    """List of (playerId, norm_name, salary, team) for a Classic draft group. Uses the www
+    'getavailableplayers' feed the draft screen itself calls -- NOT api.draftkings.com, whose Akamai WAF
+    hard-403s datacenter/runner IPs. Team resolved from htabbr/atabbr via tid. Fail-open -> []."""
+    j = _dk_get_json(f'https://www.draftkings.com/lineup/getavailableplayers?draftGroupId={dgid}')
+    if not j: return []
+    rows = []
+    for p in (j.get('playerList') or []):
+        nm = _norm(f"{p.get('fn','')} {p.get('ln','')}"); sal = p.get('s')
+        tm = _dk_team(p.get('htabbr') if p.get('tid') == p.get('htid') else p.get('atabbr'))
+        if nm and sal: rows.append((p.get('pid'), nm, int(sal), tm))
+    return rows
 def fetch_dk_salaries(date):
     """{norm_name: [(team, salary), ...]} for the date's largest MLB Classic slate. Fail-open -> {}."""
     lob = _dk_get_json('https://www.draftkings.com/lobby/getcontests?sport=MLB', timeout=15)
@@ -406,16 +418,14 @@ def fetch_dk_salaries(date):
     if not cand:
         print(f'DK salary: no Classic draft group dated {date}; skipped.'); return {}
     dgid = max(cand)[1]   # most games = the main Classic slate
-    dr = _dk_get_json(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid}/draftables')
-    if not dr:
+    main = _dk_players(dgid)
+    if not main:
         print(f'DK salary: draftables fetch failed for {dgid}; skipped.'); return {}
     out, seen = {}, set()
-    for p in (dr.get('draftables') or []):
-        pid = p.get('playerId')
+    for pid, nm, sal, tm in main:
         if pid in seen: continue
         seen.add(pid)
-        nm = _norm(p.get('displayName','')); sal = p.get('salary'); tm = _dk_team(p.get('teamAbbreviation'))
-        if nm and sal: out.setdefault(nm, []).append((tm, int(sal)))
+        out.setdefault(nm, []).append((tm, sal))
     print(f'DK salary: slate {dgid} ({max(cand)[0]} games) -> {len(out)} players priced.')
     # Backfill ONLY players the main slate never priced (e.g. early ~6pm-ET games that sit before the
     # Main slate's first-pitch cutoff). We do NOT touch anyone already priced above -- other Classic
@@ -423,16 +433,14 @@ def fetch_dk_salaries(date):
     added = 0
     for gc, dgid2 in sorted(cand, reverse=True):
         if dgid2 == dgid: continue
-        dr2 = _dk_get_json(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid2}/draftables')
-        if not dr2:
+        extra = _dk_players(dgid2)
+        if not extra:
             print(f'DK salary: backfill slate {dgid2} fetch failed; skipped.'); continue
-        for p in (dr2.get('draftables') or []):
-            pid = p.get('playerId')
+        for pid, nm, sal, tm in extra:
             if pid in seen: continue
             seen.add(pid)
-            nm = _norm(p.get('displayName','')); sal = p.get('salary'); tm = _dk_team(p.get('teamAbbreviation'))
-            if nm and sal and nm not in out:   # name-level guard: never overwrite a main-slate price
-                out.setdefault(nm, []).append((tm, int(sal))); added += 1
+            if nm not in out:   # name-level guard: never overwrite a main-slate price
+                out.setdefault(nm, []).append((tm, sal)); added += 1
     if added:
         print(f'DK salary: backfilled {added} players from {len(cand)-1} other Classic slate(s).')
     return out
