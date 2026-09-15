@@ -344,14 +344,57 @@ def fetch_hr_odds(game_date):
 # actually playing comes from statsapi lineups in build_board, so DK's (pre-lock, stale) probable-pitcher
 # flags don't matter. Accent-safe name join (the Rodon/Sanchez landmine). Fail-open -> {} (no salary col).
 DK_UA = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+# DK intermittently blocks GitHub-runner (datacenter) IPs and returns an HTML challenge page instead of
+# JSON, which makes .json() raise. Retry with backoff + a rotating real browser UA so a transient block
+# on one attempt recovers within the same run instead of blanking every salary.
+DK_UAS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0',
+]
+_DK_SESSION = None
+def _dk_session():
+    """A requests.Session primed with DK's Akamai bot cookies (bm_*/ak_bmsc). api.draftkings.com sits
+    behind an Akamai WAF that 403s cookieless/datacenter requests; warming the session on the public site
+    first collects the cookies the API call then needs. Best-effort -- returns a session either way."""
+    global _DK_SESSION
+    if _DK_SESSION is not None:
+        return _DK_SESSION
+    s = requests.Session()
+    s.headers.update({'User-Agent': DK_UAS[0], 'Accept': 'text/html,application/xhtml+xml,application/json,*/*',
+                      'Accept-Language': 'en-US,en;q=0.9'})
+    for warm in ('https://www.draftkings.com/', 'https://www.draftkings.com/lobby'):
+        try: s.get(warm, timeout=15)   # sets .draftkings.com Akamai cookies (carry to the api subdomain)
+        except Exception: pass
+    _DK_SESSION = s
+    return s
+def _dk_get_json(url, timeout=20, tries=4):
+    """GET url and parse JSON via the primed session, retrying with backoff + rotating UA. On a WAF 403
+    (returns HTML -> .json() raises) a later try re-warms the cookies. Returns JSON or None (never raises)."""
+    import time, random
+    s = _dk_session()
+    last = None
+    for i in range(tries):
+        try:
+            r = s.get(url, headers={'User-Agent': DK_UAS[i % len(DK_UAS)],
+                                    'Accept': 'application/json, text/plain, */*',
+                                    'Referer': 'https://www.draftkings.com/'}, timeout=timeout)
+            return r.json()
+        except Exception as e:
+            last = e
+            if i < tries - 1:
+                time.sleep(1.5 * (i + 1) + random.random())   # 1.5s, 3s, 4.5s (+jitter) backoff
+                if i == 0:                                     # first failure: re-prime cookies once
+                    globals()['_DK_SESSION'] = None; s = _dk_session()
+    print(f'DK salary: gave up after {tries} tries ({last}).')
+    return None
 def _dk_team(t):   # DK/statsapi codes -> our ARI/KCR/TBR space so both sides of the join agree
     return {'AZ':'ARI','KC':'KCR','TB':'TBR'}.get(str(t).upper(), str(t).upper())
 def fetch_dk_salaries(date):
     """{norm_name: [(team, salary), ...]} for the date's largest MLB Classic slate. Fail-open -> {}."""
-    try:
-        lob = requests.get('https://www.draftkings.com/lobby/getcontests?sport=MLB', headers=DK_UA, timeout=15).json()
-    except Exception as e:
-        print(f'DK salary: lobby fetch failed ({e}); skipped.'); return {}
+    lob = _dk_get_json('https://www.draftkings.com/lobby/getcontests?sport=MLB', timeout=15)
+    if not lob:
+        print('DK salary: lobby fetch failed; skipped.'); return {}
     cand = []
     for dgp in (lob.get('DraftGroups') or []):
         sd = (dgp.get('StartDate') or '')[:10]
@@ -363,11 +406,9 @@ def fetch_dk_salaries(date):
     if not cand:
         print(f'DK salary: no Classic draft group dated {date}; skipped.'); return {}
     dgid = max(cand)[1]   # most games = the main Classic slate
-    try:
-        dr = requests.get(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid}/draftables',
-                          headers=DK_UA, timeout=20).json()
-    except Exception as e:
-        print(f'DK salary: draftables fetch failed ({e}); skipped.'); return {}
+    dr = _dk_get_json(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid}/draftables')
+    if not dr:
+        print(f'DK salary: draftables fetch failed for {dgid}; skipped.'); return {}
     out, seen = {}, set()
     for p in (dr.get('draftables') or []):
         pid = p.get('playerId')
@@ -382,11 +423,9 @@ def fetch_dk_salaries(date):
     added = 0
     for gc, dgid2 in sorted(cand, reverse=True):
         if dgid2 == dgid: continue
-        try:
-            dr2 = requests.get(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid2}/draftables',
-                               headers=DK_UA, timeout=20).json()
-        except Exception as e:
-            print(f'DK salary: backfill slate {dgid2} fetch failed ({e}); skipped.'); continue
+        dr2 = _dk_get_json(f'https://api.draftkings.com/draftgroups/v1/draftgroups/{dgid2}/draftables')
+        if not dr2:
+            print(f'DK salary: backfill slate {dgid2} fetch failed; skipped.'); continue
         for p in (dr2.get('draftables') or []):
             pid = p.get('playerId')
             if pid in seen: continue
