@@ -1106,6 +1106,18 @@ def get_lineups_and_starters(game_date):
     return games
 
 
+def _first_pitch_ms(iso):
+    """first_pitch_utc ('YYYY-MM-DDTHH:MM:SSZ') -> epoch ms (UTC), or None. Powers the
+    Explorer pitcher-tab Start-time filter (mirrors the hitter board's gstart_ms)."""
+    if not iso:
+        return None
+    try:
+        dt = datetime.strptime(iso, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.utc)
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return None
+
+
 # ── LIVE ODDS (The Odds API) — F5 team totals, line-level data for tracking signals ──
 # Added June 18, 2026. Both tracking signals (Pitcher Quality Composite, Offense Quality
 # Composite) only work at the 1.5 F5 line specifically — until now this app had no live odds
@@ -2654,6 +2666,9 @@ def get_tracking_only_flags(games, force=False, kalshi_repull=False):
                 'team': NAME_TO_ABB.get(fielding_team, fielding_team),
                 'opp': NAME_TO_ABB.get(batting_team, batting_team),
                 'game': game_str, 'game_time': game.get('game_time'), 'home_abb': home_abb,
+                # gtime/gstart_ms mirror the hitter board's fields so the Explorer's Start-time
+                # filter works identically on the pitcher tab.
+                'gtime': game.get('game_time'), 'gstart_ms': _first_pitch_ms(game.get('first_pitch_utc')),
                 'pq_percentile': pq_info['percentile'] if pq_info else None,
                 'pq_quartile':   pq_info['quartile'] if pq_info else None,
                 'k_rate':        pq_info['k_rate'] if pq_info else None,
@@ -3708,7 +3723,11 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
                 f['rain_risk'] = rf
     fg_under_flags  = [f for f in heatmap_flags if f.get('fg_under_signal')]
     over_info_flags = [f for f in heatmap_flags if f.get('signal') == 'over_info']
-    pq_flags        = [f for f in heatmap_flags if f.get('pq_q4')]
+    # HIDDEN from dashboard per Zach (2026-09-15): the Pitcher Quality Composite section is no longer
+    # surfaced on its own — PQ %ile/quartile all live in the pitcher Explorer now. Still fully computed
+    # and logged to the PitcherQuality sheet via api_notify (append_pq_to_sheet, unfiltered). Empty list
+    # so the frontend section just stays hidden (same degrade-to-hidden pattern as off_flags below).
+    pq_flags        = []
     # VISIBILITY, per Zach (July 9, 2026): show ONLY SHARP K-props on the dashboard; hide 'base'.
     # Base picks are still fully computed, Telegram-muted-as-before, and logged to the KProp sheet
     # (append_kprop_to_sheet in api_notify runs off the unfiltered `flags`, not this list) so nothing
@@ -3722,8 +3741,11 @@ def build_picks_payload(today, games, heatmap_flags, pitcher_explorer=None):
     # pq_flags (kept in both, per Zach) -- this is additive, nothing leaves the PQ section. Still
     # SHARP-only display filter (July 9 decision); base picks stay computed/logged/Telegram-muted.
     # Surface SHARP and the new 'line5' tier (favband + K-line>=5.5); 'base' stays hidden/muted.
-    kprop_only_flags = [f for f in heatmap_flags
-                        if f.get('k_prop_flag') and f.get('k_prop_tier') in ('sharp', 'line5')]
+    # HIDDEN from dashboard per Zach (2026-09-15): the standalone 🎯 K-Prop Signal (Over) section is
+    # gone — the 🔥 K-over signal + K line/best prices are all in the pitcher Explorer now. Still fully
+    # computed and logged to the KProp sheet via api_notify (append_kprop_to_sheet, unfiltered). Empty
+    # so the section stays hidden. (The two K-prop UNDER strategies + F5 TT Over remain surfaced below.)
+    kprop_only_flags = []
     kunder_flags     = [f for f in heatmap_flags if f.get('kprop_under_flag')]   # both tiers -> app
     # form-vs-line fade -> app: STRONG tier only (gap>=1.5). The watch tier (gap 0.5-1.5) is too broad
     # for the dashboard/DFS icon and churns with line moves; still logged both tiers via api_notify.
@@ -5695,6 +5717,62 @@ def backfill_sheet_outcomes():
                 summary['kunder_filled'] = filled
                 print(f"Backfill ({KUNDER_SHEET_TAB}): {filled} row(s) filled")
 
+    # ── KPropFormFade backfill (2026-09-15) ── the form-vs-line fade tab had NO auto-grader, so every
+    # form-fade pick logged with a blank actual_k/k_under_hit and couldn't be scored at all. Identical
+    # to the KPropUnder backfill above (same columns, same k_under_hit = actual_k < kprop_line rule);
+    # grades all tiers (watch / strong). Fills existing rows and self-maintains on this cron.
+    try:
+        ws = sh.worksheet(FORMFADE_SHEET_TAB)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = None
+    except Exception as e:
+        print(f"Backfill ({FORMFADE_SHEET_TAB}): worksheet lookup error: {e}")
+        ws = None
+    if ws is not None:
+        try:
+            rows = ws.get_all_values()
+        except Exception as e:
+            print(f"Backfill ({FORMFADE_SHEET_TAB}): read error: {e}")
+            rows = []
+        if len(rows) >= 2:
+            hdr = rows[0]
+            try:
+                i_pitcher = hdr.index('pitcher_name')
+                i_line    = hdr.index('kprop_line')
+                i_k       = hdr.index('actual_k')
+                i_hit     = hdr.index('k_under_hit')
+                i_gameid  = hdr.index('game_id')
+            except ValueError:
+                print(f"Backfill ({FORMFADE_SHEET_TAB}): header missing expected columns, skipping")
+            else:
+                def cell(row, i):
+                    return row[i] if i < len(row) else ''
+                filled = 0
+                for r_idx, row in enumerate(rows[1:], start=2):
+                    if cell(row, i_k):                       # already filled
+                        continue
+                    line_str = cell(row, i_line)
+                    game_id  = cell(row, i_gameid)
+                    pitcher  = cell(row, i_pitcher)
+                    if not line_str or not game_id or not pitcher:
+                        continue
+                    try:
+                        line_val = float(line_str)
+                    except ValueError:
+                        continue
+                    ks = get_pitcher_ks_for_game(game_id, pitcher)
+                    if ks is None:                           # game not Final / pitcher not found
+                        continue
+                    k_under_hit = 1 if ks < line_val else 0
+                    try:
+                        ws.update_cell(r_idx, i_k + 1, ks)
+                        ws.update_cell(r_idx, i_hit + 1, k_under_hit)
+                        filled += 1
+                    except Exception as e:
+                        print(f"Backfill ({FORMFADE_SHEET_TAB}): write error on row {r_idx}: {e}")
+                summary['formfade_filled'] = filled
+                print(f"Backfill ({FORMFADE_SHEET_TAB}): {filled} row(s) filled")
+
     return summary
 
 
@@ -6147,13 +6225,11 @@ def api_notify():
         # (sharp + base) to the KProp tab unfiltered, so the base forward-record keeps accumulating.
         # new_kprop_sharp is computed above (off kprop_flags via ksharp_sent) so base->sharp upgrades
         # survive the already_sent dedup that new_kprop is subject to.
-        if new_kprop_sharp:
-            lines.append(f"🎯 <b>K-Prop OVER · SHARP ({len(new_kprop_sharp)})</b> <i>tracking</i>")
-            for f in new_kprop_sharp:
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                also = ' · also 📊Q4' if f.get('pq_q4') else ''
-                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}){also} · "
-                             f"{_kprop_tg_bet(f)}{time}")
+        # ── K-Prop OVER · SHARP removed from Telegram per Zach (2026-09-15). Still fully computed
+        # (dedup via ksharp_key + the sharp-audit below) and logged to the KProp sheet
+        # (append_kprop_to_sheet, unfiltered); it just no longer pings. Only the two K-prop UNDER
+        # strategies and F5 TT Over ping now. new_kprop_sharp is still built above so its dedup/audit
+        # keep working and a same-day base->sharp upgrade is still recorded silently.
 
         # ── K-PROP OVER · 5.5+ removed from Telegram per Zach (2026-08) -- still computed + logged
         # (append_kprop_to_sheet logs all tiers) and dedup/all_sent still track it, just not pinged.
@@ -6163,20 +6239,9 @@ def api_notify():
         # (+100..-119) with opp F5<=1.5 AND pq_q4. The angle is CLV/timing — buy the over early at the
         # soft price and let it drift in. TRACKING ONLY (in-sample n=34, thin) — logs to the KProp tab
         # for forward grading. See project_kprop_clv_direction / KPROP_DRIFTIN note.
-        if new_kprop_driftin:
-            lines.append(f"\n🎯 <b>K-Prop DRIFT-IN watchlist ({len(new_kprop_driftin)})</b> <i>buy over early · tracking</i>")
-            for f in new_kprop_driftin:
-                time = f" — {f['game_time']}" if f.get('game_time') else ''
-                dk   = f.get('kprop_dk_over')
-                dk_s = f"{dk:+d}" if dk is not None else '—'
-                best = f.get('kprop_best_over')
-                best_s = f"{best:+d}" if best is not None else '—'
-                book = f.get('kprop_best_book') or '—'
-                f5   = f.get('kprop_opp_f5')
-                line = f.get('kprop_line')
-                lines.append(f"<b>{f['pitcher_name']}</b> (vs {f['batting_team']}) · "
-                             f"🎯 K-PROP OVER {line if line is not None else '—'} [DRIFT-IN] — "
-                             f"DK {dk_s}, best {best_s} ({book}), opp F5 {f5 if f5 is not None else '—'}{time}")
+        # ── K-Prop DRIFT-IN watchlist removed from Telegram per Zach (2026-09-15): it's a K-prop OVER
+        # timing play, so it's muted along with the SHARP over block above. Still computed + logged as
+        # before (new_kprop_driftin -> 'kdrift' dedup; pre-band pool -> append_kprop_to_sheet); no ping.
 
         # ── K-PROP UNDER · WHIFF-K DIVERGENCE (July 6, 2026) — STRONG tier only in Telegram (the
         # watch tier is visible in-app + logged to the sheet, never pinged), 🧊 to distinguish it

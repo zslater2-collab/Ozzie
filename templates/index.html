@@ -1097,6 +1097,8 @@
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
   function _exPct(v,d){return v==null?'—':(+v*100).toFixed(d);}
+  // uniform game-time label from the shared gstart_ms timestamp, so both Explorer tabs read '6:40 PM ET'
+  function _exGtimeLabel(ms){return ms==null?'':new Date(+ms).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'})+' ET';}
   function _exEdgeCol(e){return e==null?'':(e>=3?'#39d353':(e>=0?'var(--accent)':'var(--muted)'));}
   // model-vs-market edge is forward-graded as a FADE (positive underperforms), so positive shows amber caution, not green
   function _exFadeCol(e){return e==null?'':(e>0?'#e0a020':'var(--muted)');}
@@ -1232,7 +1234,7 @@
       if(F.slot==='__TOP4__')rows=rows.filter(r=>r.slot!=null&&+r.slot>=1&&+r.slot<=4);
       else rows=rows.filter(r=>r.slot!=null&&+r.slot===+F.slot);
     }
-    if(F.times&&F.times.length&&EXP.tab==='hitters')rows=rows.filter(r=>F.times.includes(r.gtime));
+    if(F.times&&F.times.length)rows=rows.filter(r=>F.times.includes(''+r.gstart_ms));
     const s=EXP.sort[EXP.tab];
     rows.sort((a,b)=>{let x=a[s.col],y=b[s.col];
       x=(x==null||x==='')?-Infinity:(isNaN(+x)?(''+x).toLowerCase():+x);
@@ -1278,13 +1280,16 @@
       h+=`<label title="min line-shop value (best price vs market avg)">min Shop <input type="number" step="0.5" value="${F.minShop}" oninput="expSetFilter('minShop',this.value)" style="width:50px"></label>`;
       h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
       h+=`<label title="show only the HR-prop sweet spot: model 3-6 pts below market (market underprices)"><input type="checkbox" ${F.propOver?'checked':''} onchange="expSetFilter('propOver',this.checked)"> ✅ prop overs</label>`;
-      const timeMap={};all.forEach(r=>{if(r.gtime!=null&&!(r.gtime in timeMap))timeMap[r.gtime]=r.gstart_ms||0;});
-      const times=Object.keys(timeMap).sort((a,b)=>(timeMap[a]||0)-(timeMap[b]||0));
-      if(times.length){
-        h+=`<span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="color:var(--muted)">Start</span>`
-          +times.map(t=>`<label style="font-weight:400"><input type="checkbox" ${F.times.includes(t)?'checked':''} onchange="expToggleTime('${t}',this.checked)"> ${t}</label>`).join('')
-          +`</span>`;
-      }
+    }
+    // Start-time filter — both tabs. Keyed on the shared gstart_ms timestamp (not the display
+    // string, which differs by tab: '6:40p' on hitters vs '6:40 PM ET' on pitchers) so a selection
+    // matches and persists across tabs; label is formatted uniformly from the timestamp.
+    const timeMap={};all.forEach(r=>{if(r.gstart_ms!=null&&!(r.gstart_ms in timeMap))timeMap[r.gstart_ms]=_exGtimeLabel(r.gstart_ms);});
+    const times=Object.keys(timeMap).map(Number).sort((a,b)=>a-b);
+    if(times.length){
+      h+=`<span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="color:var(--muted)">Start</span>`
+        +times.map(ms=>`<label style="font-weight:400"><input type="checkbox" ${F.times.includes(''+ms)?'checked':''} onchange="expToggleTime('${ms}',this.checked)"> ${timeMap[ms]}</label>`).join('')
+        +`</span>`;
     }
     h+=`<button onclick="exportExplorerCSV()" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:.62rem;cursor:pointer">Export CSV</button>`;
     document.getElementById('exp-filters').innerHTML=h;
