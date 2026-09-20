@@ -343,9 +343,13 @@
       <div class="exp-tab" id="td-tab-QB" onclick="setTdTab('QB')">QB</div>
     </div>
     <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
-      <input id="td-search" type="text" placeholder="search player / team…" oninput="TD_STATE.search=this.value.toLowerCase();renderTdTable()"
-        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:150px">
+      <input id="td-search" type="text" placeholder="search player…" oninput="TD_STATE.search=this.value.toLowerCase();renderTdTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:130px">
+      <select id="td-team" onchange="TD_STATE.team=this.value;renderTdTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="td-game" onchange="TD_STATE.game=this.value;renderTdTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <select id="td-time" onchange="TD_STATE.time=this.value;renderTdTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 focus slice only</label>
       <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
@@ -1333,13 +1337,18 @@
 
   // ── NFL Anytime-TD Board ────────────────────────────────────────────
   let TD_ROWS=[];
-  const TD_STATE={tab:'ALL',search:'',game:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1};
-  // columns: key, label, left-align, numeric accessor (null = not sortable numerically)
+  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1};
+  // kickoff -> short local label ("Sun 1:00p"); '' if no commence on the row
+  function tdKick(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
+    let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+h+':'+String(m).padStart(2,'0')+ap; }
+  // columns: key, label, left-align, sort accessor
   const TD_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
     {k:'team',t:'Tm',l:0,v:r=>r.team||''},
     {k:'opp',t:'Opp',l:0,v:r=>r.opp||''},
+    {k:'kick',t:'Kick',l:1,v:r=>r.commence||''},
     {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
     {k:'model_p_cal',t:'Model P',l:0,v:r=>r.model_p_cal??-1},
     {k:'mkt_p_consensus',t:'Mkt P',l:0,v:r=>r.mkt_p_consensus??-1},
@@ -1359,8 +1368,10 @@
       && (s.showThin || !r.thin)
       && (s.tab==='ALL'||r.pos===s.tab)
       && (!s.flagOnly || r.flag==='H1-longshot-watch')
-      && (!s.game || r.team===s.game || r.opp===s.game)
-      && (!q || (r.player||'').toLowerCase().includes(q) || (r.team||'').toLowerCase().includes(q)));
+      && (!s.team || r.team===s.team)
+      && (!s.game || r.game===s.game)
+      && (!s.time || tdKick(r)===s.time)
+      && (!q || (r.player||'').toLowerCase().includes(q)));
     const col=TD_COLS.find(c=>c.k===s.sort)||TD_COLS[5];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('td-tablecount').textContent=`${rows.length} players`;
@@ -1375,6 +1386,7 @@
         `<td class="l">${r.player||''}${flag}</td>`+
         `<td class="l">${r.pos||''}</td>`+
         `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
+        `<td class="l" style="color:var(--muted)">${tdKick(r)||'—'}</td>`+
         `<td>${r.implied_total!=null?r.implied_total.toFixed(1):'—'}</td>`+
         `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+
@@ -1390,9 +1402,14 @@
       const priced=TD_ROWS.filter(r=>r.mkt_p_consensus!=null&&!r.thin).length;
       document.getElementById('td-count').textContent=`${priced} priced`;
       document.getElementById('td-note').textContent=(data.meta&&data.meta.generated)?`as of ${data.meta.generated}`:'';
-      // populate the game/team dropdown from teams on the slate
-      const teams=[...new Set(TD_ROWS.filter(r=>r.mkt_p_consensus!=null).map(r=>r.team).filter(Boolean))].sort();
-      document.getElementById('td-game').innerHTML='<option value="">all teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+      // populate team / game / start-time dropdowns from the priced slate
+      const priv=TD_ROWS.filter(r=>r.mkt_p_consensus!=null);
+      const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
+      document.getElementById('td-team').innerHTML=opts(priv.map(r=>r.team),'all teams');
+      document.getElementById('td-game').innerHTML=opts(priv.map(r=>r.game),'all games');
+      // sort kickoff options chronologically, display the friendly label
+      const kicks=[...new Set(priv.map(r=>r.commence).filter(Boolean))].sort();
+      document.getElementById('td-time').innerHTML='<option value="">all times</option>'+kicks.map(c=>{const l=tdKick({commence:c});return `<option value="${l}">${l}</option>`;}).join('');
       renderTdTable();
       document.getElementById('td-section').style.display='block';
     }).catch(()=>{});

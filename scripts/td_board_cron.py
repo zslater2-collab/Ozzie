@@ -134,6 +134,13 @@ def build_board(events, tmap):
     pri = priors_current()
     gl, atd = pull_atd(events, tmap)
     imp = implied_by_team(gl)
+    # team abbr -> {commence ISO, game label AWAY@HOME} for start-time / game filters
+    team_ev = {}
+    for e in events:
+        a, h = tmap.get(e["away_team"]), tmap.get(e["home_team"])
+        info = {"commence": e.get("commence_time"), "game": f"{a}@{h}"}
+        if a: team_ev[a] = info
+        if h: team_ev[h] = info
     mkt = None
     if atd:
         a = pl.DataFrame(atd).with_columns(pl.col("price").map_elements(a2p, return_dtype=pl.Float64).alias("imp_p"))
@@ -149,8 +156,10 @@ def build_board(events, tmap):
         cal = calibrate(1-math.exp(-lam))
         role_ok = (r["snap"] is not None and r["snap"]>=0.5)
         thin = (not r["has_py"]) and (not role_ok) and (r["gp"]<2)
+        te = team_ev.get(r["posteam"], {})
         rows.append({"player":r["full_name"],"nkey":r["nkey"],"pos":r["bkt"],"team":r["posteam"],
-                     "opp":ti["opp"],"implied_total":round(ti["imp"],2),"td_share":round(r["share"],3),
+                     "opp":ti["opp"],"game":te.get("game"),"commence":te.get("commence"),
+                     "implied_total":round(ti["imp"],2),"td_share":round(r["share"],3),
                      "model_p_cal":round(cal,3),"thin":bool(thin),"snap_share":round(r["snap"],2) if r["snap"] is not None else None})
     board = pl.DataFrame(rows)
     if mkt is not None:
