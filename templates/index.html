@@ -347,12 +347,12 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:150px">
       <select id="td-game" onchange="TD_STATE.game=this.value;renderTdTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
-      <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 watchlist only</label>
+      <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 focus slice only</label>
       <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
     </div>
     <div class="exp-count" id="td-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="td-thead"></thead><tbody id="td-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). The market is efficient, so <b>Edge is context, NOT a bet signal</b> (big edges are usually model noise on thin roles). 🎯 = thin H1-only forward-track lean, not a size-now bet. Click a header to sort.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). Market is efficient, so <b>Edge = context, NOT a bet signal</b>. <b>🎯 FOCUS SLICE</b> = the one thing that replicated across 2024+2025: WR/TE established-role longshots priced ≲7% (≈+1400) in the season's first half — they hit ~11–14% vs ~5% implied. Filter to 🎯, shop the best price, flat small stakes (high variance, H1-only, still forward-testing). Click a header to sort.</div>
   </div>
 </div>
 <div id="explorer-section" style="display:none">

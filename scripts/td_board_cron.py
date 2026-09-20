@@ -160,8 +160,11 @@ def build_board(events, tmap):
     board = board.with_columns([
         pl.col("mkt_p").alias("mkt_p_consensus"),
         (pl.col("model_p_cal")-pl.col("mkt_p")).alias("edge"),
+        # 🎯 focus slice = the ONE thing that replicated 2024+2025 (see nfl_td/GAMEPLAN): WR/TE
+        # established-role deep-longshots (<7% implied) in season H1 hit ~11-14% vs ~5% priced
+        # (+6-8pp). RB/QB longshots are priced right -> excluded. Filter to these, shop best price.
         pl.when(pl.col("mkt_p").is_null()).then(pl.lit("no price"))
-          .when((~pl.col("thin"))&(pl.col("mkt_p")<0.07)).then(pl.lit("H1-longshot-watch"))
+          .when((~pl.col("thin"))&(pl.col("pos")=="WR/TE")&(pl.col("mkt_p")<0.07)).then(pl.lit("H1-longshot-watch"))
           .otherwise(pl.lit("")).alias("flag")]).sort("edge", descending=True, nulls_last=True)
     meta={"generated":dt.datetime.now().isoformat(timespec="minutes"),"season":SEASON,
           "best_book_rule":"shop DK+FD; Caesars runs rich",
