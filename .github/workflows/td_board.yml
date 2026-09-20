@@ -1,0 +1,43 @@
+name: td-board
+
+# Builds the NFL anytime-TD board + runs the H1 forward-tracker, commits artifacts back to this
+# repo (auto-redeploys the app on Render). NFL plays Thu/Sun/Mon, so a weekly cadence:
+#   Thu 15:00 UTC (11:00 ET) -- build the week's board (+ Thursday night game)
+#   Sun 14:00 UTC (10:00 ET) -- refresh before the main 1pm slate (freshest odds)
+#   Tue 14:00 UTC (10:00 ET) -- grade the completed week (all games final)
+# The board only prices upcoming games, so runs are cheap on odds credits.
+
+on:
+  schedule:
+    - cron: '0 15 * * 4'
+    - cron: '0 14 * * 0'
+    - cron: '0 14 * * 2'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: td-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install nflreadpy polars scipy requests
+      - name: Build board + tracker
+        run: python scripts/td_board_cron.py
+      - name: Commit artifacts
+        run: |
+          git config user.name  "td-board-bot"
+          git config user.email "td-board-bot@users.noreply.github.com"
+          git add td_board_latest.json nfl_watchlist_log.csv
+          git diff --staged --quiet || git commit -m "td-board: refresh board + tracker [skip ci]"
+          git push

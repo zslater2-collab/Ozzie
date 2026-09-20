@@ -326,6 +326,27 @@
     <div id="hrboard-list"></div>
   </div>
 </div>
+<div id="td-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="td-count"></div>
+      <div class="section-label" style="margin:0">NFL Anytime-TD Board
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">Role model + best price — decision aid</span>
+      </div>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);margin:2px 0 10px;line-height:1.5" id="td-note"></div>
+    <div class="exp-tabs">
+      <div class="exp-tab active" id="td-tab-ALL" onclick="setTdTab('ALL')">All</div>
+      <div class="exp-tab" id="td-tab-RB" onclick="setTdTab('RB')">RB</div>
+      <div class="exp-tab" id="td-tab-WR/TE" onclick="setTdTab('WR/TE')">WR/TE</div>
+      <div class="exp-tab" id="td-tab-QB" onclick="setTdTab('QB')">QB</div>
+    </div>
+    <div class="exp-count" id="td-tablecount"></div>
+    <div class="exp-wrap"><table class="exp"><thead id="td-thead"></thead><tbody id="td-tbody"></tbody></table></div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Calibrated P(TD) from leak-free role share × market implied total (2024+2025 Platt-calibrated). Market is efficient — this is a shopping/decision aid, not an edge. <b>Best price</b> = highest payout across MA books (shop DK+FD; Caesars runs rich). 🎯 = thin H1-only deep-longshot forward-track lean, not a size-now bet.</div>
+  </div>
+</div>
 <div id="explorer-section" style="display:none">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -1302,6 +1323,49 @@
     a.download=`explorer_${EXP.tab}_${new Date().toISOString().slice(0,10)}.csv`;a.click();
   }
 
+  // ── NFL Anytime-TD Board ────────────────────────────────────────────
+  let TD_ROWS=[], TD_TAB='ALL';
+  function setTdTab(t){
+    TD_TAB=t;
+    ['ALL','RB','WR/TE','QB'].forEach(x=>{const el=document.getElementById('td-tab-'+x);if(el)el.classList.toggle('active',x===t);});
+    renderTdTable();
+  }
+  function fmtOdds(p){ if(p==null)return '—'; return p>0?('+'+p):(''+p); }
+  function renderTdTable(){
+    const rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null && !r.thin && (TD_TAB==='ALL'||r.pos===TD_TAB));
+    rows.sort((a,b)=>(b.model_p_cal||0)-(a.model_p_cal||0));
+    document.getElementById('td-tablecount').textContent=`${rows.length} players`;
+    const cols=[['player','Player',1],['pos','Pos',1],['team','Tm',0],['opp','Opp',0],
+      ['model_p_cal','Model P',0],['mkt_p_consensus','Mkt P',0],['edge','Edge',0],['best','Best price',0]];
+    document.getElementById('td-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c[2]?'l':''}">${c[1]}</th>`).join('')+'</tr>';
+    const tb=document.getElementById('td-tbody'); tb.innerHTML='';
+    rows.forEach(r=>{
+      const tr=document.createElement('tr'); tr.className='exp-row';
+      const edge=r.edge==null?'—':((r.edge>0?'+':'')+(r.edge*100).toFixed(0)+'%');
+      const flag=r.flag==='H1-longshot-watch'?' 🎯':'';
+      tr.innerHTML=
+        `<td class="l">${r.player||''}${flag}</td>`+
+        `<td class="l">${r.pos||''}</td>`+
+        `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
+        `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
+        `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+
+        `<td style="color:${r.edge>0?'var(--accent)':'var(--muted)'}">${edge}</td>`+
+        `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${(r.best_book||'').slice(0,4)}</span></td>`;
+      tb.appendChild(tr);
+    });
+  }
+  function loadTdBoard(){
+    fetch('/api/td_board').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data||!data.rows||!data.rows.length)return;
+      TD_ROWS=data.rows;
+      const priced=TD_ROWS.filter(r=>r.mkt_p_consensus!=null&&!r.thin).length;
+      document.getElementById('td-count').textContent=`${priced} priced`;
+      document.getElementById('td-note').textContent=(data.meta&&data.meta.generated)?`as of ${data.meta.generated}`:'';
+      renderTdTable();
+      document.getElementById('td-section').style.display='block';
+    }).catch(()=>{});
+  }
+
   function runPicks() {
     const btn=document.getElementById('run-btn');
     const spinner=document.getElementById('spinner');
@@ -1310,12 +1374,13 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','explorer-section','squad-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','td-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     // HR Board DFS and Squad Builder sections hidden per Zach (the joint Explorer board covers hitters);
     // data/endpoints untouched, just not rendered. loadExplorer still pulls /api/hr_board for its rows.
     // loadHrBoard();
     loadExplorer();
+    loadTdBoard();
     // loadSquadBuilder();
 
     fetch('/api/picks')

@@ -4133,6 +4133,24 @@ def api_hr_board():
     return jsonify(out)
 
 
+@app.route('/api/td_board')
+def api_td_board():
+    # NFL anytime-TD scorer board. Static artifact built offline in the standalone nfl_td project
+    # (build_board.py, where nflverse + odds live) and committed here as td_board_latest.json. This
+    # route only reads + serves it -- fully additive, touches nothing in the MLB picks path.
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    import json as _json
+    base = os.path.dirname(os.path.abspath(__file__))
+    out = {'meta': {}, 'rows': []}
+    try:
+        with open(os.path.join(base, 'td_board_latest.json')) as f:
+            out = _json.load(f)
+    except Exception:
+        pass
+    return jsonify(out)
+
+
 NOTIFY_SECRET       = os.environ.get('NOTIFY_SECRET', '')
 TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
