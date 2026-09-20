@@ -342,9 +342,17 @@
       <div class="exp-tab" id="td-tab-WR/TE" onclick="setTdTab('WR/TE')">WR/TE</div>
       <div class="exp-tab" id="td-tab-QB" onclick="setTdTab('QB')">QB</div>
     </div>
+    <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
+      <input id="td-search" type="text" placeholder="search player / team…" oninput="TD_STATE.search=this.value.toLowerCase();renderTdTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:150px">
+      <select id="td-game" onchange="TD_STATE.game=this.value;renderTdTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 watchlist only</label>
+      <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
+    </div>
     <div class="exp-count" id="td-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="td-thead"></thead><tbody id="td-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Calibrated P(TD) from leak-free role share × market implied total (2024+2025 Platt-calibrated). Market is efficient — this is a shopping/decision aid, not an edge. <b>Best price</b> = highest payout across MA books (shop DK+FD; Caesars runs rich). 🎯 = thin H1-only deep-longshot forward-track lean, not a size-now bet.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). The market is efficient, so <b>Edge is context, NOT a bet signal</b> (big edges are usually model noise on thin roles). 🎯 = thin H1-only forward-track lean, not a size-now bet. Click a header to sort.</div>
   </div>
 </div>
 <div id="explorer-section" style="display:none">
@@ -1324,20 +1332,40 @@
   }
 
   // ── NFL Anytime-TD Board ────────────────────────────────────────────
-  let TD_ROWS=[], TD_TAB='ALL';
+  let TD_ROWS=[];
+  const TD_STATE={tab:'ALL',search:'',game:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1};
+  // columns: key, label, left-align, numeric accessor (null = not sortable numerically)
+  const TD_COLS=[
+    {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
+    {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
+    {k:'team',t:'Tm',l:0,v:r=>r.team||''},
+    {k:'opp',t:'Opp',l:0,v:r=>r.opp||''},
+    {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
+    {k:'model_p_cal',t:'Model P',l:0,v:r=>r.model_p_cal??-1},
+    {k:'mkt_p_consensus',t:'Mkt P',l:0,v:r=>r.mkt_p_consensus??-1},
+    {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
+    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99}
+  ];
   function setTdTab(t){
-    TD_TAB=t;
+    TD_STATE.tab=t;
     ['ALL','RB','WR/TE','QB'].forEach(x=>{const el=document.getElementById('td-tab-'+x);if(el)el.classList.toggle('active',x===t);});
     renderTdTable();
   }
+  function setTdSort(k){ if(TD_STATE.sort===k)TD_STATE.dir*=-1; else{TD_STATE.sort=k;TD_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderTdTable(); }
   function fmtOdds(p){ if(p==null)return '—'; return p>0?('+'+p):(''+p); }
   function renderTdTable(){
-    const rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null && !r.thin && (TD_TAB==='ALL'||r.pos===TD_TAB));
-    rows.sort((a,b)=>(b.model_p_cal||0)-(a.model_p_cal||0));
+    const s=TD_STATE, q=s.search.trim();
+    let rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null
+      && (s.showThin || !r.thin)
+      && (s.tab==='ALL'||r.pos===s.tab)
+      && (!s.flagOnly || r.flag==='H1-longshot-watch')
+      && (!s.game || r.team===s.game || r.opp===s.game)
+      && (!q || (r.player||'').toLowerCase().includes(q) || (r.team||'').toLowerCase().includes(q)));
+    const col=TD_COLS.find(c=>c.k===s.sort)||TD_COLS[5];
+    rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('td-tablecount').textContent=`${rows.length} players`;
-    const cols=[['player','Player',1],['pos','Pos',1],['team','Tm',0],['opp','Opp',0],
-      ['model_p_cal','Model P',0],['mkt_p_consensus','Mkt P',0],['edge','Edge',0],['best','Best price',0]];
-    document.getElementById('td-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c[2]?'l':''}">${c[1]}</th>`).join('')+'</tr>';
+    document.getElementById('td-thead').innerHTML='<tr>'+TD_COLS.map(c=>
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setTdSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('td-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1347,10 +1375,11 @@
         `<td class="l">${r.player||''}${flag}</td>`+
         `<td class="l">${r.pos||''}</td>`+
         `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
+        `<td>${r.implied_total!=null?r.implied_total.toFixed(1):'—'}</td>`+
         `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+
-        `<td style="color:${r.edge>0?'var(--accent)':'var(--muted)'}">${edge}</td>`+
-        `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${(r.best_book||'').slice(0,4)}</span></td>`;
+        `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${(r.best_book||'').slice(0,4)}</span></td>`+
+        `<td style="color:var(--muted)">${edge}</td>`;
       tb.appendChild(tr);
     });
   }
@@ -1361,6 +1390,9 @@
       const priced=TD_ROWS.filter(r=>r.mkt_p_consensus!=null&&!r.thin).length;
       document.getElementById('td-count').textContent=`${priced} priced`;
       document.getElementById('td-note').textContent=(data.meta&&data.meta.generated)?`as of ${data.meta.generated}`:'';
+      // populate the game/team dropdown from teams on the slate
+      const teams=[...new Set(TD_ROWS.filter(r=>r.mkt_p_consensus!=null).map(r=>r.team).filter(Boolean))].sort();
+      document.getElementById('td-game').innerHTML='<option value="">all teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
       renderTdTable();
       document.getElementById('td-section').style.display='block';
     }).catch(()=>{});
