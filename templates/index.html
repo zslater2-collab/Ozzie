@@ -1362,6 +1362,8 @@
   }
   function setTdSort(k){ if(TD_STATE.sort===k)TD_STATE.dir*=-1; else{TD_STATE.sort=k;TD_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderTdTable(); }
   function fmtOdds(p){ if(p==null)return '—'; return p>0?('+'+p):(''+p); }
+  const TD_BOOKS={draftkings:'DK',fanduel:'FD',betmgm:'MGM',williamhill_us:'Caesars',fanatics:'Fanatics',espnbet:'ESPN',ballybet:'Bally'};
+  function bookName(b){ return TD_BOOKS[b]||(b||''); }
   function renderTdTable(){
     const s=TD_STATE, q=s.search.trim();
     let rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null
@@ -1390,7 +1392,7 @@
         `<td>${r.implied_total!=null?r.implied_total.toFixed(1):'—'}</td>`+
         `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+
-        `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${(r.best_book||'').slice(0,4)}</span></td>`+
+        `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${bookName(r.best_book)}</span></td>`+
         `<td style="color:var(--muted)">${edge}</td>`;
       tb.appendChild(tr);
     });
