@@ -950,6 +950,7 @@
     return card;
   }
 
+  let HRB_SHOW_UNVERIFIED=false;   // unverified-pitcher rows (thin/no statcast) hidden by default
   function loadHrBoard(){
     fetch('/api/hr_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!(data.rows||[]).length)return;
@@ -980,12 +981,25 @@
       }
       // drop games that have started since the board was built (staleness safety).
       const nowMs=Date.now();
-      let rows=(data.rows||[]).filter(r=>!r.gstart_ms || r.gstart_ms>nowMs).slice(0,60);
+      let rows=(data.rows||[]).filter(r=>!r.gstart_ms || r.gstart_ms>nowMs);
+      // Unverified = hitter faces a thin/no-statcast starter (scored league-neutral). Hidden by
+      // default so the confident board is unchanged; toggle reveals them for thin slates. Filter
+      // BEFORE tiering so ranks/tiers reflect only the shown rows.
+      const nUnv=rows.filter(r=>r.unverified).length;
+      if(!HRB_SHOW_UNVERIFIED) rows=rows.filter(r=>!r.unverified);
+      rows=rows.slice(0,60);
+      if(nUnv){
+        const lbl=HRB_SHOW_UNVERIFIED?`Hide ${nUnv} unverified`:`Show ${nUnv} unverified`;
+        perfTxt+=`<br><span onclick="HRB_SHOW_UNVERIFIED=!HRB_SHOW_UNVERIFIED;loadHrBoard()" style="cursor:pointer;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 7px;display:inline-block;margin-top:5px;font-weight:600">${lbl}</span> <span style="opacity:.6">— hitters vs a new/thin-data starter, scored at a neutral matchup (their own power only).</span>`;
+      }
       // prob-mode re-tiers by rank position; edge-mode keeps the server's edge tiers (value/lean/fade/noodds).
       if(!edgeMode) rows.forEach((r,i)=>{r.tier = i<10?'chalk':(i<25?'value':'deep');});
       if(!rows.length){
-        document.getElementById('hrboard-perf').innerHTML=
-          `<span style="color:#e0a020">No games left to play on this slate — next board builds this afternoon (ET).</span>`;
+        // if the only rows are hidden unverified ones, offer the toggle rather than "no games".
+        const msg=(nUnv&&!HRB_SHOW_UNVERIFIED)
+          ? `<span style="color:#e0a020">Only unverified matchups on this slate (new/thin-data starters).</span> <span onclick="HRB_SHOW_UNVERIFIED=true;loadHrBoard()" style="cursor:pointer;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 7px;font-weight:600">Show ${nUnv} unverified</span>`
+          : `<span style="color:#e0a020">No games left to play on this slate — next board builds this afternoon (ET).</span>`;
+        document.getElementById('hrboard-perf').innerHTML=msg;
         document.getElementById('hrboard-count').textContent=stale?`prev slate ${data.date}`:(data.date||'');
         sec.style.display='block'; return;
       }
@@ -1019,6 +1033,7 @@
         const nm=r.Batter||r.batter, pit=r.Pitcher||r.pitcher;
         const posBadge=r.pos?`<span style="font-size:.5rem;color:var(--muted);border:1px solid var(--border);border-radius:3px;padding:0 3px;margin-left:5px;font-weight:400">${r.pos}</span>`:'';
         const projBadge=r.proj?`<span style="font-size:.46rem;color:#e0a020;border:1px solid #e0a020;border-radius:3px;padding:0 3px;margin-left:4px;font-weight:400" title="lineup not yet posted — projected from active roster">PROJ</span>`:'';
+        const unvBadge=r.unverified?`<span style="font-size:.46rem;color:#9aa0ff;border:1px solid #9aa0ff;border-radius:3px;padding:0 3px;margin-left:4px;font-weight:400" title="new/thin-data starter (${r.pit_bf!=null?r.pit_bf:0} BF) — matchup scored league-neutral, so this is the hitter's own power only, not a read on the pitcher">UNVERIFIED</span>`:'';
         const gt=r.gtime?` · ${r.gtime}`:'';
         let cells;
         if(edgeMode){
@@ -1046,7 +1061,7 @@
         }
         row.innerHTML=`<span class="hrb-rank" title="batting slot">${r.slot?('#'+r.slot):'·'}</span>`+
           `<span class="hrb-main"><div class="hrb-name">${nm}${posBadge}${projBadge}</div>`+
-          `<div class="hrb-sub">vs ${pit} · ${r.game}${gt}</div></span>`+cells;
+          `<div class="hrb-sub">vs ${pit}${unvBadge} · ${r.game}${gt}</div></span>`+cells;
         row.title=`${r.arch} | hitHR ${r.hit_hr} · pitHR ${r.pit_hr} · park ${r.park} · env ${(r.wx*r.supp).toFixed(2)}`;
         list.appendChild(row);
       });
@@ -1189,7 +1204,7 @@
       {k:'pos',t:'Pos',l:1,f:r=>r.pos||''},
       {k:'slot',t:'Ord',f:r=>r.slot==null?'—':r.slot},
       {k:'game',t:'Game',l:1,f:r=>r.game+(r.proj?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020" title="lineup not posted; projected roster">PROJ</span>':'')},
-      {k:'Pitcher',t:'vs Pitcher',l:1,f:r=>_exEsc(r.Pitcher||'')+(r.pit_hand?' ('+r.pit_hand+')':'')},
+      {k:'Pitcher',t:'vs Pitcher',l:1,f:r=>_exEsc(r.Pitcher||'')+(r.pit_hand?' ('+r.pit_hand+')':'')+(r.unverified?' <span class="exp-badge" style="color:#9aa0ff;border-color:#9aa0ff" title="new/thin-data starter ('+(r.pit_bf!=null?r.pit_bf:0)+' BF) — matchup scored league-neutral">UNVERIFIED</span>':'')},
       {k:'hr_prob',t:'HR%',f:r=>r.hr_prob==null?'—':(+r.hr_prob).toFixed(1)+'%'},
       {k:'salary',t:'$',f:r=>r.salary==null?'—':'$'+(+r.salary/1000).toFixed(1)+'k'},
       {k:'leverage',t:'Lev',f:r=>r.leverage==null?'—':(+r.leverage).toFixed(2)},

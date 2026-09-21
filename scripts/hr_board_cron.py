@@ -470,8 +470,18 @@ def build_board(game_date, H, P, meta):
             (g['away_starter'],g.get('away_starter_hand'),g['home_lineup'],g['home'],g['home_id'],g['away'])]:
             if not starter: continue
             pit=P.get(int(starter))
-            if not pit or pit['bf']<MIN_PITCHER_BF: continue
-            supp=float(np.clip(pit['xwoba']/lg_xw,0.90,1.12))
+            # UNVERIFIED starters (thin/no statcast) are no longer dropped -- they're kept and flagged
+            # so a small slate isn't starved of DFS options. A thin pitcher's shrunk hr_rate already
+            # regresses hard to league (K_PIT=150); a true no-data debut is scored league-NEUTRAL
+            # (pit_hr=lg -> log5 term collapses to the hitter's own rate; supp=1). Leak-safe: neutral,
+            # no future info. Frontend hides these behind a "Show unverified" toggle by default.
+            unverified = (not pit) or (pit['bf'] < MIN_PITCHER_BF)
+            if not pit:
+                pit_hr_val, supp, pit_bf = lg, 1.0, 0          # debut / no statcast -> neutral matchup
+            else:
+                pit_hr_val = pit['hr_rate']
+                supp = float(np.clip(pit['xwoba']/lg_xw,0.90,1.12))
+                pit_bf = pit['bf']
             # official lineup if posted; else projected pool (upcoming games only)
             proj = not lineup
             if proj:
@@ -491,15 +501,16 @@ def build_board(game_date, H, P, meta):
                 if park is None:
                     park=get_park_factor(g['home'],hand,ak)
                 # dampen the log5 joint-extreme overstatement (see KHR_INTERACTION_DAMP)
-                _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit['hr_rate']/lg)))
-                pa_hr=(h['hr_rate']*pit['hr_rate']/lg)*park*wx*supp*_damp
+                _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit_hr_val/lg)))
+                pa_hr=(h['hr_rate']*pit_hr_val/lg)*park*wx*supp*_damp
                 # slot-weighted PA when the lineup is official; neutral PA when projected
                 exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',team=bat,
                     gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,proj=proj,
+                    unverified=unverified,pit_bf=pit_bf,
                     slot=(None if proj else slot),pos=pos,arch=arch_name,bat_hand=hand,pit_hand=sthand,
-                    hit_hr=round(h['hr_rate'],2),pit_hr=round(pit['hr_rate'],2),
+                    hit_hr=round(h['hr_rate'],2),pit_hr=round(pit_hr_val,2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
     if not rows: return pd.DataFrame()
@@ -687,7 +698,7 @@ def main():
     hr_odds = fetch_hr_odds(date) if not df.empty else {}
 
     if not df.empty:
-        keep=['batter','pitcher','game','team','gtime','gstart_ms','upcoming','proj','slot','pos','arch','bat_hand','pit_hand',
+        keep=['batter','pitcher','game','team','gtime','gstart_ms','upcoming','proj','unverified','pit_bf','slot','pos','arch','bat_hand','pit_hand',
               'hit_hr','pit_hr','park','wx','supp','pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if hr_odds:
@@ -709,8 +720,13 @@ def main():
             print(f'DK salary join: {int(day["salary"].notna().sum())}/{len(day)} board players matched ({cov:.0%} coverage).')
         # archive only OFFICIAL-lineup rows (projected picks are speculative -> excluded
         # from the forward-track so grading stays honest); keeps RAW hr_prob for calib.
-        # Drop the display-only book_prices list column so it doesn't bloat/round-trip in the CSV.
-        official=(day[day['proj']==False] if 'proj' in day.columns else day).drop(columns=['book_prices'], errors='ignore')
+        # ALSO exclude UNVERIFIED rows (thin/no-data starter, scored league-neutral): they're a
+        # different, lower-confidence population, so grading/calibrating on them would distort the
+        # tracked hit-rate + the calib slope for the confident board. Displayed (behind the toggle),
+        # not graded. Drop the display-only book_prices list column so it doesn't bloat the CSV.
+        _amask = (day['proj']==False) if 'proj' in day.columns else pd.Series(True, index=day.index)
+        if 'unverified' in day.columns: _amask &= (day['unverified']==False)
+        official=day[_amask].drop(columns=['book_prices'], errors='ignore')
         # CARRY FORWARD odds: HR props post late, so a game's price is often captured only by a later
         # run -- but once that game STARTS, fetch_hr_odds skips it (and an empty fetch adds no columns),
         # so without this each subsequent run would blank a price we already had. Ensure the odds
