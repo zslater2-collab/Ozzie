@@ -225,6 +225,12 @@ def build_board(events, tmap):
           "best_book_rule":"shop DK+FD; Caesars runs rich",
           "note":"role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."}
     json.dump({"meta":meta,"rows":board.to_dicts()}, open(BOARD,"w"), indent=1)
+    # COVERAGE GUARD: every team with a posted total (on the slate) must land >=1 player row.
+    # A gap = an abbr join mismatch like LAR/LA silently dropping a whole team. (N<32 is normal:
+    # games already kicked off drop from the pre-game odds feed; byes start ~wk5.)
+    missing=sorted(set(imp.keys())-set(board["team"].to_list()))
+    if missing: print(f"[board] !! WARN slate teams with ZERO player rows (abbr mismatch?): {missing}")
+    else: print(f"[board] coverage OK: all {len(imp)} slate teams have >=1 player row")
     priced=board.filter(pl.col("mkt_p").is_not_null()&(~pl.col("thin")))
     print(f"[board] wrote {BOARD}: {board.height} rows, {priced.height} priced trusted")
     return board
@@ -318,7 +324,12 @@ def tracker_log(board, events, wk):
 
 def main():
     if not KEY: print("no ODDS_API_KEY -- board will be role-only / unpriced")
-    tmap={r["team_name"]:r["team_abbr"] for r in nfl.load_teams().select(["team_name","team_abbr"]).to_dicts()}
+    # nflverse disagrees with itself: load_teams() calls the Rams "LAR" but the priors/pbp feed
+    # (posteam) codes them "LA" -> imp.get("LA") missed and silently dropped EVERY Rams player.
+    # Canonicalize to the priors spelling. Chargers safe (both=LAC). Same class as accent-drops.
+    TEAM_ABBR_FIX={"LAR":"LA"}
+    tmap={r["team_name"]:TEAM_ABBR_FIX.get(r["team_abbr"],r["team_abbr"])
+          for r in nfl.load_teams().select(["team_name","team_abbr"]).to_dicts()}
     events=slate_events()
     print(f"[cron] season {SEASON}, {len(events)} slate events")
     wk=current_week()
