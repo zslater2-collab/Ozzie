@@ -356,7 +356,7 @@
     </div>
     <div class="exp-count" id="td-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="td-thead"></thead><tbody id="td-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). Market is efficient, so <b>Edge = context, NOT a bet signal</b>. <b>🎯 FOCUS SLICE</b> = the one thing that replicated across 2024+2025: WR/TE established-role longshots priced ≲7% (≈+1400) in the season's first half — they hit ~11–14% vs ~5% implied. Filter to 🎯, shop the best price, flat small stakes (high variance, H1-only, still forward-testing). Click a header to sort.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). Market is efficient, so <b>Edge = context, NOT a bet signal</b>. <b>🎯 FOCUS SLICE</b> = the one thing that replicated across 2024+2025: WR/TE established-role longshots priced ≲7% (≈+1400) in the season's first half — they hit ~11–14% vs ~5% implied. Filter to 🎯, shop the best price, flat small stakes (high variance, H1-only, still forward-testing). <b>Wx</b> 🌧️/💨 = bad weather → AVOID pass-catcher longshots (lower-scoring games; not an RB boost — that hypothesis tested null). ▦ = dome. Click a header to sort.</div>
   </div>
 </div>
 <div id="explorer-section" style="display:none">
@@ -1349,6 +1349,7 @@
     {k:'team',t:'Tm',l:0,v:r=>r.team||''},
     {k:'opp',t:'Opp',l:0,v:r=>r.opp||''},
     {k:'kick',t:'Kick',l:1,v:r=>r.commence||''},
+    {k:'wx',t:'Wx',l:1,v:r=>r.wx_tag||'zz'},
     {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
     {k:'model_p_cal',t:'Model P',l:0,v:r=>r.model_p_cal??-1},
     {k:'mkt_p_consensus',t:'Mkt P',l:0,v:r=>r.mkt_p_consensus??-1},
@@ -1364,6 +1365,9 @@
   function fmtOdds(p){ if(p==null)return '—'; return p>0?('+'+p):(''+p); }
   const TD_BOOKS={draftkings:'DK',fanduel:'FD',betmgm:'MGM',williamhill_us:'Caesars',fanatics:'Fanatics',espnbet:'ESPN',ballybet:'Bally'};
   function bookName(b){ return TD_BOOKS[b]||(b||''); }
+  function wxLabel(t){ if(!t||t==='?')return ''; if(t==='indoor')return '<span style="color:var(--muted)" title="dome/indoor — neutral">▦</span>';
+    if(t==='clear')return '<span style="color:var(--muted)">·</span>';
+    return '<span title="bad weather — fade pass-catcher longshots">'+(t.includes('wet')?'🌧️':'')+(t.includes('windy')?'💨':'')+'</span>'; }
   function renderTdTable(){
     const s=TD_STATE, q=s.search.trim();
     let rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null
@@ -1389,6 +1393,7 @@
         `<td class="l">${r.pos||''}</td>`+
         `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
         `<td class="l" style="color:var(--muted)">${tdKick(r)||'—'}</td>`+
+        `<td class="l">${wxLabel(r.wx_tag)}</td>`+
         `<td>${r.implied_total!=null?r.implied_total.toFixed(1):'—'}</td>`+
         `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+

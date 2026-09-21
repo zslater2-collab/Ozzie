@@ -49,6 +49,41 @@ def current_week():
     played = sched.filter(pl.col("home_score").is_not_null())
     return (int(played["week"].max())+1) if played.height else 1
 
+# ── weather (Open-Meteo, free) -- soft fade-context for pass-catcher longshots ───────
+# Backtest (2024-25): bad weather = LOWER-SCORING game (fades all TDs, esp. pass-catchers),
+# NOT a run/pass reallocation (RB rush-TD share barely moves). So this is fade-context only.
+STADIUMS = {
+ "ARI":(33.5276,-112.2626,"retract"),"ATL":(33.7554,-84.4008,"retract"),"BAL":(39.2780,-76.6227,"out"),
+ "BUF":(42.7738,-78.7870,"out"),"CAR":(35.2258,-80.8528,"out"),"CHI":(41.8623,-87.6167,"out"),
+ "CIN":(39.0955,-84.5161,"out"),"CLE":(41.5061,-81.6995,"out"),"DAL":(32.7473,-97.0945,"retract"),
+ "DEN":(39.7439,-105.0201,"out"),"DET":(42.3400,-83.0456,"dome"),"GB":(44.5013,-88.0622,"out"),
+ "HOU":(29.6847,-95.4107,"retract"),"IND":(39.7601,-86.1639,"retract"),"JAX":(30.3239,-81.6373,"out"),
+ "KC":(39.0489,-94.4839,"out"),"LV":(36.0909,-115.1833,"dome"),"LAC":(33.9535,-118.3392,"fixed"),
+ "LAR":(33.9535,-118.3392,"fixed"),"MIA":(25.9580,-80.2389,"out"),"MIN":(44.9736,-93.2578,"dome"),
+ "NE":(42.0909,-71.2643,"out"),"NO":(29.9511,-90.0812,"dome"),"NYG":(40.8135,-74.0745,"out"),
+ "NYJ":(40.8135,-74.0745,"out"),"PHI":(39.9008,-75.1675,"out"),"PIT":(40.4468,-80.0158,"out"),
+ "SF":(37.4032,-121.9698,"out"),"SEA":(47.5952,-122.3316,"out"),"TB":(27.9759,-82.5033,"out"),
+ "TEN":(36.1665,-86.7713,"out"),"WAS":(38.9077,-76.8645,"out"),
+}
+def wx_for(home, commence):
+    st = STADIUMS.get(home)
+    if not st: return {"tag":"?","precip_mm":None,"wind_mph":None}
+    lat,lon,roof = st
+    if roof != "out": return {"tag":"indoor","precip_mm":0.0,"wind_mph":0.0}
+    try:
+        h = requests.get("https://api.open-meteo.com/v1/forecast",
+            {"latitude":lat,"longitude":lon,"hourly":"precipitation,wind_speed_10m","timezone":"UTC",
+             "wind_speed_unit":"mph","precipitation_unit":"mm","forecast_days":8}, timeout=15).json()["hourly"]
+        tgt = dt.datetime.fromisoformat(commence.replace("Z","+00:00")).replace(tzinfo=None)
+        i = min(range(len(h["time"])), key=lambda k: abs((dt.datetime.fromisoformat(h["time"][k])-tgt).total_seconds()))
+        pr,wd = h["precipitation"][i], h["wind_speed_10m"][i]
+        tags=[];
+        if pr>=0.8: tags.append("wet")
+        if wd>=15: tags.append("windy")
+        return {"tag":"+".join(tags) if tags else "clear","precip_mm":round(pr,2),"wind_mph":round(wd,1)}
+    except Exception:
+        return {"tag":"?","precip_mm":None,"wind_mph":None}
+
 # ── leak-free role priors (trailing thru latest completed week + prior-yr shrink) ────
 def priors_current():
     def load_opp(seasons):
@@ -175,6 +210,17 @@ def build_board(events, tmap):
         pl.when(pl.col("mkt_p").is_null()).then(pl.lit("no price"))
           .when((~pl.col("thin"))&(pl.col("pos")=="WR/TE")&(pl.col("mkt_p")<0.07)).then(pl.lit("H1-longshot-watch"))
           .otherwise(pl.lit("")).alias("flag")]).sort("edge", descending=True, nulls_last=True)
+    # weather: one lookup per unique game (home stadium + kickoff), attached to rows as context.
+    wxc = {}
+    for g, c in {(r["game"], r["commence"]) for r in board.iter_rows(named=True) if r["game"] and r["commence"]}:
+        wxc[(g, c)] = wx_for(g.split("@")[1], c)
+    board = board.with_columns(
+        pl.struct(["game","commence"]).map_elements(
+            lambda s: (wxc.get((s["game"], s["commence"])) or {}).get("tag"), return_dtype=pl.Utf8).alias("wx_tag"),
+        pl.struct(["game","commence"]).map_elements(
+            lambda s: (wxc.get((s["game"], s["commence"])) or {}).get("precip_mm"), return_dtype=pl.Float64).alias("wx_precip"),
+        pl.struct(["game","commence"]).map_elements(
+            lambda s: (wxc.get((s["game"], s["commence"])) or {}).get("wind_mph"), return_dtype=pl.Float64).alias("wx_wind"))
     meta={"generated":dt.datetime.now().isoformat(timespec="minutes"),"season":SEASON,
           "best_book_rule":"shop DK+FD; Caesars runs rich",
           "note":"role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."}
