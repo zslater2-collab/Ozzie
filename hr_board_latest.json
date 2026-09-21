@@ -1,10 +1,10 @@
 {
   "date": "2026-09-21",
-  "asof": "2026-09-19",
+  "asof": "2026-09-20",
   "calib": {
-    "slope": 0.583,
-    "intercept": 5.047,
-    "n": 8861
+    "slope": 0.5823,
+    "intercept": 5.02,
+    "n": 9050
   },
   "ranked_by": "prob",
   "rows": [
@@ -23,44 +23,50 @@
       "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 5.24,
+      "hit_hr": 5.21,
       "pit_hr": 2.71,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 4.276,
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 4.292,
       "hr_prob": 14.6,
       "fair": "+585",
       "Batter": "Pete Alonso",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 370.0,
+      "mkt_over": 400.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 21.1,
-      "mkt_avg": 354.0,
+      "mkt_prob": 19.7,
+      "mkt_avg": 370.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
-          "price": 375,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "BetRivers",
-          "price": 370,
+          "price": 400,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 370,
+          "price": 400,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 370,
+          "price": 400,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 375,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 350,
           "best": false,
           "bettable": false
         },
@@ -72,20 +78,14 @@
         },
         {
           "book": "Fliff",
-          "price": 330,
+          "price": 325,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 320,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 5700,
-      "hr_prob_raw": 16.4,
-      "edge": -6.5,
+      "hr_prob_raw": 16.5,
+      "edge": -5.1,
       "tier": "chalk"
     },
     {
@@ -103,69 +103,69 @@
       "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 5.03,
+      "hit_hr": 5.0,
       "pit_hr": 2.71,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 4.11,
-      "hr_prob": 14.3,
-      "fair": "+599",
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 4.116,
+      "hr_prob": 14.2,
+      "fair": "+604",
       "Batter": "Coby Mayo",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 430.0,
+      "mkt_over": 460.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 18.4,
-      "mkt_avg": 420.0,
+      "mkt_prob": 17.1,
+      "mkt_avg": 425.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
-          "price": 450,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "BetRivers",
-          "price": 430,
+          "price": 460,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 430,
+          "price": 460,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 430,
+          "price": 460,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 450,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 400,
           "best": false,
           "bettable": false
         },
         {
           "book": "Caesars",
-          "price": 425,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 400,
+          "price": 390,
           "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 380,
+          "price": 375,
           "best": false,
           "bettable": false
         }
       ],
       "salary": 4400,
       "hr_prob_raw": 15.8,
-      "edge": -4.1,
+      "edge": -2.9,
       "tier": "chalk"
     },
     {
@@ -183,23 +183,29 @@
       "arch": "Oppo Fastball Hunter (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 4.22,
+      "hit_hr": 4.18,
       "pit_hr": 2.71,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 4.056,
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 4.06,
       "hr_prob": 14.1,
       "fair": "+609",
       "Batter": "Samuel Basallo",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 450.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 16.9,
-      "mkt_avg": 444.0,
+      "mkt_over": 500.0,
+      "mkt_book": "theScore Bet",
+      "mkt_prob": 16.2,
+      "mkt_avg": 467.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
+        {
+          "book": "theScore Bet",
+          "price": 500,
+          "best": true,
+          "bettable": true
+        },
         {
           "book": "Hard Rock Bet",
           "price": 475,
@@ -207,45 +213,39 @@
           "bettable": false
         },
         {
+          "book": "Caesars",
+          "price": 475,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "BetRivers",
-          "price": 450,
+          "price": 475,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 450,
-          "best": true,
+          "price": 475,
+          "best": false,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 450,
+          "price": 475,
           "best": false,
           "bettable": false
         },
         {
-          "book": "theScore Bet",
-          "price": 450,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 425,
-          "best": false,
-          "bettable": true
-        },
-        {
           "book": "Fliff",
-          "price": 415,
+          "price": 405,
           "best": false,
           "bettable": false
         }
       ],
       "salary": 3900,
       "hr_prob_raw": 15.6,
-      "edge": -2.8,
+      "edge": -2.1,
       "tier": "chalk"
     },
     {
@@ -263,29 +263,23 @@
       "arch": "Middle Fastball Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 4.38,
+      "hit_hr": 4.35,
       "pit_hr": 3.1,
       "park": 0.838,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 3.681,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 3.723,
       "hr_prob": 13.4,
       "fair": "+646",
       "Batter": "Kody Clemens",
       "Pitcher": "Blade Tidwell",
       "mkt_over": 440.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 18.6,
-      "mkt_avg": 415.0,
+      "mkt_prob": 17.9,
+      "mkt_avg": 418.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
-        {
-          "book": "Hard Rock Bet",
-          "price": 450,
-          "best": false,
-          "bettable": false
-        },
         {
           "book": "BetRivers",
           "price": 440,
@@ -305,6 +299,18 @@
           "bettable": true
         },
         {
+          "book": "Hard Rock Bet",
+          "price": 425,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 425,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "Caesars",
           "price": 400,
           "best": false,
@@ -312,20 +318,14 @@
         },
         {
           "book": "Fliff",
-          "price": 390,
+          "price": 365,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 360,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 4500,
-      "hr_prob_raw": 14.3,
-      "edge": -5.2,
+      "hr_prob_raw": 14.4,
+      "edge": -4.5,
       "tier": "chalk"
     },
     {
@@ -343,43 +343,49 @@
       "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 5.03,
+      "hit_hr": 5.0,
       "pit_hr": 2.19,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 3.668,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 3.675,
       "hr_prob": 13.3,
       "fair": "+652",
       "Batter": "Kazuma Okamoto",
       "Pitcher": "Shane Baz",
-      "mkt_over": 450.0,
+      "mkt_over": 475.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 18.4,
-      "mkt_avg": 433.0,
+      "mkt_prob": 16.4,
+      "mkt_avg": 453.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
+          "book": "BetRivers",
           "price": 475,
           "best": false,
           "bettable": false
         },
         {
-          "book": "BetRivers",
-          "price": 450,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "Bally Bet",
-          "price": 450,
+          "price": 475,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
+          "price": 475,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 475,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
           "price": 450,
           "best": false,
           "bettable": false
@@ -391,21 +397,15 @@
           "bettable": true
         },
         {
-          "book": "theScore Bet",
-          "price": 400,
-          "best": false,
-          "bettable": true
-        },
-        {
           "book": "Fliff",
-          "price": 390,
+          "price": 405,
           "best": false,
           "bettable": false
         }
       ],
       "salary": 4300,
       "hr_prob_raw": 14.2,
-      "edge": -5.1,
+      "edge": -3.1,
       "tier": "chalk"
     },
     {
@@ -423,31 +423,25 @@
       "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 4.3,
+      "hit_hr": 4.29,
       "pit_hr": 2.71,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 3.512,
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 3.532,
       "hr_prob": 13.0,
       "fair": "+669",
       "Batter": "Christian Encarnacion-Strand",
       "Pitcher": "Trey Yesavage",
       "mkt_over": 500.0,
-      "mkt_book": "Caesars",
-      "mkt_prob": 16.7,
-      "mkt_avg": 474.0,
+      "mkt_book": "theScore Bet",
+      "mkt_prob": 15.9,
+      "mkt_avg": 466.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
-          "price": 500,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
+          "book": "theScore Bet",
           "price": 500,
           "best": true,
           "bettable": true
@@ -471,26 +465,32 @@
           "bettable": false
         },
         {
-          "book": "theScore Bet",
-          "price": 450,
+          "book": "Hard Rock Bet",
+          "price": 475,
           "best": false,
-          "bettable": true
+          "bettable": false
         },
         {
           "book": "Fliff",
-          "price": 435,
+          "price": 430,
           "best": false,
           "bettable": false
+        },
+        {
+          "book": "Caesars",
+          "price": 425,
+          "best": false,
+          "bettable": true
         }
       ],
       "salary": 4800,
-      "hr_prob_raw": 13.6,
-      "edge": -3.7,
+      "hr_prob_raw": 13.7,
+      "edge": -2.9,
       "tier": "chalk"
     },
     {
       "date": "2026-09-21",
-      "batter": 813841,
+      "batter": 694376,
       "pitcher": 805673,
       "game": "MIN@SF",
       "team": "SF",
@@ -499,73 +499,110 @@
       "upcoming": true,
       "proj": true,
       "slot": null,
-      "pos": "CF",
+      "pos": "3B",
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.94,
+      "hit_hr": 3.33,
       "pit_hr": 4.09,
       "park": 0.812,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 3.273,
+      "pa_hr": 3.319,
       "hr_prob": 12.5,
       "fair": "+700",
-      "Batter": "Jonah Cox",
+      "Batter": "Shay Whitcomb",
       "Pitcher": "Zebby Matthews",
-      "mkt_over": 950.0,
-      "mkt_book": "Caesars",
-      "mkt_prob": 11.8,
-      "mkt_avg": 817.0,
+      "mkt_over": 900.0,
+      "mkt_book": "Bally Bet",
+      "mkt_prob": 10.4,
+      "mkt_avg": 831.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 950,
-          "best": true,
-          "bettable": true
-        },
-        {
           "book": "BetRivers",
-          "price": 850,
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetPARX",
-          "price": 850,
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
+          "price": 900,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 850,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Caesars",
           "price": 850,
           "best": false,
           "bettable": true
         },
         {
-          "book": "Fliff",
-          "price": 680,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "theScore Bet",
-          "price": 650,
+          "price": 800,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 670,
+          "best": false,
+          "bettable": false
         }
       ],
-      "salary": 3800,
-      "hr_prob_raw": 12.8,
-      "edge": 0.7,
+      "salary": 3100,
+      "hr_prob_raw": 12.9,
+      "edge": 2.1,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-09-21",
+      "batter": 678545,
+      "pitcher": 805673,
+      "game": "MIN@SF",
+      "team": "SF",
+      "gtime": "9:45p",
+      "gstart_ms": 1790041500000,
+      "upcoming": true,
+      "proj": true,
+      "slot": null,
+      "pos": "2B",
+      "arch": "",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 3.36,
+      "pit_hr": 4.09,
+      "park": 0.812,
+      "wx": 1.002,
+      "supp": 1.031,
+      "pa_hr": 3.309,
+      "hr_prob": 12.5,
+      "fair": "+700",
+      "Batter": "Osleivis Basabe",
+      "Pitcher": "Zebby Matthews",
+      "mkt_over": null,
+      "mkt_book": null,
+      "mkt_prob": null,
+      "mkt_avg": null,
+      "mkt_n_books": null,
+      "mkt_n_bettable": null,
+      "book_prices": [],
+      "salary": 2700,
+      "hr_prob_raw": 12.9,
+      "edge": null,
       "tier": "chalk"
     },
     {
@@ -586,9 +623,9 @@
       "hit_hr": 3.63,
       "pit_hr": 4.09,
       "park": 0.838,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 3.269,
+      "pa_hr": 3.323,
       "hr_prob": 12.5,
       "fair": "+700",
       "Batter": "Bryce Eldridge",
@@ -601,13 +638,13 @@
       "mkt_n_bettable": null,
       "book_prices": [],
       "salary": 4000,
-      "hr_prob_raw": 12.7,
+      "hr_prob_raw": 12.9,
       "edge": null,
       "tier": "chalk"
     },
     {
       "date": "2026-09-21",
-      "batter": 678545,
+      "batter": 813841,
       "pitcher": 805673,
       "game": "MIN@SF",
       "team": "SF",
@@ -616,64 +653,45 @@
       "upcoming": true,
       "proj": true,
       "slot": null,
-      "pos": "2B",
+      "pos": "CF",
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.37,
+      "hit_hr": 2.89,
       "pit_hr": 4.09,
       "park": 0.812,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 3.251,
+      "pa_hr": 3.278,
       "hr_prob": 12.5,
       "fair": "+700",
-      "Batter": "Osleivis Basabe",
+      "Batter": "Jonah Cox",
       "Pitcher": "Zebby Matthews",
-      "mkt_over": null,
-      "mkt_book": null,
-      "mkt_prob": null,
-      "mkt_avg": null,
-      "mkt_n_books": null,
-      "mkt_n_bettable": null,
-      "book_prices": [],
-      "salary": 2700,
-      "hr_prob_raw": 12.7,
-      "edge": null,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-09-21",
-      "batter": 694376,
-      "pitcher": 805673,
-      "game": "MIN@SF",
-      "team": "SF",
-      "gtime": "9:45p",
-      "gstart_ms": 1790041500000,
-      "upcoming": true,
-      "proj": true,
-      "slot": null,
-      "pos": "3B",
-      "arch": "",
-      "bat_hand": "R",
-      "pit_hand": "R",
-      "hit_hr": 3.38,
-      "pit_hr": 4.09,
-      "park": 0.812,
-      "wx": 0.986,
-      "supp": 1.031,
-      "pa_hr": 3.249,
-      "hr_prob": 12.5,
-      "fair": "+700",
-      "Batter": "Shay Whitcomb",
-      "Pitcher": "Zebby Matthews",
-      "mkt_over": 850.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 11.9,
-      "mkt_avg": 757.0,
+      "mkt_over": 950.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 9.9,
+      "mkt_avg": 884.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
+        {
+          "book": "Hard Rock Bet",
+          "price": 1000,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Caesars",
+          "price": 950,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "theScore Bet",
+          "price": 900,
+          "best": false,
+          "bettable": true
+        },
         {
           "book": "BetRivers",
           "price": 850,
@@ -689,37 +707,19 @@
         {
           "book": "Bally Bet",
           "price": 850,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 750,
           "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 670,
+          "price": 815,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 600,
-          "best": false,
-          "bettable": true
         }
       ],
-      "salary": 3100,
-      "hr_prob_raw": 12.7,
-      "edge": 0.6,
+      "salary": 3800,
+      "hr_prob_raw": 12.8,
+      "edge": 2.6,
       "tier": "chalk"
     },
     {
@@ -737,69 +737,69 @@
       "arch": "Middle Fastball Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.36,
+      "hit_hr": 3.33,
       "pit_hr": 2.71,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 3.232,
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 3.234,
       "hr_prob": 12.4,
       "fair": "+706",
       "Batter": "Colton Cowser",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 750.0,
-      "mkt_book": "Caesars",
-      "mkt_prob": 13.1,
-      "mkt_avg": 677.0,
+      "mkt_over": 800.0,
+      "mkt_book": "Bally Bet",
+      "mkt_prob": 11.7,
+      "mkt_avg": 723.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
+          "book": "BetRivers",
           "price": 800,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 750,
+          "book": "Bally Bet",
+          "price": 800,
           "best": true,
           "bettable": true
         },
         {
-          "book": "BetRivers",
+          "book": "BetPARX",
+          "price": 800,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Hard Rock Bet",
           "price": 700,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Bally Bet",
+          "book": "Caesars",
           "price": 700,
           "best": false,
           "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 700,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Fliff",
-          "price": 600,
-          "best": false,
-          "bettable": false
         },
         {
           "book": "theScore Bet",
-          "price": 550,
+          "price": 700,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 605,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 2800,
       "hr_prob_raw": 12.6,
-      "edge": -0.7,
+      "edge": 0.7,
       "tier": "value"
     },
     {
@@ -817,69 +817,69 @@
       "arch": "Middle Slider Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.32,
+      "hit_hr": 3.3,
       "pit_hr": 2.71,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 3.19,
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 3.202,
       "hr_prob": 12.3,
       "fair": "+713",
       "Batter": "Gunnar Henderson",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 500.0,
-      "mkt_book": "Caesars",
-      "mkt_prob": 16.7,
-      "mkt_avg": 465.0,
+      "mkt_over": 525.0,
+      "mkt_book": "theScore Bet",
+      "mkt_prob": 15.7,
+      "mkt_avg": 492.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Caesars",
-          "price": 500,
+          "book": "theScore Bet",
+          "price": 525,
           "best": true,
           "bettable": true
         },
         {
           "book": "Hard Rock Bet",
-          "price": 475,
+          "price": 500,
           "best": false,
           "bettable": false
         },
         {
-          "book": "BetRivers",
-          "price": 475,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 475,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 475,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 450,
+          "book": "Caesars",
+          "price": 500,
           "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 415,
+          "price": 485,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 480,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 480,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "BetPARX",
+          "price": 480,
           "best": false,
           "bettable": false
         }
       ],
       "salary": 5100,
-      "hr_prob_raw": 12.4,
-      "edge": -4.4,
+      "hr_prob_raw": 12.5,
+      "edge": -3.4,
       "tier": "value"
     },
     {
@@ -900,20 +900,26 @@
       "hit_hr": 2.73,
       "pit_hr": 4.09,
       "park": 0.838,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 3.143,
+      "pa_hr": 3.19,
       "hr_prob": 12.2,
       "fair": "+720",
       "Batter": "Drew Gilbert",
       "Pitcher": "Zebby Matthews",
-      "mkt_over": 750.0,
+      "mkt_over": 1100.0,
       "mkt_book": "Caesars",
-      "mkt_prob": 12.1,
-      "mkt_avg": 728.0,
+      "mkt_prob": 10.4,
+      "mkt_avg": 836.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
+        {
+          "book": "Caesars",
+          "price": 1100,
+          "best": true,
+          "bettable": true
+        },
         {
           "book": "Hard Rock Bet",
           "price": 900,
@@ -921,82 +927,39 @@
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 750,
-          "best": true,
-          "bettable": true
-        },
-        {
           "book": "BetRivers",
-          "price": 750,
+          "price": 800,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetPARX",
-          "price": 750,
+          "price": 800,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 750,
-          "best": true,
+          "price": 800,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "theScore Bet",
+          "price": 800,
+          "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 660,
+          "price": 735,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 600,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 3200,
-      "hr_prob_raw": 12.3,
-      "edge": 0.1,
-      "tier": "value"
-    },
-    {
-      "date": "2026-09-21",
-      "batter": 687529,
-      "pitcher": 805673,
-      "game": "MIN@SF",
-      "team": "SF",
-      "gtime": "9:45p",
-      "gstart_ms": 1790041500000,
-      "upcoming": true,
-      "proj": true,
-      "slot": null,
-      "pos": "CF",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 2.72,
-      "pit_hr": 4.09,
-      "park": 0.838,
-      "wx": 0.986,
-      "supp": 1.031,
-      "pa_hr": 3.132,
-      "hr_prob": 12.2,
-      "fair": "+720",
-      "Batter": "Grant Mccray",
-      "Pitcher": "Zebby Matthews",
-      "mkt_over": null,
-      "mkt_book": null,
-      "mkt_prob": null,
-      "mkt_avg": null,
-      "mkt_n_books": null,
-      "mkt_n_bettable": null,
-      "book_prices": [],
-      "salary": 2500,
-      "hr_prob_raw": 12.2,
-      "edge": null,
+      "hr_prob_raw": 12.4,
+      "edge": 1.8,
       "tier": "value"
     },
     {
@@ -1017,25 +980,31 @@
       "hit_hr": 3.73,
       "pit_hr": 3.1,
       "park": 0.812,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 3.091,
-      "hr_prob": 12.1,
-      "fair": "+726",
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 3.143,
+      "hr_prob": 12.2,
+      "fair": "+720",
       "Batter": "Ryan Jeffers",
       "Pitcher": "Blade Tidwell",
-      "mkt_over": 550.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 15.3,
-      "mkt_avg": 526.0,
+      "mkt_over": 575.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 15.0,
+      "mkt_avg": 549.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
           "book": "Hard Rock Bet",
-          "price": 575,
+          "price": 600,
           "best": false,
           "bettable": false
+        },
+        {
+          "book": "Caesars",
+          "price": 575,
+          "best": true,
+          "bettable": true
         },
         {
           "book": "BetRivers",
@@ -1052,11 +1021,11 @@
         {
           "book": "Bally Bet",
           "price": 550,
-          "best": true,
+          "best": false,
           "bettable": true
         },
         {
-          "book": "Caesars",
+          "book": "theScore Bet",
           "price": 525,
           "best": false,
           "bettable": true
@@ -1066,97 +1035,48 @@
           "price": 500,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 450,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 4700,
-      "hr_prob_raw": 12.1,
-      "edge": -3.2,
+      "hr_prob_raw": 12.3,
+      "edge": -2.8,
       "tier": "value"
     },
     {
       "date": "2026-09-21",
-      "batter": 686797,
-      "pitcher": 694918,
+      "batter": 687529,
+      "pitcher": 805673,
       "game": "MIN@SF",
-      "team": "MIN",
+      "team": "SF",
       "gtime": "9:45p",
       "gstart_ms": 1790041500000,
       "upcoming": true,
       "proj": true,
       "slot": null,
-      "pos": "3B",
-      "arch": "Middle Fastball Crusher",
-      "bat_hand": "R",
+      "pos": "CF",
+      "arch": "",
+      "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.68,
-      "pit_hr": 3.1,
-      "park": 0.812,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 3.058,
-      "hr_prob": 12.0,
-      "fair": "+733",
-      "Batter": "Brooks Lee",
-      "Pitcher": "Blade Tidwell",
-      "mkt_over": 650.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 14.1,
-      "mkt_avg": 594.0,
-      "mkt_n_books": 7.0,
-      "mkt_n_bettable": 3.0,
-      "book_prices": [
-        {
-          "book": "Hard Rock Bet",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetPARX",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 650,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 575,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 550,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 475,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "salary": 3900,
-      "hr_prob_raw": 12.0,
-      "edge": -2.1,
+      "hit_hr": 2.68,
+      "pit_hr": 4.09,
+      "park": 0.838,
+      "wx": 1.002,
+      "supp": 1.031,
+      "pa_hr": 3.139,
+      "hr_prob": 12.2,
+      "fair": "+720",
+      "Batter": "Grant Mccray",
+      "Pitcher": "Zebby Matthews",
+      "mkt_over": null,
+      "mkt_book": null,
+      "mkt_prob": null,
+      "mkt_avg": null,
+      "mkt_n_books": null,
+      "mkt_n_bettable": null,
+      "book_prices": [],
+      "salary": 2500,
+      "hr_prob_raw": 12.3,
+      "edge": null,
       "tier": "value"
     },
     {
@@ -1174,14 +1094,14 @@
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 4.05,
+      "hit_hr": 3.98,
       "pit_hr": 4.09,
       "park": 0.812,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 3.047,
-      "hr_prob": 12.0,
-      "fair": "+733",
+      "pa_hr": 3.117,
+      "hr_prob": 12.1,
+      "fair": "+726",
       "Batter": "Victor Bericoto",
       "Pitcher": "Zebby Matthews",
       "mkt_over": null,
@@ -1192,8 +1112,88 @@
       "mkt_n_bettable": null,
       "book_prices": [],
       "salary": 2600,
-      "hr_prob_raw": 11.9,
+      "hr_prob_raw": 12.2,
       "edge": null,
+      "tier": "value"
+    },
+    {
+      "date": "2026-09-21",
+      "batter": 686797,
+      "pitcher": 694918,
+      "game": "MIN@SF",
+      "team": "MIN",
+      "gtime": "9:45p",
+      "gstart_ms": 1790041500000,
+      "upcoming": true,
+      "proj": true,
+      "slot": null,
+      "pos": "3B",
+      "arch": "Middle Fastball Crusher",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 3.66,
+      "pit_hr": 3.1,
+      "park": 0.812,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 3.094,
+      "hr_prob": 12.1,
+      "fair": "+726",
+      "Batter": "Brooks Lee",
+      "Pitcher": "Blade Tidwell",
+      "mkt_over": 700.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 13.3,
+      "mkt_avg": 640.0,
+      "mkt_n_books": 7.0,
+      "mkt_n_bettable": 3.0,
+      "book_prices": [
+        {
+          "book": "Caesars",
+          "price": 700,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 650,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 650,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetPARX",
+          "price": 650,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 650,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "theScore Bet",
+          "price": 600,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 590,
+          "best": false,
+          "bettable": false
+        }
+      ],
+      "salary": 3900,
+      "hr_prob_raw": 12.1,
+      "edge": -1.2,
       "tier": "value"
     },
     {
@@ -1211,69 +1211,69 @@
       "arch": "Middle Fastball Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.26,
+      "hit_hr": 3.23,
       "pit_hr": 3.1,
       "park": 0.838,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 2.827,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 2.857,
       "hr_prob": 11.5,
       "fair": "+770",
       "Batter": "Josh Bell",
       "Pitcher": "Blade Tidwell",
-      "mkt_over": 600.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 15.3,
-      "mkt_avg": 557.0,
+      "mkt_over": 575.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 14.3,
+      "mkt_avg": 555.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
+          "book": "Caesars",
+          "price": 575,
+          "best": true,
+          "bettable": true
+        },
+        {
           "book": "BetRivers",
-          "price": 600,
+          "price": 575,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetPARX",
-          "price": 600,
+          "price": 575,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 600,
+          "price": 575,
           "best": true,
           "bettable": true
         },
         {
           "book": "Hard Rock Bet",
-          "price": 575,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 575,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 500,
+          "price": 550,
           "best": false,
           "bettable": false
         },
         {
           "book": "theScore Bet",
-          "price": 475,
+          "price": 550,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 495,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 3700,
-      "hr_prob_raw": 11.1,
-      "edge": -3.8,
+      "hr_prob_raw": 11.2,
+      "edge": -2.8,
       "tier": "value"
     },
     {
@@ -1291,33 +1291,39 @@
       "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.41,
+      "hit_hr": 2.39,
       "pit_hr": 4.09,
       "park": 0.812,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 2.684,
+      "pa_hr": 2.704,
       "hr_prob": 11.2,
       "fair": "+793",
       "Batter": "Christian Koss",
       "Pitcher": "Zebby Matthews",
-      "mkt_over": 950.0,
+      "mkt_over": 1100.0,
       "mkt_book": "Caesars",
-      "mkt_prob": 10.2,
-      "mkt_avg": 876.0,
+      "mkt_prob": 8.9,
+      "mkt_avg": 976.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
           "book": "Hard Rock Bet",
-          "price": 1000,
+          "price": 1100,
           "best": false,
           "bettable": false
         },
         {
           "book": "Caesars",
-          "price": 950,
+          "price": 1100,
           "best": true,
+          "bettable": true
+        },
+        {
+          "book": "theScore Bet",
+          "price": 1000,
+          "best": false,
           "bettable": true
         },
         {
@@ -1335,25 +1341,19 @@
         {
           "book": "Bally Bet",
           "price": 950,
-          "best": true,
+          "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 795,
+          "price": 830,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 650,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 2700,
       "hr_prob_raw": 10.6,
-      "edge": 1.0,
+      "edge": 2.3,
       "tier": "value"
     },
     {
@@ -1374,9 +1374,9 @@
       "hit_hr": 3.09,
       "pit_hr": 3.1,
       "park": 0.812,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 2.617,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 2.655,
       "hr_prob": 11.1,
       "fair": "+801",
       "Batter": "Ryan Kreidler",
@@ -1389,7 +1389,7 @@
       "mkt_n_bettable": null,
       "book_prices": [],
       "salary": 2600,
-      "hr_prob_raw": 10.3,
+      "hr_prob_raw": 10.4,
       "edge": null,
       "tier": "value"
     },
@@ -1408,14 +1408,14 @@
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.05,
+      "hit_hr": 3.02,
       "pit_hr": 2.19,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.622,
-      "hr_prob": 11.1,
-      "fair": "+801",
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.617,
+      "hr_prob": 11.0,
+      "fair": "+809",
       "Batter": "Brandon Valenzuela",
       "Pitcher": "Shane Baz",
       "mkt_over": null,
@@ -1445,69 +1445,69 @@
       "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.22,
+      "hit_hr": 3.18,
       "pit_hr": 2.71,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 0.906,
-      "pa_hr": 2.625,
-      "hr_prob": 11.1,
-      "fair": "+801",
+      "wx": 1.021,
+      "supp": 0.907,
+      "pa_hr": 2.621,
+      "hr_prob": 11.0,
+      "fair": "+809",
       "Batter": "Jeremiah Jackson",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 800.0,
+      "mkt_over": 1000.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 11.6,
-      "mkt_avg": 742.0,
+      "mkt_prob": 9.4,
+      "mkt_avg": 888.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "BetRivers",
-          "price": 800,
+          "price": 1000,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 800,
+          "price": 1000,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 750,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 690,
+          "price": 1000,
           "best": false,
           "bettable": false
         },
         {
           "book": "theScore Bet",
-          "price": 600,
+          "price": 900,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 850,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Caesars",
+          "price": 850,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 700,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 3200,
       "hr_prob_raw": 10.3,
-      "edge": -0.5,
+      "edge": 1.6,
       "tier": "value"
     },
     {
@@ -1525,69 +1525,57 @@
       "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.92,
+      "hit_hr": 2.89,
       "pit_hr": 3.1,
       "park": 0.812,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 2.471,
-      "hr_prob": 10.8,
-      "fair": "+826",
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 2.493,
+      "hr_prob": 10.7,
+      "fair": "+835",
       "Batter": "Royce Lewis",
       "Pitcher": "Blade Tidwell",
-      "mkt_over": 540.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 16.6,
-      "mkt_avg": 495.0,
-      "mkt_n_books": 7.0,
-      "mkt_n_bettable": 3.0,
+      "mkt_over": 525.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 15.3,
+      "mkt_avg": 517.0,
+      "mkt_n_books": 5.0,
+      "mkt_n_bettable": 2.0,
       "book_prices": [
         {
-          "book": "BetRivers",
-          "price": 540,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetPARX",
-          "price": 540,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 540,
+          "book": "Caesars",
+          "price": 525,
           "best": true,
           "bettable": true
         },
         {
-          "book": "Hard Rock Bet",
+          "book": "BetRivers",
           "price": 525,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 500,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 450,
+          "book": "BetPARX",
+          "price": 525,
           "best": false,
           "bettable": false
         },
         {
-          "book": "theScore Bet",
-          "price": 400,
-          "best": false,
+          "book": "Bally Bet",
+          "price": 525,
+          "best": true,
           "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 485,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 3500,
       "hr_prob_raw": 9.8,
-      "edge": -5.8,
+      "edge": -4.6,
       "tier": "value"
     },
     {
@@ -1608,66 +1596,66 @@
       "hit_hr": 3.29,
       "pit_hr": 2.19,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.395,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.416,
       "hr_prob": 10.6,
       "fair": "+843",
       "Batter": "Alejandro Kirk",
       "Pitcher": "Shane Baz",
-      "mkt_over": 800.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 11.8,
-      "mkt_avg": 746.0,
+      "mkt_over": 850.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 10.4,
+      "mkt_avg": 808.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Hard Rock Bet",
+          "book": "Caesars",
+          "price": 850,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "BetRivers",
           "price": 850,
           "best": false,
           "bettable": false
         },
         {
-          "book": "BetRivers",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "Bally Bet",
-          "price": 800,
+          "price": 850,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
+          "price": 850,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Hard Rock Bet",
           "price": 800,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 750,
+          "book": "theScore Bet",
+          "price": 800,
           "best": false,
           "bettable": true
         },
         {
           "book": "Fliff",
-          "price": 680,
+          "price": 685,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 600,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 4000,
       "hr_prob_raw": 9.5,
-      "edge": -1.2,
+      "edge": 0.2,
       "tier": "value"
     },
     {
@@ -1685,69 +1673,69 @@
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.79,
+      "hit_hr": 2.78,
       "pit_hr": 2.19,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.398,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.405,
       "hr_prob": 10.6,
       "fair": "+843",
       "Batter": "Josh Smith",
       "Pitcher": "Shane Baz",
-      "mkt_over": 650.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 14.2,
-      "mkt_avg": 605.0,
+      "mkt_over": 1000.0,
+      "mkt_book": "theScore Bet",
+      "mkt_prob": 9.4,
+      "mkt_avg": 890.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
+          "book": "theScore Bet",
+          "price": 1000,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Caesars",
+          "price": 950,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "Hard Rock Bet",
-          "price": 650,
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetRivers",
-          "price": 650,
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 650,
-          "best": true,
+          "price": 900,
+          "best": false,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 650,
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 575,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 550,
-          "best": false,
-          "bettable": true
-        },
-        {
           "book": "Fliff",
-          "price": 535,
+          "price": 725,
           "best": false,
           "bettable": false
         }
       ],
       "salary": 2400,
       "hr_prob_raw": 9.5,
-      "edge": -3.6,
+      "edge": 1.2,
       "tier": "value"
     },
     {
@@ -1768,20 +1756,26 @@
       "hit_hr": 2.02,
       "pit_hr": 4.09,
       "park": 0.838,
-      "wx": 0.986,
+      "wx": 1.002,
       "supp": 1.031,
-      "pa_hr": 2.318,
+      "pa_hr": 2.358,
       "hr_prob": 10.4,
       "fair": "+862",
       "Batter": "Turner Hill",
       "Pitcher": "Zebby Matthews",
-      "mkt_over": 950.0,
+      "mkt_over": 1100.0,
       "mkt_book": "Caesars",
-      "mkt_prob": 10.7,
-      "mkt_avg": 851.0,
+      "mkt_prob": 8.9,
+      "mkt_avg": 949.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
+        {
+          "book": "Caesars",
+          "price": 1100,
+          "best": true,
+          "bettable": true
+        },
         {
           "book": "Hard Rock Bet",
           "price": 1000,
@@ -1789,26 +1783,26 @@
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 950,
-          "best": true,
+          "book": "theScore Bet",
+          "price": 1000,
+          "best": false,
           "bettable": true
         },
         {
           "book": "BetRivers",
-          "price": 900,
+          "price": 950,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetPARX",
-          "price": 900,
+          "price": 950,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 900,
+          "price": 950,
           "best": false,
           "bettable": true
         },
@@ -1817,17 +1811,11 @@
           "price": 760,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 650,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 3400,
-      "hr_prob_raw": 9.2,
-      "edge": -0.3,
+      "hr_prob_raw": 9.3,
+      "edge": 1.5,
       "tier": "deep"
     },
     {
@@ -1845,33 +1833,57 @@
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.33,
+      "hit_hr": 2.31,
       "pit_hr": 2.71,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 0.906,
+      "wx": 1.021,
+      "supp": 0.907,
       "pa_hr": 2.243,
       "hr_prob": 10.2,
       "fair": "+880",
       "Batter": "Dylan Beavers",
       "Pitcher": "Trey Yesavage",
-      "mkt_over": 525.0,
+      "mkt_over": 625.0,
       "mkt_book": "Caesars",
-      "mkt_prob": 15.9,
-      "mkt_avg": 496.0,
+      "mkt_prob": 14.3,
+      "mkt_avg": 556.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
+          "book": "Caesars",
+          "price": 625,
+          "best": true,
+          "bettable": true
+        },
+        {
           "book": "Hard Rock Bet",
-          "price": 575,
+          "price": 600,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 525,
-          "best": true,
+          "book": "BetRivers",
+          "price": 550,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 550,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "BetPARX",
+          "price": 550,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 550,
+          "best": false,
           "bettable": true
         },
         {
@@ -1879,35 +1891,11 @@
           "price": 485,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 475,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 475,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 475,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 475,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 3800,
       "hr_prob_raw": 8.9,
-      "edge": -5.7,
+      "edge": -4.1,
       "tier": "deep"
     },
     {
@@ -1928,66 +1916,66 @@
       "hit_hr": 3.0,
       "pit_hr": 2.19,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.188,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.203,
       "hr_prob": 10.1,
       "fair": "+890",
       "Batter": "George Springer",
       "Pitcher": "Shane Baz",
-      "mkt_over": 625.0,
-      "mkt_book": "Caesars",
-      "mkt_prob": 14.9,
-      "mkt_avg": 574.0,
+      "mkt_over": 650.0,
+      "mkt_book": "Bally Bet",
+      "mkt_prob": 14.3,
+      "mkt_avg": 579.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
-          "book": "Caesars",
-          "price": 625,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 600,
-          "best": false,
-          "bettable": false
-        },
-        {
           "book": "BetRivers",
-          "price": 600,
+          "price": 650,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 600,
-          "best": false,
+          "price": 650,
+          "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 600,
+          "price": 650,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Fliff",
-          "price": 515,
+          "book": "Hard Rock Bet",
+          "price": 550,
           "best": false,
           "bettable": false
         },
         {
           "book": "theScore Bet",
-          "price": 500,
+          "price": 550,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Caesars",
+          "price": 525,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 510,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 4900,
       "hr_prob_raw": 8.7,
-      "edge": -4.8,
+      "edge": -4.2,
       "tier": "deep"
     },
     {
@@ -2005,46 +1993,52 @@
       "arch": "Oppo Fastball Hunter (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.51,
+      "hit_hr": 2.48,
       "pit_hr": 2.19,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.152,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.151,
       "hr_prob": 10.0,
       "fair": "+900",
       "Batter": "Nathan Lukes",
       "Pitcher": "Shane Baz",
-      "mkt_over": 1000.0,
+      "mkt_over": 1050.0,
       "mkt_book": "Bally Bet",
-      "mkt_prob": 10.3,
-      "mkt_avg": 906.0,
+      "mkt_prob": 8.6,
+      "mkt_avg": 990.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
           "book": "Hard Rock Bet",
-          "price": 1000,
+          "price": 1100,
           "best": false,
           "bettable": false
         },
         {
           "book": "BetRivers",
-          "price": 1000,
+          "price": 1050,
           "best": false,
           "bettable": false
         },
         {
           "book": "Bally Bet",
-          "price": 1000,
+          "price": 1050,
           "best": true,
           "bettable": true
         },
         {
           "book": "BetPARX",
-          "price": 1000,
+          "price": 1050,
           "best": false,
           "bettable": false
+        },
+        {
+          "book": "theScore Bet",
+          "price": 1000,
+          "best": false,
+          "bettable": true
         },
         {
           "book": "Caesars",
@@ -2057,17 +2051,11 @@
           "price": 795,
           "best": false,
           "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 700,
-          "best": false,
-          "bettable": true
         }
       ],
       "salary": 3000,
       "hr_prob_raw": 8.5,
-      "edge": -0.3,
+      "edge": 1.4,
       "tier": "deep"
     },
     {
@@ -2088,9 +2076,9 @@
       "hit_hr": 2.89,
       "pit_hr": 2.19,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 2.108,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 2.127,
       "hr_prob": 9.9,
       "fair": "+910",
       "Batter": "Davis Schneider",
@@ -2109,6 +2097,43 @@
     },
     {
       "date": "2026-09-21",
+      "batter": 702176,
+      "pitcher": 694918,
+      "game": "MIN@SF",
+      "team": "MIN",
+      "gtime": "9:45p",
+      "gstart_ms": 1790041500000,
+      "upcoming": true,
+      "proj": true,
+      "slot": null,
+      "pos": "RF",
+      "arch": "Middle Slider Crusher (LH)",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 2.27,
+      "pit_hr": 3.1,
+      "park": 0.838,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 2.022,
+      "hr_prob": 9.7,
+      "fair": "+931",
+      "Batter": "Alan Roden",
+      "Pitcher": "Blade Tidwell",
+      "mkt_over": null,
+      "mkt_book": null,
+      "mkt_prob": null,
+      "mkt_avg": null,
+      "mkt_n_books": null,
+      "mkt_n_bettable": null,
+      "book_prices": [],
+      "salary": 2600,
+      "hr_prob_raw": 8.0,
+      "edge": null,
+      "tier": "deep"
+    },
+    {
+      "date": "2026-09-21",
       "batter": 807727,
       "pitcher": 669358,
       "game": "TOR@BAL",
@@ -2122,12 +2147,12 @@
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.66,
+      "hit_hr": 2.62,
       "pit_hr": 2.19,
       "park": 0.993,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 1.938,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 1.927,
       "hr_prob": 9.5,
       "fair": "+953",
       "Batter": "Charles Mcadoo",
@@ -2159,12 +2184,12 @@
       "arch": "Middle Slider Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.16,
+      "hit_hr": 2.14,
       "pit_hr": 3.1,
       "park": 0.838,
-      "wx": 0.986,
-      "supp": 1.034,
-      "pa_hr": 1.892,
+      "wx": 1.002,
+      "supp": 1.035,
+      "pa_hr": 1.908,
       "hr_prob": 9.4,
       "fair": "+964",
       "Batter": "V\u00edctor Caratini",
@@ -2177,7 +2202,7 @@
       "mkt_n_bettable": null,
       "book_prices": [],
       "salary": 2800,
-      "hr_prob_raw": 7.5,
+      "hr_prob_raw": 7.6,
       "edge": null,
       "tier": "deep"
     },
@@ -2196,69 +2221,69 @@
       "arch": "Middle Slider Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.07,
+      "hit_hr": 2.06,
       "pit_hr": 2.19,
       "park": 1.17,
-      "wx": 1.013,
-      "supp": 1.004,
-      "pa_hr": 1.781,
+      "wx": 1.021,
+      "supp": 1.005,
+      "pa_hr": 1.782,
       "hr_prob": 9.2,
       "fair": "+987",
       "Batter": "Andr\u00e9s Gim\u00e9nez",
       "Pitcher": "Shane Baz",
-      "mkt_over": 1000.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 10.4,
-      "mkt_avg": 893.0,
+      "mkt_over": 1100.0,
+      "mkt_book": "Caesars",
+      "mkt_prob": 8.6,
+      "mkt_avg": 1011.0,
       "mkt_n_books": 7.0,
       "mkt_n_bettable": 3.0,
       "book_prices": [
         {
           "book": "Hard Rock Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 1000,
+          "price": 1100,
           "best": false,
           "bettable": false
         },
         {
           "book": "Caesars",
-          "price": 950,
+          "price": 1100,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "BetRivers",
+          "price": 1050,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 1050,
           "best": false,
           "bettable": true
         },
         {
-          "book": "Fliff",
-          "price": 785,
+          "book": "BetPARX",
+          "price": 1050,
           "best": false,
           "bettable": false
         },
         {
           "book": "theScore Bet",
-          "price": 650,
+          "price": 1000,
           "best": false,
           "bettable": true
+        },
+        {
+          "book": "Fliff",
+          "price": 795,
+          "best": false,
+          "bettable": false
         }
       ],
       "salary": 3300,
       "hr_prob_raw": 7.1,
-      "edge": -1.2,
+      "edge": 0.6,
       "tier": "deep"
     }
   ]
