@@ -1,97 +1,97 @@
 {
-  "graded_dates": 67,
-  "graded_picks": 9068,
-  "base_hr_rate": 12.49,
+  "graded_dates": 68,
+  "graded_picks": 9255,
+  "base_hr_rate": 12.45,
   "buckets": {
     "top10": {
-      "n": 668,
-      "hit_rate": 18.26,
-      "lift_vs_base": 5.77
+      "n": 678,
+      "hit_rate": 17.99,
+      "lift_vs_base": 5.55
     },
     "top25": {
-      "n": 983,
-      "hit_rate": 16.48,
+      "n": 998,
+      "hit_rate": 16.43,
       "lift_vs_base": 3.99
     },
     "rest": {
-      "n": 7417,
-      "hit_rate": 11.45,
-      "lift_vs_base": -1.05
+      "n": 7579,
+      "hit_rate": 11.43,
+      "lift_vs_base": -1.02
     }
   },
   "calibration": [
     {
       "q": 0,
       "pred": 6.7,
-      "actual": 7.7,
-      "n": 1859
+      "actual": 7.6,
+      "n": 1900
     },
     {
       "q": 1,
       "pred": 9.8,
       "actual": 10.9,
-      "n": 1840
+      "n": 1878
     },
     {
       "q": 2,
       "pred": 12.3,
       "actual": 12.6,
-      "n": 1808
+      "n": 1846
     },
     {
       "q": 3,
       "pred": 15.1,
-      "actual": 14.8,
-      "n": 1775
+      "actual": 14.7,
+      "n": 1818
     },
     {
       "q": 4,
       "pred": 20.6,
-      "actual": 16.8,
-      "n": 1786
+      "actual": 16.7,
+      "n": 1813
     }
   ],
   "calib": {
-    "slope": 0.5851,
-    "intercept": 4.993,
-    "n": 9068
+    "slope": 0.5819,
+    "intercept": 4.994,
+    "n": 9255
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 993,
-      "hit_rate": 7.45,
-      "roi": -30.77
+      "n": 1036,
+      "hit_rate": 7.43,
+      "roi": -30.24
     },
     "neg_edge": {
-      "n": 2698,
-      "hit_rate": 15.42,
-      "roi": -2.77
+      "n": 2827,
+      "hit_rate": 15.28,
+      "roi": -3.33
     },
     "edge_ge3": {
-      "n": 104,
-      "hit_rate": 6.73,
-      "roi": -31.73
+      "n": 108,
+      "hit_rate": 6.48,
+      "roi": -34.26
     },
     "best_pos": {
-      "n": 1090,
-      "hit_rate": 7.52,
-      "roi": -28.72
+      "n": 1133,
+      "hit_rate": 7.41,
+      "roi": -28.97
     },
     "best_neg": {
-      "n": 2601,
-      "hit_rate": 15.69,
-      "roi": -2.58
+      "n": 2730,
+      "hit_rate": 15.57,
+      "roi": -2.9
     }
   },
-  "edge_graded_picks": 3691,
+  "edge_graded_picks": 3863,
   "shop": {
-    "n": 3432,
-    "avg_pts": 0.99
+    "n": 3604,
+    "avg_pts": 0.97
   },
   "edge_blind": {
-    "n": 3691,
-    "roi": -10.3,
-    "actual_hr": 13.28,
-    "mkt_implied": 14.34
+    "n": 3863,
+    "roi": -10.54,
+    "actual_hr": 13.18,
+    "mkt_implied": 14.31
   }
 }
