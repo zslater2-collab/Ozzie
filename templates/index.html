@@ -113,6 +113,11 @@
   .exp-tabs{display:flex;gap:6px;margin-bottom:10px}
   .exp-tab{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.08em;padding:5px 16px;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;background:var(--surface)}
   .exp-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(232,255,71,.06)}
+  /* top-level sport switch (Baseball / Football) */
+  .sport-nav{display:flex;gap:8px;justify-content:center;padding:14px 20px 0}
+  .sport-tab{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.1em;padding:7px 26px;border:1px solid var(--border);border-radius:7px;color:var(--muted);cursor:pointer;background:var(--surface);user-select:none;transition:all .15s}
+  .sport-tab:hover{color:var(--text)}
+  .sport-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(232,255,71,.08)}
   .exp-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;font-size:.62rem}
   .exp-filters select,.exp-filters input{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:.62rem}
   .exp-filters label{color:var(--muted);display:flex;align-items:center;gap:4px}
@@ -170,6 +175,11 @@
 </div>
 <div id="status-bar"></div>
 <div id="error-box"></div>
+<div class="sport-nav">
+  <div class="sport-tab active" id="sport-tab-baseball" onclick="setSport('baseball')">⚾ Baseball</div>
+  <div class="sport-tab" id="sport-tab-football" onclick="setSport('football')">🏈 Football</div>
+</div>
+<div class="view-bb">
 <div id="games-section">
   <div class="section-label">Today's Slate</div>
   <div class="games-row" id="games-row"></div>
@@ -326,6 +336,8 @@
     <div id="hrboard-list"></div>
   </div>
 </div>
+</div><!--/view-bb-->
+<div class="view-fb" style="display:none">
 <div id="td-section" style="display:none">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -359,6 +371,8 @@
     <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference; <b>Best price</b> is the useful column — shop it (DK/FD lead, Caesars rich). Market is efficient, so <b>Edge = context, NOT a bet signal</b>. <b>🎯 FOCUS SLICE</b> = the one thing that replicated across 2024+2025: WR/TE established-role longshots priced ≲7% (≈+1400) in the season's first half — they hit ~11–14% vs ~5% implied. Filter to 🎯, shop the best price, flat small stakes (high variance, H1-only, still forward-testing). <b>Wx</b> 🌧️/💨 = bad weather → AVOID pass-catcher longshots (lower-scoring games; not an RB boost — that hypothesis tested null). ▦ = dome. Click a header to sort.</div>
   </div>
 </div>
+</div><!--/view-fb-->
+<div class="view-bb">
 <div id="explorer-section" style="display:none">
   <div class="divider"></div>
   <div style="padding-top:20px">
@@ -421,10 +435,22 @@
   </div>
 </div>
 <div id="no-picks"><span id="no-picks-msg">No picks yet.<br>Check back closer to game time.</span></div>
+</div><!--/view-bb-->
 <script>(function(){const hr=new Date().getHours();const msg=document.getElementById('no-picks-msg');if(msg&&hr>=20){msg.innerHTML="Today\'s slate is complete.<br>Check back tomorrow morning.";}})();</script>
 <footer><a href="/logout">sign out</a></footer>
 <script>
   document.getElementById('date-label').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+
+  // top-level sport switch: Baseball (.view-bb blocks) vs Football (.view-fb blocks). Only toggles
+  // visibility -- data for both still loads on refresh, and each view keeps its own inner show/hide.
+  function setSport(sport){
+    document.querySelectorAll('.view-bb').forEach(el=>el.style.display=(sport==='football')?'none':'');
+    document.querySelectorAll('.view-fb').forEach(el=>el.style.display=(sport==='football')?'':'none');
+    document.getElementById('sport-tab-baseball').classList.toggle('active',sport!=='football');
+    document.getElementById('sport-tab-football').classList.toggle('active',sport==='football');
+    try{localStorage.setItem('ozzie_sport',sport);}catch(e){}
+  }
+  setSport((()=>{try{return localStorage.getItem('ozzie_sport')||'baseball';}catch(e){return 'baseball';}})());
 
   const MEDALS = {Gold:'🥇', Silver:'🥈', Bronze:'🥉'};
   const TIER_COLORS = {
