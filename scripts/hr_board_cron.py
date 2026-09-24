@@ -453,7 +453,71 @@ def _dk_salary(dk, name, team):
     return max(s for _, s in lst)   # name match, team unknown -> highest-salary entry (the starter)
 
 # ---------------- board ----------------
-def build_board(game_date, H, P, meta):
+# ---------------- projected batting-order model (recent starts, split by opp hand) ----------------
+# Before an official lineup posts a projected bat gets a NEUTRAL PA (4.1), which misprices him by up
+# to +-11% (leadoff ~4.7 PA vs 9-hole ~3.8) and makes the daily percentile ranking DRIFT as lineups
+# firm up through the night -- so an early-game bat that looks top-1% at noon can shift out by the
+# time you'd bet him. Managers set the order consistently, and by opposing-pitcher hand, so we
+# estimate each bat's EXPECTED slot from his recent starts (reconstructed from the PA cache: the
+# first 9 distinct batters facing each game's STARTER = that lineup 1-9) and give projected bats a
+# slot-weighted PA instead. Regulars' slot is tight (recent within-batter MAD ~0.6 slots).
+_PHAND_CACHE = {}
+def _pitcher_throws(ids):
+    """mlbam pitcher id -> 'R'/'L' via statsapi people endpoint (batched, cached)."""
+    need = [i for i in {int(x) for x in ids} if i not in _PHAND_CACHE]
+    for j in range(0, len(need), 100):
+        chunk = need[j:j+100]
+        try:
+            r = requests.get('https://statsapi.mlb.com/api/v1/people',
+                             params={'personIds': ','.join(map(str, chunk))}, timeout=15)
+            for p in r.json().get('people', []):
+                _PHAND_CACHE[int(p['id'])] = (p.get('pitchHand', {}) or {}).get('code')
+        except Exception as e:
+            print(f'pitch-hand fetch failed: {e}')
+        for i in chunk: _PHAND_CACHE.setdefault(i, None)
+    return _PHAND_CACHE
+
+def build_slot_model(pa, days=21, min_starts=3):
+    """{(batter, opp_hand): expected_slot} with a hand-agnostic {(batter, None): slot} fallback,
+    from the last `days` of reconstructed starter-faced batting orders. opp_hand splits R/L because
+    managers platoon the order. Needs >= min_starts games in a cell to be trusted."""
+    pa = pa.copy(); pa['game_date'] = pd.to_datetime(pa['game_date'])
+    pa = pa[pa['game_date'] >= pa['game_date'].max() - pd.Timedelta(days=days)]
+    pa = pa.sort_values(['game_pk', 'at_bat_number'])
+    if pa.empty: return {}
+    # a game's STARTERS = the two pitchers with the smallest first at_bat_number (drops relievers,
+    # whose first batter faced is mid-order, not the leadoff hitter).
+    firsts = pa.groupby(['game_pk', 'pitcher'])['at_bat_number'].min().reset_index()
+    starters = set(map(tuple, firsts.sort_values('at_bat_number')
+                       .groupby('game_pk').head(2)[['game_pk', 'pitcher']].values))
+    phand = _pitcher_throws(firsts['pitcher'].unique())
+    recs = []
+    for (gpk, pit), grp in pa.groupby(['game_pk', 'pitcher']):
+        if (gpk, pit) not in starters: continue
+        hnd = phand.get(int(pit)); seen = []
+        for b in grp['batter']:
+            if b not in seen: seen.append(b)
+            if len(seen) >= 9: break
+        for i, b in enumerate(seen): recs.append((int(b), hnd, i + 1))
+    if not recs: return {}
+    sm = pd.DataFrame(recs, columns=['batter', 'hand', 'slot'])
+    model = {}
+    for (b, hnd), grp in sm.groupby(['batter', 'hand']):
+        if hnd and len(grp) >= min_starts: model[(b, hnd)] = float(grp['slot'].mean())
+    for b, grp in sm.groupby('batter'):
+        if len(grp) >= min_starts: model[(b, None)] = float(grp['slot'].mean())
+    return model
+
+def _slot_to_pa(s):
+    """fractional batting slot -> expected PA (interpolate the slot PA-share table)."""
+    if s is None: return AVG_PA_VS_GAME
+    s = max(1.0, min(9.0, float(s)))
+    lo = int(math.floor(s)); hi = min(9, lo + 1); frac = s - lo
+    share = SLOT_PA_SHARE.get(lo, 0.10) * (1 - frac) + SLOT_PA_SHARE.get(hi, 0.10) * frac
+    return share * TEAM_PA_PER_GAME
+
+def build_board(game_date, H, P, meta, slot_model=None):
+    slot_model = slot_model or {}
     from datetime import timezone
     now = datetime.now(timezone.utc)
     lg, lg_xw = meta['lg_hr_rate'], meta['lg_xwoba']
@@ -503,13 +567,20 @@ def build_board(game_date, H, P, meta):
                 # dampen the log5 joint-extreme overstatement (see KHR_INTERACTION_DAMP)
                 _damp=np.exp(-KHR_INTERACTION_DAMP*max(0.0,np.log(h['hr_rate']/lg))*max(0.0,np.log(pit_hr_val/lg)))
                 pa_hr=(h['hr_rate']*pit_hr_val/lg)*park*wx*supp*_damp
-                # slot-weighted PA when the lineup is official; neutral PA when projected
-                exp_pa=(AVG_PA_VS_GAME if proj else SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME)
+                # PA: official lineup -> real slot; projected -> EXPECTED slot from recent starts vs
+                # this pitcher's hand (falls back hand-agnostic, then neutral) so the pre-lineup rank holds.
+                if proj:
+                    est_slot = slot_model.get((bid, sthand)) or slot_model.get((bid, None))
+                    exp_pa = _slot_to_pa(est_slot)
+                else:
+                    est_slot = None
+                    exp_pa = SLOT_PA_SHARE.get(slot,0.10)*TEAM_PA_PER_GAME
                 prob,amer=hr_prob(pa_hr, exp_pa)
                 rows.append(dict(batter=bid,pitcher=int(starter),game=f'{g["away"]}@{g["home"]}',team=bat,
                     gtime=gtime,gstart_ms=gstart_ms,upcoming=upcoming,proj=proj,
                     unverified=unverified,pit_bf=pit_bf,
-                    slot=(None if proj else slot),pos=pos,arch=arch_name,bat_hand=hand,pit_hand=sthand,
+                    slot=(None if proj else slot),est_slot=(round(est_slot,1) if est_slot is not None else None),
+                    pos=pos,arch=arch_name,bat_hand=hand,pit_hand=sthand,
                     hit_hr=round(h['hr_rate'],2),pit_hr=round(pit_hr_val,2),
                     park=round(park,3),wx=round(wx,3),supp=round(supp,3),
                     pa_hr=round(pa_hr,3),hr_prob=prob,fair=('+%d'%amer if amer>0 else str(amer))))
@@ -754,14 +825,16 @@ def main():
     date = sys.argv[1] if len(sys.argv)>1 else datetime.utcnow().strftime('%Y-%m-%d')
     pa = refresh_pa_cache()
     H,P,meta = build_stats(pa)
-    df = build_board(date, H, P, meta)
+    slot_model = build_slot_model(pa)     # expected batting slot for pre-lineup (projected) bats
+    print(f'Slot model: {len(slot_model)} (batter,hand) cells from recent starts.')
+    df = build_board(date, H, P, meta, slot_model)
 
     # anytime-HR market odds (once per run) -> attach best price + de-vigged prob to every row so the
     # archive can grade edge forward, and the display can rank by it. Fail-open -> empty dict.
     hr_odds = fetch_hr_odds(date) if not df.empty else {}
 
     if not df.empty:
-        keep=['batter','pitcher','game','team','gtime','gstart_ms','upcoming','proj','unverified','pit_bf','slot','pos','arch','bat_hand','pit_hand',
+        keep=['batter','pitcher','game','team','gtime','gstart_ms','upcoming','proj','unverified','pit_bf','slot','est_slot','pos','arch','bat_hand','pit_hand',
               'hit_hr','pit_hr','park','wx','supp','pa_hr','hr_prob','fair','Batter','Pitcher']
         day=df[[c for c in keep if c in df.columns]].copy(); day.insert(0,'date',date)
         if hr_odds:
@@ -816,6 +889,7 @@ def main():
 
     # grade the archive -> perf + self-updating calibration
     perf = {}
+    arch_df = None
     if os.path.exists(ARCH_CSV):
         arch_df=pd.read_csv(ARCH_CSV); arch_df['date']=arch_df['date'].astype(str)
         perf=grade(arch_df,pa); json.dump(perf,open(PERF,'w'),indent=2)
@@ -844,6 +918,18 @@ def main():
         if 'mkt_prob' in d.columns and d['mkt_prob'].notna().any():
             d['edge'] = (d['hr_prob'] - d['mkt_prob']).round(1)
         d = d.sort_values('hr_prob', ascending=False).reset_index(drop=True)
+        # season HR% percentile badge (pool-INDEPENDENT): where this bat's RAW hr_prob sits in the full
+        # season distribution of board hr_prob. Lets you eyeball whether today's flag is a genuine
+        # top-of-season spot or just the best of a soft slate -- the manual guard on the daily-percentile
+        # flags (a hard floor grades worse, so we surface context instead of cutting).
+        if arch_df is not None:
+            try:
+                ref = np.sort(arch_df['hr_prob'].dropna().to_numpy())
+                if len(ref) >= 50:
+                    d['hr_season_pctile'] = np.round(
+                        np.searchsorted(ref, d['hr_prob_raw'].to_numpy(), side='right')/len(ref)*100).astype(int)
+            except Exception as e:
+                print(f'season pctile calc failed: {e}')
         ranked_by = 'prob'
         # DFS tiers by rank: Chalk (top 10), Value (11-25, the reliable band), Deep (26+).
         d['tier'] = ['chalk' if i<10 else ('value' if i<25 else 'deep') for i in range(len(d))]
