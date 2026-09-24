@@ -598,18 +598,21 @@ def grade(archive, pa):
     g.loc[g['mkt_over'].isna(), 'roi'] = np.nan
 
     # ---- ⭐ prop+power overlap (forward-track) ------------------------------------------------
-    # prop-over (edge -6..-3, market underprices) AND a top-N HR% bat (raw power, by slate rank).
+    # prop-over (edge -6..-3, market underprices) AND a raw-power bat (top HR% of the day).
     # Overlap grades stronger than either filter alone on both single-HR ROI and the 2+HR tail --
-    # the prop filter selects mispricing, the rank filter re-introduces the power that carries the
-    # multi-HR upside. THIN sample; graded here so it tracks forward before it's ever sized.
-    PP_TOPN = 10
+    # the prop filter selects mispricing, the power filter re-introduces the raw pop that carries
+    # the multi-HR upside. POWER BAR = daily percentile, NOT a fixed count: a data-chosen top-15%
+    # of that day's HR% (grade_power_bar.py). Beats a fixed top-N and an absolute HR% floor at
+    # matched sample AND is positive both graded months, where fixed-count flipped +93%/-23%.
+    PP_PCTILE = 0.85   # top 15% of the slate's HR% -- adapts to slate size (4-game day vs 15-game day)
+    g['hr_pctile'] = g.groupby('date')['hr_prob'].rank(pct=True)   # 1.0 = highest HR% that day
     g['is_prop']    = ((g['edge']>=-6) & (g['edge']<-3)).astype('Int64')
-    g['prop_power'] = (((g['edge']>=-6) & (g['edge']<-3)) & (g['rank']<=PP_TOPN)).astype(int)
+    g['prop_power'] = (((g['edge']>=-6) & (g['edge']<-3)) & (g['hr_pctile']>=PP_PCTILE)).astype(int)
     pp = g[(g['prop_power']==1) & g['mkt_over'].notna()].copy()
     if len(pp):
         m = pp['mkt_over'].apply(_payout)
         wj = pp[pp['had_hr']==1]
-        perf['prop_power'] = {'topn':PP_TOPN,'n':int(len(pp)),
+        perf['prop_power'] = {'power_bar':f'top {int(round((1-PP_PCTILE)*100))}% HR% (daily pctile)','n':int(len(pp)),
             'hit_rate':round(100*pp['had_hr'].mean(),2),
             'roi_raw':round(100*float(np.where(pp['had_hr']==1, m, -1.0).mean()),2),
             'roi_boost25':round(100*float(np.where(pp['had_hr']==1, m*1.25, -1.0).mean()),2),

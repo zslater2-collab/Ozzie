@@ -1276,13 +1276,15 @@
       fetch('/api/picks').then(r=>r.ok?r.json():null).catch(()=>null),
     ]).then(([hr,pk])=>{
       EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()).map(_exDeriveHR):[];
-      // ⭐ prop+power overlap: rank the slate by HR% and flag rows that are BOTH a prop-over
-      // (market-underprices) AND a top-N HR% bat (raw power). Forward-tested as the strongest
-      // single-HR spot AND the one place the 2+HR tail returns. Rank recomputes on the shown set.
-      (function(){const PP_TOPN=10;
+      // ⭐ prop+power overlap: flag rows that are BOTH a prop-over (market-underprices) AND a
+      // raw-power bat. Power bar = top 15% of THAT DAY's HR% (daily percentile, not a fixed count)
+      // — data-chosen: beats a fixed top-N and an absolute floor at matched sample and is positive
+      // both graded months (fixed count flipped +93%/-23% by slate size). Recomputes on the shown set.
+      (function(){const PP_PCTILE=0.85;
         const ranked=EXP.data.hitters.filter(r=>r.hr_prob!=null).slice().sort((a,b)=>b.hr_prob-a.hr_prob);
-        ranked.forEach((r,i)=>{r.hrRank=i+1;});
-        EXP.data.hitters.forEach(r=>{r.propPower=(r.prop==='over'&&r.hrRank!=null&&r.hrRank<=PP_TOPN)?1:0;});
+        const N=ranked.length;
+        ranked.forEach((r,i)=>{r.hrRank=i+1;r.hrPctile=N>1?(N-i)/N:1;});   // 1.0 = highest HR% today
+        EXP.data.hitters.forEach(r=>{r.propPower=(r.prop==='over'&&r.hrPctile!=null&&r.hrPctile>=PP_PCTILE)?1:0;});
       })();
       EXP.data.pitchers=(pk&&pk.pitcher_explorer)?pk.pitcher_explorer:[];
       if(!EXP.data.hitters.length&&!EXP.data.pitchers.length)return;
@@ -1363,7 +1365,7 @@
       h+=`<label title="min line-shop value (best price vs market avg)">min Shop <input type="number" step="0.5" value="${F.minShop}" oninput="expSetFilter('minShop',this.value)" style="width:50px"></label>`;
       h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
       h+=`<label title="show only the HR-prop sweet spot: model 3-6 pts below market (market underprices)"><input type="checkbox" ${F.propOver?'checked':''} onchange="expSetFilter('propOver',this.checked)"> ✅ prop overs</label>`;
-      h+=`<label title="⭐ prop+power overlap: a prop-over bat that is ALSO a top-10 HR% masher — strongest single-HR spot + the one place the 2+HR tail returns (forward-tracking, thin sample)"><input type="checkbox" ${F.propPower?'checked':''} onchange="expSetFilter('propPower',this.checked)"> ⭐ prop+power</label>`;
+      h+=`<label title="⭐ prop+power overlap: a prop-over bat that is ALSO in the top 15% of the day's HR% (raw power) — strongest single-HR spot + the one place the 2+HR tail returns (forward-tracking, thin sample)"><input type="checkbox" ${F.propPower?'checked':''} onchange="expSetFilter('propPower',this.checked)"> ⭐ prop+power</label>`;
     }
     // Start-time filter — both tabs. Keyed on the shared gstart_ms timestamp (not the display
     // string, which differs by tab: '6:40p' on hitters vs '6:40 PM ET' on pitchers) so a selection
