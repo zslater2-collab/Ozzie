@@ -1140,7 +1140,7 @@
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
-             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false}, expanded:null, _rows:[]};
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1215,7 +1215,7 @@
       {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exFadeCol(r.edge)},
       {k:'edge_best',t:'Edge@Best',f:r=>r.edge_best==null?'—':((r.edge_best>=0?'+':'')+(+r.edge_best).toFixed(1)),c:r=>_exFadeCol(r.edge_best)},
       {k:'edge_shop',t:'Shop',f:r=>r.edge_shop==null?'—':((r.edge_shop>=0?'+':'')+(+r.edge_shop).toFixed(1)),c:r=>r.edge_shop==null?'':(r.edge_shop>0?'#39d353':'var(--muted)')},
-      {k:'prop',t:'Prop',f:r=>r.prop==='over'?'✅ over':(r.prop==='fade'?'⛔ fade':''),c:r=>r.prop==='over'?'#39d353':(r.prop==='fade'?'#e0a020':'')},
+      {k:'prop',t:'Prop',f:r=>r.propPower?'⭐ prop+power':(r.prop==='over'?'✅ over':(r.prop==='fade'?'⛔ fade':'')),c:r=>r.propPower?'#ffd700':(r.prop==='over'?'#39d353':(r.prop==='fade'?'#e0a020':''))},
       {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
       {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},
       {k:'park',t:'Park',f:r=>_exN(r.park,2)},
@@ -1250,6 +1250,14 @@
       fetch('/api/picks').then(r=>r.ok?r.json():null).catch(()=>null),
     ]).then(([hr,pk])=>{
       EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()).map(_exDeriveHR):[];
+      // ⭐ prop+power overlap: rank the slate by HR% and flag rows that are BOTH a prop-over
+      // (market-underprices) AND a top-N HR% bat (raw power). Forward-tested as the strongest
+      // single-HR spot AND the one place the 2+HR tail returns. Rank recomputes on the shown set.
+      (function(){const PP_TOPN=10;
+        const ranked=EXP.data.hitters.filter(r=>r.hr_prob!=null).slice().sort((a,b)=>b.hr_prob-a.hr_prob);
+        ranked.forEach((r,i)=>{r.hrRank=i+1;});
+        EXP.data.hitters.forEach(r=>{r.propPower=(r.prop==='over'&&r.hrRank!=null&&r.hrRank<=PP_TOPN)?1:0;});
+      })();
       EXP.data.pitchers=(pk&&pk.pitcher_explorer)?pk.pitcher_explorer:[];
       if(!EXP.data.hitters.length&&!EXP.data.pitchers.length)return;
       document.getElementById('explorer-section').style.display='block';
@@ -1274,6 +1282,7 @@
     if(F.minShop!==''&&EXP.tab==='hitters'){const m=+F.minShop;rows=rows.filter(r=>r.edge_shop!=null&&+r.edge_shop>=m);}
     if(F.minEdgeBest!==''&&EXP.tab==='hitters'){const m=+F.minEdgeBest;rows=rows.filter(r=>r.edge_best!=null&&+r.edge_best>=m);}
     if(F.propOver&&EXP.tab==='hitters')rows=rows.filter(r=>r.prop==='over');
+    if(F.propPower&&EXP.tab==='hitters')rows=rows.filter(r=>r.propPower);
     if(F.pos&&EXP.tab==='hitters'){
       if(F.pos==='__OF__')rows=rows.filter(r=>['LF','CF','RF','OF'].includes((r.pos||'').toUpperCase()));
       else rows=rows.filter(r=>r.pos===F.pos);
@@ -1328,6 +1337,7 @@
       h+=`<label title="min line-shop value (best price vs market avg)">min Shop <input type="number" step="0.5" value="${F.minShop}" oninput="expSetFilter('minShop',this.value)" style="width:50px"></label>`;
       h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
       h+=`<label title="show only the HR-prop sweet spot: model 3-6 pts below market (market underprices)"><input type="checkbox" ${F.propOver?'checked':''} onchange="expSetFilter('propOver',this.checked)"> ✅ prop overs</label>`;
+      h+=`<label title="⭐ prop+power overlap: a prop-over bat that is ALSO a top-10 HR% masher — strongest single-HR spot + the one place the 2+HR tail returns (forward-tracking, thin sample)"><input type="checkbox" ${F.propPower?'checked':''} onchange="expSetFilter('propPower',this.checked)"> ⭐ prop+power</label>`;
     }
     // Start-time filter — both tabs. Keyed on the shared gstart_ms timestamp (not the display
     // string, which differs by tab: '6:40p' on hitters vs '6:40 PM ET' on pitchers) so a selection

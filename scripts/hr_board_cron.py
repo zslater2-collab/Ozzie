@@ -530,12 +530,15 @@ def build_board(game_date, H, P, meta):
 # ---------------- grade ----------------
 def grade(archive, pa):
     hr=pa.copy(); hr['is_hr']=(hr['events']=='home_run').astype(int)
-    out=hr.groupby(['game_date','batter'])['is_hr'].max().reset_index()
-    out.columns=['date','batter','had_hr']
+    # per batter-day: max -> had_hr (0/1), sum -> hr_count (for 2+ HR / multi-HR tracking)
+    out=hr.groupby(['game_date','batter'])['is_hr'].agg(had_hr='max',hr_count='sum').reset_index()
+    out.columns=['date','batter','had_hr','hr_count']
     df=archive.merge(out,on=['date','batter'],how='left')
     g=df[df['had_hr'].notna()].copy()
     if g.empty: return {'graded_dates':0}
     g['had_hr']=g['had_hr'].astype(int)
+    g['hr_count']=g['hr_count'].fillna(0).astype(int)
+    g['multi_hr']=(g['hr_count']>=2).astype(int)
     g['rank']=g.groupby('date')['hr_prob'].rank(ascending=False,method='first')
     g['bucket']=g['rank'].apply(lambda r:'top10' if r<=10 else('top25' if r<=25 else 'rest'))
     base=float(g['had_hr'].mean())
@@ -545,6 +548,24 @@ def grade(archive, pa):
         s=g[g['bucket']==b]
         if len(s): perf['buckets'][b]={'n':int(len(s)),'hit_rate':round(100*s['had_hr'].mean(),2),
             'lift_vs_base':round(100*(s['had_hr'].mean()-base),2)}
+    # ---- 2+ HR (multi-HR) tracking ----------------------------------------------------------
+    # Two rates that answer different questions: per-pick 2+HR rate (unconditional -- what a 2+HR
+    # bet actually hits, with the fair-breakeven American price) and multi-among-winners (given the
+    # bat homered, how often it went 2+ -- the "fat tail" the board's top picks carry vs the ~6%
+    # MLB baseline). Sliced by board rank so the top-of-board concentration is visible.
+    mlb_hit=out[out['hr_count']>=1]
+    def _be(p): return None if p<=0 else int(round((1-p)/p*100))
+    perf['multi_hr']={'graded':int(g['multi_hr'].sum()),
+        'mlb_multi_among_hr_pct':round(100*(mlb_hit['hr_count']>=2).mean(),2),
+        'tiers':{}}
+    for lab,mask in [('top3',g['rank']<=3),('top5',g['rank']<=5),('top10',g['rank']<=10),
+                     ('top25',g['rank']<=25),('all',g['rank']>=1)]:
+        s=g[mask]; w=s[s['had_hr']==1]
+        if len(s):
+            p=float(s['multi_hr'].mean())
+            perf['multi_hr']['tiers'][lab]={'n':int(len(s)),'multi':int(s['multi_hr'].sum()),
+                'rate_per_pick':round(100*p,2),'breakeven_odds':_be(p),
+                'multi_among_winners':round(100*w['multi_hr'].mean(),2) if len(w) else None}
     try:
         g['q']=pd.qcut(g['hr_prob'],5,labels=False,duplicates='drop')
         for q,s in g.groupby('q'):
@@ -576,9 +597,29 @@ def grade(archive, pa):
     g['roi'] = np.where(g['had_hr']==1, g['mkt_over'].apply(lambda a: _payout(a) if pd.notna(a) else np.nan), -1.0)
     g.loc[g['mkt_over'].isna(), 'roi'] = np.nan
 
+    # ---- ⭐ prop+power overlap (forward-track) ------------------------------------------------
+    # prop-over (edge -6..-3, market underprices) AND a top-N HR% bat (raw power, by slate rank).
+    # Overlap grades stronger than either filter alone on both single-HR ROI and the 2+HR tail --
+    # the prop filter selects mispricing, the rank filter re-introduces the power that carries the
+    # multi-HR upside. THIN sample; graded here so it tracks forward before it's ever sized.
+    PP_TOPN = 10
+    g['is_prop']    = ((g['edge']>=-6) & (g['edge']<-3)).astype('Int64')
+    g['prop_power'] = (((g['edge']>=-6) & (g['edge']<-3)) & (g['rank']<=PP_TOPN)).astype(int)
+    pp = g[(g['prop_power']==1) & g['mkt_over'].notna()].copy()
+    if len(pp):
+        m = pp['mkt_over'].apply(_payout)
+        wj = pp[pp['had_hr']==1]
+        perf['prop_power'] = {'topn':PP_TOPN,'n':int(len(pp)),
+            'hit_rate':round(100*pp['had_hr'].mean(),2),
+            'roi_raw':round(100*float(np.where(pp['had_hr']==1, m, -1.0).mean()),2),
+            'roi_boost25':round(100*float(np.where(pp['had_hr']==1, m*1.25, -1.0).mean()),2),
+            'avg_price':int(round(100*m.mean())),
+            'winners':int(len(wj)),'multi':int(wj['multi_hr'].sum()),
+            'multi_among_winners':round(100*wj['multi_hr'].mean(),2) if len(wj) else None}
+
     led_cols = [c for c in ['date','batter','Batter','Pitcher','game','team','slot','pos','bat_hand',
                 'hit_hr','pit_hr','park','wx','supp','hr_prob','model_recal','mkt_prob','mkt_over','mkt_avg',
-                'salary','leverage','edge','edge_best','edge_shop','had_hr','roi'] if c in g.columns]
+                'salary','leverage','edge','edge_best','edge_shop','is_prop','prop_power','had_hr','hr_count','multi_hr','roi'] if c in g.columns]
     try:
         g.sort_values(['date','hr_prob'], ascending=[True,False])[led_cols].to_csv(GRADED, index=False)
     except Exception as e:
