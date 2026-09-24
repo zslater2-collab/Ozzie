@@ -1166,7 +1166,7 @@
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
-             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false}, expanded:null, _rows:[]};
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false,smash:false}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1241,7 +1241,7 @@
       {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exFadeCol(r.edge)},
       {k:'edge_best',t:'Edge@Best',f:r=>r.edge_best==null?'—':((r.edge_best>=0?'+':'')+(+r.edge_best).toFixed(1)),c:r=>_exFadeCol(r.edge_best)},
       {k:'edge_shop',t:'Shop',f:r=>r.edge_shop==null?'—':((r.edge_shop>=0?'+':'')+(+r.edge_shop).toFixed(1)),c:r=>r.edge_shop==null?'':(r.edge_shop>0?'#39d353':'var(--muted)')},
-      {k:'prop',t:'Prop',f:r=>r.propPower?'⭐ prop+power':(r.prop==='over'?'✅ over':(r.prop==='fade'?'⛔ fade':'')),c:r=>r.propPower?'#ffd700':(r.prop==='over'?'#39d353':(r.prop==='fade'?'#e0a020':''))},
+      {k:'prop',t:'Prop',f:r=>{const base=r.propPower?'⭐ prop+power':(r.prop==='over'?'✅ over':(r.prop==='fade'?'⛔ fade':''));return (r.smash?'💣 ':'')+base;},c:r=>r.smash&&!r.propPower?'#ff6b3d':(r.propPower?'#ffd700':(r.prop==='over'?'#39d353':(r.prop==='fade'?'#e0a020':'')))},
       {k:'hit_hr',t:'HitHR',f:r=>_exN(r.hit_hr,1)},
       {k:'pit_hr',t:'PitHR',f:r=>_exN(r.pit_hr,1)},
       {k:'park',t:'Park',f:r=>_exN(r.park,2)},
@@ -1280,11 +1280,16 @@
       // raw-power bat. Power bar = top 15% of THAT DAY's HR% (daily percentile, not a fixed count)
       // — data-chosen: beats a fixed top-N and an absolute floor at matched sample and is positive
       // both graded months (fixed count flipped +93%/-23% by slate size). Recomputes on the shown set.
-      (function(){const PP_PCTILE=0.85;
+      // 💣 smash = top ~2% of the day's HR% (the 1-2 highest-projected bats) -- a SEPARATE screen for
+      // the 2+HR nibble (fattest multi-HR tail; a prob floor & the prop overlap both graded weaker).
+      (function(){const PP_PCTILE=0.85, SMASH_PCTILE=0.99;
         const ranked=EXP.data.hitters.filter(r=>r.hr_prob!=null).slice().sort((a,b)=>b.hr_prob-a.hr_prob);
         const N=ranked.length;
         ranked.forEach((r,i)=>{r.hrRank=i+1;r.hrPctile=N>1?(N-i)/N:1;});   // 1.0 = highest HR% today
-        EXP.data.hitters.forEach(r=>{r.propPower=(r.prop==='over'&&r.hrPctile!=null&&r.hrPctile>=PP_PCTILE)?1:0;});
+        EXP.data.hitters.forEach(r=>{
+          r.propPower=(r.prop==='over'&&r.hrPctile!=null&&r.hrPctile>=PP_PCTILE)?1:0;
+          r.smash=(r.hrPctile!=null&&r.hrPctile>=SMASH_PCTILE)?1:0;
+        });
       })();
       EXP.data.pitchers=(pk&&pk.pitcher_explorer)?pk.pitcher_explorer:[];
       if(!EXP.data.hitters.length&&!EXP.data.pitchers.length)return;
@@ -1311,6 +1316,7 @@
     if(F.minEdgeBest!==''&&EXP.tab==='hitters'){const m=+F.minEdgeBest;rows=rows.filter(r=>r.edge_best!=null&&+r.edge_best>=m);}
     if(F.propOver&&EXP.tab==='hitters')rows=rows.filter(r=>r.prop==='over');
     if(F.propPower&&EXP.tab==='hitters')rows=rows.filter(r=>r.propPower);
+    if(F.smash&&EXP.tab==='hitters')rows=rows.filter(r=>r.smash);
     if(F.pos&&EXP.tab==='hitters'){
       if(F.pos==='__OF__')rows=rows.filter(r=>['LF','CF','RF','OF'].includes((r.pos||'').toUpperCase()));
       else rows=rows.filter(r=>r.pos===F.pos);
@@ -1366,6 +1372,7 @@
       h+=`<label title="min Edge@Best (model% − best price%); note edge is a fade">min E@Best <input type="number" step="0.5" value="${F.minEdgeBest}" oninput="expSetFilter('minEdgeBest',this.value)" style="width:50px"></label>`;
       h+=`<label title="show only the HR-prop sweet spot: model 3-6 pts below market (market underprices)"><input type="checkbox" ${F.propOver?'checked':''} onchange="expSetFilter('propOver',this.checked)"> ✅ prop overs</label>`;
       h+=`<label title="⭐ prop+power overlap: a prop-over bat that is ALSO in the top 15% of the day's HR% (raw power) — strongest single-HR spot + the one place the 2+HR tail returns (forward-tracking, thin sample)"><input type="checkbox" ${F.propPower?'checked':''} onchange="expSetFilter('propPower',this.checked)"> ⭐ prop+power</label>`;
+      h+=`<label title="💣 smash: the day's top ~2% HR% bats (usually 1–2 names) — the 2+HR nibble screen, fattest multi-HR tail (~3.5–4% true rate, breakeven ~+2500). VERY thin sample; bet only when priced longer than ~+2500 or with a boost. Forward-tracking, do NOT size."><input type="checkbox" ${F.smash?'checked':''} onchange="expSetFilter('smash',this.checked)"> 💣 smash (2+HR)</label>`;
     }
     // Start-time filter — both tabs. Keyed on the shared gstart_ms timestamp (not the display
     // string, which differs by tab: '6:40p' on hitters vs '6:40 PM ET' on pitchers) so a selection

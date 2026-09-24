@@ -620,9 +620,28 @@ def grade(archive, pa):
             'winners':int(len(wj)),'multi':int(wj['multi_hr'].sum()),
             'multi_among_winners':round(100*wj['multi_hr'].mean(),2) if len(wj) else None}
 
+    # ---- 💣 smash flag (2+ HR nibble screen, forward-track) -----------------------------------
+    # DIFFERENT job than ⭐ prop+power. That flag optimizes the single-HR bet; this one screens the
+    # spots where an *unconditional* 2+HR nibble is defensible. Data-chosen: the day's very top HR%
+    # bats concentrate the 2+HR tail better than any absolute prob floor OR the prop overlap (the
+    # prop band strips out mashers -- they're correctly priced). Bar = top ~2% of the day's HR%
+    # (typically the 1-2 highest-projected bats). VERY THIN (single-digit multi events) -> graded to
+    # forward-track only; the breakeven odds tell you the price a 2+HR bet must beat.
+    SMASH_PCTILE = 0.99   # top ~1% of the day's HR% -- the 1-2 absolute-top bats
+    g['smash'] = (g['hr_pctile'] >= SMASH_PCTILE).astype(int)
+    sm = g[g['smash']==1].copy()
+    if len(sm):
+        p2 = float(sm['multi_hr'].mean())                        # unconditional 2+HR rate per pick
+        be2 = int(round((1-p2)/p2*100)) if p2>0 else None        # fair 2+HR breakeven (American)
+        perf['smash'] = {'bar':f'top {int(round((1-SMASH_PCTILE)*100))}% HR% (daily pctile)',
+            'n':int(len(sm)),'multi_2plus':int(sm['multi_hr'].sum()),
+            'rate_2plus':round(100*p2,2),'breakeven_odds':be2,
+            'had_hr_rate':round(100*sm['had_hr'].mean(),2),
+            'note':'thin sample -- forward-track, do not size'}
+
     led_cols = [c for c in ['date','batter','Batter','Pitcher','game','team','slot','pos','bat_hand',
                 'hit_hr','pit_hr','park','wx','supp','hr_prob','model_recal','mkt_prob','mkt_over','mkt_avg',
-                'salary','leverage','edge','edge_best','edge_shop','is_prop','prop_power','had_hr','hr_count','multi_hr','roi'] if c in g.columns]
+                'salary','leverage','edge','edge_best','edge_shop','is_prop','prop_power','smash','had_hr','hr_count','multi_hr','roi'] if c in g.columns]
     try:
         g.sort_values(['date','hr_prob'], ascending=[True,False])[led_cols].to_csv(GRADED, index=False)
     except Exception as e:
