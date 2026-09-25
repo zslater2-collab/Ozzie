@@ -18,6 +18,14 @@ import numpy as np
 REPO   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOARD  = os.path.join(REPO, "td_board_latest.json")
 LOG    = os.path.join(REPO, "nfl_watchlist_log.csv")
+PERF   = os.path.join(REPO, "td_watchlist_perf.json")   # graded record incl. the validated focus slice
+# The validated slice = established-role WR/TE anytime-TD longshots priced <= ~7% implied (~+1400),
+# H1-only, forward-track. focus_slice(row) tags exactly that so it can be graded on its own instead
+# of pooled with RB/QB longshots and +40000 deep-tail noise (which swamps the ROI either way).
+FOCUS_MAX_IMPLIED = 0.07
+def is_focus(mkt, pos, thin, mkt_p):
+    return bool(mkt=="ATD_longshot" and pos=="WR/TE" and thin is False
+                and mkt_p is not None and mkt_p <= FOCUS_MAX_IMPLIED)
 SEASON = int(os.environ.get("NFL_SEASON", dt.date.today().year))
 KEY    = os.environ.get("ODDS_API_KEY", "")
 B, S   = "https://api.the-odds-api.com/v4", "americanfootball_nfl"
@@ -284,11 +292,39 @@ def tracker_grade():
         s=st.row(0,named=True)
         won=(1 if s["td"]>=1 else 0) if r["market"]=="ATD_longshot" else (1 if s["rec"]<r["line"] else 0)
         r["won"]=won; r["profit"]=win_prof(int(r["price"])) if won else -1.0; n+=1
-    out=pl.DataFrame(rows); out.write_csv(LOG)
+    out=pl.DataFrame(rows)
+    # older logs predate the focus_slice column -> derive it so the grade is always available
+    if "focus_slice" not in out.columns:
+        out=out.with_columns(pl.struct(["market","position","thin","mkt_p"]).map_elements(
+            lambda s: is_focus(s["market"],s["position"],s["thin"],s["mkt_p"]),
+            return_dtype=pl.Boolean).alias("focus_slice"))
+    out.write_csv(LOG)
     print(f"[grade] settled +{n}")
-    for r in out.filter(pl.col("won").is_not_null()).group_by("market").agg(
-            pl.len().alias("n"),pl.col("won").mean().alias("hit"),pl.col("profit").mean().alias("roi")).iter_rows(named=True):
+    graded=out.filter(pl.col("won").is_not_null())
+    perf={"updated":dt.date.today().isoformat(),"note":"H1-only forward track; focus_slice = validated pattern",
+          "markets":{},"focus_slice":{},"focus_by_price_band":{}}
+    for r in graded.group_by("market").agg(pl.len().alias("n"),pl.col("won").mean().alias("hit"),
+            pl.col("profit").mean().alias("roi")).iter_rows(named=True):
+        perf["markets"][r["market"]]={"n":r["n"],"hit":round(r["hit"],4),"roi":round(r["roi"],4)}
         print(f"   {r['market']:<18} n={r['n']:<4} hit={r['hit']:.1%} ROI={r['roi']:+.1%}")
+    # THE validated slice, graded on its own (established-role WR/TE ATD longshots <= ~7% implied)
+    fs=graded.filter(pl.col("focus_slice")==True)
+    if fs.height:
+        perf["focus_slice"]={"n":fs.height,"hit":round(fs["won"].mean(),4),"roi":round(fs["profit"].mean(),4),
+                             "wins":int(fs["won"].sum()),"units":round(float(fs["profit"].sum()),2)}
+        print(f"   >> FOCUS SLICE (WR/TE estab <=7%): n={fs.height} hit={fs['won'].mean():.1%} "
+              f"ROI={fs['profit'].mean():+.1%} ({fs['profit'].sum():+.2f}u)")
+        # price-band split so the deep +6000..+40000 tail's contribution is explicit, not hidden in the pool
+        fb=fs.with_columns(pl.when(pl.col("price")<=2000).then(pl.lit("core <=+2000"))
+                             .when(pl.col("price")<=6000).then(pl.lit("mid +2000..6000"))
+                             .otherwise(pl.lit("deep >+6000")).alias("band"))
+        for r in fb.group_by("band").agg(pl.len().alias("n"),pl.col("won").mean().alias("hit"),
+                pl.col("profit").mean().alias("roi")).iter_rows(named=True):
+            perf["focus_by_price_band"][r["band"]]={"n":r["n"],"hit":round(r["hit"],4),"roi":round(r["roi"],4)}
+            print(f"        {r['band']:<16} n={r['n']:<3} hit={r['hit']:.1%} ROI={r['roi']:+.1%}")
+    else:
+        print("   >> FOCUS SLICE: nothing settled yet (Week 3 is the first cohort)")
+    json.dump(perf, open(PERF,"w"), indent=2)
 
 def tracker_log(board, events, wk):
     picks=[]
@@ -299,6 +335,7 @@ def tracker_log(board, events, wk):
         picks.append({"season":SEASON,"week":wk,"market":"ATD_longshot","side":"Yes","player":r["player"],
                       "position":r.get("pos"),"team":r.get("team"),
                       "snap_share":r.get("snap_share"),"thin":r.get("thin"),
+                      "focus_slice":is_focus("ATD_longshot",r.get("pos"),r.get("thin"),r["mkt_p_consensus"]),
                       "line":0.5,"price":r["best_price"],"book":r["best_book"],
                       "model_p":r["model_p_cal"],"mkt_p":r["mkt_p_consensus"]})
     od=pull_recv(events)
@@ -314,7 +351,7 @@ def tracker_log(board, events, wk):
         un=un.with_columns(pl.Series("model_p",pu)).with_columns((pl.col("model_p")-pl.col("mkt_p")).alias("edge"))
         for r in un.filter((pl.col("line")>=4.5)&(pl.col("edge")>0.03)).iter_rows(named=True):
             picks.append({"season":SEASON,"week":wk,"market":"RECV_under_combo","side":"Under","player":r["player"],
-                          "position":None,"team":None,"snap_share":None,"thin":None,
+                          "position":None,"team":None,"snap_share":None,"thin":None,"focus_slice":False,
                           "line":r["line"],"price":r["best_price"],"book":r["best_book"],
                           "model_p":round(r["model_p"],3),"mkt_p":round(r["mkt_p"],3)})
     if not picks: print(f"[log] wk{wk}: no picks"); return
