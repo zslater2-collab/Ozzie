@@ -294,7 +294,11 @@ def tracker_log(board, events, wk):
     picks=[]
     for r in board.filter(pl.col("flag")=="H1-longshot-watch").iter_rows(named=True):
         if r["best_price"] is None: continue
+        # log position + role signal (snap_share / thin) so the flagged longshots can be filtered to
+        # the VALIDATED slice -- established-role WR/TE -- instead of grading all longshots pooled.
         picks.append({"season":SEASON,"week":wk,"market":"ATD_longshot","side":"Yes","player":r["player"],
+                      "position":r.get("pos"),"team":r.get("team"),
+                      "snap_share":r.get("snap_share"),"thin":r.get("thin"),
                       "line":0.5,"price":r["best_price"],"book":r["best_book"],
                       "model_p":r["model_p_cal"],"mkt_p":r["mkt_p_consensus"]})
     od=pull_recv(events)
@@ -310,6 +314,7 @@ def tracker_log(board, events, wk):
         un=un.with_columns(pl.Series("model_p",pu)).with_columns((pl.col("model_p")-pl.col("mkt_p")).alias("edge"))
         for r in un.filter((pl.col("line")>=4.5)&(pl.col("edge")>0.03)).iter_rows(named=True):
             picks.append({"season":SEASON,"week":wk,"market":"RECV_under_combo","side":"Under","player":r["player"],
+                          "position":None,"team":None,"snap_share":None,"thin":None,
                           "line":r["line"],"price":r["best_price"],"book":r["best_book"],
                           "model_p":round(r["model_p"],3),"mkt_p":round(r["mkt_p"],3)})
     if not picks: print(f"[log] wk{wk}: no picks"); return
