@@ -178,6 +178,7 @@
 <div class="sport-nav">
   <div class="sport-tab active" id="sport-tab-baseball" onclick="setSport('baseball')">⚾ Baseball</div>
   <div class="sport-tab" id="sport-tab-football" onclick="setSport('football')">🏈 Football</div>
+  <div class="sport-tab" id="sport-tab-hockey" onclick="setSport('hockey')">🏒 Hockey</div>
 </div>
 <div class="view-bb">
 <div id="games-section">
@@ -372,6 +373,38 @@
   </div>
 </div>
 </div><!--/view-fb-->
+<div class="view-hk" style="display:none">
+<div id="nhl-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="nhl-count"></div>
+      <div class="section-label" style="margin:0">NHL Anytime Goal-Scorer Board
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">Role model + best price — decision aid</span>
+      </div>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);margin:2px 0 10px;line-height:1.5" id="nhl-note"></div>
+    <div class="exp-tabs">
+      <div class="exp-tab active" id="nhl-tab-ALL" onclick="setNhlTab('ALL')">All</div>
+      <div class="exp-tab" id="nhl-tab-F" onclick="setNhlTab('F')">Forwards</div>
+      <div class="exp-tab" id="nhl-tab-D" onclick="setNhlTab('D')">Defense</div>
+    </div>
+    <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
+      <input id="nhl-search" type="text" placeholder="search player…" oninput="NHL_STATE.search=this.value.toLowerCase();renderNhlTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:130px">
+      <select id="nhl-team" onchange="NHL_STATE.team=this.value;renderNhlTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <select id="nhl-game" onchange="NHL_STATE.game=this.value;renderNhlTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <label style="cursor:pointer"><input type="checkbox" id="nhl-softonly" onchange="NHL_STATE.softOnly=this.checked;renderNhlTable()"> best price at DK/FD only</label>
+      <label style="cursor:pointer"><input type="checkbox" id="nhl-showthin" onchange="NHL_STATE.showThin=this.checked;renderNhlTable()"> show thin roles (&lt;10 GP)</label>
+    </div>
+    <div class="exp-count" id="nhl-tablecount"></div>
+    <div class="exp-wrap"><table class="exp"><thead id="nhl-thead"></thead><tbody id="nhl-tbody"></tbody></table></div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Click a header to sort.</div>
+  </div>
+</div>
+</div><!--/view-hk-->
 <div class="view-bb">
 <div id="explorer-section" style="display:none">
   <div class="divider"></div>
@@ -443,11 +476,16 @@
 
   // top-level sport switch: Baseball (.view-bb blocks) vs Football (.view-fb blocks). Only toggles
   // visibility -- data for both still loads on refresh, and each view keeps its own inner show/hide.
+  // top-level sport switch. Each sport owns a view class; only visibility toggles, data for all
+  // sports still loads on refresh and each view keeps its own inner show/hide.
+  const SPORT_VIEWS={baseball:'view-bb',football:'view-fb',hockey:'view-hk'};
   function setSport(sport){
-    document.querySelectorAll('.view-bb').forEach(el=>el.style.display=(sport==='football')?'none':'');
-    document.querySelectorAll('.view-fb').forEach(el=>el.style.display=(sport==='football')?'':'none');
-    document.getElementById('sport-tab-baseball').classList.toggle('active',sport!=='football');
-    document.getElementById('sport-tab-football').classList.toggle('active',sport==='football');
+    if(!SPORT_VIEWS[sport])sport='baseball';
+    Object.entries(SPORT_VIEWS).forEach(([sp,cls])=>{
+      document.querySelectorAll('.'+cls).forEach(el=>el.style.display=(sp===sport)?'':'none');
+      const tab=document.getElementById('sport-tab-'+sp);
+      if(tab)tab.classList.toggle('active',sp===sport);
+    });
     try{localStorage.setItem('ozzie_sport',sport);}catch(e){}
   }
   setSport((()=>{try{return localStorage.getItem('ozzie_sport')||'baseball';}catch(e){return 'baseball';}})());
@@ -1465,6 +1503,83 @@
       tb.appendChild(tr);
     });
   }
+  // -- NHL Anytime Goal-Scorer Board -----------------------------------
+  let NHL_ROWS=[];
+  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1};
+  const NHL_COLS=[
+    {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
+    {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
+    {k:'team',t:'Tm',l:0,v:r=>r.team||''},
+    {k:'opp',t:'Opp',l:0,v:r=>r.opp||''},
+    {k:'pp_min',t:'PP',l:0,v:r=>r.pp_min??-1},
+    {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
+    {k:'model_p',t:'Model P',l:0,v:r=>r.model_p??-1},
+    {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
+    {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
+    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1},
+    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99}
+  ];
+  function setNhlTab(t){
+    NHL_STATE.tab=t;
+    ['ALL','F','D'].forEach(x=>{const el=document.getElementById('nhl-tab-'+x);if(el)el.classList.toggle('active',x===t);});
+    renderNhlTable();
+  }
+  function setNhlSort(k){ if(NHL_STATE.sort===k)NHL_STATE.dir*=-1; else{NHL_STATE.sort=k;NHL_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderNhlTable(); }
+  function renderNhlTable(){
+    const s=NHL_STATE, q=s.search.trim();
+    let rows=NHL_ROWS.filter(r=>r.mkt_p!=null
+      && (s.showThin || !r.thin)
+      && (s.tab==='ALL' || (s.tab==='D' ? r.pos==='D' : r.pos!=='D'))
+      && (!s.softOnly || r.soft_best)
+      && (!s.team || r.team===s.team)
+      && (!s.game || r.game===s.game)
+      && (!q || (r.player||'').toLowerCase().includes(q)));
+    const col=NHL_COLS.find(c=>c.k===s.sort)||NHL_COLS[6];
+    rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
+    document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
+    document.getElementById('nhl-thead').innerHTML='<tr>'+NHL_COLS.map(c=>
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setNhlSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    const tb=document.getElementById('nhl-tbody'); tb.innerHTML='';
+    rows.forEach(r=>{
+      const tr=document.createElement('tr'); tr.className='exp-row';
+      const edge=r.edge==null?'—':((r.edge>0?'+':'')+(r.edge*100).toFixed(0)+'%');
+      // shop_gain = probability points the best price adds over the worst posted price
+      const shop=r.shop_gain==null?'—':('+'+(r.shop_gain*100).toFixed(1)+'pp');
+      const bk=bookName(r.best_book);
+      const bkHtml=r.soft_best?`<span style="color:var(--muted);font-size:.9em">${bk}</span>`
+                              :`<span style="color:var(--muted);font-size:.9em" title="not a price leader — check DK/FD">${bk}</span>`;
+      tr.innerHTML=
+        `<td class="l">${r.player||''}</td>`+
+        `<td class="l">${r.pos||''}</td>`+
+        `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
+        `<td>${r.pp_min!=null?r.pp_min.toFixed(1):'—'}</td>`+
+        `<td>${r.implied_total!=null?r.implied_total.toFixed(2):'—'}</td>`+
+        `<td>${r.model_p!=null?(r.model_p*100).toFixed(0)+'%':'—'}</td>`+
+        `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+
+        `<td>${fmtOdds(r.best_price)} ${bkHtml}</td>`+
+        `<td style="color:var(--muted)">${shop}</td>`+
+        `<td style="color:var(--muted)">${edge}</td>`;
+      tb.appendChild(tr);
+    });
+  }
+  function loadNhlBoard(){
+    fetch('/api/nhl_board').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data||!data.rows||!data.rows.length)return;
+      NHL_ROWS=data.rows;
+      const priced=NHL_ROWS.filter(r=>r.mkt_p!=null&&!r.thin).length;
+      document.getElementById('nhl-count').textContent=priced+' priced';
+      const m=data.meta||{};
+      document.getElementById('nhl-note').textContent=
+        (m.generated?`as of ${m.generated}`:'')+(m.n_games?` · ${m.n_games} games`:'')+
+        (m.features_through?` · role data through ${m.features_through}`:'');
+      const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
+      document.getElementById('nhl-team').innerHTML=opts(NHL_ROWS.map(r=>r.team),'all teams');
+      document.getElementById('nhl-game').innerHTML=opts(NHL_ROWS.map(r=>r.game),'all games');
+      renderNhlTable();
+      document.getElementById('nhl-section').style.display='block';
+    }).catch(()=>{});
+  }
+
   function loadTdBoard(){
     fetch('/api/td_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!data.rows||!data.rows.length)return;
@@ -1493,13 +1608,14 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','td-section','explorer-section','squad-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','td-section','nhl-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     // HR Board DFS and Squad Builder sections hidden per Zach (the joint Explorer board covers hitters);
     // data/endpoints untouched, just not rendered. loadExplorer still pulls /api/hr_board for its rows.
     // loadHrBoard();
     loadExplorer();
     loadTdBoard();
+    loadNhlBoard();
     // loadSquadBuilder();
 
     fetch('/api/picks')

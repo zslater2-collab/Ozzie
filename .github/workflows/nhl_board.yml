@@ -1,0 +1,43 @@
+name: nhl-board
+
+# Builds the NHL anytime goal-scorer board and commits it back to this repo (auto-redeploys the
+# app on Render). The NHL plays most nights, so unlike the weekly NFL board this runs daily:
+#   14:00 UTC (10:00 ET) -- morning build, gets the slate on the board early
+#   22:00 UTC (18:00 ET) -- refresh close to puck drop on the freshest odds
+# Cost is modest: 2 event-calls per game (game lines + props) x ~10 games a night.
+# Features are pulled with an explicit gameDate <= yesterday window, so a re-run can never pull
+# tonight's results into tonight's features (Ozzie Rule #1).
+
+on:
+  schedule:
+    - cron: '0 14 * * *'
+    - cron: '0 22 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nhl-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Build board
+        run: python scripts/nhl_board_cron.py
+      - name: Commit artifact
+        run: |
+          git config user.name  "nhl-board-bot"
+          git config user.email "nhl-board-bot@users.noreply.github.com"
+          git add nhl_board_latest.json
+          git diff --staged --quiet || git commit -m "nhl-board: refresh board [skip ci]"
+          git push
