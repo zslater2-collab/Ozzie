@@ -236,7 +236,16 @@ def hr_prob(pa_hr, avg_pa=AVG_PA_VS_GAME):
 # and compute EDGE = recalibrated-model% - market%. Ranking by edge only bets a top-prob guy when his
 # price hasn't already swallowed the value. Fail-open: no key / API error -> board is unchanged.
 ODDS_KEY = os.environ.get('ODDS_API_KEY', '')
-HR_ODDS_REGIONS = os.environ.get('HR_ODDS_REGIONS', 'us,us2')   # us2 adds the soft books; ~2 credits/event
+HR_ODDS_REGIONS = os.environ.get('HR_ODDS_REGIONS', 'us,us2')   # us2 adds the soft books
+# TWO markets, because the anytime-HR (0.5) line is split across them by book:
+#   batter_home_runs            -> Caesars, theScore Bet, Bally Bet, + the soft books
+#   batter_home_runs_alternate  -> DraftKings, FanDuel, BetMGM, Fanatics (0.5 and 1.5 lines)
+# Pulling only the first one excluded the FOUR biggest MA books all season (audited 2026-10-02:
+# across 10,251 archive rows the best price was *only ever* Bally Bet / theScore Bet / Caesars,
+# and 4 of the 7 books present were not even MA-bettable). Since line shopping is the one effect
+# that replicated in every sport, that gap was costing real money. Cost: 4 credits/event, not 2.
+HR_MARKETS = 'batter_home_runs,batter_home_runs_alternate'
+HR_MARKET_KEYS = set(HR_MARKETS.split(','))
 # BETTABLE = books Zach has accounts at -> the "best odds"/best-price shopping comes ONLY from these.
 # (DraftKings/FanDuel/BetMGM/Fanatics don't expose batter_home_runs on this feed, so in practice only
 #  Caesars/theScore/Bally return a bettable HR price -- confirmed 2026-08-27.)
@@ -297,7 +306,7 @@ def fetch_hr_odds(game_date):
         try:
             r=requests.get(f"{base}/events/{ev['id']}/odds",
                 params={'apiKey':ODDS_KEY,'regions':HR_ODDS_REGIONS,
-                        'markets':'batter_home_runs','oddsFormat':'american'},timeout=15)
+                        'markets':HR_MARKETS,'oddsFormat':'american'},timeout=15)
             if r.status_code!=200: continue
             data=r.json(); n_ev+=1
         except Exception:
@@ -306,12 +315,16 @@ def fetch_hr_odds(game_date):
             lbl=BOOK_LABELS.get(bm.get('key'))
             if lbl not in ALL_BOOKS: continue   # bettable + track-only (soft) books both accumulate
             for mk in bm.get('markets',[]):
-                if mk.get('key')!='batter_home_runs': continue
+                if mk.get('key') not in HR_MARKET_KEYS: continue
                 for o in mk.get('outcomes',[]):
                     if o.get('point') not in (0.5, None): continue   # anytime-HR line
                     nm=_norm(o.get('description','')); side=(o.get('name') or '').lower()
                     if nm and side in ('over','under') and o.get('price') is not None:
-                        acc.setdefault(nm,{}).setdefault(lbl,{})[side]=o['price']
+                        # a book can quote the 0.5 line in BOTH markets -> keep its better price
+                        cur=acc.setdefault(nm,{}).setdefault(lbl,{})
+                        prev=cur.get(side)
+                        if prev is None or _payout(o['price'])>_payout(prev):
+                            cur[side]=o['price']
     out={}
     for nm,bks in acc.items():
         overs=[(b,v['over']) for b,v in bks.items() if v.get('over') is not None]
