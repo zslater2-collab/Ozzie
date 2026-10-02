@@ -29,8 +29,9 @@ def is_focus(mkt, pos, thin, mkt_p):
 SEASON = int(os.environ.get("NFL_SEASON", dt.date.today().year))
 KEY    = os.environ.get("ODDS_API_KEY", "")
 B, S   = "https://api.the-odds-api.com/v4", "americanfootball_nfl"
-MA_BOOKS = "draftkings,fanduel,betmgm,williamhill_us,fanatics,espnbet"
-# Books Zach can actually bet (MA-legal); used to flag per-book quotes in book_prices.
+MA_BOOKS = "draftkings,fanduel,betmgm,williamhill_us,fanatics,espnbet,ballybet"
+# The 7 MA-legal books. NOTE: key 'espnbet' now returns the title 'theScore Bet' (the ESPN BET
+# deal ended and the product reverted), so the key -- not the title -- is the stable identity.
 BETTABLE_BOOKS = {"draftkings","fanduel","betmgm","williamhill_us","fanatics","espnbet","ballybet"}
 TD_PER_POINT = 0.108
 CAL_A, CAL_B = -0.421, 0.551          # Platt calibration fit on 2024+2025 (calibrate_model.py)

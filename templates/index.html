@@ -1557,12 +1557,13 @@
   // Payload shapes differ -- the MLB board stores display names ("DraftKings"), the NFL/NHL
   // boards store API keys ("draftkings") -- so bbKey() collapses both to one identity.
   const BB_ALIAS={draftkings:'dk',fanduel:'fd',betmgm:'mgm',williamhill_us:'caesars',caesars:'caesars',
-    espnbet:'espn','espn bet':'espn',fanatics:'fanatics',ballybet:'bally','bally bet':'bally',
+    espnbet:'espn','espn bet':'espn','thescore bet':'espn',
+    thescorebet:'espn',fanatics:'fanatics',ballybet:'bally','bally bet':'bally',
     'hard rock bet':'hardrock',hardrockbet:'hardrock',betrivers:'betrivers',fliff:'fliff',
-    betparx:'betparx','betparx':'betparx','thescore bet':'thescore',betonlineag:'betonline',bovada:'bovada'};
-  const BB_LABEL={dk:'DraftKings',fd:'FanDuel',mgm:'BetMGM',caesars:'Caesars',espn:'ESPN BET',
+    betparx:'betparx','betparx':'betparx',betonlineag:'betonline',bovada:'bovada'};
+  const BB_LABEL={dk:'DraftKings',fd:'FanDuel',mgm:'BetMGM',caesars:'Caesars',espn:'theScore Bet',
     fanatics:'Fanatics',bally:'Bally Bet',hardrock:'Hard Rock',betrivers:'BetRivers',fliff:'Fliff',
-    betparx:'BetPARX',thescore:'theScore',betonline:'BetOnline',bovada:'Bovada'};
+    betparx:'BetPARX',betonline:'BetOnline',bovada:'Bovada'};
   function bbKey(b){ if(!b)return ''; const k=(''+b).toLowerCase().trim(); return BB_ALIAS[k]||k; }
   function bbLabel(b){ const k=bbKey(b); return BB_LABEL[k]||b; }
   function bbImp(a){ if(a==null)return null; a=+a; return a<0?(-a)/(-a+100):100/(a+100); }
@@ -1570,8 +1571,12 @@
   // boosted american odds. Boosts multiply PROFIT, so convert -> profit -> scale -> back.
   function bbBoostOdds(a,pct){ const pr=bbProfit(a); if(pr==null)return null;
     const b=pr*(1+(+pct||0)/100); return b>=1?Math.round(b*100):-Math.round(100/b); }
+  // Only offer books that are BETTABLE in MA -- the MLB board also pulls Fliff / Hard Rock /
+  // BetRivers / BetPARX for shopping context, and you cannot place a boosted bet at those.
+  // The payload already carries the bettable flag, so trust it rather than re-deriving a list.
   function bbBooksIn(rows,field){ const s=new Set();
-    (rows||[]).forEach(r=>(r[field]||[]).forEach(q=>{if(q&&q.price!=null)s.add(bbKey(q.book));}));
+    (rows||[]).forEach(r=>(r[field]||[]).forEach(q=>{
+      if(q&&q.price!=null&&q.bettable!==false)s.add(bbKey(q.book));}));
     return [...s].sort((a,b)=>(''+bbLabel(a)).localeCompare(''+bbLabel(b))); }
   // Attach the per-book columns onto the row objects, so the existing sort / filter / CSV-export
   // paths keep working untouched (they all read plain row properties).
