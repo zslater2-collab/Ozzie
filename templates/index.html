@@ -179,7 +179,7 @@
   <div class="sport-tab active" id="sport-tab-baseball" onclick="setSport('baseball')">⚾ Baseball</div>
   <div class="sport-tab" id="sport-tab-football" onclick="setSport('football')">🏈 Football</div>
   <div class="sport-tab" id="sport-tab-hockey" onclick="setSport('hockey')">🏒 Hockey</div>
-  <div class="sport-tab" id="sport-tab-mma" onclick="setSport('mma')">🥊 UFC</div>
+  <div class="sport-tab" id="sport-tab-mma" onclick="setSport('mma')">🥊 Combat</div>
 </div>
 <div class="view-bb">
 <div id="games-section">
@@ -420,7 +420,7 @@
   <div style="padding-top:20px">
     <div class="flags-header">
       <div class="flags-count" id="mma-count"></div>
-      <div class="section-label" style="margin:0">UFC / MMA Moneyline
+      <div class="section-label" style="margin:0">UFC / MMA + Boxing Moneyline
         <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">Line shopping — no model, no edge claimed</span>
       </div>
     </div>
@@ -428,6 +428,8 @@
     <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
       <input id="mma-search" type="text" placeholder="search fighter…" oninput="MMA_STATE.search=this.value.toLowerCase();renderMmaTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:130px">
+      <select id="mma-sport" onchange="MMA_STATE.sport=this.value;MMA_STATE.card='';renderMmaCards();renderMmaTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="mma-card" onchange="MMA_STATE.card=this.value;renderMmaTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <span id="mma-bookwrap"></span>
@@ -440,7 +442,7 @@
     </div>
     <div class="exp-count" id="mma-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="mma-thead"></thead><tbody id="mma-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Moneyline only, and there is <b>no fight model behind this</b> — it is a shopping tool. <b>Fair%</b> is the no-vig consensus: each book's two-way price de-vigged, then medianed across books. Moneyline is two-sided, so unlike the prop boards this is a <i>real</i> fair number. <b>EV@best</b> = that Fair% against the best book's price, so it measures how much better the best price is than the market — the <b>shopping gain, not an edge</b>. Negative EV is normal; it is the vig you still pay after shopping. <b>Hold</b> = combined hold taking the best price on <i>both</i> sides; on the 10/4 card single books ran +4.2% to +5.9% while best-of-4 fell to +2.9–3.7%, so shopping roughly halves the vig. 💧 marks fights under 2% hold (cheapest on the card); a negative hold is an arb. <b>Four-book shop only</b> — DraftKings, FanDuel, Caesars and Bally Bet; BetMGM, theScore Bet and Fanatics post nothing for MMA in this feed. Enter a <b>boost %</b> and two more columns appear: <b>Lock</b> = the guaranteed return if you boost this side and hedge the other at its best price, and <b>Stake split</b> = how to divide the stake so both outcomes pay the same. <b>This is variance reduction, not an edge</b> — letting a boosted longshot ride is worth roughly boost×(1−p) in EV (a 50% boost at a 10% chance is ~+45%), far more than the few percent a hedge locks. Use it to make a boost definitely convert to cash, not by default; and note deliberate arbing is the fastest way to get limited. Click a header to sort.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Moneyline only, and there is <b>no fight model behind this</b> — it is a shopping tool. <b>Fair%</b> is the no-vig consensus: each book's two-way price de-vigged, then medianed across books. Moneyline is two-sided, so unlike the prop boards this is a <i>real</i> fair number. <b>EV@best</b> = that Fair% against the best book's price, so it measures how much better the best price is than the market — the <b>shopping gain, not an edge</b>. Negative EV is normal; it is the vig you still pay after shopping. <b>Hold</b> = combined hold taking the best price on <i>both</i> sides; on the 10/4 card single books ran +4.2% to +5.9% while best-of-4 fell to +2.9–3.7%, so shopping roughly halves the vig. 💧 marks fights under 2% hold (cheapest on the card); a negative hold is an arb. <b>Boxing is opt-in</b> via the sport filter — it is the widest-disagreeing market measured (DK-vs-FanDuel median 1.47pp, max 4.94pp, the largest of any sport), so its cheap-hold screen is the most productive one here. <b>Four-book shop only</b> — DraftKings, FanDuel, Caesars and Bally Bet; BetMGM, theScore Bet and Fanatics post nothing for MMA in this feed. Enter a <b>boost %</b> and two more columns appear: <b>Lock</b> = the guaranteed return if you boost this side and hedge the other at its best price, and <b>Stake split</b> = how to divide the stake so both outcomes pay the same. <b>This is variance reduction, not an edge</b> — letting a boosted longshot ride is worth roughly boost×(1−p) in EV (a 50% boost at a 10% chance is ~+45%), far more than the few percent a hedge locks. Use it to make a boost definitely convert to cash, not by default; and note deliberate arbing is the fastest way to get limited. Click a header to sort.</div>
   </div>
 </div>
 </div><!--/view-mma-->
@@ -1727,7 +1729,7 @@
   }
   // -- UFC / MMA moneyline board (line shopping only) ---------------------
   let MMA_ROWS=[];
-  const MMA_STATE={search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false,lockOnly:false};
+  const MMA_STATE={sport:'MMA',search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false,lockOnly:false};
   function mmaTime(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
     return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+h+':'+String(m).padStart(2,'0')+ap; }
@@ -1770,7 +1772,8 @@
       r.arb_odds  = bo;
     });
     let rows=MMA_ROWS.filter(r=>
-         (!s.card || r.card_date===s.card)
+         (!s.sport || r.sport===s.sport)
+      && (!s.card || r.card_date===s.card)
       && (!s.lowHold || r.low_hold)
       && (!s.dogsOnly || (r.best_price!=null && r.best_price>0))
       && (!s.lockOnly || r.arb_roi)
@@ -1815,18 +1818,28 @@
       tb.appendChild(tr);
     });
   }
+  function renderMmaCards(){
+    const s=MMA_STATE;
+    const cards=[...new Set(MMA_ROWS.filter(r=>!s.sport||r.sport===s.sport)
+                                    .map(r=>r.card_date).filter(Boolean))].sort();
+    document.getElementById('mma-card').innerHTML='<option value="">all cards</option>'+
+      cards.map(c=>`<option value="${c}" ${c===s.card?'selected':''}>${c}</option>`).join('');
+  }
   function loadMmaBoard(){
     fetch('/api/mma_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!data.rows||!data.rows.length)return;
       MMA_ROWS=data.rows;
       const m=data.meta||{};
-      document.getElementById('mma-count').textContent=(m.n_fights||0)+' fights';
+      const nf=MMA_ROWS.filter(r=>!MMA_STATE.sport||r.sport===MMA_STATE.sport).length/2;
+      document.getElementById('mma-count').textContent=nf+' fights';
       document.getElementById('mma-note').textContent=
         (m.generated?`as of ${m.generated}`:'')+(m.n_cards?` · ${m.n_cards} cards`:'')+
         (m.books?` · shopping ${m.books.length} books`:'');
-      const cards=[...new Set(MMA_ROWS.map(r=>r.card_date).filter(Boolean))].sort();
-      document.getElementById('mma-card').innerHTML='<option value="">all cards</option>'+
-        cards.map(c=>`<option value="${c}">${c}</option>`).join('');
+      const sports=(m.sports&&m.sports.length)?m.sports:[...new Set(MMA_ROWS.map(r=>r.sport))];
+      document.getElementById('mma-sport').innerHTML=
+        sports.map(sp=>`<option value="${sp}" ${sp===MMA_STATE.sport?'selected':''}>${sp}</option>`).join('')
+        +'<option value="">both</option>';
+      renderMmaCards();
       document.getElementById('mma-bookwrap').innerHTML=
         bbBookSelect('mma-book',MMA_STATE.book,bbBooksIn(MMA_ROWS,'book_prices'),'setMmaBook(this.value)');
       renderMmaTable();

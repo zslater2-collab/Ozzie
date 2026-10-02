@@ -1,5 +1,5 @@
 """
-UFC / MMA moneyline board -- cloud cron (GitHub Actions, inside the Ozzie repo).
+UFC / MMA + Boxing moneyline board -- cloud cron (GitHub Actions, inside the Ozzie repo).
 
 Writes nhl-style artifact:  mma_board_latest.json   (the app's /api/mma_board reads this)
 
@@ -45,7 +45,12 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOARD = os.path.join(REPO, "mma_board_latest.json")
 
 KEY = os.environ.get("ODDS_API_KEY", "")
-B, SPORT = "https://api.the-odds-api.com/v4", "mma_mixed_martial_arts"
+B = "https://api.the-odds-api.com/v4"
+# Both combat sports share one board and one tab. Boxing is included because it is the
+# WIDEST-disagreeing market measured (DK-vs-FanDuel median 1.47pp, max 4.94pp -- the largest of
+# any sport scanned), so its cheap-hold screen is the most productive. But Zach says he would
+# rarely bet it, so the app DEFAULTS to MMA and boxing is opt-in via the sport filter.
+SPORTS = [("mma_mixed_martial_arts", "MMA"), ("boxing_boxing", "Boxing")]
 # MA-legal only: the board exists to tell Zach where to actually place a bet.
 MA_BOOKS = "draftkings,fanduel,betmgm,williamhill_us,espnbet,fanatics,ballybet"
 BETTABLE = {"draftkings", "fanduel", "betmgm", "williamhill_us",
@@ -77,9 +82,9 @@ def med(v):
     return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
 
 
-def fetch():
+def fetch_one(sport):
     try:
-        r = requests.get("%s/sports/%s/odds" % (B, SPORT), timeout=40, params={
+        r = requests.get("%s/sports/%s/odds" % (B, sport), timeout=40, params={
             "apiKey": KEY, "regions": REGIONS, "markets": "h2h",
             "oddsFormat": "american", "bookmakers": MA_BOOKS})
     except Exception as e:
@@ -91,6 +96,18 @@ def fetch():
     return r.json(), r.headers.get("x-requests-remaining", "?")
 
 
+def fetch():
+    """One call per combat sport (h2h is featured, so each is ~1-2 credits for its whole slate)."""
+    out, rem = [], "?"
+    for key, label in SPORTS:
+        evs, rem = fetch_one(key)
+        for e in evs:
+            e["_sport"] = label
+        out += evs
+        print("[cron]   %-26s %d events" % (key, len(evs)))
+    return out, rem
+
+
 def main():
     if not KEY:
         print("no ODDS_API_KEY -- cannot build the MMA board")
@@ -98,7 +115,7 @@ def main():
     events, rem = fetch()
     now = dt.datetime.now(dt.timezone.utc)
     cut = now + dt.timedelta(days=HORIZON_DAYS)
-    print("[cron] %d MMA events returned (credits left %s)" % (len(events), rem))
+    print("[cron] %d combat-sport events returned (credits left %s)" % (len(events), rem))
 
     # card = all fights sharing a date. No promotion field exists in this feed, so we cannot
     # label "UFC" vs PFL/Bellator with any confidence -- we group by date and name the card
@@ -108,10 +125,10 @@ def main():
         c = dt.datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
         if c < now or c > cut:
             continue
-        cards.setdefault(c.date().isoformat(), []).append((c, e))
+        cards.setdefault((e.get("_sport", "MMA"), c.date().isoformat()), []).append((c, e))
 
     rows = []
-    for day, fights in sorted(cards.items()):
+    for (sport, day), fights in sorted(cards.items()):
         main_ev = max(fights, key=lambda t: t[0])[1]
         card_name = "%s - %s vs %s" % (day, main_ev["away_team"], main_ev["home_team"])
         for c, e in sorted(fights, key=lambda t: t[0]):
@@ -154,6 +171,7 @@ def main():
                 if fair is not None:
                     ev = round(100 * (fair * profit(bp) - (1 - fair)), 2)
                 rows.append({
+                    "sport": sport,
                     "fighter": f, "opponent": opp, "card": card_name, "card_date": day,
                     "commence": e["commence_time"],
                     "is_main": e["id"] == main_ev["id"],
@@ -180,6 +198,7 @@ def main():
             "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
             "n_rows": len(rows), "n_fights": len(rows) // 2,
             "n_cards": len(cards), "books": books, "credits_left": rem,
+            "sports": sorted({r["sport"] for r in rows}),
             "note": ("moneyline line-shopping board; no fight model and no claimed edge. "
                      "ev_best = best book's price vs the books' own no-vig consensus, i.e. the "
                      "SHOPPING gain, not an independent edge."),
@@ -188,8 +207,11 @@ def main():
     }
     with open(BOARD, "w") as f:
         json.dump(payload, f, indent=1)
-    print("[cron] wrote %s: %d fighters across %d fights, %d cards; books=%s"
-          % (BOARD, len(rows), len(rows) // 2, len(cards), books))
+    bysport = {}
+    for r in rows:
+        bysport[r["sport"]] = bysport.get(r["sport"], 0) + 1
+    print("[cron] wrote %s: %d fighters across %d fights, %d cards; books=%s; by sport=%s"
+          % (BOARD, len(rows), len(rows) // 2, len(cards), books, bysport))
     arbs = [r for r in rows if r["arb"]]
     if arbs:
         print("[cron] !! %d sides in a negative-hold (arb) fight" % len(arbs))

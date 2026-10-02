@@ -1,19 +1,1011 @@
 {
  "meta": {
-  "generated": "2026-10-02 21:12Z",
-  "n_rows": 50,
-  "n_fights": 25,
-  "n_cards": 3,
+  "generated": "2026-10-02 21:36Z",
+  "n_rows": 92,
+  "n_fights": 46,
+  "n_cards": 10,
   "books": [
    "ballybet",
+   "betmgm",
    "draftkings",
-   "fanduel"
+   "espnbet",
+   "fanduel",
+   "williamhill_us"
   ],
-  "credits_left": "99304",
+  "credits_left": "99224",
+  "sports": [
+   "Boxing",
+   "MMA"
+  ],
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
   {
+   "sport": "Boxing",
+   "fighter": "Jordan Orozco",
+   "opponent": "Yusniel Abrahante",
+   "card": "2026-10-02 - Kevin Castillo vs Jusiyah Shirley",
+   "card_date": "2026-10-02",
+   "commence": "2026-10-02T21:45:00Z",
+   "is_main": false,
+   "best_price": -800,
+   "best_book": "draftkings",
+   "worst_price": -900,
+   "n_books": 3,
+   "fair_p": 0.8421,
+   "mkt_p": 0.8889,
+   "ev_best": -5.26,
+   "shop_gain": 0.0111,
+   "hedge_price": 500,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -900,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Yusniel Abrahante",
+   "opponent": "Jordan Orozco",
+   "card": "2026-10-02 - Kevin Castillo vs Jusiyah Shirley",
+   "card_date": "2026-10-02",
+   "commence": "2026-10-02T21:45:00Z",
+   "is_main": false,
+   "best_price": 500,
+   "best_book": "draftkings",
+   "worst_price": 480,
+   "n_books": 3,
+   "fair_p": 0.1579,
+   "mkt_p": 0.1667,
+   "ev_best": -5.26,
+   "shop_gain": 0.0057,
+   "hedge_price": -800,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 480,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Jusiyah Shirley",
+   "opponent": "Kevin Castillo",
+   "card": "2026-10-02 - Kevin Castillo vs Jusiyah Shirley",
+   "card_date": "2026-10-02",
+   "commence": "2026-10-02T22:00:00Z",
+   "is_main": true,
+   "best_price": -1800,
+   "best_book": "fanduel",
+   "worst_price": -1800,
+   "n_books": 1,
+   "fair_p": 0.886,
+   "mkt_p": 0.9474,
+   "ev_best": -6.48,
+   "shop_gain": 0.0,
+   "hedge_price": 720,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0693,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -1800,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Kevin Castillo",
+   "opponent": "Jusiyah Shirley",
+   "card": "2026-10-02 - Kevin Castillo vs Jusiyah Shirley",
+   "card_date": "2026-10-02",
+   "commence": "2026-10-02T22:00:00Z",
+   "is_main": true,
+   "best_price": 720,
+   "best_book": "fanduel",
+   "worst_price": 720,
+   "n_books": 1,
+   "fair_p": 0.114,
+   "mkt_p": 0.122,
+   "ev_best": -6.48,
+   "shop_gain": 0.0,
+   "hedge_price": -1800,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0693,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 720,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Ronny Alvarez",
+   "opponent": "Narciso Carmona",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T00:00:00Z",
+   "is_main": false,
+   "best_price": -3500,
+   "best_book": "draftkings",
+   "worst_price": -3500,
+   "n_books": 1,
+   "fair_p": 0.9211,
+   "mkt_p": 0.9722,
+   "ev_best": -5.26,
+   "shop_gain": 0.0,
+   "hedge_price": 1100,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -3500,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Narciso Carmona",
+   "opponent": "Ronny Alvarez",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T00:00:00Z",
+   "is_main": false,
+   "best_price": 1100,
+   "best_book": "draftkings",
+   "worst_price": 1100,
+   "n_books": 1,
+   "fair_p": 0.0789,
+   "mkt_p": 0.0833,
+   "ev_best": -5.26,
+   "shop_gain": 0.0,
+   "hedge_price": -3500,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Diego Yaniel Ortiz Nieves",
+   "opponent": "Fidencio Hernandez",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T00:10:00Z",
+   "is_main": false,
+   "best_price": -210,
+   "best_book": "fanduel",
+   "worst_price": -210,
+   "n_books": 1,
+   "fair_p": 0.6306,
+   "mkt_p": 0.6774,
+   "ev_best": -6.91,
+   "shop_gain": 0.0,
+   "hedge_price": 152,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0742,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -210,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Fidencio Hernandez",
+   "opponent": "Diego Yaniel Ortiz Nieves",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T00:10:00Z",
+   "is_main": false,
+   "best_price": 152,
+   "best_book": "fanduel",
+   "worst_price": 152,
+   "n_books": 1,
+   "fair_p": 0.3694,
+   "mkt_p": 0.3968,
+   "ev_best": -6.91,
+   "shop_gain": 0.0,
+   "hedge_price": -210,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0742,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 152,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Donte Layne",
+   "opponent": "Keithland King",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T01:00:00Z",
+   "is_main": false,
+   "best_price": -1200,
+   "best_book": "espnbet",
+   "worst_price": -1400,
+   "n_books": 3,
+   "fair_p": 0.8738,
+   "mkt_p": 0.9231,
+   "ev_best": -5.34,
+   "shop_gain": 0.0103,
+   "hedge_price": 700,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0481,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -1400,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Keithland King",
+   "opponent": "Donte Layne",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T01:00:00Z",
+   "is_main": false,
+   "best_price": 700,
+   "best_book": "draftkings",
+   "worst_price": 590,
+   "n_books": 3,
+   "fair_p": 0.1262,
+   "mkt_p": 0.125,
+   "ev_best": 0.97,
+   "shop_gain": 0.0199,
+   "hedge_price": -1200,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0481,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 590,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Omari Jones",
+   "opponent": "Alan Sanchez",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T03:00:00Z",
+   "is_main": false,
+   "best_price": -3500,
+   "best_book": "fanduel",
+   "worst_price": -5000,
+   "n_books": 3,
+   "fair_p": 0.9213,
+   "mkt_p": 0.9722,
+   "ev_best": -5.24,
+   "shop_gain": 0.0082,
+   "hedge_price": 1400,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0389,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -3500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -4000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -5000,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Alan Sanchez",
+   "opponent": "Omari Jones",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T03:00:00Z",
+   "is_main": false,
+   "best_price": 1400,
+   "best_book": "espnbet",
+   "worst_price": 1000,
+   "n_books": 3,
+   "fair_p": 0.0787,
+   "mkt_p": 0.0667,
+   "ev_best": 18.04,
+   "shop_gain": 0.0242,
+   "hedge_price": -3500,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0389,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 1400,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Paige Murney",
+   "opponent": "Linzi Buczynskyj",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": -2000,
+   "best_book": "draftkings",
+   "worst_price": -2400,
+   "n_books": 2,
+   "fair_p": 0.8996,
+   "mkt_p": 0.9524,
+   "ev_best": -5.55,
+   "shop_gain": 0.0076,
+   "hedge_price": 900,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0524,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -2000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -2400,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Aaron Bowen",
+   "opponent": "Klinton Baptiste",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": -1000,
+   "best_book": "betmgm",
+   "worst_price": -1200,
+   "n_books": 4,
+   "fair_p": 0.8662,
+   "mkt_p": 0.9091,
+   "ev_best": -4.72,
+   "shop_gain": 0.014,
+   "hedge_price": 650,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0424,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Hamza Uddin",
+   "opponent": "Sean Bruce",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": -900,
+   "best_book": "espnbet",
+   "worst_price": -950,
+   "n_books": 4,
+   "fair_p": 0.8452,
+   "mkt_p": 0.9,
+   "ev_best": -6.09,
+   "shop_gain": 0.0048,
+   "hedge_price": 550,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0538,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -950,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Sean Bruce",
+   "opponent": "Hamza Uddin",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": 550,
+   "best_book": "draftkings",
+   "worst_price": 500,
+   "n_books": 4,
+   "fair_p": 0.1548,
+   "mkt_p": 0.1538,
+   "ev_best": 0.64,
+   "shop_gain": 0.0128,
+   "hedge_price": -900,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0538,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 510,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Klinton Baptiste",
+   "opponent": "Aaron Bowen",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": 650,
+   "best_book": "espnbet",
+   "worst_price": 500,
+   "n_books": 4,
+   "fair_p": 0.1338,
+   "mkt_p": 0.1333,
+   "ev_best": 0.36,
+   "shop_gain": 0.0333,
+   "hedge_price": -1000,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0424,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 560,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Linzi Buczynskyj",
+   "opponent": "Paige Murney",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T18:00:00Z",
+   "is_main": false,
+   "best_price": 900,
+   "best_book": "draftkings",
+   "worst_price": 780,
+   "n_books": 2,
+   "fair_p": 0.1004,
+   "mkt_p": 0.1,
+   "ev_best": 0.43,
+   "shop_gain": 0.0136,
+   "hedge_price": -2000,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0524,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 780,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Ibraheem Sulaimaan",
+   "opponent": "Sonny Hardy",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T19:00:00Z",
+   "is_main": false,
+   "best_price": -1100,
+   "best_book": "betmgm",
+   "worst_price": -1600,
+   "n_books": 4,
+   "fair_p": 0.8786,
+   "mkt_p": 0.9167,
+   "ev_best": -4.16,
+   "shop_gain": 0.0245,
+   "hedge_price": 750,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0343,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -1600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Sonny Hardy",
+   "opponent": "Ibraheem Sulaimaan",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T19:00:00Z",
+   "is_main": false,
+   "best_price": 750,
+   "best_book": "draftkings",
+   "worst_price": 550,
+   "n_books": 4,
+   "fair_p": 0.1214,
+   "mkt_p": 0.1176,
+   "ev_best": 3.21,
+   "shop_gain": 0.0362,
+   "hedge_price": -1100,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0343,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Bilal Fawaz",
+   "opponent": "Eithan James",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T20:00:00Z",
+   "is_main": false,
+   "best_price": -800,
+   "best_book": "espnbet",
+   "worst_price": -850,
+   "n_books": 4,
+   "fair_p": 0.8403,
+   "mkt_p": 0.8889,
+   "ev_best": -5.47,
+   "shop_gain": 0.0058,
+   "hedge_price": 500,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -850,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Eithan James",
+   "opponent": "Bilal Fawaz",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T20:00:00Z",
+   "is_main": false,
+   "best_price": 500,
+   "best_book": "espnbet",
+   "worst_price": 450,
+   "n_books": 4,
+   "fair_p": 0.1597,
+   "mkt_p": 0.1667,
+   "ev_best": -4.16,
+   "shop_gain": 0.0152,
+   "hedge_price": -800,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 480,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Ben Whittaker",
+   "opponent": "Conor Wallace",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T21:00:00Z",
+   "is_main": true,
+   "best_price": -1000,
+   "best_book": "betmgm",
+   "worst_price": -1200,
+   "n_books": 4,
+   "fair_p": 0.8738,
+   "mkt_p": 0.9091,
+   "ev_best": -3.88,
+   "shop_gain": 0.014,
+   "hedge_price": 690,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0357,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Conor Wallace",
+   "opponent": "Ben Whittaker",
+   "card": "2026-10-03 - Conor Wallace vs Ben Whittaker",
+   "card_date": "2026-10-03",
+   "commence": "2026-10-03T21:00:00Z",
+   "is_main": true,
+   "best_price": 690,
+   "best_book": "fanduel",
+   "worst_price": 525,
+   "n_books": 4,
+   "fair_p": 0.1262,
+   "mkt_p": 0.1266,
+   "ev_best": -0.29,
+   "shop_gain": 0.0334,
+   "hedge_price": -1000,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0357,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 690,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Jacobe Smith",
    "opponent": "Bruce Whitehead",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
@@ -22,15 +1014,15 @@
    "is_main": false,
    "best_price": -950,
    "best_book": "fanduel",
-   "worst_price": -1000,
-   "n_books": 3,
-   "fair_p": 0.8642,
+   "worst_price": -1200,
+   "n_books": 4,
+   "fair_p": 0.8711,
    "mkt_p": 0.9048,
-   "ev_best": -4.48,
-   "shop_gain": 0.0043,
-   "hedge_price": 650,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0381,
+   "ev_best": -3.72,
+   "shop_gain": 0.0183,
+   "hedge_price": 700,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -51,34 +1043,53 @@
      "price": -1000,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -1200,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Bruce Whitehead",
    "opponent": "Jacobe Smith",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
    "card_date": "2026-10-03",
    "commence": "2026-10-03T21:20:00Z",
    "is_main": false,
-   "best_price": 650,
-   "best_book": "draftkings",
-   "worst_price": 590,
-   "n_books": 3,
-   "fair_p": 0.1358,
-   "mkt_p": 0.1333,
-   "ev_best": 1.85,
-   "shop_gain": 0.0116,
+   "best_price": 700,
+   "best_book": "williamhill_us",
+   "worst_price": 600,
+   "n_books": 4,
+   "fair_p": 0.1289,
+   "mkt_p": 0.125,
+   "ev_best": 3.14,
+   "shop_gain": 0.0179,
    "hedge_price": -950,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0381,
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 650,
-     "best": true,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 640,
+     "best": false,
      "bettable": true
     },
     {
@@ -86,46 +1097,47 @@
      "price": 600,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 590,
-     "best": false,
-     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Anthony Wint",
    "opponent": "Lucas Armand",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
    "card_date": "2026-10-03",
    "commence": "2026-10-03T22:15:00Z",
    "is_main": false,
-   "best_price": -535,
-   "best_book": "draftkings",
+   "best_price": -550,
+   "best_book": "fanduel",
    "worst_price": -560,
-   "n_books": 3,
-   "fair_p": 0.8057,
-   "mkt_p": 0.8425,
-   "ev_best": -4.37,
-   "shop_gain": 0.006,
-   "hedge_price": 400,
+   "n_books": 4,
+   "fair_p": 0.8073,
+   "mkt_p": 0.8462,
+   "ev_best": -4.6,
+   "shop_gain": 0.0023,
+   "hedge_price": 410,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0425,
+   "combined_hold": 0.0422,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": -535,
+     "book": "fanduel",
+     "price": -550,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "draftkings",
      "price": -550,
-     "best": false,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -550,
+     "best": true,
      "bettable": true
     },
     {
@@ -137,30 +1149,37 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Lucas Armand",
    "opponent": "Anthony Wint",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
    "card_date": "2026-10-03",
    "commence": "2026-10-03T22:15:00Z",
    "is_main": false,
-   "best_price": 400,
+   "best_price": 410,
    "best_book": "draftkings",
    "worst_price": 380,
-   "n_books": 3,
-   "fair_p": 0.1943,
-   "mkt_p": 0.2,
-   "ev_best": -2.84,
-   "shop_gain": 0.0083,
-   "hedge_price": -535,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0425,
+   "n_books": 4,
+   "fair_p": 0.1927,
+   "mkt_p": 0.1961,
+   "ev_best": -1.7,
+   "shop_gain": 0.0123,
+   "hedge_price": -550,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0422,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 400,
+     "price": 410,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 400,
+     "best": false,
      "bettable": true
     },
     {
@@ -178,30 +1197,37 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Marcus McGhee",
    "opponent": "Anthony Romero",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
    "card_date": "2026-10-03",
    "commence": "2026-10-03T22:45:00Z",
    "is_main": true,
-   "best_price": -535,
-   "best_book": "draftkings",
+   "best_price": -500,
+   "best_book": "williamhill_us",
    "worst_price": -590,
-   "n_books": 3,
-   "fair_p": 0.8104,
-   "mkt_p": 0.8425,
-   "ev_best": -3.81,
-   "shop_gain": 0.0126,
+   "n_books": 4,
+   "fair_p": 0.8093,
+   "mkt_p": 0.8333,
+   "ev_best": -2.88,
+   "shop_gain": 0.0217,
    "hedge_price": 410,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0386,
+   "combined_hold": 0.0294,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": -500,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -535,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -219,6 +1245,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Anthony Romero",
    "opponent": "Marcus McGhee",
    "card": "2026-10-03 - Anthony Romero vs Marcus McGhee",
@@ -227,15 +1254,15 @@
    "is_main": true,
    "best_price": 410,
    "best_book": "fanduel",
-   "worst_price": 400,
-   "n_books": 3,
-   "fair_p": 0.1896,
+   "worst_price": 380,
+   "n_books": 4,
+   "fair_p": 0.1907,
    "mkt_p": 0.1961,
-   "ev_best": -3.32,
-   "shop_gain": 0.0039,
-   "hedge_price": -535,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0386,
+   "ev_best": -2.74,
+   "shop_gain": 0.0123,
+   "hedge_price": -500,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0294,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -256,33 +1283,46 @@
      "price": 400,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 380,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Damian Pinas",
    "opponent": "Andrey Pulyaev",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
-   "best_price": -550,
-   "best_book": "draftkings",
+   "best_price": -575,
+   "best_book": "williamhill_us",
    "worst_price": -590,
-   "n_books": 3,
-   "fair_p": 0.8135,
-   "mkt_p": 0.8462,
-   "ev_best": -3.86,
-   "shop_gain": 0.0089,
-   "hedge_price": 410,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0422,
+   "n_books": 4,
+   "fair_p": 0.8154,
+   "mkt_p": 0.8519,
+   "ev_best": -4.28,
+   "shop_gain": 0.0032,
+   "hedge_price": 425,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0423,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": -575,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": -550,
+     "price": -575,
      "best": true,
      "bettable": true
     },
@@ -301,6 +1341,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Alex Hernandez",
    "opponent": "Rafael dos Anjos",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -310,10 +1351,10 @@
    "best_price": -260,
    "best_book": "fanduel",
    "worst_price": -278,
-   "n_books": 3,
-   "fair_p": 0.6947,
+   "n_books": 4,
+   "fair_p": 0.6974,
    "mkt_p": 0.7222,
-   "ev_best": -3.82,
+   "ev_best": -3.44,
    "shop_gain": 0.0132,
    "hedge_price": 225,
    "hedge_book": "draftkings",
@@ -334,6 +1375,12 @@
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": -270,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -278,
      "best": false,
@@ -342,30 +1389,37 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Roberto Soldic",
    "opponent": "Khaos Williams",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
-   "best_price": -238,
-   "best_book": "draftkings",
+   "best_price": -225,
+   "best_book": "williamhill_us",
    "worst_price": -278,
-   "n_books": 3,
-   "fair_p": 0.6924,
-   "mkt_p": 0.7041,
-   "ev_best": -1.67,
-   "shop_gain": 0.0313,
+   "n_books": 4,
+   "fair_p": 0.6837,
+   "mkt_p": 0.6923,
+   "ev_best": -1.24,
+   "shop_gain": 0.0431,
    "hedge_price": 215,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0216,
-   "low_hold": false,
+   "combined_hold": 0.0098,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": -225,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -238,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -383,6 +1437,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Eric Nolan",
    "opponent": "Court McGee",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -390,12 +1445,12 @@
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
    "best_price": -225,
-   "best_book": "draftkings",
+   "best_book": "williamhill_us",
    "worst_price": -265,
-   "n_books": 3,
-   "fair_p": 0.6778,
+   "n_books": 4,
+   "fair_p": 0.6707,
    "mkt_p": 0.6923,
-   "ev_best": -2.1,
+   "ev_best": -3.12,
    "shop_gain": 0.0337,
    "hedge_price": 205,
    "hedge_book": "ballybet",
@@ -403,6 +1458,12 @@
    "low_hold": false,
    "arb": false,
    "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -225,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "draftkings",
      "price": -225,
@@ -424,6 +1485,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Esteban Ribovics",
    "opponent": "King Green",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -433,13 +1495,13 @@
    "best_price": -205,
    "best_book": "fanduel",
    "worst_price": -230,
-   "n_books": 3,
-   "fair_p": 0.6575,
+   "n_books": 4,
+   "fair_p": 0.6578,
    "mkt_p": 0.6721,
-   "ev_best": -2.18,
+   "ev_best": -2.13,
    "shop_gain": 0.0248,
    "hedge_price": 180,
-   "hedge_book": "ballybet",
+   "hedge_book": "williamhill_us",
    "combined_hold": 0.0293,
    "low_hold": false,
    "arb": false,
@@ -457,6 +1519,12 @@
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": -220,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": -230,
      "best": false,
@@ -465,30 +1533,37 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Imanol Rodriguez",
    "opponent": "Alden Coria",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
-   "best_price": -142,
-   "best_book": "draftkings",
+   "best_price": -140,
+   "best_book": "williamhill_us",
    "worst_price": -152,
-   "n_books": 3,
-   "fair_p": 0.569,
-   "mkt_p": 0.5868,
-   "ev_best": -3.04,
-   "shop_gain": 0.0164,
+   "n_books": 4,
+   "fair_p": 0.5662,
+   "mkt_p": 0.5833,
+   "ev_best": -2.93,
+   "shop_gain": 0.0198,
    "hedge_price": 124,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0332,
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": -140,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -142,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -506,6 +1581,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Ismail Naurdiev",
    "opponent": "Marvin Vettori",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -515,10 +1591,10 @@
    "best_price": -134,
    "best_book": "fanduel",
    "worst_price": -143,
-   "n_books": 3,
+   "n_books": 4,
    "fair_p": 0.5597,
    "mkt_p": 0.5726,
-   "ev_best": -2.26,
+   "ev_best": -2.25,
    "shop_gain": 0.0158,
    "hedge_price": 120,
    "hedge_book": "draftkings",
@@ -530,6 +1606,12 @@
      "book": "fanduel",
      "price": -134,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -140,
+     "best": false,
      "bettable": true
     },
     {
@@ -547,6 +1629,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Johnny Walker",
    "opponent": "Michael Parkin",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -556,10 +1639,10 @@
    "best_price": -110,
    "best_book": "draftkings",
    "worst_price": -120,
-   "n_books": 2,
-   "fair_p": 0.5096,
+   "n_books": 3,
+   "fair_p": 0.5108,
    "mkt_p": 0.5238,
-   "ev_best": -2.71,
+   "ev_best": -2.48,
    "shop_gain": 0.0216,
    "hedge_price": -102,
    "hedge_book": "fanduel",
@@ -574,6 +1657,12 @@
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": -115,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": -120,
      "best": false,
@@ -582,6 +1671,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Michael Parkin",
    "opponent": "Johnny Walker",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -591,10 +1681,10 @@
    "best_price": -102,
    "best_book": "fanduel",
    "worst_price": -110,
-   "n_books": 2,
-   "fair_p": 0.4904,
+   "n_books": 3,
+   "fair_p": 0.4892,
    "mkt_p": 0.505,
-   "ev_best": -2.89,
+   "ev_best": -3.13,
    "shop_gain": 0.0189,
    "hedge_price": -110,
    "hedge_book": "draftkings",
@@ -609,6 +1699,12 @@
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": -105,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -110,
      "best": false,
@@ -617,6 +1713,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Marvin Vettori",
    "opponent": "Ismail Naurdiev",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -626,10 +1723,10 @@
    "best_price": 120,
    "best_book": "draftkings",
    "worst_price": 114,
-   "n_books": 3,
+   "n_books": 4,
    "fair_p": 0.4403,
    "mkt_p": 0.4545,
-   "ev_best": -3.13,
+   "ev_best": -3.14,
    "shop_gain": 0.0127,
    "hedge_price": -134,
    "hedge_book": "fanduel",
@@ -641,6 +1738,12 @@
      "book": "draftkings",
      "price": 120,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 118,
+     "best": false,
      "bettable": true
     },
     {
@@ -658,6 +1761,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Alden Coria",
    "opponent": "Imanol Rodriguez",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -666,15 +1770,15 @@
    "is_main": false,
    "best_price": 124,
    "best_book": "fanduel",
-   "worst_price": 120,
-   "n_books": 3,
-   "fair_p": 0.431,
+   "worst_price": 118,
+   "n_books": 4,
+   "fair_p": 0.4338,
    "mkt_p": 0.4464,
-   "ev_best": -3.45,
-   "shop_gain": 0.0081,
-   "hedge_price": -142,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0332,
+   "ev_best": -2.84,
+   "shop_gain": 0.0123,
+   "hedge_price": -140,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -695,10 +1799,17 @@
      "price": 120,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 118,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "King Green",
    "opponent": "Esteban Ribovics",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -706,12 +1817,12 @@
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
    "best_price": 180,
-   "best_book": "ballybet",
+   "best_book": "williamhill_us",
    "worst_price": 164,
-   "n_books": 3,
-   "fair_p": 0.3425,
+   "n_books": 4,
+   "fair_p": 0.3422,
    "mkt_p": 0.3571,
-   "ev_best": -4.09,
+   "ev_best": -4.18,
    "shop_gain": 0.0216,
    "hedge_price": -205,
    "hedge_book": "fanduel",
@@ -719,6 +1830,12 @@
    "low_hold": false,
    "arb": false,
    "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 180,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "ballybet",
      "price": 180,
@@ -740,6 +1857,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Court McGee",
    "opponent": "Eric Nolan",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -749,13 +1867,13 @@
    "best_price": 205,
    "best_book": "ballybet",
    "worst_price": 185,
-   "n_books": 3,
-   "fair_p": 0.3222,
+   "n_books": 4,
+   "fair_p": 0.3293,
    "mkt_p": 0.3279,
-   "ev_best": -1.72,
+   "ev_best": 0.43,
    "shop_gain": 0.023,
    "hedge_price": -225,
-   "hedge_book": "draftkings",
+   "hedge_book": "williamhill_us",
    "combined_hold": 0.0202,
    "low_hold": false,
    "arb": false,
@@ -773,6 +1891,12 @@
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": 185,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 185,
      "best": false,
@@ -781,6 +1905,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Khaos Williams",
    "opponent": "Roberto Soldic",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -789,16 +1914,16 @@
    "is_main": false,
    "best_price": 215,
    "best_book": "ballybet",
-   "worst_price": 195,
-   "n_books": 3,
-   "fair_p": 0.3076,
+   "worst_price": 185,
+   "n_books": 4,
+   "fair_p": 0.3163,
    "mkt_p": 0.3175,
-   "ev_best": -3.1,
-   "shop_gain": 0.0215,
-   "hedge_price": -238,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0216,
-   "low_hold": false,
+   "ev_best": -0.37,
+   "shop_gain": 0.0334,
+   "hedge_price": -225,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0098,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -818,10 +1943,17 @@
      "price": 195,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 185,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Rafael dos Anjos",
    "opponent": "Alex Hernandez",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -831,10 +1963,10 @@
    "best_price": 225,
    "best_book": "draftkings",
    "worst_price": 200,
-   "n_books": 3,
-   "fair_p": 0.3053,
+   "n_books": 4,
+   "fair_p": 0.3026,
    "mkt_p": 0.3077,
-   "ev_best": -0.76,
+   "ev_best": -1.66,
    "shop_gain": 0.0256,
    "hedge_price": -260,
    "hedge_book": "fanduel",
@@ -846,6 +1978,12 @@
      "book": "draftkings",
      "price": 225,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 220,
+     "best": false,
      "bettable": true
     },
     {
@@ -863,47 +2001,55 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Andrey Pulyaev",
    "opponent": "Damian Pinas",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T00:00:00Z",
    "is_main": false,
-   "best_price": 410,
-   "best_book": "ballybet",
+   "best_price": 425,
+   "best_book": "williamhill_us",
    "worst_price": 410,
-   "n_books": 3,
-   "fair_p": 0.1865,
-   "mkt_p": 0.1961,
-   "ev_best": -4.87,
-   "shop_gain": 0.0,
-   "hedge_price": -550,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0422,
+   "n_books": 4,
+   "fair_p": 0.1846,
+   "mkt_p": 0.1905,
+   "ev_best": -3.06,
+   "shop_gain": 0.0056,
+   "hedge_price": -575,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0423,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": 410,
+     "book": "williamhill_us",
+     "price": 425,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 410,
+     "price": 425,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 410,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 410,
-     "best": true,
+     "best": false,
      "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Ateba Gautier",
    "opponent": "Roman Kopylov",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -912,15 +2058,15 @@
    "is_main": false,
    "best_price": -240,
    "best_book": "ballybet",
-   "worst_price": -250,
-   "n_books": 3,
-   "fair_p": 0.6761,
+   "worst_price": -260,
+   "n_books": 4,
+   "fair_p": 0.6808,
    "mkt_p": 0.7059,
-   "ev_best": -4.21,
-   "shop_gain": 0.0084,
-   "hedge_price": 205,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0338,
+   "ev_best": -3.56,
+   "shop_gain": 0.0163,
+   "hedge_price": 210,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0285,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -941,34 +2087,47 @@
      "price": -250,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -260,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Roman Kopylov",
    "opponent": "Ateba Gautier",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T00:15:00Z",
    "is_main": false,
-   "best_price": 205,
-   "best_book": "draftkings",
+   "best_price": 210,
+   "best_book": "williamhill_us",
    "worst_price": 188,
-   "n_books": 3,
-   "fair_p": 0.3239,
-   "mkt_p": 0.3279,
-   "ev_best": -1.23,
-   "shop_gain": 0.0194,
+   "n_books": 4,
+   "fair_p": 0.3192,
+   "mkt_p": 0.3226,
+   "ev_best": -1.04,
+   "shop_gain": 0.0246,
    "hedge_price": -240,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0338,
+   "combined_hold": 0.0285,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": 210,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 205,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -986,6 +2145,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Payton Talbott",
    "opponent": "Deiveson Figueiredo",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -995,10 +2155,10 @@
    "best_price": -715,
    "best_book": "ballybet",
    "worst_price": -750,
-   "n_books": 3,
-   "fair_p": 0.8389,
+   "n_books": 4,
+   "fair_p": 0.8427,
    "mkt_p": 0.8773,
-   "ev_best": -4.38,
+   "ev_best": -3.95,
    "shop_gain": 0.0051,
    "hedge_price": 525,
    "hedge_book": "draftkings",
@@ -1023,10 +2183,17 @@
      "price": -750,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -750,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Deiveson Figueiredo",
    "opponent": "Payton Talbott",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -1036,10 +2203,10 @@
    "best_price": 525,
    "best_book": "draftkings",
    "worst_price": 460,
-   "n_books": 3,
-   "fair_p": 0.1611,
+   "n_books": 4,
+   "fair_p": 0.1573,
    "mkt_p": 0.16,
-   "ev_best": 0.71,
+   "ev_best": -1.68,
    "shop_gain": 0.0186,
    "hedge_price": -715,
    "hedge_book": "ballybet",
@@ -1049,6 +2216,12 @@
    "book_prices": [
     {
      "book": "draftkings",
+     "price": 525,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 525,
      "best": true,
      "bettable": true
@@ -1068,6 +2241,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Natalia Silva",
    "opponent": "Wang Cong",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
@@ -1076,15 +2250,15 @@
    "is_main": true,
    "best_price": -205,
    "best_book": "draftkings",
-   "worst_price": -215,
-   "n_books": 3,
-   "fair_p": 0.6447,
+   "worst_price": -220,
+   "n_books": 4,
+   "fair_p": 0.6473,
    "mkt_p": 0.6721,
-   "ev_best": -4.08,
-   "shop_gain": 0.0104,
-   "hedge_price": 172,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0398,
+   "ev_best": -3.69,
+   "shop_gain": 0.0154,
+   "hedge_price": 180,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0293,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1105,34 +2279,47 @@
      "price": -215,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -220,
+     "best": false,
+     "bettable": true
     }
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Wang Cong",
    "opponent": "Natalia Silva",
    "card": "2026-10-04 - Wang Cong vs Natalia Silva",
    "card_date": "2026-10-04",
    "commence": "2026-10-04T02:15:00Z",
    "is_main": true,
-   "best_price": 172,
-   "best_book": "fanduel",
+   "best_price": 180,
+   "best_book": "williamhill_us",
    "worst_price": 163,
-   "n_books": 3,
-   "fair_p": 0.3553,
-   "mkt_p": 0.3676,
-   "ev_best": -3.37,
-   "shop_gain": 0.0126,
+   "n_books": 4,
+   "fair_p": 0.3527,
+   "mkt_p": 0.3571,
+   "ev_best": -1.25,
+   "shop_gain": 0.0231,
    "hedge_price": -205,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0398,
+   "combined_hold": 0.0293,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": 180,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": 172,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -1150,6 +2337,307 @@
    ]
   },
   {
+   "sport": "Boxing",
+   "fighter": "Osleys Iglesias",
+   "opponent": "Oliver Zaren",
+   "card": "2026-10-08 - Oliver Zaren vs Osleys Iglesias",
+   "card_date": "2026-10-08",
+   "commence": "2026-10-08T21:00:00Z",
+   "is_main": true,
+   "best_price": -1200,
+   "best_book": "draftkings",
+   "worst_price": -1600,
+   "n_books": 3,
+   "fair_p": 0.8819,
+   "mkt_p": 0.9231,
+   "ev_best": -4.46,
+   "shop_gain": 0.0181,
+   "hedge_price": 830,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0306,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Oliver Zaren",
+   "opponent": "Osleys Iglesias",
+   "card": "2026-10-08 - Oliver Zaren vs Osleys Iglesias",
+   "card_date": "2026-10-08",
+   "commence": "2026-10-08T21:00:00Z",
+   "is_main": true,
+   "best_price": 830,
+   "best_book": "fanduel",
+   "worst_price": 650,
+   "n_books": 3,
+   "fair_p": 0.1181,
+   "mkt_p": 0.1075,
+   "ev_best": 9.84,
+   "shop_gain": 0.0258,
+   "hedge_price": -1200,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0306,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 830,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Imam Khatev",
+   "opponent": "Padraig McCrory",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T00:15:00Z",
+   "is_main": false,
+   "best_price": -1350,
+   "best_book": "fanduel",
+   "worst_price": -1400,
+   "n_books": 2,
+   "fair_p": 0.8744,
+   "mkt_p": 0.931,
+   "ev_best": -6.08,
+   "shop_gain": 0.0023,
+   "hedge_price": 700,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.056,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -1350,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1400,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Padraig McCrory",
+   "opponent": "Imam Khatev",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T00:15:00Z",
+   "is_main": false,
+   "best_price": 700,
+   "best_book": "espnbet",
+   "worst_price": 600,
+   "n_books": 2,
+   "fair_p": 0.1256,
+   "mkt_p": 0.125,
+   "ev_best": 0.46,
+   "shop_gain": 0.0179,
+   "hedge_price": -1350,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.056,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Dzmitry Asanau",
+   "opponent": "Luis E. Santana Figueroa",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T01:10:00Z",
+   "is_main": false,
+   "best_price": -550,
+   "best_book": "fanduel",
+   "worst_price": -800,
+   "n_books": 2,
+   "fair_p": 0.8189,
+   "mkt_p": 0.8462,
+   "ev_best": -3.23,
+   "shop_gain": 0.0427,
+   "hedge_price": 500,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0128,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Luis E. Santana Figueroa",
+   "opponent": "Dzmitry Asanau",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T01:10:00Z",
+   "is_main": false,
+   "best_price": 500,
+   "best_book": "espnbet",
+   "worst_price": 360,
+   "n_books": 2,
+   "fair_p": 0.1811,
+   "mkt_p": 0.1667,
+   "ev_best": 8.69,
+   "shop_gain": 0.0507,
+   "hedge_price": -550,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0128,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Wilkens Mathieu",
+   "opponent": "Vladimir Shishkin",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T02:05:00Z",
+   "is_main": true,
+   "best_price": -1300,
+   "best_book": "fanduel",
+   "worst_price": -1400,
+   "n_books": 2,
+   "fair_p": 0.8743,
+   "mkt_p": 0.9286,
+   "ev_best": -5.85,
+   "shop_gain": 0.0048,
+   "hedge_price": 700,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0536,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -1300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1400,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Vladimir Shishkin",
+   "opponent": "Wilkens Mathieu",
+   "card": "2026-10-09 - Vladimir Shishkin vs Wilkens Mathieu",
+   "card_date": "2026-10-09",
+   "commence": "2026-10-09T02:05:00Z",
+   "is_main": true,
+   "best_price": 700,
+   "best_book": "espnbet",
+   "worst_price": 600,
+   "n_books": 2,
+   "fair_p": 0.1257,
+   "mkt_p": 0.125,
+   "ev_best": 0.58,
+   "shop_gain": 0.0179,
+   "hedge_price": -1300,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0536,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Felipe Franco",
    "opponent": "Brendson Ribeiro",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1185,6 +2673,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Julius Walker",
    "opponent": "Gerald Meerschaert",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1220,6 +2709,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "RJ Harris",
    "opponent": "Allen Frye Jr.",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1255,6 +2745,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Lupita Godinez",
    "opponent": "Ketlen Souza",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1290,6 +2781,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Malcolm Wellmaker",
    "opponent": "Otari Tanzilovi",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1325,6 +2817,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Matheus Camilo",
    "opponent": "Jai Herbert",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1360,6 +2853,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Melissa Gatto",
    "opponent": "Ernesta Kareckaite",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1395,6 +2889,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Andre Fili",
    "opponent": "Kai Kamaka",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1430,6 +2925,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Brendan Allen",
    "opponent": "Christian Leroy Duncan",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1465,6 +2961,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Alice Pereira",
    "opponent": "Darya Zheleznyakova",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1500,6 +2997,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Ismael Bonfim",
    "opponent": "Francisco Prado",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1535,6 +3033,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Francisco Prado",
    "opponent": "Ismael Bonfim",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1570,6 +3069,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Darya Zheleznyakova",
    "opponent": "Alice Pereira",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1605,6 +3105,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Christian Leroy Duncan",
    "opponent": "Brendan Allen",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1640,6 +3141,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Kai Kamaka",
    "opponent": "Andre Fili",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1675,6 +3177,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Ernesta Kareckaite",
    "opponent": "Melissa Gatto",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1710,6 +3213,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Jai Herbert",
    "opponent": "Matheus Camilo",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1745,6 +3249,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Otari Tanzilovi",
    "opponent": "Malcolm Wellmaker",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1780,6 +3285,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Ketlen Souza",
    "opponent": "Lupita Godinez",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1815,6 +3321,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Allen Frye Jr.",
    "opponent": "RJ Harris",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1850,6 +3357,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Gerald Meerschaert",
    "opponent": "Julius Walker",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1885,6 +3393,7 @@
    ]
   },
   {
+   "sport": "MMA",
    "fighter": "Brendson Ribeiro",
    "opponent": "Felipe Franco",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -1915,6 +3424,414 @@
      "book": "fanduel",
      "price": 250,
      "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Floyd Scholfield",
+   "opponent": "Lucas Bahdi",
+   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T03:00:00Z",
+   "is_main": true,
+   "best_price": -650,
+   "best_book": "fanduel",
+   "worst_price": -800,
+   "n_books": 3,
+   "fair_p": 0.8421,
+   "mkt_p": 0.8667,
+   "ev_best": -2.83,
+   "shop_gain": 0.0222,
+   "hedge_price": 500,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0333,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -650,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Lucas Bahdi",
+   "opponent": "Floyd Scholfield",
+   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T03:00:00Z",
+   "is_main": true,
+   "best_price": 500,
+   "best_book": "espnbet",
+   "worst_price": 430,
+   "n_books": 3,
+   "fair_p": 0.1579,
+   "mkt_p": 0.1667,
+   "ev_best": -5.26,
+   "shop_gain": 0.022,
+   "hedge_price": -650,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0333,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 430,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Daniel Dubois",
+   "opponent": "Fabio Wardley",
+   "card": "2026-10-17 - Fabio Wardley vs Daniel Dubois",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": true,
+   "best_price": -400,
+   "best_book": "espnbet",
+   "worst_price": -460,
+   "n_books": 3,
+   "fair_p": 0.7753,
+   "mkt_p": 0.8,
+   "ev_best": -3.09,
+   "shop_gain": 0.0214,
+   "hedge_price": 330,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0326,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -400,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -460,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Fabio Wardley",
+   "opponent": "Daniel Dubois",
+   "card": "2026-10-17 - Fabio Wardley vs Daniel Dubois",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": true,
+   "best_price": 330,
+   "best_book": "draftkings",
+   "worst_price": 300,
+   "n_books": 3,
+   "fair_p": 0.2247,
+   "mkt_p": 0.2326,
+   "ev_best": -3.37,
+   "shop_gain": 0.0174,
+   "hedge_price": -400,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0326,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 330,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 300,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Jermell Charlo",
+   "opponent": "Koen Mazoudier",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T01:00:00Z",
+   "is_main": false,
+   "best_price": -1400,
+   "best_book": "draftkings",
+   "worst_price": -1600,
+   "n_books": 3,
+   "fair_p": 0.8819,
+   "mkt_p": 0.9333,
+   "ev_best": -5.51,
+   "shop_gain": 0.0078,
+   "hedge_price": 750,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.051,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -1400,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Koen Mazoudier",
+   "opponent": "Jermell Charlo",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T01:00:00Z",
+   "is_main": false,
+   "best_price": 750,
+   "best_book": "espnbet",
+   "worst_price": 660,
+   "n_books": 3,
+   "fair_p": 0.1181,
+   "mkt_p": 0.1176,
+   "ev_best": 0.39,
+   "shop_gain": 0.0139,
+   "hedge_price": -1400,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.051,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 660,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Brandon Figueroa",
+   "opponent": "Tomoki Kameda",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T02:00:00Z",
+   "is_main": false,
+   "best_price": -425,
+   "best_book": "espnbet",
+   "worst_price": -500,
+   "n_books": 2,
+   "fair_p": 0.779,
+   "mkt_p": 0.8095,
+   "ev_best": -3.77,
+   "shop_gain": 0.0238,
+   "hedge_price": 350,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0317,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -425,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Tomoki Kameda",
+   "opponent": "Brandon Figueroa",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T02:00:00Z",
+   "is_main": false,
+   "best_price": 350,
+   "best_book": "draftkings",
+   "worst_price": 310,
+   "n_books": 2,
+   "fair_p": 0.221,
+   "mkt_p": 0.2222,
+   "ev_best": -0.54,
+   "shop_gain": 0.0217,
+   "hedge_price": -425,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0317,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 350,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 310,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Sebastian Fundora",
+   "opponent": "Ermal Hadribeaj",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T03:00:00Z",
+   "is_main": true,
+   "best_price": -1000,
+   "best_book": "espnbet",
+   "worst_price": -1200,
+   "n_books": 3,
+   "fair_p": 0.8652,
+   "mkt_p": 0.9091,
+   "ev_best": -4.83,
+   "shop_gain": 0.014,
+   "hedge_price": 680,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0373,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -1200,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Ermal Hadribeaj",
+   "opponent": "Sebastian Fundora",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T03:00:00Z",
+   "is_main": true,
+   "best_price": 680,
+   "best_book": "fanduel",
+   "worst_price": 550,
+   "n_books": 3,
+   "fair_p": 0.1348,
+   "mkt_p": 0.1282,
+   "ev_best": 5.17,
+   "shop_gain": 0.0256,
+   "hedge_price": -1000,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0373,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 680,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": false,
      "bettable": true
     }
    ]
