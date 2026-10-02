@@ -163,6 +163,9 @@ def main():
                     "mkt_p": round(a2p(bp), 4),
                     "ev_best": ev,
                     "shop_gain": round(a2p(worst) - a2p(bp), 4),
+                    # the hedge leg: best price available on the OTHER side, so the app can work
+                    # out whether a boost on this side locks a profit against it
+                    "hedge_price": best[opp][0], "hedge_book": best[opp][1],
                     "combined_hold": round(combined_hold, 4),
                     "low_hold": combined_hold < 0.02,
                     "arb": combined_hold < 0,

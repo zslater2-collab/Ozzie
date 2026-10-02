@@ -436,10 +436,11 @@
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
       <label style="cursor:pointer" title="fights where the best price on EACH side leaves under 2% combined hold — the cheapest spots on the card"><input type="checkbox" id="mma-lowhold" onchange="MMA_STATE.lowHold=this.checked;renderMmaTable()"> 💧 low hold only</label>
       <label style="cursor:pointer"><input type="checkbox" id="mma-dogs" onchange="MMA_STATE.dogsOnly=this.checked;renderMmaTable()"> underdogs only</label>
+      <label style="cursor:pointer" title="only sides where boosting this side and hedging the other locks a guaranteed profit"><input type="checkbox" id="mma-lockonly" onchange="MMA_STATE.lockOnly=this.checked;renderMmaTable()"> 🔒 boost-locks only</label>
     </div>
     <div class="exp-count" id="mma-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="mma-thead"></thead><tbody id="mma-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Moneyline only, and there is <b>no fight model behind this</b> — it is a shopping tool. <b>Fair%</b> is the no-vig consensus: each book's two-way price de-vigged, then medianed across books. Moneyline is two-sided, so unlike the prop boards this is a <i>real</i> fair number. <b>EV@best</b> = that Fair% against the best book's price, so it measures how much better the best price is than the market — the <b>shopping gain, not an edge</b>. Negative EV is normal; it is the vig you still pay after shopping. <b>Hold</b> = combined hold taking the best price on <i>both</i> sides; on the 10/4 card single books ran +4.2% to +5.9% while best-of-4 fell to +2.9–3.7%, so shopping roughly halves the vig. 💧 marks fights under 2% hold (cheapest on the card); a negative hold is an arb. <b>Four-book shop only</b> — DraftKings, FanDuel, Caesars and Bally Bet; BetMGM, theScore Bet and Fanatics post nothing for MMA in this feed. Click a header to sort.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Moneyline only, and there is <b>no fight model behind this</b> — it is a shopping tool. <b>Fair%</b> is the no-vig consensus: each book's two-way price de-vigged, then medianed across books. Moneyline is two-sided, so unlike the prop boards this is a <i>real</i> fair number. <b>EV@best</b> = that Fair% against the best book's price, so it measures how much better the best price is than the market — the <b>shopping gain, not an edge</b>. Negative EV is normal; it is the vig you still pay after shopping. <b>Hold</b> = combined hold taking the best price on <i>both</i> sides; on the 10/4 card single books ran +4.2% to +5.9% while best-of-4 fell to +2.9–3.7%, so shopping roughly halves the vig. 💧 marks fights under 2% hold (cheapest on the card); a negative hold is an arb. <b>Four-book shop only</b> — DraftKings, FanDuel, Caesars and Bally Bet; BetMGM, theScore Bet and Fanatics post nothing for MMA in this feed. Enter a <b>boost %</b> and two more columns appear: <b>Lock</b> = the guaranteed return if you boost this side and hedge the other at its best price, and <b>Stake split</b> = how to divide the stake so both outcomes pay the same. <b>This is variance reduction, not an edge</b> — letting a boosted longshot ride is worth roughly boost×(1−p) in EV (a 50% boost at a 10% chance is ~+45%), far more than the few percent a hedge locks. Use it to make a boost definitely convert to cash, not by default; and note deliberate arbing is the fastest way to get limited. Click a header to sort.</div>
   </div>
 </div>
 </div><!--/view-mma-->
@@ -1628,6 +1629,18 @@
       r.bk_ev=(p!=null&&r.bk_boost!=null)?+(100*(p*bbProfit(r.bk_boost)-(1-p))).toFixed(1):null;
     });
   }
+  // Boost-arb: a profit boost on ONE side can push the two-way pair under 100%, locking a profit
+  // regardless of outcome. Stake split is proportional to implied probability, so both outcomes
+  // pay the same; locked return = (1/S - 1) of total staked, where S is the summed implied probs.
+  // NOTE this is VARIANCE REDUCTION, not an edge: letting a boosted longshot ride is worth
+  // b x (1-p) in EV (a 50% boost at p=.10 is ~+45%), far more than the few % a hedge locks.
+  // Use it to guarantee a boost converts to cash, not as a default.
+  function bbArb(boostedOdds, hedgeOdds){
+    if(boostedOdds==null||hedgeOdds==null)return null;
+    const pa=bbImp(boostedOdds), pb=bbImp(hedgeOdds), S=pa+pb;
+    if(!(S>0))return null;
+    return {S:S, roi:(1/S-1), stakeBoosted:pa/S, stakeHedge:pb/S};
+  }
   function bbBookSelect(id,cur,books,onchange){
     return `<label title="pin one sportsbook to see its own price, how far it trails the best price, and where a boost is worth most">book `
       +`<select id="${id}" onchange="${onchange}" style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem">`
@@ -1714,7 +1727,7 @@
   }
   // -- UFC / MMA moneyline board (line shopping only) ---------------------
   let MMA_ROWS=[];
-  const MMA_STATE={search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false};
+  const MMA_STATE={search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false,lockOnly:false};
   function mmaTime(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
     return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+h+':'+String(m).padStart(2,'0')+ap; }
@@ -1733,7 +1746,10 @@
     {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
     {k:'bk_gap',t:'vs best',l:0,bb:1,v:r=>r.bk_gap??99},
     {k:'bk_boost',t:'Boosted',l:0,bb:1,v:r=>r.bk_boost??-99999},
-    {k:'bk_ev',t:'Boost EV',l:0,bb:1,v:r=>r.bk_ev??-999}
+    {k:'bk_ev',t:'Boost EV',l:0,bb:1,v:r=>r.bk_ev??-999},
+    // boost-arb columns -- only rendered once a boost % is entered
+    {k:'arb_roi',t:'Lock',l:0,ab:1,v:r=>r.arb_roi??-999},
+    {k:'arb_split',t:'Stake split',l:1,ab:1,v:r=>r.arb_split??-1}
   ];
   function setMmaBook(b){ MMA_STATE.book=b; renderMmaTable(); }
   function setMmaBoost(v){ MMA_STATE.boost=+v||0; renderMmaTable(); }
@@ -1743,13 +1759,24 @@
     // fair_p is a genuine no-vig number here (two-way market), so EV is meaningful as a
     // SHOPPING measure -- bbApply's fair arg is fair_p, not a model probability.
     bbApply(MMA_ROWS,'book_prices',s.book,s.boost,'fair_p',1);
+    // boost-arb: boost THIS side (at the pinned book if one is chosen, else the best price)
+    // and hedge the other side at its best price.
+    MMA_ROWS.forEach(r=>{
+      const base=(s.book&&r.bk_price!=null)?r.bk_price:r.best_price;
+      const bo=(s.boost>0)?bbBoostOdds(base,s.boost):null;
+      const A=bo!=null?bbArb(bo,r.hedge_price):null;
+      r.arb_roi   = (A&&A.roi>0)?+(100*A.roi).toFixed(2):null;
+      r.arb_split = (A&&A.roi>0)?A.stakeBoosted:null;
+      r.arb_odds  = bo;
+    });
     let rows=MMA_ROWS.filter(r=>
          (!s.card || r.card_date===s.card)
       && (!s.lowHold || r.low_hold)
       && (!s.dogsOnly || (r.best_price!=null && r.best_price>0))
+      && (!s.lockOnly || r.arb_roi)
       && (!s.book || r.bk_price!=null)
       && (!q || (r.fighter||'').toLowerCase().includes(q) || (r.opponent||'').toLowerCase().includes(q)));
-    const MC=MMA_COLS.filter(c=>!c.bb||s.book);
+    const MC=MMA_COLS.filter(c=>(!c.bb||s.book)&&(!c.ab||s.boost>0));
     const col=MC.find(c=>c.k===s.sort)||MMA_COLS[3];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('mma-tablecount').textContent=rows.length+' sides';
@@ -1778,6 +1805,12 @@
           `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
+        ):'')+
+        (s.boost>0?(
+          `<td style="color:${r.arb_roi?'#39d353':'var(--muted)'}">${r.arb_roi?'🔒 +'+r.arb_roi.toFixed(1)+'%':'—'}</td>`+
+          `<td class="l" style="color:var(--muted)">${r.arb_roi?
+             (Math.round(100*r.arb_split)+'% '+fmtOdds(r.arb_odds)+' / '+Math.round(100*(1-r.arb_split))+'% '+fmtOdds(r.hedge_price)+' '+bookName(r.hedge_book))
+             :'—'}</td>`
         ):'');
       tb.appendChild(tr);
     });
