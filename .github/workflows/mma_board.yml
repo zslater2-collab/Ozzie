@@ -1,0 +1,43 @@
+name: mma-board
+
+# Builds the UFC/MMA moneyline line-shopping board and commits it back to this repo
+# (auto-redeploys the app on Render). Cards are usually Saturday, but odds move all fight week,
+# so this runs twice a day every day:
+#   15:00 UTC (11:00 ET) -- morning refresh
+#   23:00 UTC (19:00 ET) -- evening, closer to card time for same-day moves
+# Cost is trivial: h2h is a FEATURED market, so the whole-sport endpoint returns every event in
+# ONE call -- about 1-2 credits per run for the entire board.
+
+on:
+  schedule:
+    - cron: '0 15 * * *'
+    - cron: '0 23 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mma-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Build board
+        run: python scripts/mma_board_cron.py
+      - name: Commit artifact
+        run: |
+          git config user.name  "mma-board-bot"
+          git config user.email "mma-board-bot@users.noreply.github.com"
+          git add mma_board_latest.json
+          git diff --staged --quiet || git commit -m "mma-board: refresh board [skip ci]"
+          git push

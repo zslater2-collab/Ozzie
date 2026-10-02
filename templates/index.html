@@ -179,6 +179,7 @@
   <div class="sport-tab active" id="sport-tab-baseball" onclick="setSport('baseball')">⚾ Baseball</div>
   <div class="sport-tab" id="sport-tab-football" onclick="setSport('football')">🏈 Football</div>
   <div class="sport-tab" id="sport-tab-hockey" onclick="setSport('hockey')">🏒 Hockey</div>
+  <div class="sport-tab" id="sport-tab-mma" onclick="setSport('mma')">🥊 UFC</div>
 </div>
 <div class="view-bb">
 <div id="games-section">
@@ -413,6 +414,35 @@
   </div>
 </div>
 </div><!--/view-hk-->
+<div class="view-mma" style="display:none">
+<div id="mma-section" style="display:none">
+  <div class="divider"></div>
+  <div style="padding-top:20px">
+    <div class="flags-header">
+      <div class="flags-count" id="mma-count"></div>
+      <div class="section-label" style="margin:0">UFC / MMA Moneyline
+        <span style="font-size:.55rem;letter-spacing:.1em;color:var(--accent);margin-left:8px;text-transform:uppercase">Line shopping — no model, no edge claimed</span>
+      </div>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);margin:2px 0 10px;line-height:1.5" id="mma-note"></div>
+    <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
+      <input id="mma-search" type="text" placeholder="search fighter…" oninput="MMA_STATE.search=this.value.toLowerCase();renderMmaTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem;min-width:130px">
+      <select id="mma-card" onchange="MMA_STATE.card=this.value;renderMmaTable()"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <span id="mma-bookwrap"></span>
+      <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
+        <input id="mma-boost" type="number" step="5" min="0" max="200" value="0" oninput="setMmaBoost(this.value)"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
+      <label style="cursor:pointer" title="fights where the best price on EACH side leaves under 2% combined hold — the cheapest spots on the card"><input type="checkbox" id="mma-lowhold" onchange="MMA_STATE.lowHold=this.checked;renderMmaTable()"> 💧 low hold only</label>
+      <label style="cursor:pointer"><input type="checkbox" id="mma-dogs" onchange="MMA_STATE.dogsOnly=this.checked;renderMmaTable()"> underdogs only</label>
+    </div>
+    <div class="exp-count" id="mma-tablecount"></div>
+    <div class="exp-wrap"><table class="exp"><thead id="mma-thead"></thead><tbody id="mma-tbody"></tbody></table></div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Moneyline only, and there is <b>no fight model behind this</b> — it is a shopping tool. <b>Fair%</b> is the no-vig consensus: each book's two-way price de-vigged, then medianed across books. Moneyline is two-sided, so unlike the prop boards this is a <i>real</i> fair number. <b>EV@best</b> = that Fair% against the best book's price, so it measures how much better the best price is than the market — the <b>shopping gain, not an edge</b>. Negative EV is normal; it is the vig you still pay after shopping. <b>Hold</b> = combined hold taking the best price on <i>both</i> sides; on the 10/4 card single books ran +4.2% to +5.9% while best-of-4 fell to +2.9–3.7%, so shopping roughly halves the vig. 💧 marks fights under 2% hold (cheapest on the card); a negative hold is an arb. <b>Four-book shop only</b> — DraftKings, FanDuel, Caesars and Bally Bet; BetMGM, theScore Bet and Fanatics post nothing for MMA in this feed. Click a header to sort.</div>
+  </div>
+</div>
+</div><!--/view-mma-->
 <div class="view-bb">
 <div id="explorer-section" style="display:none">
   <div class="divider"></div>
@@ -486,7 +516,7 @@
   // visibility -- data for both still loads on refresh, and each view keeps its own inner show/hide.
   // top-level sport switch. Each sport owns a view class; only visibility toggles, data for all
   // sports still loads on refresh and each view keeps its own inner show/hide.
-  const SPORT_VIEWS={baseball:'view-bb',football:'view-fb',hockey:'view-hk'};
+  const SPORT_VIEWS={baseball:'view-bb',football:'view-fb',hockey:'view-hk',mma:'view-mma'};
   function setSport(sport){
     if(!SPORT_VIEWS[sport])sport='baseball';
     Object.entries(SPORT_VIEWS).forEach(([sp,cls])=>{
@@ -1682,6 +1712,95 @@
       tb.appendChild(tr);
     });
   }
+  // -- UFC / MMA moneyline board (line shopping only) ---------------------
+  let MMA_ROWS=[];
+  const MMA_STATE={search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false};
+  function mmaTime(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
+    let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+h+':'+String(m).padStart(2,'0')+ap; }
+  const MMA_COLS=[
+    {k:'fighter',t:'Fighter',l:1,v:r=>(r.fighter||'').toLowerCase()},
+    {k:'opponent',t:'vs',l:1,v:r=>(r.opponent||'').toLowerCase()},
+    {k:'card_date',t:'Card',l:1,v:r=>r.card_date||''},
+    {k:'commence',t:'Start',l:1,v:r=>r.commence||''},
+    {k:'best_price',t:'Best',l:0,v:r=>r.best_price??-99999},
+    {k:'best_book',t:'Book',l:1,v:r=>r.best_book||''},
+    {k:'fair_p',t:'Fair%',l:0,v:r=>r.fair_p??-1},
+    {k:'ev_best',t:'EV@best',l:0,v:r=>r.ev_best??-999},
+    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1},
+    {k:'combined_hold',t:'Hold',l:0,v:r=>r.combined_hold??99},
+    {k:'n_books',t:'#',l:0,v:r=>r.n_books??0},
+    {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
+    {k:'bk_gap',t:'vs best',l:0,bb:1,v:r=>r.bk_gap??99},
+    {k:'bk_boost',t:'Boosted',l:0,bb:1,v:r=>r.bk_boost??-99999},
+    {k:'bk_ev',t:'Boost EV',l:0,bb:1,v:r=>r.bk_ev??-999}
+  ];
+  function setMmaBook(b){ MMA_STATE.book=b; renderMmaTable(); }
+  function setMmaBoost(v){ MMA_STATE.boost=+v||0; renderMmaTable(); }
+  function setMmaSort(k){ if(MMA_STATE.sort===k)MMA_STATE.dir*=-1; else{MMA_STATE.sort=k;MMA_STATE.dir=(k==='fighter'||k==='opponent'||k==='card_date'||k==='commence'||k==='best_book')?1:-1;} renderMmaTable(); }
+  function renderMmaTable(){
+    const s=MMA_STATE, q=s.search.trim();
+    // fair_p is a genuine no-vig number here (two-way market), so EV is meaningful as a
+    // SHOPPING measure -- bbApply's fair arg is fair_p, not a model probability.
+    bbApply(MMA_ROWS,'book_prices',s.book,s.boost,'fair_p',1);
+    let rows=MMA_ROWS.filter(r=>
+         (!s.card || r.card_date===s.card)
+      && (!s.lowHold || r.low_hold)
+      && (!s.dogsOnly || (r.best_price!=null && r.best_price>0))
+      && (!s.book || r.bk_price!=null)
+      && (!q || (r.fighter||'').toLowerCase().includes(q) || (r.opponent||'').toLowerCase().includes(q)));
+    const MC=MMA_COLS.filter(c=>!c.bb||s.book);
+    const col=MC.find(c=>c.k===s.sort)||MMA_COLS[3];
+    rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
+    document.getElementById('mma-tablecount').textContent=rows.length+' sides';
+    document.getElementById('mma-thead').innerHTML='<tr>'+MC.map(c=>
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setMmaSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    const tb=document.getElementById('mma-tbody'); tb.innerHTML='';
+    rows.forEach(r=>{
+      const tr=document.createElement('tr'); tr.className='exp-row';
+      const hold=r.combined_hold==null?'—':((r.combined_hold*100).toFixed(2)+'%');
+      const holdCol=r.arb?'#ff6b3d':(r.low_hold?'#39d353':'var(--muted)');
+      const ev=r.ev_best==null?'—':((r.ev_best>0?'+':'')+r.ev_best.toFixed(1)+'%');
+      tr.innerHTML=
+        `<td class="l">${r.is_main?'<span title="main event">★ </span>':''}${r.fighter||''}</td>`+
+        `<td class="l" style="color:var(--muted)">${r.opponent||''}</td>`+
+        `<td class="l" style="color:var(--muted)">${r.card_date||''}</td>`+
+        `<td class="l" style="color:var(--muted)">${mmaTime(r)||'—'}</td>`+
+        `<td>${fmtOdds(r.best_price)}</td>`+
+        `<td class="l" style="color:var(--muted)">${bookName(r.best_book)}</td>`+
+        `<td>${r.fair_p==null?'—':(r.fair_p*100).toFixed(1)+'%'}</td>`+
+        `<td style="color:${r.ev_best==null?'var(--muted)':(r.ev_best>0?'#39d353':'var(--muted)')}">${ev}</td>`+
+        `<td style="color:var(--muted)">${r.shop_gain==null?'—':'+'+(r.shop_gain*100).toFixed(2)+'pp'}</td>`+
+        `<td style="color:${holdCol}">${r.arb?'⚡ ':''}${r.low_hold&&!r.arb?'💧 ':''}${hold}</td>`+
+        `<td style="color:var(--muted)">${r.n_books??'—'}</td>`+
+        (s.book?(
+          `<td>${fmtOdds(r.bk_price)}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
+          `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
+        ):'');
+      tb.appendChild(tr);
+    });
+  }
+  function loadMmaBoard(){
+    fetch('/api/mma_board').then(r=>r.ok?r.json():null).then(data=>{
+      if(!data||!data.rows||!data.rows.length)return;
+      MMA_ROWS=data.rows;
+      const m=data.meta||{};
+      document.getElementById('mma-count').textContent=(m.n_fights||0)+' fights';
+      document.getElementById('mma-note').textContent=
+        (m.generated?`as of ${m.generated}`:'')+(m.n_cards?` · ${m.n_cards} cards`:'')+
+        (m.books?` · shopping ${m.books.length} books`:'');
+      const cards=[...new Set(MMA_ROWS.map(r=>r.card_date).filter(Boolean))].sort();
+      document.getElementById('mma-card').innerHTML='<option value="">all cards</option>'+
+        cards.map(c=>`<option value="${c}">${c}</option>`).join('');
+      document.getElementById('mma-bookwrap').innerHTML=
+        bbBookSelect('mma-book',MMA_STATE.book,bbBooksIn(MMA_ROWS,'book_prices'),'setMmaBook(this.value)');
+      renderMmaTable();
+      document.getElementById('mma-section').style.display='block';
+    }).catch(()=>{});
+  }
+
   function loadNhlBoard(){
     fetch('/api/nhl_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!data.rows||!data.rows.length)return;
@@ -1732,7 +1851,7 @@
     const errBox=document.getElementById('error-box');
     btn.disabled=true; spinner.style.display='block'; label.textContent='LOADING…';
     status.textContent='Fetching lineups and model data…'; errBox.style.display='none';
-    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','td-section','nhl-section','explorer-section','squad-section','picks-section','no-picks']
+    ['games-section','heatmap-section','f5combined-section','pq-section','kprop-section','kprop-under-section','formfade-section','off-section','joint-section','dfs-section','hrboard-section','td-section','nhl-section','mma-section','explorer-section','squad-section','picks-section','no-picks']
       .forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     // HR Board DFS and Squad Builder sections hidden per Zach (the joint Explorer board covers hitters);
     // data/endpoints untouched, just not rendered. loadExplorer still pulls /api/hr_board for its rows.
@@ -1740,6 +1859,7 @@
     loadExplorer();
     loadTdBoard();
     loadNhlBoard();
+    loadMmaBoard();
     // loadSquadBuilder();
 
     fetch('/api/picks')
