@@ -38,6 +38,9 @@ NB = "https://api.nhle.com/stats/rest/en/skater"
 MA_BOOKS = "draftkings,fanduel,betmgm,williamhill_us,fanatics,espnbet,ballybet"
 REGIONS = "us,us2"
 SOFT_BOOKS = {"draftkings", "fanduel"}      # the validated price leaders
+# Books Zach can actually bet (MA-legal). Others are priced for reference//shopping context only.
+BETTABLE_BOOKS = {"draftkings", "fanduel", "betmgm", "williamhill_us",
+                  "espnbet", "fanatics", "ballybet"}
 
 PRIOR_H = {"ev": 5.0, "pp": 1.2}            # Gamma-Poisson prior strength, in TOI hours
 TOI_K   = 6.0                               # TOI shrinkage, in games
@@ -444,7 +447,15 @@ def main():
         probs = sorted(a2p(x) for x, _ in prices)
         n = len(probs)
         mkt_p = probs[n // 2] if n % 2 else (probs[n // 2 - 1] + probs[n // 2]) / 2
+        # per-book prices, so the app can filter to ONE book and judge where a profit boost is
+        # best spent: a boost is worth most where that book is generous RELATIVE to the market,
+        # not where the overall best price happens to live (which may be a different book).
+        book_prices = sorted(
+            [{"book": bk, "price": x, "best": x == best_price,
+              "bettable": bk in BETTABLE_BOOKS} for x, bk in prices],
+            key=lambda d: -d["price"])
         rows.append({
+            "book_prices": book_prices,
             "player": p["name"], "pos": p["pos"], "team": p["team"], "opp": ti["opp"],
             "game": ti["game"], "commence": ti["commence"],
             "gp": p["gp"], "pp_min": p["pp_min"],

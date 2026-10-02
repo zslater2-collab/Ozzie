@@ -364,6 +364,10 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="td-time" onchange="TD_STATE.time=this.value;renderTdTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <span id="td-bookwrap"></span>
+      <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
+        <input id="td-boost" type="number" step="5" min="0" max="200" value="0" oninput="setTdBoost(this.value)"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
       <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 focus slice only</label>
       <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
     </div>
@@ -396,6 +400,10 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="nhl-game" onchange="NHL_STATE.game=this.value;renderNhlTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <span id="nhl-bookwrap"></span>
+      <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
+        <input id="nhl-boost" type="number" step="5" min="0" max="200" value="0" oninput="setNhlBoost(this.value)"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
       <label style="cursor:pointer"><input type="checkbox" id="nhl-softonly" onchange="NHL_STATE.softOnly=this.checked;renderNhlTable()"> best price at DK/FD only</label>
       <label style="cursor:pointer"><input type="checkbox" id="nhl-showthin" onchange="NHL_STATE.showThin=this.checked;renderNhlTable()"> show thin roles (&lt;10 GP)</label>
     </div>
@@ -1204,7 +1212,7 @@
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
-             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false,smash:false}, expanded:null, _rows:[]};
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false,smash:false,book:'',boost:0}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1288,6 +1296,10 @@
       {k:'park',t:'Park',f:r=>_exN(r.park,2)},
       {k:'wx',t:'Wx',f:r=>_exN(r.wx,2)},
       {k:'arch',t:'Archetype',l:1,f:r=>r.arch||''},
+      {k:'bk_price',t:'Bk',bb:1,f:r=>_exAm(r.bk_price)},
+      {k:'bk_gap',t:'vs best',bb:1,f:r=>r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+(+r.bk_gap).toFixed(2)+'pp'),c:r=>bbGapCol(r.bk_gap)},
+      {k:'bk_boost',t:'Boosted',bb:1,f:r=>_exAm(r.bk_boost),c:r=>r.bk_boost==null?'':'#39d353'},
+      {k:'bk_ev',t:'Boost EV',bb:1,f:r=>r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+(+r.bk_ev).toFixed(0)+'%'),c:r=>r.bk_ev==null?'':(r.bk_ev>0?'#39d353':'var(--muted)')},
     ],
     pitchers:[
       {k:'pitcher',t:'Pitcher',l:1,f:r=>(r.k_sharp_over?'<span title="SHARP K-prop OVER pick">🔥</span> ':(r.k_under?'<span title="K-prop UNDER pick">🧊</span> ':''))+_exEsc(r.pitcher)+(r.hand?' ('+r.hand+')':'')+(r.opener?' <span class="exp-badge" style="color:#e0a020;border-color:#e0a020">OPENER</span>':'')+(r.rain_risk?_RAIN_B:'')},
@@ -1305,6 +1317,10 @@
       {k:'opp_f5',t:'Opp F5',f:r=>r.opp_f5==null?'—':r.opp_f5},
       {k:'o_k_rate',t:'Opp K%',f:r=>_exPct(r.o_k_rate,1)},
       {k:'div_gap',t:'Whiff-K',f:r=>r.div_gap==null?'—':((r.div_gap>=0?'+':'')+(+r.div_gap).toFixed(3))},
+      {k:'bk_price',t:'Bk',bb:1,f:r=>_exAm(r.bk_price)},
+      {k:'bk_gap',t:'vs best',bb:1,f:r=>r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+(+r.bk_gap).toFixed(2)+'pp'),c:r=>bbGapCol(r.bk_gap)},
+      {k:'bk_boost',t:'Boosted',bb:1,f:r=>_exAm(r.bk_boost),c:r=>r.bk_boost==null?'':'#39d353'},
+      {k:'bk_ev',t:'Boost EV',bb:1,f:r=>r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+(+r.bk_ev).toFixed(0)+'%'),c:r=>r.bk_ev==null?'':(r.bk_ev>0?'#39d353':'var(--muted)')},
     ],
   };
   function setExplorerTab(tab){EXP.tab=tab;EXP.expanded=null;
@@ -1338,12 +1354,18 @@
       renderExplorerFilters();renderExplorer();
     }).catch(()=>{});
   }
-  function expSetFilter(k,v){EXP.filters[k]=v;EXP.expanded=null;renderExplorer();}
+  function expSetFilter(k,v){if(k==='boost')v=+v||0;EXP.filters[k]=v;EXP.expanded=null;renderExplorer();}
   function expToggleTime(t,on){const s=new Set(EXP.filters.times);on?s.add(t):s.delete(t);EXP.filters.times=[...s];EXP.expanded=null;renderExplorer();}
   function sortExplorer(col){const s=EXP.sort[EXP.tab];if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1;}EXP.expanded=null;renderExplorer();}
   function toggleExplorerBooks(i){EXP.expanded=(EXP.expanded===i?null:i);renderExplorer();}
   function _exFiltered(){
     const F=EXP.filters;let rows=EXP.data[EXP.tab].slice();
+    // hitters carry hr_prob as a PERCENT (27.5), so scale it to a probability for EV; the
+    // pitchers tab has no calibrated model probability for the K over, so EV stays blank there.
+    bbApply(rows, EXP.tab==='hitters'?'book_prices':'kprop_book_prices',
+            F.book, F.boost, EXP.tab==='hitters'?'hr_prob':null,
+            EXP.tab==='hitters'?0.01:null);
+    if(F.book)rows=rows.filter(r=>r.bk_price!=null);
     if(F.game)rows=rows.filter(r=>r.game===F.game);
     if(F.team)rows=rows.filter(r=>r.team===F.team||r.opp===F.team);
     if(F.confirmed&&EXP.tab==='hitters')rows=rows.filter(r=>!r.proj);
@@ -1375,7 +1397,7 @@
     return rows;
   }
   function renderExplorer(){
-    const cols=EXP_COLS[EXP.tab],s=EXP.sort[EXP.tab];
+    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book),s=EXP.sort[EXP.tab];
     document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" title="${(EXP_DESC[c.k]||'').replace(/"/g,'&quot;')}" onclick="sortExplorer('${c.k}')">${c.t}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const rows=_exFiltered();EXP._rows=rows;
     const tb=document.getElementById('exp-tbody');tb.innerHTML='';
@@ -1425,11 +1447,15 @@
         +times.map(ms=>`<label style="font-weight:400"><input type="checkbox" ${F.times.includes(''+ms)?'checked':''} onchange="expToggleTime('${ms}',this.checked)"> ${timeMap[ms]}</label>`).join('')
         +`</span>`;
     }
+    // book + boost: pin one sportsbook, see its own price vs the best, and where a boost pays most
+    const bbField=EXP.tab==='hitters'?'book_prices':'kprop_book_prices';
+    h+=bbBookSelect('exp-book',F.book,bbBooksIn(all,bbField),"expSetFilter('book',this.value)");
+    h+=`<label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost % <input type="number" step="5" min="0" max="200" value="${F.boost}" oninput="expSetFilter('boost',this.value)" style="width:54px"></label>`;
     h+=`<button onclick="exportExplorerCSV()" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:.62rem;cursor:pointer">Export CSV</button>`;
     document.getElementById('exp-filters').innerHTML=h;
   }
   function exportExplorerCSV(){
-    const cols=EXP_COLS[EXP.tab],rows=EXP._rows.length?EXP._rows:_exFiltered();
+    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book),rows=EXP._rows.length?EXP._rows:_exFiltered();
     const strip=s=>String(s).replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/"/g,'""').trim();
     const csv=cols.map(c=>c.t).join(',')+'\n'+rows.map(r=>cols.map(c=>`"${strip(c.f(r))}"`).join(',')).join('\n');
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
@@ -1438,7 +1464,7 @@
 
   // ── NFL Anytime-TD Board ────────────────────────────────────────────
   let TD_ROWS=[];
-  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1};
+  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1,book:'',boost:0};
   // kickoff -> short local label ("Sun 1:00p"); '' if no commence on the row
   function tdKick(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
@@ -1455,7 +1481,12 @@
     {k:'model_p_cal',t:'Model P',l:0,v:r=>r.model_p_cal??-1},
     {k:'mkt_p_consensus',t:'Mkt P',l:0,v:r=>r.mkt_p_consensus??-1},
     {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
-    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99}
+    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99},
+    // book-pinned columns -- only rendered once a book is selected
+    {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
+    {k:'bk_gap',t:'vs best',l:0,bb:1,v:r=>r.bk_gap??99},
+    {k:'bk_boost',t:'Boosted',l:0,bb:1,v:r=>r.bk_boost??-99999},
+    {k:'bk_ev',t:'Boost EV',l:0,bb:1,v:r=>r.bk_ev??-999}
   ];
   function setTdTab(t){
     TD_STATE.tab=t;
@@ -1469,8 +1500,11 @@
   function wxLabel(t){ if(!t||t==='?')return ''; if(t==='indoor')return '<span style="color:var(--muted)" title="dome/indoor — neutral">▦</span>';
     if(t==='clear')return '<span style="color:var(--muted)">·</span>';
     return '<span title="bad weather — fade pass-catcher longshots">'+(t.includes('wet')?'🌧️':'')+(t.includes('windy')?'💨':'')+'</span>'; }
+  function setTdBook(b){ TD_STATE.book=b; renderTdTable(); }
+  function setTdBoost(v){ TD_STATE.boost=+v||0; renderTdTable(); }
   function renderTdTable(){
     const s=TD_STATE, q=s.search.trim();
+    bbApply(TD_ROWS,'book_prices',s.book,s.boost,'model_p_cal',1);
     let rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null
       && (s.showThin || !r.thin)
       && (s.tab==='ALL'||r.pos===s.tab)
@@ -1478,11 +1512,13 @@
       && (!s.team || r.team===s.team)
       && (!s.game || r.game===s.game)
       && (!s.time || tdKick(r)===s.time)
+      && (!s.book || r.bk_price!=null)
       && (!q || (r.player||'').toLowerCase().includes(q)));
-    const col=TD_COLS.find(c=>c.k===s.sort)||TD_COLS[5];
+    const TC=TD_COLS.filter(c=>!c.bb||s.book);
+    const col=TC.find(c=>c.k===s.sort)||TD_COLS[5];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('td-tablecount').textContent=`${rows.length} players`;
-    document.getElementById('td-thead').innerHTML='<tr>'+TD_COLS.map(c=>
+    document.getElementById('td-thead').innerHTML='<tr>'+TC.map(c=>
       `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setTdSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('td-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
@@ -1499,13 +1535,76 @@
         `<td>${r.model_p_cal!=null?(r.model_p_cal*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p_consensus!=null?(r.mkt_p_consensus*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${fmtOdds(r.best_price)} <span style="color:var(--muted);font-size:.9em">${bookName(r.best_book)}</span></td>`+
-        `<td style="color:var(--muted)">${edge}</td>`;
+        `<td style="color:var(--muted)">${edge}</td>`+
+        (s.book?(
+          `<td>${fmtOdds(r.bk_price)}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
+          `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
+        ):'');
       tb.appendChild(tr);
     });
   }
+
+  // -- Book filter + profit boost (shared by the MLB / NFL / NHL tables) ------------
+  // Zach almost always bets WITH a boost, and a boost is worth most where the book giving the
+  // boost is generous RELATIVE to the market -- not where the overall best price sits, which is
+  // usually a different book. So each table can pin ONE book and surface:
+  //   Bk       that book's own price
+  //   vs best  how much worse than the best available price, in implied-probability points
+  //            (0.00 = this book IS the best; smaller = better boost target)
+  //   Boost    the boosted price, and model EV at that boosted price
+  // Payload shapes differ -- the MLB board stores display names ("DraftKings"), the NFL/NHL
+  // boards store API keys ("draftkings") -- so bbKey() collapses both to one identity.
+  const BB_ALIAS={draftkings:'dk',fanduel:'fd',betmgm:'mgm',williamhill_us:'caesars',caesars:'caesars',
+    espnbet:'espn','espn bet':'espn',fanatics:'fanatics',ballybet:'bally','bally bet':'bally',
+    'hard rock bet':'hardrock',hardrockbet:'hardrock',betrivers:'betrivers',fliff:'fliff',
+    betparx:'betparx','betparx':'betparx','thescore bet':'thescore',betonlineag:'betonline',bovada:'bovada'};
+  const BB_LABEL={dk:'DraftKings',fd:'FanDuel',mgm:'BetMGM',caesars:'Caesars',espn:'ESPN BET',
+    fanatics:'Fanatics',bally:'Bally Bet',hardrock:'Hard Rock',betrivers:'BetRivers',fliff:'Fliff',
+    betparx:'BetPARX',thescore:'theScore',betonline:'BetOnline',bovada:'Bovada'};
+  function bbKey(b){ if(!b)return ''; const k=(''+b).toLowerCase().trim(); return BB_ALIAS[k]||k; }
+  function bbLabel(b){ const k=bbKey(b); return BB_LABEL[k]||b; }
+  function bbImp(a){ if(a==null)return null; a=+a; return a<0?(-a)/(-a+100):100/(a+100); }
+  function bbProfit(a){ if(a==null)return null; a=+a; return a>0?a/100:100/(-a); }
+  // boosted american odds. Boosts multiply PROFIT, so convert -> profit -> scale -> back.
+  function bbBoostOdds(a,pct){ const pr=bbProfit(a); if(pr==null)return null;
+    const b=pr*(1+(+pct||0)/100); return b>=1?Math.round(b*100):-Math.round(100/b); }
+  function bbBooksIn(rows,field){ const s=new Set();
+    (rows||[]).forEach(r=>(r[field]||[]).forEach(q=>{if(q&&q.price!=null)s.add(bbKey(q.book));}));
+    return [...s].sort((a,b)=>(''+bbLabel(a)).localeCompare(''+bbLabel(b))); }
+  // Attach the per-book columns onto the row objects, so the existing sort / filter / CSV-export
+  // paths keep working untouched (they all read plain row properties).
+  function bbApply(rows,field,book,pct,fairKey,fairScale){
+    const k=bbKey(book);
+    (rows||[]).forEach(r=>{
+      const qs=r[field]||[]; let mine=null,best=null;
+      qs.forEach(q=>{ if(!q||q.price==null)return;
+        if(best==null||q.price>best)best=q.price;
+        if(bbKey(q.book)===k)mine=q.price; });
+      r.bk_price=(k&&mine!=null)?mine:null;
+      r.bk_gap=(r.bk_price!=null&&best!=null)?+(100*(bbImp(r.bk_price)-bbImp(best))).toFixed(2):null;
+      r.bk_boost=(r.bk_price!=null)?bbBoostOdds(r.bk_price,pct):null;
+      // EV uses the board's OWN model probability -- a model estimate, not truth. On NHL the
+      // market actually ranks slightly better than the model (AUC .703 vs .691), so treat EV as
+      // a tie-breaker between boost candidates, not as proof a bet is +EV.
+      let p=fairKey?r[fairKey]:null;
+      if(p!=null&&fairScale)p=p*fairScale;
+      r.bk_ev=(p!=null&&r.bk_boost!=null)?+(100*(p*bbProfit(r.bk_boost)-(1-p))).toFixed(1):null;
+    });
+  }
+  function bbBookSelect(id,cur,books,onchange){
+    return `<label title="pin one sportsbook to see its own price, how far it trails the best price, and where a boost is worth most">book `
+      +`<select id="${id}" onchange="${onchange}" style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem">`
+      +`<option value="">— none —</option>`
+      +books.map(b=>`<option value="${b}" ${b===cur?'selected':''}>${bbLabel(b)}</option>`).join('')
+      +`</select></label>`;
+  }
+  function bbGapCol(v){ if(v==null)return 'var(--muted)'; if(v<=0.3)return '#39d353'; if(v<=1.5)return '#e0a020'; return '#ff6b3d'; }
+
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
   let NHL_ROWS=[];
-  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1};
+  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0};
   const NHL_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
@@ -1517,7 +1616,12 @@
     {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
     {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
     {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1},
-    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99}
+    {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99},
+    // book-pinned columns -- only rendered once a book is selected
+    {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
+    {k:'bk_gap',t:'vs best',l:0,bb:1,v:r=>r.bk_gap??99},
+    {k:'bk_boost',t:'Boosted',l:0,bb:1,v:r=>r.bk_boost??-99999},
+    {k:'bk_ev',t:'Boost EV',l:0,bb:1,v:r=>r.bk_ev??-999}
   ];
   function setNhlTab(t){
     NHL_STATE.tab=t;
@@ -1525,19 +1629,24 @@
     renderNhlTable();
   }
   function setNhlSort(k){ if(NHL_STATE.sort===k)NHL_STATE.dir*=-1; else{NHL_STATE.sort=k;NHL_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderNhlTable(); }
+  function setNhlBook(b){ NHL_STATE.book=b; renderNhlTable(); }
+  function setNhlBoost(v){ NHL_STATE.boost=+v||0; renderNhlTable(); }
   function renderNhlTable(){
     const s=NHL_STATE, q=s.search.trim();
+    bbApply(NHL_ROWS,'book_prices',s.book,s.boost,'model_p',1);
     let rows=NHL_ROWS.filter(r=>r.mkt_p!=null
       && (s.showThin || !r.thin)
       && (s.tab==='ALL' || (s.tab==='D' ? r.pos==='D' : r.pos!=='D'))
       && (!s.softOnly || r.soft_best)
       && (!s.team || r.team===s.team)
       && (!s.game || r.game===s.game)
+      && (!s.book || r.bk_price!=null)
       && (!q || (r.player||'').toLowerCase().includes(q)));
-    const col=NHL_COLS.find(c=>c.k===s.sort)||NHL_COLS[6];
+    const NC=NHL_COLS.filter(c=>!c.bb||s.book);
+    const col=NC.find(c=>c.k===s.sort)||NHL_COLS[6];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
-    document.getElementById('nhl-thead').innerHTML='<tr>'+NHL_COLS.map(c=>
+    document.getElementById('nhl-thead').innerHTML='<tr>'+NC.map(c=>
       `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setNhlSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('nhl-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
@@ -1558,7 +1667,13 @@
         `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${fmtOdds(r.best_price)} ${bkHtml}</td>`+
         `<td style="color:var(--muted)">${shop}</td>`+
-        `<td style="color:var(--muted)">${edge}</td>`;
+        `<td style="color:var(--muted)">${edge}</td>`+
+        (s.book?(
+          `<td>${fmtOdds(r.bk_price)}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
+          `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
+        ):'');
       tb.appendChild(tr);
     });
   }
@@ -1575,6 +1690,8 @@
       const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
       document.getElementById('nhl-team').innerHTML=opts(NHL_ROWS.map(r=>r.team),'all teams');
       document.getElementById('nhl-game').innerHTML=opts(NHL_ROWS.map(r=>r.game),'all games');
+      document.getElementById('nhl-bookwrap').innerHTML=
+        bbBookSelect('nhl-book',NHL_STATE.book,bbBooksIn(NHL_ROWS,'book_prices'),'setNhlBook(this.value)');
       renderNhlTable();
       document.getElementById('nhl-section').style.display='block';
     }).catch(()=>{});
@@ -1595,6 +1712,8 @@
       // sort kickoff options chronologically, display the friendly label
       const kicks=[...new Set(priv.map(r=>r.commence).filter(Boolean))].sort();
       document.getElementById('td-time').innerHTML='<option value="">all times</option>'+kicks.map(c=>{const l=tdKick({commence:c});return `<option value="${l}">${l}</option>`;}).join('');
+      document.getElementById('td-bookwrap').innerHTML=
+        bbBookSelect('td-book',TD_STATE.book,bbBooksIn(TD_ROWS,'book_prices'),'setTdBook(this.value)');
       renderTdTable();
       document.getElementById('td-section').style.display='block';
     }).catch(()=>{});

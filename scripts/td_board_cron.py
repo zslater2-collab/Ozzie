@@ -30,6 +30,8 @@ SEASON = int(os.environ.get("NFL_SEASON", dt.date.today().year))
 KEY    = os.environ.get("ODDS_API_KEY", "")
 B, S   = "https://api.the-odds-api.com/v4", "americanfootball_nfl"
 MA_BOOKS = "draftkings,fanduel,betmgm,williamhill_us,fanatics,espnbet"
+# Books Zach can actually bet (MA-legal); used to flag per-book quotes in book_prices.
+BETTABLE_BOOKS = {"draftkings","fanduel","betmgm","williamhill_us","fanatics","espnbet","ballybet"}
 TD_PER_POINT = 0.108
 CAL_A, CAL_B = -0.421, 0.551          # Platt calibration fit on 2024+2025 (calibrate_model.py)
 
@@ -190,7 +192,11 @@ def build_board(events, tmap):
         mkt = a.group_by("nkey").agg(
             pl.col("price").sort_by("imp_p").first().alias("best_price"),
             pl.col("book").sort_by("imp_p").first().alias("best_book"),
-            pl.col("imp_p").median().alias("mkt_p"), pl.col("book").n_unique().alias("n_books"))
+            pl.col("imp_p").median().alias("mkt_p"), pl.col("book").n_unique().alias("n_books"),
+            # per-book quotes, so the app can filter to ONE book and judge where a profit boost is
+            # best spent: a boost is worth most where that book is generous RELATIVE to the market,
+            # not where the overall best price sits (often a different book entirely).
+            pl.struct(["book", "price"]).alias("quotes"))
     rows=[]
     for r in pri.iter_rows(named=True):
         ti = imp.get(r["posteam"])
@@ -208,7 +214,8 @@ def build_board(events, tmap):
     if mkt is not None:
         board = board.join(mkt, on="nkey", how="left")
     else:
-        board = board.with_columns([pl.lit(None).alias(c) for c in ("best_price","best_book","mkt_p","n_books")])
+        board = board.with_columns([pl.lit(None).alias(c) for c in ("best_price","best_book","mkt_p","n_books")]
+                                   + [pl.lit(None).alias("quotes")])
     board = board.with_columns([
         pl.col("mkt_p").alias("mkt_p_consensus"),
         (pl.col("model_p_cal")-pl.col("mkt_p")).alias("edge"),
@@ -232,7 +239,16 @@ def build_board(events, tmap):
     meta={"generated":dt.datetime.now().isoformat(timespec="minutes"),"season":SEASON,
           "best_book_rule":"shop DK+FD; Caesars runs rich",
           "note":"role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."}
-    json.dump({"meta":meta,"rows":board.to_dicts()}, open(BOARD,"w"), indent=1)
+    out_rows = board.to_dicts()
+    # quotes -> book_prices, matching the HR board's shape so the app can share one renderer
+    for r in out_rows:
+        qs = r.pop("quotes", None) or []
+        best = r.get("best_price")
+        r["book_prices"] = sorted(
+            [{"book": q["book"], "price": q["price"], "best": q["price"] == best,
+              "bettable": q["book"] in BETTABLE_BOOKS} for q in qs if q.get("price") is not None],
+            key=lambda d: -d["price"])
+    json.dump({"meta":meta,"rows":out_rows}, open(BOARD,"w"), indent=1)
     # COVERAGE GUARD: every team with a posted total (on the slate) must land >=1 player row.
     # A gap = an abbr join mismatch like LAR/LA silently dropping a whole team. (N<32 is normal:
     # games already kicked off drop from the pre-game odds feed; byes start ~wk5.)
