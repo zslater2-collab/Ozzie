@@ -18,7 +18,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: td-board
+  # SHARED across every board workflow: they all commit artifacts to main,
+  # so they must queue rather than race each other's pushes.
+  group: board-artifacts
   cancel-in-progress: false
 
 jobs:
@@ -39,5 +41,22 @@ jobs:
           git config user.name  "td-board-bot"
           git config user.email "td-board-bot@users.noreply.github.com"
           git add td_board_latest.json nfl_watchlist_log.csv
-          git diff --staged --quiet || git commit -m "td-board: refresh board + tracker [skip ci]"
-          git push
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+            exit 0
+          fi
+          git commit -m "td-board: refresh board + tracker [skip ci]"
+          # The board bots race each other: all four push artifacts to main, GitHub delays
+          # scheduled runs so they bunch together, and a bare push loses with "fetch first"
+          # (mma-board died exactly this way on 2026-10-03 18:36Z, one minute after hr-board).
+          # Rebase onto whatever landed first and retry with backoff so a lost race self-heals.
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash -q origin main && git push -q; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "push attempt $i lost the race; retrying"
+            sleep $(( (RANDOM % 10) + 5 ))
+          done
+          echo "::error::could not push after 5 attempts"
+          exit 1
