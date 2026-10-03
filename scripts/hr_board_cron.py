@@ -950,7 +950,14 @@ def main():
         # to_json converts NaN->null (valid JSON); plain json.dump would emit bare NaN,
         # which Python tolerates but browser JSON.parse rejects -> blank board.
         rows_json = json.loads(d.to_json(orient='records'))
+        # generated_at / odds_at let the app show DATA FRESHNESS. A stale board is the failure
+        # mode you cannot see -- the numbers still look perfectly reasonable, they are just old.
+        # 'asof' is the STATS cutoff (a date); these two are wall-clock pull times.
+        _now = datetime.utcnow().strftime('%Y-%m-%d %H:%MZ')
         json.dump({'date':date,'asof':meta['asof'],'calib':cal,'ranked_by':ranked_by,
+                   'generated_at':_now,
+                   'odds_at':(_now if hr_odds else None),
+                   'n_odds_players':len(hr_odds or {}),
                    'rows':rows_json}, open(LATEST,'w'), indent=2)
         print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown, ranked_by={ranked_by} '
               f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')

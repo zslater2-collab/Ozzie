@@ -128,6 +128,14 @@
   table.exp th.l,table.exp td.l{text-align:left}
   table.exp th.sorted{color:var(--accent)}
   table.exp td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;color:var(--text)}
+  /* Freeze the first column (the player / fighter) so it stays readable while scrolling right --
+     these tables are wide and get wider when a book is pinned. The sticky cell must be OPAQUE or
+     scrolled content shows through, and it needs a higher z-index than the sticky header row.
+     The colspan'd .exp-books expander row is excluded: sticking it would pin the whole cell. */
+  table.exp tr:not(.exp-books)>td:first-child{position:sticky;left:0;z-index:2;background:var(--bg);
+    box-shadow:1px 0 0 var(--border)}
+  table.exp th:first-child{left:0;z-index:4;background:var(--surface);box-shadow:1px 0 0 var(--border)}
+  table.exp tr.exp-row:hover>td:first-child{background:#15151d}
   table.exp tr.exp-row{cursor:pointer}
   table.exp tr.exp-row:hover td{background:rgba(255,255,255,.03)}
   .exp-badge{font-size:.48rem;border:1px solid;border-radius:3px;padding:0 3px;margin-left:4px;vertical-align:middle}
@@ -1330,7 +1338,7 @@
       {k:'wx',t:'Wx',f:r=>_exN(r.wx,2)},
       {k:'arch',t:'Archetype',l:1,f:r=>r.arch||''},
       {k:'bk_price',t:'Bk',bb:1,f:r=>_exAm(r.bk_price)},
-      {k:'bk_gap',t:'vs best',bb:1,f:r=>r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+(+r.bk_gap).toFixed(2)+'pp'),c:r=>bbGapCol(r.bk_gap)},
+      {k:'bk_gap',t:'vs best',bb:1,f:r=>bbBestLabel(r),c:r=>bbGapCol(r.bk_gap)},
       {k:'bk_boost',t:'Boosted',bb:1,f:r=>_exAm(r.bk_boost),c:r=>r.bk_boost==null?'':'#39d353'},
       {k:'bk_ev',t:'Boost EV',bb:1,f:r=>r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+(+r.bk_ev).toFixed(0)+'%'),c:r=>r.bk_ev==null?'':(r.bk_ev>0?'#39d353':'var(--muted)')},
     ],
@@ -1351,7 +1359,7 @@
       {k:'o_k_rate',t:'Opp K%',f:r=>_exPct(r.o_k_rate,1)},
       {k:'div_gap',t:'Whiff-K',f:r=>r.div_gap==null?'—':((r.div_gap>=0?'+':'')+(+r.div_gap).toFixed(3))},
       {k:'bk_price',t:'Bk',bb:1,f:r=>_exAm(r.bk_price)},
-      {k:'bk_gap',t:'vs best',bb:1,f:r=>r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+(+r.bk_gap).toFixed(2)+'pp'),c:r=>bbGapCol(r.bk_gap)},
+      {k:'bk_gap',t:'vs best',bb:1,f:r=>bbBestLabel(r),c:r=>bbGapCol(r.bk_gap)},
       {k:'bk_boost',t:'Boosted',bb:1,f:r=>_exAm(r.bk_boost),c:r=>r.bk_boost==null?'':'#39d353'},
       {k:'bk_ev',t:'Boost EV',bb:1,f:r=>r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+(+r.bk_ev).toFixed(0)+'%'),c:r=>r.bk_ev==null?'':(r.bk_ev>0?'#39d353':'var(--muted)')},
     ],
@@ -1365,6 +1373,7 @@
       fetch('/api/hr_board').then(r=>r.ok?r.json():null).catch(()=>null),
       fetch('/api/picks').then(r=>r.ok?r.json():null).catch(()=>null),
     ]).then(([hr,pk])=>{
+      EXP.meta=hr||{};
       EXP.data.hitters=(hr&&hr.rows)?hr.rows.filter(r=>!r.gstart_ms||r.gstart_ms>Date.now()).map(_exDeriveHR):[];
       // ⭐ prop+power overlap: flag rows that are BOTH a prop-over (market-underprices) AND a
       // raw-power bat. Power bar = top 15% of THAT DAY's HR% (daily percentile, not a fixed count)
@@ -1431,7 +1440,7 @@
   }
   function renderExplorer(){
     const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book),s=EXP.sort[EXP.tab];
-    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" title="${(EXP_DESC[c.k]||'').replace(/"/g,'&quot;')}" onclick="sortExplorer('${c.k}')">${c.t}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" style="${c.bb?'color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(EXP.filters.book)):((EXP_DESC[c.k]||'').replace(/"/g,'&quot;'))}" onclick="sortExplorer('${c.k}')">${bbColT(c,EXP.filters.book)}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const rows=_exFiltered();EXP._rows=rows;
     const tb=document.getElementById('exp-tbody');tb.innerHTML='';
     rows.forEach((r,i)=>{
@@ -1445,7 +1454,11 @@
         tb.appendChild(bt);
       }
     });
-    document.getElementById('exp-count').textContent=`${rows.length} ${EXP.tab}`+(EXP.filters.game?` · ${EXP.filters.game}`:'');
+    const _m=EXP.meta||{};
+    const _fresh=[ _m.odds_at?('odds '+bbAgo(_m.odds_at)) : (_m.generated_at?('built '+bbAgo(_m.generated_at)):''),
+                   _m.asof?('stats through '+_m.asof):'' ].filter(Boolean).join(' · ');
+    document.getElementById('exp-count').textContent=
+      `${rows.length} ${EXP.tab}`+(EXP.filters.game?` · ${EXP.filters.game}`:'')+(_fresh?` · ${_fresh}`:'');
   }
   function renderExplorerFilters(){
     const all=EXP.data[EXP.tab],F=EXP.filters;
@@ -1552,7 +1565,7 @@
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('td-tablecount').textContent=`${rows.length} players`;
     document.getElementById('td-thead').innerHTML='<tr>'+TC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setTdSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setTdSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('td-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1571,7 +1584,7 @@
         `<td style="color:var(--muted)">${edge}</td>`+
         (s.book?(
           `<td>${fmtOdds(r.bk_price)}</td>`+
-          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
         ):'');
@@ -1621,6 +1634,7 @@
         if(best==null||q.price>best)best=q.price;
         if(bbKey(q.book)===k)mine=q.price; });
       r.bk_price=(k&&mine!=null)?mine:null;
+      r.bk_ties=(best!=null)?qs.filter(q=>q&&q.price===best).length:null;
       r.bk_gap=(r.bk_price!=null&&best!=null)?+(100*(bbImp(r.bk_price)-bbImp(best))).toFixed(2):null;
       r.bk_boost=(r.bk_price!=null)?bbBoostOdds(r.bk_price,pct):null;
       // EV uses the board's OWN model probability -- a model estimate, not truth. On NHL the
@@ -1649,6 +1663,39 @@
       +`<option value="">— none —</option>`
       +books.map(b=>`<option value="${b}" ${b===cur?'selected':''}>${bbLabel(b)}</option>`).join('')
       +`</select></label>`;
+  }
+  // short book tags for column headers, so "Bk / vs best / Boosted" read as that book's columns
+  const BB_SHORT={dk:'DK',fd:'FD',mgm:'MGM',caesars:'CAESARS',espn:'THESCORE',
+    fanatics:'FANATICS',bally:'BALLY',hardrock:'HARDROCK',betrivers:'BETRIVERS',
+    fliff:'FLIFF',betparx:'BETPARX'};
+  function bbShort(b){ const k=bbKey(b); return BB_SHORT[k]||(''+(k||'')).toUpperCase(); }
+  // header text for a book-pinned column: prefix it with the book so it is unambiguous
+  function bbColT(c,book){ return (c.bb&&book)?(bbShort(book)+' '+c.t):c.t; }
+  // how "best" reads once ties are accounted for. Books mirror each other constantly, so a bare
+  // "best" hid the fact that another book matches the price -- which matters when choosing where
+  // to place a boosted bet.
+  function bbBestLabel(r){
+    if(r.bk_gap==null)return '—';
+    if(r.bk_gap>0)return '-'+(+r.bk_gap).toFixed(2)+'pp';
+    return (r.bk_ties>1)?('= tied '+r.bk_ties):'\u2605 best';
+  }
+  // Boards stamp time in three shapes: "2026-10-03 14:05Z" (NHL/MMA), ISO without a zone
+  // (TD, local), and "...Z" ISO. Parse all three and render an absolute time plus an age, because
+  // a stale board is the failure mode you cannot see -- the numbers still look fine.
+  function bbAgo(stamp){
+    if(!stamp)return '';
+    let s=(''+stamp).trim();
+    let iso=s.replace(' ','T');
+    if(/Z$/.test(iso)&&!/:\d\d:/.test(iso))iso=iso.replace(/Z$/,':00Z');
+    let d=new Date(iso);
+    if(isNaN(d))d=new Date(s);
+    if(isNaN(d))return s;
+    const mins=Math.round((Date.now()-d.getTime())/60000);
+    const age = mins<2?'just now' : mins<60?(mins+'m ago')
+              : mins<48*60?(Math.round(mins/60)+'h ago') : (Math.round(mins/1440)+'d ago');
+    const loc=d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    const stale = mins>6*60;
+    return `${loc} (${age})`+(stale?' \u26a0 stale':'');
   }
   function bbGapCol(v){ if(v==null)return 'var(--muted)'; if(v<=0.3)return '#39d353'; if(v<=1.5)return '#e0a020'; return '#ff6b3d'; }
 
@@ -1697,7 +1744,7 @@
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
     document.getElementById('nhl-thead').innerHTML='<tr>'+NC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setNhlSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setNhlSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('nhl-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1720,7 +1767,7 @@
         `<td style="color:var(--muted)">${edge}</td>`+
         (s.book?(
           `<td>${fmtOdds(r.bk_price)}</td>`+
-          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
         ):'');
@@ -1784,7 +1831,7 @@
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('mma-tablecount').textContent=rows.length+' sides';
     document.getElementById('mma-thead').innerHTML='<tr>'+MC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer" onclick="setMmaSort('${c.k}')">${c.t}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${(c.bb||c.ab)?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setMmaSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('mma-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1805,7 +1852,7 @@
         `<td style="color:var(--muted)">${r.n_books??'—'}</td>`+
         (s.book?(
           `<td>${fmtOdds(r.bk_price)}</td>`+
-          `<td style="color:${bbGapCol(r.bk_gap)}">${r.bk_gap==null?'—':(r.bk_gap<=0?'best':'-'+r.bk_gap.toFixed(2)+'pp')}</td>`+
+          `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
         ):'')+
@@ -1833,7 +1880,7 @@
       const nf=MMA_ROWS.filter(r=>!MMA_STATE.sport||r.sport===MMA_STATE.sport).length/2;
       document.getElementById('mma-count').textContent=nf+' fights';
       document.getElementById('mma-note').textContent=
-        (m.generated?`as of ${m.generated}`:'')+(m.n_cards?` · ${m.n_cards} cards`:'')+
+        (m.generated?`odds pulled ${bbAgo(m.generated)}`:'')+(m.n_cards?` · ${m.n_cards} cards`:'')+
         (m.books?` · shopping ${m.books.length} books`:'');
       const sports=(m.sports&&m.sports.length)?m.sports:[...new Set(MMA_ROWS.map(r=>r.sport))];
       document.getElementById('mma-sport').innerHTML=
@@ -1855,7 +1902,7 @@
       document.getElementById('nhl-count').textContent=priced+' priced';
       const m=data.meta||{};
       document.getElementById('nhl-note').textContent=
-        (m.generated?`as of ${m.generated}`:'')+(m.n_games?` · ${m.n_games} games`:'')+
+        (m.generated?`odds pulled ${bbAgo(m.generated)}`:'')+(m.n_games?` · ${m.n_games} games`:'')+
         (m.features_through?` · role data through ${m.features_through}`:'');
       const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
       document.getElementById('nhl-team').innerHTML=opts(NHL_ROWS.map(r=>r.team),'all teams');
@@ -1873,7 +1920,7 @@
       TD_ROWS=data.rows;
       const priced=TD_ROWS.filter(r=>r.mkt_p_consensus!=null&&!r.thin).length;
       document.getElementById('td-count').textContent=`${priced} priced`;
-      document.getElementById('td-note').textContent=(data.meta&&data.meta.generated)?`as of ${data.meta.generated}`:'';
+      document.getElementById('td-note').textContent=(data.meta&&data.meta.generated)?`odds pulled ${bbAgo(data.meta.generated)}`:'';
       // populate team / game / start-time dropdowns from the priced slate
       const priv=TD_ROWS.filter(r=>r.mkt_p_consensus!=null);
       const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
