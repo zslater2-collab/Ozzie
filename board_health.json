@@ -1,0 +1,54 @@
+{
+ "checked_at": "2026-10-04 16:02Z",
+ "n_stale": 0,
+ "boards": [
+  {
+   "name": "MLB HR",
+   "file": "hr_board_latest.json",
+   "workflow": "hr_board.yml",
+   "max_age_h": 10,
+   "age_h": 7.4,
+   "source": "odds_at",
+   "rows": 29,
+   "stamp": "2026-10-04 08:39Z",
+   "status": "ok",
+   "consecutive_stale": 0
+  },
+  {
+   "name": "NFL TD",
+   "file": "td_board_latest.json",
+   "workflow": "td_board.yml",
+   "max_age_h": 22,
+   "age_h": 0.2,
+   "source": "meta.generated",
+   "rows": 369,
+   "stamp": "2026-10-04 15:51Z",
+   "status": "ok",
+   "consecutive_stale": 0
+  },
+  {
+   "name": "NHL goals",
+   "file": "nhl_board_latest.json",
+   "workflow": "nhl_board.yml",
+   "max_age_h": 16,
+   "age_h": 15.75,
+   "source": "meta.generated",
+   "rows": 551,
+   "stamp": "2026-10-04 00:18Z",
+   "status": "ok",
+   "consecutive_stale": 0
+  },
+  {
+   "name": "Combat",
+   "file": "mma_board_latest.json",
+   "workflow": "mma_board.yml",
+   "max_age_h": 16,
+   "age_h": 13.78,
+   "source": "meta.generated",
+   "rows": 50,
+   "stamp": "2026-10-04 02:16Z",
+   "status": "ok",
+   "consecutive_stale": 0
+  }
+ ]
+}

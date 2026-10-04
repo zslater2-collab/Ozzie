@@ -175,6 +175,7 @@
   <div class="logo">OZZIE'S PICKS</div>
   <div class="date-badge" id="date-label">—</div>
 </header>
+<div id="health-banner" style="display:none;margin:12px 20px 0;padding:8px 12px;border:1px solid var(--orange);border-radius:6px;background:rgba(255,159,71,.08);color:var(--orange);font-size:.64rem;line-height:1.6"></div>
 <div class="run-wrap">
   <button id="run-btn" onclick="runPicks()">
     <div class="spinner" id="spinner"></div>
@@ -378,6 +379,7 @@
         <input id="td-boost" type="number" step="5" min="0" max="200" value="0" oninput="setTdBoost(this.value)"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
       <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 focus slice only</label>
+      <label style="cursor:pointer" title="the cron pulls 8 days of events; unchecked shows only kickoffs still ahead within 3 days (this week's slate)"><input type="checkbox" id="td-allupcoming" onchange="TD_STATE.slate=this.checked?'all':'now';renderTdTable()"> all upcoming weeks</label>
       <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
     </div>
     <div class="exp-count" id="td-tablecount"></div>
@@ -1510,7 +1512,7 @@
 
   // ── NFL Anytime-TD Board ────────────────────────────────────────────
   let TD_ROWS=[];
-  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1,book:'',boost:0};
+  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1,book:'',boost:0,slate:'now'};
   // kickoff -> short local label ("Sun 1:00p"); '' if no commence on the row
   function tdKick(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
@@ -1551,7 +1553,13 @@
   function renderTdTable(){
     const s=TD_STATE, q=s.search.trim();
     bbApply(TD_ROWS,'book_prices',s.book,s.boost,'model_p_cal',1);
+    // The cron pulls an 8-day horizon, which on a Sunday mixes THIS week's slate with NEXT
+    // week's (LV@NE showed up 169h out). Default to the current slate -- kickoffs still ahead,
+    // within 3 days -- and let 'all upcoming' opt back into the full horizon.
+    const _now=Date.now();
     let rows=TD_ROWS.filter(r=>r.mkt_p_consensus!=null
+      && (s.slate!=='now' || !r.commence || (()=>{const k=new Date(r.commence).getTime();
+           return k>_now && k<_now+3*864e5;})())
       && (s.showThin || !r.thin)
       && (s.tab==='ALL'||r.pos===s.tab)
       && (!s.flagOnly || r.flag==='H1-longshot-watch')
@@ -1687,6 +1695,9 @@
     let s=(''+stamp).trim();
     let iso=s.replace(' ','T');
     if(/Z$/.test(iso)&&!/:\d\d:/.test(iso))iso=iso.replace(/Z$/,':00Z');
+    // A stamp with NO zone is UTC -- every cron runs on a UTC runner. JS would otherwise parse it
+    // as LOCAL and report the pull 4h early/late depending on season (this actually happened).
+    if(!/(Z|[+-]\d\d:?\d\d)$/.test(iso))iso+='Z';
     let d=new Date(iso);
     if(isNaN(d))d=new Date(s);
     if(isNaN(d))return s;
@@ -1872,6 +1883,24 @@
     document.getElementById('mma-card').innerHTML='<option value="">all cards</option>'+
       cards.map(c=>`<option value="${c}" ${c===s.card?'selected':''}>${c}</option>`).join('');
   }
+  // Board freshness banner. The boards fail SILENTLY -- they stop updating while every number
+  // still looks reasonable -- so surface it rather than relying on noticing by eye. The watchdog
+  // re-dispatches stale boards automatically; this just says what is currently behind.
+  function loadBoardHealth(){
+    fetch('/api/board_health').then(r=>r.ok?r.json():null).then(d=>{
+      const el=document.getElementById('health-banner');
+      if(!el||!d||!d.boards||!d.boards.length)return;
+      const bad=d.boards.filter(b=>b.status!=='ok');
+      if(!bad.length){el.style.display='none';return;}
+      el.innerHTML='⚠ '+bad.map(b=>{
+        const age=(b.age_h!=null)?(b.age_h<24?(b.age_h.toFixed(1)+'h'):(Math.round(b.age_h/24)+'d')):'?';
+        const esc=b.escalate?' <b>(re-dispatch not fixing it)</b>':'';
+        return `<b>${b.name}</b> ${b.status} — ${age} old vs ${b.max_age_h}h limit${esc}`;
+      }).join(' · ')
+      +`<span style="color:var(--muted)"> · watchdog checked ${d.checked_at||'?'} and re-dispatches automatically</span>`;
+      el.style.display='block';
+    }).catch(()=>{});
+  }
   function loadMmaBoard(){
     fetch('/api/mma_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!data.rows||!data.rows.length)return;
@@ -1953,6 +1982,7 @@
     loadTdBoard();
     loadNhlBoard();
     loadMmaBoard();
+    loadBoardHealth();
     // loadSquadBuilder();
 
     fetch('/api/picks')

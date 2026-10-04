@@ -237,7 +237,10 @@ def build_board(events, tmap):
             lambda s: (wxc.get((s["game"], s["commence"])) or {}).get("precip_mm"), return_dtype=pl.Float64).alias("wx_precip"),
         pl.struct(["game","commence"]).map_elements(
             lambda s: (wxc.get((s["game"], s["commence"])) or {}).get("wind_mph"), return_dtype=pl.Float64).alias("wx_wind"))
-    meta={"generated":dt.datetime.now().isoformat(timespec="minutes"),"season":SEASON,
+    # Stamp UTC EXPLICITLY. This was dt.datetime.now().isoformat() -- naive, and the runner is
+    # UTC, so it emitted "2026-10-04T15:51" with no marker. JS new Date() parses a zoneless
+    # datetime as LOCAL, so the app rendered it 4h late (EDT). Always carry the zone.
+    meta={"generated":dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%MZ"),"season":SEASON,
           "best_book_rule":"shop DK+FD; Caesars runs rich",
           "note":"role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."}
     out_rows = board.to_dicts()

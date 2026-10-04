@@ -1,0 +1,83 @@
+name: board-watchdog
+
+# Notices and FIXES stale boards automatically.
+#
+# Why this exists: two silent failures in two days (2026-10-03/04). GitHub ran this repo's
+# scheduled jobs 3-6h late (the Sunday NFL refresh landed after kickoff, and td-board sat 3 days
+# old), and separately the four board bots raced each other's pushes so the loser built fine then
+# discarded the artifact on a rejected push. Neither is detectable from INSIDE a board workflow,
+# because the failure is the run not happening -- or not landing -- at all.
+#
+# So: check artifact ages from outside every 2 hours and re-dispatch whatever is stale. The
+# watchdog is itself a scheduled job and therefore also drifts, but drift only delays detection;
+# it still self-heals. Runs at :47 to stay off the contended :00 slot.
+#
+# It writes board_health.json (committed) so the app can show a banner, and it does NOT share the
+# board-artifacts concurrency group -- it must not queue behind the very boards it is policing.
+
+on:
+  schedule:
+    - cron: '47 */2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: write            # needed to re-dispatch a stale board's workflow
+
+concurrency:
+  group: board-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # board_health falls back to a file's git commit time
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check board freshness
+        id: check
+        run: python scripts/board_health.py
+
+      - name: Re-dispatch stale boards
+        if: steps.check.outputs.n_stale != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IFS=',' read -ra WFS <<< "${{ steps.check.outputs.stale }}"
+          for wf in "${WFS[@]}"; do
+            [ -z "$wf" ] && continue
+            echo "re-dispatching $wf"
+            gh workflow run "$wf" || echo "::warning::could not dispatch $wf"
+          done
+
+      - name: Flag boards that re-dispatch is not fixing
+        if: steps.check.outputs.escalate == '1'
+        run: |
+          echo "::error::a board has been stale on 3+ consecutive checks -- re-dispatch is not fixing it."
+          echo "See board_health.json (consecutive_stale / escalate) for which one."
+
+      - name: Commit health report
+        run: |
+          git config user.name  "board-watchdog-bot"
+          git config user.email "board-watchdog-bot@users.noreply.github.com"
+          git add board_health.json
+          if git diff --cached --quiet; then
+            echo "no health change"
+            exit 0
+          fi
+          git commit -m "board-watchdog: health check [skip ci]"
+          # same race the boards hit -- rebase and retry rather than drop the report
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash -q origin main && git push -q; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            sleep $(( (RANDOM % 10) + 5 ))
+          done
+          echo "::error::could not push health report"
+          exit 1

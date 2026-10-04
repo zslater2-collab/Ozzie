@@ -4187,6 +4187,24 @@ def api_mma_board():
     return jsonify(out)
 
 
+@app.route('/api/board_health')
+def api_board_health():
+    # Board freshness report written by the board-watchdog workflow (scripts/board_health.py).
+    # Surfaces staleness in the UI, because the boards' failure mode is SILENT: they stop
+    # updating while every number on them still looks perfectly reasonable.
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    import json as _json
+    base = os.path.dirname(os.path.abspath(__file__))
+    out = {'boards': []}
+    try:
+        with open(os.path.join(base, 'board_health.json')) as f:
+            out = _json.load(f)
+    except Exception:
+        pass
+    return jsonify(out)
+
+
 NOTIFY_SECRET       = os.environ.get('NOTIFY_SECRET', '')
 TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
