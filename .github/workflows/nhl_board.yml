@@ -10,8 +10,10 @@ name: nhl-board
 
 on:
   schedule:
-    - cron: '0 14 * * *'
-    - cron: '0 22 * * *'
+    # Drift-aware (see td_board.yml header): the old 22:00 slot was executing ~00:52 UTC, i.e.
+    # after the early puck drops it was meant to precede. Moved earlier so +5h still beats 7pm ET.
+    - cron: '23 13 * * *'     # morning build
+    - cron: '23 19 * * *'     # 15:23 ET -- pre-puck-drop refresh even with heavy drift
   workflow_dispatch: {}
 
 permissions:

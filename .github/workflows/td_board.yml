@@ -1,17 +1,22 @@
 name: td-board
 
 # Builds the NFL anytime-TD board + runs the H1 forward-tracker, commits artifacts back to this
-# repo (auto-redeploys the app on Render). NFL plays Thu/Sun/Mon, so a weekly cadence:
-#   Thu 15:00 UTC (11:00 ET) -- build the week's board (+ Thursday night game)
-#   Sun 14:00 UTC (10:00 ET) -- refresh before the main 1pm slate (freshest odds)
-#   Tue 14:00 UTC (10:00 ET) -- grade the completed week (all games final)
-# The board only prices upcoming games, so runs are cheap on odds credits.
+# repo (auto-redeploys the app on Render).
+#
+# WHY DAILY, AND WHY ODD MINUTES: this ran 3x/week at :00 and the Sunday refresh was landing
+# 2-4pm ET -- after the 1pm kickoffs -- because GitHub executes this repo's scheduled jobs 3-6h
+# late and :00 is the most contended minute. Three runs a week also meant one delayed run left
+# the board DAYS stale (it was 3 days old on Sun 2026-10-04 at noon ET). Daily + early + off-peak
+# minutes fixes both, and picks up midweek line movement as a bonus.
+# The board only prices upcoming games; ~16 games x 8 credits = ~130 per run.
 
 on:
   schedule:
-    - cron: '0 15 * * 4'
-    - cron: '0 14 * * 0'
-    - cron: '0 14 * * 2'
+    # Times are chosen for DRIFT, not for neatness: GitHub has been running this repo's
+    # scheduled jobs 3-6h late, and :00 is the most contended minute. See the header comment.
+    - cron: '23 8 * * *'      # daily 08:23 UTC -- even +5h lands ~09:23 ET, before any kickoff
+    - cron: '23 14 * * 0'     # Sun 10:23 ET  -- second pre-slate pass on the freshest odds
+    - cron: '23 21 * * 1,4'   # Mon/Thu       -- ahead of the primetime game
   workflow_dispatch: {}
 
 permissions:
