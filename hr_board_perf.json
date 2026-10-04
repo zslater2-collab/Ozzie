@@ -1,158 +1,158 @@
 {
-  "graded_dates": 76,
-  "graded_picks": 10236,
-  "base_hr_rate": 12.44,
+  "graded_dates": 77,
+  "graded_picks": 10297,
+  "base_hr_rate": 12.45,
   "buckets": {
     "top10": {
-      "n": 757,
-      "hit_rate": 18.1,
-      "lift_vs_base": 5.66
+      "n": 767,
+      "hit_rate": 18.38,
+      "lift_vs_base": 5.93
     },
     "top25": {
-      "n": 1103,
-      "hit_rate": 16.41,
-      "lift_vs_base": 3.97
+      "n": 1118,
+      "hit_rate": 16.55,
+      "lift_vs_base": 4.1
     },
     "rest": {
-      "n": 8376,
-      "hit_rate": 11.4,
-      "lift_vs_base": -1.03
+      "n": 8412,
+      "hit_rate": 11.36,
+      "lift_vs_base": -1.09
     }
   },
   "calibration": [
     {
       "q": 0,
       "pred": 6.7,
-      "actual": 7.8,
-      "n": 2075
+      "actual": 7.7,
+      "n": 2092
     },
     {
       "q": 1,
       "pred": 9.8,
       "actual": 10.8,
-      "n": 2076
+      "n": 2085
     },
     {
       "q": 2,
       "pred": 12.3,
       "actual": 12.3,
-      "n": 2064
+      "n": 2078
     },
     {
       "q": 3,
       "pred": 15.0,
-      "actual": 14.8,
-      "n": 2003
+      "actual": 14.9,
+      "n": 2013
     },
     {
       "q": 4,
-      "pred": 20.4,
-      "actual": 16.7,
-      "n": 2018
+      "pred": 20.3,
+      "actual": 16.8,
+      "n": 2029
     }
   ],
   "multi_hr": {
     "graded": 78,
-    "mlb_multi_among_hr_pct": 6.14,
+    "mlb_multi_among_hr_pct": 6.13,
     "tiers": {
       "top3": {
-        "n": 228,
+        "n": 231,
         "multi": 9,
-        "rate_per_pick": 3.95,
-        "breakeven_odds": 2433,
-        "multi_among_winners": 21.43
+        "rate_per_pick": 3.9,
+        "breakeven_odds": 2467,
+        "multi_among_winners": 20.93
       },
       "top5": {
-        "n": 380,
+        "n": 385,
         "multi": 10,
-        "rate_per_pick": 2.63,
-        "breakeven_odds": 3700,
-        "multi_among_winners": 14.08
+        "rate_per_pick": 2.6,
+        "breakeven_odds": 3750,
+        "multi_among_winners": 13.89
       },
       "top10": {
-        "n": 757,
+        "n": 767,
         "multi": 16,
-        "rate_per_pick": 2.11,
-        "breakeven_odds": 4631,
-        "multi_among_winners": 11.68
+        "rate_per_pick": 2.09,
+        "breakeven_odds": 4694,
+        "multi_among_winners": 11.35
       },
       "top25": {
-        "n": 1860,
+        "n": 1885,
         "multi": 26,
-        "rate_per_pick": 1.4,
-        "breakeven_odds": 7054,
-        "multi_among_winners": 8.18
+        "rate_per_pick": 1.38,
+        "breakeven_odds": 7150,
+        "multi_among_winners": 7.98
       },
       "all": {
-        "n": 10236,
+        "n": 10297,
         "multi": 78,
         "rate_per_pick": 0.76,
-        "breakeven_odds": 13023,
-        "multi_among_winners": 6.13
+        "breakeven_odds": 13101,
+        "multi_among_winners": 6.08
       }
     }
   },
   "calib": {
-    "slope": 0.5907,
-    "intercept": 4.887,
-    "n": 10236
+    "slope": 0.598,
+    "intercept": 4.81,
+    "n": 10297
   },
   "prop_power": {
     "power_bar": "top 15% HR% (daily pctile)",
-    "n": 165,
-    "hit_rate": 25.45,
-    "roi_raw": 23.73,
-    "roi_boost25": 48.3,
-    "avg_price": 385,
-    "winners": 42,
+    "n": 168,
+    "hit_rate": 26.19,
+    "roi_raw": 26.73,
+    "roi_boost25": 51.86,
+    "avg_price": 382,
+    "winners": 44,
     "multi": 5,
-    "multi_among_winners": 11.9
+    "multi_among_winners": 11.36
   },
   "smash": {
     "bar": "top 1% HR% (daily pctile)",
-    "n": 136,
+    "n": 137,
     "multi_2plus": 5,
-    "rate_2plus": 3.68,
-    "breakeven_odds": 2620,
-    "had_hr_rate": 16.18,
+    "rate_2plus": 3.65,
+    "breakeven_odds": 2640,
+    "had_hr_rate": 16.06,
     "note": "thin sample -- forward-track, do not size"
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 1336,
-      "hit_rate": 7.86,
-      "roi": -25.97
+      "n": 1348,
+      "hit_rate": 7.79,
+      "roi": -26.74
     },
     "neg_edge": {
-      "n": 3325,
-      "hit_rate": 15.16,
-      "roi": -3.54
+      "n": 3352,
+      "hit_rate": 15.27,
+      "roi": -2.67
     },
     "edge_ge3": {
-      "n": 150,
-      "hit_rate": 6.67,
-      "roi": -32.33
+      "n": 155,
+      "hit_rate": 6.45,
+      "roi": -34.52
     },
     "best_pos": {
-      "n": 1487,
-      "hit_rate": 7.53,
-      "roi": -27.71
+      "n": 1511,
+      "hit_rate": 7.61,
+      "roi": -27.77
     },
     "best_neg": {
-      "n": 3174,
-      "hit_rate": 15.66,
-      "roi": -1.66
+      "n": 3189,
+      "hit_rate": 15.74,
+      "roi": -0.95
     }
   },
-  "edge_graded_picks": 4661,
+  "edge_graded_picks": 4700,
   "shop": {
-    "n": 4402,
-    "avg_pts": 0.96
+    "n": 4441,
+    "avg_pts": 0.97
   },
   "edge_blind": {
-    "n": 4661,
-    "roi": -9.97,
-    "actual_hr": 13.07,
+    "n": 4700,
+    "roi": -9.57,
+    "actual_hr": 13.13,
     "mkt_implied": 14.19
   }
 }
