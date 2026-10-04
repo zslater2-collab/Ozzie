@@ -135,8 +135,17 @@ def priors_current():
 # ── live odds ────────────────────────────────────────────────────────────────
 def slate_events():
     evs = _get(f"{B}/sports/{S}/events", {"apiKey": KEY}) or []
-    horizon = dt.datetime.now(dt.timezone.utc)+dt.timedelta(days=8)
-    return [e for e in evs if dt.datetime.fromisoformat(e["commence_time"].replace("Z","+00:00"))<horizon]
+    # 5 days, not 8: teams play weekly, so an 8-day window let a team appear TWICE (this Sunday
+    # and next) which collapsed its implied total and game label. 5 days still covers Sun -> the
+    # following Thursday for a build on any day, and the cron now runs daily.
+    now = dt.datetime.now(dt.timezone.utc)
+    horizon = now+dt.timedelta(days=5)
+    out=[]
+    for e in evs:
+        c=dt.datetime.fromisoformat(e["commence_time"].replace("Z","+00:00"))
+        if now < c < horizon:          # skip games already under way -- their prices are stale
+            out.append(e)
+    return out
 
 def pull_atd(events, tmap):
     gl, atd = [], []
@@ -162,31 +171,51 @@ def pull_atd(events, tmap):
                                         "book":bk["key"],"price":o.get("price")})
             if total is not None and spread is not None:
                 gl.append({"home":tmap.get(home),"away":tmap.get(away),
+                           "commence":e.get("commence_time"),
                            "home_imp":total/2-spread/2,"away_imp":total/2+spread/2})
         time.sleep(0.25)
     return gl, atd
 
 def implied_by_team(gl):
+    """team -> {imp, opp, game, commence} for that team's SOONEST upcoming game.
+
+    This used to group_by("team") and take the MEDIAN implied total. Over an 8-day horizon a team
+    appears TWICE (it plays this Sunday and next), so the median blended two different games'
+    totals into one number, and the game/commence label silently became whichever event was
+    written last. On 2026-10-04 six teams were affected -- New England's players were tagged
+    LV@NE (next week) instead of NE@BUF (that day), carrying a team total averaged across both.
+    Keying on the earliest event per team fixes the label AND the model input.
+    """
     rows=[]
     for r in gl:
-        rows.append({"team":r["home"],"imp":r["home_imp"],"opp":r["away"]})
-        rows.append({"team":r["away"],"imp":r["away_imp"],"opp":r["home"]})
+        game=f'{r["away"]}@{r["home"]}'
+        rows.append({"team":r["home"],"imp":r["home_imp"],"opp":r["away"],
+                     "game":game,"commence":r.get("commence")})
+        rows.append({"team":r["away"],"imp":r["away_imp"],"opp":r["home"],
+                     "game":game,"commence":r.get("commence")})
     if not rows: return {}
-    agg=pl.DataFrame(rows).group_by("team").agg(pl.col("imp").median().alias("imp"),pl.col("opp").first().alias("opp"))
-    return {r["team"]:r for r in agg.iter_rows(named=True)}
+    df=pl.DataFrame(rows)
+    # median across BOOKS for the same event (that is the legitimate aggregation), then the
+    # earliest event per team
+    per_ev=df.group_by(["team","game","commence"]).agg(
+        pl.col("imp").median().alias("imp"), pl.col("opp").first().alias("opp"))
+    soonest=(per_ev.sort("commence").group_by("team").first())
+    out={r["team"]:r for r in soonest.iter_rows(named=True)}
+    dupes=per_ev.group_by("team").len().filter(pl.col("len")>1)
+    if len(dupes):
+        print(f"[board] {len(dupes)} team(s) have 2+ games in the horizon; using the soonest: "
+              f"{sorted(dupes['team'].to_list())}")
+    return out
 
 # ── build board ───────────────────────────────────────────────────────────────
 def build_board(events, tmap):
     pri = priors_current()
     gl, atd = pull_atd(events, tmap)
     imp = implied_by_team(gl)
-    # team abbr -> {commence ISO, game label AWAY@HOME} for start-time / game filters
-    team_ev = {}
-    for e in events:
-        a, h = tmap.get(e["away_team"]), tmap.get(e["home_team"])
-        info = {"commence": e.get("commence_time"), "game": f"{a}@{h}"}
-        if a: team_ev[a] = info
-        if h: team_ev[h] = info
+    # game/commence come from the SAME per-team event the implied total came from, so the label
+    # and the model input can never describe different games (they did, before implied_by_team
+    # was keyed on the event).
+    team_ev = {t: {"commence": v.get("commence"), "game": v.get("game")} for t, v in imp.items()}
     mkt = None
     if atd:
         a = pl.DataFrame(atd).with_columns(pl.col("price").map_elements(a2p, return_dtype=pl.Float64).alias("imp_p"))
