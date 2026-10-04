@@ -1,16 +1,16 @@
 {
- "checked_at": "2026-10-04 19:48Z",
- "n_stale": 2,
+ "checked_at": "2026-10-04 23:36Z",
+ "n_stale": 0,
  "boards": [
   {
    "name": "MLB HR",
    "file": "hr_board_latest.json",
    "workflow": "hr_board.yml",
    "max_age_h": 10,
-   "age_h": 1.23,
+   "age_h": 1.02,
    "source": "odds_at",
-   "rows": 33,
-   "stamp": "2026-10-04 18:35Z",
+   "rows": 18,
+   "stamp": "2026-10-04 22:36Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -19,7 +19,7 @@
    "file": "td_board_latest.json",
    "workflow": "td_board.yml",
    "max_age_h": 22,
-   "age_h": 3.61,
+   "age_h": 7.42,
    "source": "meta.generated",
    "rows": 342,
    "stamp": "2026-10-04 16:12Z",
@@ -31,24 +31,24 @@
    "file": "nhl_board_latest.json",
    "workflow": "nhl_board.yml",
    "max_age_h": 16,
-   "age_h": 19.51,
+   "age_h": 1.23,
    "source": "meta.generated",
-   "rows": 551,
-   "stamp": "2026-10-04 00:18Z",
-   "status": "stale",
-   "consecutive_stale": 1
+   "rows": 282,
+   "stamp": "2026-10-04 22:23Z",
+   "status": "ok",
+   "consecutive_stale": 0
   },
   {
    "name": "Combat",
    "file": "mma_board_latest.json",
    "workflow": "mma_board.yml",
    "max_age_h": 16,
-   "age_h": 17.55,
+   "age_h": 0.33,
    "source": "meta.generated",
-   "rows": 50,
-   "stamp": "2026-10-04 02:16Z",
-   "status": "stale",
-   "consecutive_stale": 1
+   "rows": 56,
+   "stamp": "2026-10-04 23:17Z",
+   "status": "ok",
+   "consecutive_stale": 0
   }
  ]
 }
