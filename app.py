@@ -7,6 +7,7 @@ import pickle
 import unicodedata
 import requests
 import time
+import threading
 import pandas as pd
 import pytz
 from datetime import datetime, date as _date
@@ -4130,6 +4131,9 @@ def api_hr_board():
             out['perf'] = _json.load(f)
     except Exception:
         pass
+    # Self-heal: if this artifact is stale and the sport has games, ask GitHub to rebuild
+    # it. Async -- the response never waits on it. See _kick_async / board_kick.py.
+    _kick_async('hr_board_latest.json', 'hr-board-view')
     return jsonify(out)
 
 
@@ -4148,6 +4152,9 @@ def api_td_board():
             out = _json.load(f)
     except Exception:
         pass
+    # Self-heal: if this artifact is stale and the sport has games, ask GitHub to rebuild
+    # it. Async -- the response never waits on it. See _kick_async / board_kick.py.
+    _kick_async('td_board_latest.json', 'td-board-view')
     return jsonify(out)
 
 
@@ -4166,6 +4173,9 @@ def api_nhl_board():
             out = _json.load(f)
     except Exception:
         pass
+    # Self-heal: if this artifact is stale and the sport has games, ask GitHub to rebuild
+    # it. Async -- the response never waits on it. See _kick_async / board_kick.py.
+    _kick_async('nhl_board_latest.json', 'nhl-board-view')
     return jsonify(out)
 
 
@@ -4184,6 +4194,9 @@ def api_mma_board():
             out = _json.load(f)
     except Exception:
         pass
+    # Self-heal: if this artifact is stale and the sport has games, ask GitHub to rebuild
+    # it. Async -- the response never waits on it. See _kick_async / board_kick.py.
+    _kick_async('mma_board_latest.json', 'mma-board-view')
     return jsonify(out)
 
 
@@ -4205,7 +4218,62 @@ def api_board_health():
     return jsonify(out)
 
 
+# ---------------------------------------------------------------------------
+# Stale-board self-heal (board_kick.py -- read its docstring for the why).
+#
+# board_watchdog.yml is a GitHub scheduled job policing other GitHub scheduled jobs. When
+# GitHub drops runs it drops the watchdog's too: on 2026-10-05 the HR board's two midday
+# crons never fired, the watchdog ran 2 of its 12 daily checks, and the board sat 12h stale
+# straight through a 5:00p first pitch. The trigger has to come from somewhere always-on,
+# so it comes from here. Two entry points, one engine in board_kick.py:
+#   A. _kick_async() on a board route -- fires when Zach is actually looking at a board.
+#   B. /api/kick_boards -- hit by a free external cron, so it heals unattended too.
+# ---------------------------------------------------------------------------
+
+def _kick_async(only_file, reason):
+    """Fire-and-forget staleness check. NEVER touches the request path.
+
+    board_kick does network I/O (the free /events season check, then a GitHub dispatch), and
+    a board route must not wait on any of it -- a board page that hangs because GitHub is slow
+    is strictly worse than one showing a stale number. Daemon thread, every error swallowed."""
+    def _run():
+        try:
+            import board_kick
+            board_kick.kick_stale_boards(reason=reason, only_file=only_file,
+                                         redis_get=redis_get, redis_set=redis_set)
+        except Exception as e:
+            print(f"[KICK] async error ({reason}): {e}")
+    try:
+        threading.Thread(target=_run, name='board-kick', daemon=True).start()
+    except Exception as e:
+        print(f"[KICK] could not start thread: {e}")
+
+
+@app.route('/api/kick_boards')
+def api_kick_boards():
+    """External-cron entry point: refresh any board that is stale AND has games to price.
+
+    Point a free scheduler (cron-job.org) at
+        https://<render-host>/api/kick_boards?secret=<KICK_SECRET>
+    every 20-30 min. This is the half of the fix that works when nobody is looking at the app;
+    the page-load trigger covers the half when someone is. Synchronous on purpose -- the caller
+    is a cron, not a user, and it wants the result in the response so a failure is visible in
+    the scheduler's own history."""
+    secret = request.args.get('secret', '')
+    want   = KICK_SECRET or NOTIFY_SECRET     # falls back to the existing cron secret
+    if not want or secret != want:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        import board_kick
+        res = board_kick.kick_stale_boards(reason='external-cron',
+                                           redis_get=redis_get, redis_set=redis_set)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
 NOTIFY_SECRET       = os.environ.get('NOTIFY_SECRET', '')
+KICK_SECRET         = os.environ.get('KICK_SECRET', '')
 TELEGRAM_BOT_TOKEN  = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID    = os.environ.get('TELEGRAM_CHAT_ID', '')
 UPSTASH_URL         = os.environ.get('UPSTASH_REDIS_REST_URL', '')
