@@ -41,6 +41,9 @@ jobs:
 
       - name: Check board freshness
         id: check
+        env:
+          # only used for the FREE /events endpoint, to tell an offseason apart from an outage
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: python scripts/board_health.py
 
       - name: Re-dispatch stale boards

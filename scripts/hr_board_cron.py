@@ -961,6 +961,17 @@ def main():
                    'rows':rows_json}, open(LATEST,'w'), indent=2)
         print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown, ranked_by={ranked_by} '
               f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')
+    else:
+        # NO GAMES (offseason, or an all-day-done slate). Still stamp the artifact: if we skip the
+        # write, generated_at freezes at the last in-season run, the board looks ever more stale,
+        # and the watchdog re-dispatches this cron every 2h all winter and escalates forever.
+        # Costs nothing -- the /events endpoint is free and no per-event odds calls are made.
+        _now = datetime.utcnow().strftime('%Y-%m-%d %H:%MZ')
+        json.dump({'date':date,'asof':meta.get('asof'),'calib':cal,'ranked_by':'prob',
+                   'generated_at':_now,'odds_at':None,'n_odds_players':0,
+                   'idle':True,'idle_reason':'no games on this slate',
+                   'rows':[]}, open(LATEST,'w'), indent=2)
+        print(f'Board {date}: no games -> wrote idle board.')
 
 if __name__=='__main__':
     main()

@@ -37,14 +37,51 @@ HEALTH = os.path.join(REPO, "board_health.json")
 # not trip the alarm. Tighten only if the drift situation improves.
 BOARDS = [
     {"name": "MLB HR",   "file": "hr_board_latest.json",  "wf": "hr_board.yml",
-     "stamp": ["odds_at", "generated_at"],          "max_age_h": 10},
+     "stamp": ["odds_at", "generated_at"],          "max_age_h": 10,
+     "sport": "baseball_mlb",            "idle_window_h": 30},
     {"name": "NFL TD",   "file": "td_board_latest.json",  "wf": "td_board.yml",
-     "stamp": ["meta.generated"],                   "max_age_h": 22},
+     "stamp": ["meta.generated"],                   "max_age_h": 22,
+     "sport": "americanfootball_nfl",     "idle_window_h": 120},
     {"name": "NHL goals", "file": "nhl_board_latest.json", "wf": "nhl_board.yml",
-     "stamp": ["meta.generated"],                   "max_age_h": 16},
+     "stamp": ["meta.generated"],                   "max_age_h": 16,
+     "sport": "icehockey_nhl",            "idle_window_h": 30},
     {"name": "Combat",   "file": "mma_board_latest.json", "wf": "mma_board.yml",
-     "stamp": ["meta.generated"],                   "max_age_h": 16},
+     "stamp": ["meta.generated"],                   "max_age_h": 16,
+     "sport": "mma_mixed_martial_arts",   "idle_window_h": 72},
 ]
+
+
+def has_upcoming(sport, window_h):
+    """Does this sport have an event inside its window? The /events endpoint costs ZERO credits
+    (verified), so this is free season-awareness.
+
+    Without it, every offseason looks like an outage: the board legitimately has nothing to do,
+    its artifact stops changing, and the watchdog re-dispatches the cron every 2h for months and
+    escalates forever -- the fastest way to make a watchdog worth ignoring. Returns None if the
+    check could not be made, so an API problem never silences a genuine staleness alarm."""
+    key = os.environ.get("ODDS_API_KEY")
+    if not key or not sport:
+        return None
+    try:
+        import urllib.request
+        url = "https://api.the-odds-api.com/v4/sports/%s/events?apiKey=%s" % (sport, key)
+        with urllib.request.urlopen(url, timeout=25) as r:
+            evs = json.loads(r.read().decode())
+    except Exception as e:
+        print("  (events check failed for %s: %s)" % (sport, str(e)[:70]))
+        return None
+    if not isinstance(evs, list):
+        return None
+    cut = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=window_h)
+    now = dt.datetime.now(dt.timezone.utc)
+    for e in evs:
+        try:
+            c = dt.datetime.fromisoformat(str(e.get("commence_time")).replace("Z", "+00:00"))
+        except Exception:
+            continue
+        if now - dt.timedelta(hours=6) < c < cut:
+            return True
+    return False
 
 
 def dig(obj, path):
@@ -124,8 +161,17 @@ def main():
             elif age is None:
                 rec["status"] = "unknown"
             elif age > b["max_age_h"]:
-                rec["status"] = "stale"
-                stale_wfs.append(b["wf"])
+                # Season-aware: no games in the window means the board is idle by design, not
+                # broken. Only a board that is stale WITH games to price gets re-dispatched.
+                up = has_upcoming(b.get("sport"), b.get("idle_window_h", 36))
+                if up is False:
+                    rec["status"] = "idle"
+                    rec["note"] = "no upcoming events -- offseason/empty slate, not an outage"
+                else:
+                    rec["status"] = "stale"
+                    if up is None:
+                        rec["note"] = "events check unavailable; treating as stale"
+                    stale_wfs.append(b["wf"])
             else:
                 rec["status"] = "ok"
         p = prev.get(b["file"], {})
@@ -137,13 +183,13 @@ def main():
         out.append(rec)
 
     payload = {"checked_at": now.strftime("%Y-%m-%d %H:%MZ"),
-               "n_stale": sum(1 for r in out if r["status"] != "ok"),
+               "n_stale": sum(1 for r in out if r["status"] not in ("ok", "idle")),
                "boards": out}
     with open(HEALTH, "w") as f:
         json.dump(payload, f, indent=1)
 
     for r in out:
-        flag = "OK  " if r["status"] == "ok" else "FAIL"
+        flag = {"ok": "OK  ", "idle": "IDLE"}.get(r["status"], "FAIL")
         age = ("%.1fh" % r["age_h"]) if r["age_h"] is not None else "?"
         print("%s %-10s age=%-7s limit=%sh rows=%s via=%s%s"
               % (flag, r["name"], age, r["max_age_h"], r["rows"], r["source"],
