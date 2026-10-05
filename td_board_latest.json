@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-10-05 15:19Z",
+  "generated": "2026-10-05 17:12Z",
   "season": 2026,
   "best_book_rule": "shop DK+FD; Caesars runs rich",
   "note": "role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."
@@ -19,8 +19,8 @@
    "model_p_cal": 0.226,
    "thin": false,
    "snap_share": 0.09,
-   "best_price": 1200,
-   "best_book": "draftkings",
+   "best_price": 1150,
+   "best_book": "ballybet",
    "mkt_p": 0.08333333333333333,
    "n_books": 5,
    "mkt_p_consensus": 0.08333333333333333,
@@ -31,14 +31,14 @@
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 1200,
+     "book": "ballybet",
+     "price": 1150,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 1150,
+     "book": "draftkings",
+     "price": 1100,
      "best": false,
      "bettable": true
     },
@@ -56,7 +56,7 @@
     },
     {
      "book": "fanatics",
-     "price": 1100,
+     "price": 1000,
      "best": false,
      "bettable": true
     }
@@ -75,7 +75,7 @@
    "model_p_cal": 0.162,
    "thin": false,
    "snap_share": 0.2,
-   "best_price": 3500,
+   "best_price": 3000,
    "best_book": "draftkings",
    "mkt_p": 0.03333333333333333,
    "n_books": 5,
@@ -88,14 +88,14 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 3500,
+     "price": 3000,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 3000,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -112,63 +112,7 @@
     },
     {
      "book": "fanatics",
-     "price": 1300,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Tez Johnson",
-   "nkey": "tez johnson",
-   "pos": "WR/TE",
-   "team": "TB",
-   "opp": "DAL",
-   "game": "TB@DAL",
-   "commence": "2026-10-09T00:15:00Z",
-   "implied_total": 19.0,
-   "td_share": 0.101,
-   "model_p_cal": 0.226,
-   "thin": false,
-   "snap_share": 0.33,
-   "best_price": 750,
-   "best_book": "fanatics",
-   "mkt_p": 0.125,
-   "n_books": 5,
-   "mkt_p_consensus": 0.125,
-   "edge": 0.101,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 750,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 675,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 600,
+     "price": 1200,
      "best": false,
      "bettable": true
     }
@@ -205,12 +149,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 950,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": 900,
      "best": false,
@@ -218,6 +156,12 @@
     },
     {
      "book": "fanduel",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
      "price": 900,
      "best": false,
      "bettable": true
@@ -274,13 +218,13 @@
     },
     {
      "book": "ballybet",
-     "price": 335,
+     "price": 330,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 300,
+     "price": 325,
      "best": false,
      "bettable": true
     }
@@ -299,7 +243,7 @@
    "model_p_cal": 0.205,
    "thin": false,
    "snap_share": 0.3,
-   "best_price": 900,
+   "best_price": 950,
    "best_book": "ballybet",
    "mkt_p": 0.1111111111111111,
    "n_books": 6,
@@ -312,13 +256,13 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 900,
+     "price": 950,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 800,
+     "price": 850,
      "best": false,
      "bettable": true
     },
@@ -335,14 +279,70 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 750,
+     "book": "betmgm",
+     "price": 775,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "williamhill_us",
      "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Tez Johnson",
+   "nkey": "tez johnson",
+   "pos": "WR/TE",
+   "team": "TB",
+   "opp": "DAL",
+   "game": "TB@DAL",
+   "commence": "2026-10-09T00:15:00Z",
+   "implied_total": 19.0,
+   "td_share": 0.101,
+   "model_p_cal": 0.226,
+   "thin": false,
+   "snap_share": 0.33,
+   "best_price": 700,
+   "best_book": "fanduel",
+   "mkt_p": 0.13333333333333333,
+   "n_books": 5,
+   "mkt_p_consensus": 0.13333333333333333,
+   "edge": 0.09266666666666667,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 600,
      "best": false,
      "bettable": true
     }
@@ -361,7 +361,7 @@
    "model_p_cal": 0.292,
    "thin": false,
    "snap_share": 0.02,
-   "best_price": 500,
+   "best_price": 475,
    "best_book": "fanatics",
    "mkt_p": 0.21052631578947367,
    "n_books": 5,
@@ -374,7 +374,7 @@
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 500,
+     "price": 475,
      "best": true,
      "bettable": true
     },
@@ -392,7 +392,7 @@
     },
     {
      "book": "draftkings",
-     "price": 370,
+     "price": 350,
      "best": false,
      "bettable": true
     },
@@ -467,62 +467,6 @@
    ]
   },
   {
-   "player": "Kameron Johnson",
-   "nkey": "kameron johnson",
-   "pos": "WR/TE",
-   "team": "TB",
-   "opp": "DAL",
-   "game": "TB@DAL",
-   "commence": "2026-10-09T00:15:00Z",
-   "implied_total": 19.0,
-   "td_share": 0.022,
-   "model_p_cal": 0.109,
-   "thin": false,
-   "snap_share": 0.04,
-   "best_price": 2500,
-   "best_book": "draftkings",
-   "mkt_p": 0.05,
-   "n_books": 5,
-   "mkt_p_consensus": 0.05,
-   "edge": 0.059,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 2500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 2000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 1300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1300,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Olamide Zaccheaus",
    "nkey": "olamide zaccheaus",
    "pos": "WR/TE",
@@ -535,8 +479,8 @@
    "model_p_cal": 0.175,
    "thin": false,
    "snap_share": 0.36,
-   "best_price": 775,
-   "best_book": "betmgm",
+   "best_price": 800,
+   "best_book": "fanatics",
    "mkt_p": 0.11764705882352941,
    "n_books": 6,
    "mkt_p_consensus": 0.11764705882352941,
@@ -547,9 +491,15 @@
    "wx_wind": 0.0,
    "book_prices": [
     {
+     "book": "fanatics",
+     "price": 800,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "betmgm",
      "price": 775,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -565,12 +515,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": 700,
      "best": false,
@@ -578,7 +522,63 @@
     },
     {
      "book": "ballybet",
-     "price": 550,
+     "price": 510,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Kameron Johnson",
+   "nkey": "kameron johnson",
+   "pos": "WR/TE",
+   "team": "TB",
+   "opp": "DAL",
+   "game": "TB@DAL",
+   "commence": "2026-10-09T00:15:00Z",
+   "implied_total": 19.0,
+   "td_share": 0.022,
+   "model_p_cal": 0.109,
+   "thin": false,
+   "snap_share": 0.04,
+   "best_price": 2200,
+   "best_book": "draftkings",
+   "mkt_p": 0.05263157894736842,
+   "n_books": 5,
+   "mkt_p_consensus": 0.05263157894736842,
+   "edge": 0.05636842105263158,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 2200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 1300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1300,
      "best": false,
      "bettable": true
     }
@@ -615,25 +615,25 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 700,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
+     "book": "williamhill_us",
      "price": 700,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 675,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
+     "book": "ballybet",
      "price": 650,
      "best": false,
      "bettable": true
@@ -653,12 +653,12 @@
    "model_p_cal": 0.103,
    "thin": false,
    "snap_share": 0.28,
-   "best_price": 1800,
+   "best_price": 1900,
    "best_book": "fanduel",
-   "mkt_p": 0.06066176470588235,
+   "mkt_p": 0.0625,
    "n_books": 6,
-   "mkt_p_consensus": 0.06066176470588235,
-   "edge": 0.04233823529411764,
+   "mkt_p_consensus": 0.0625,
+   "edge": 0.040499999999999994,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -666,30 +666,18 @@
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 1800,
+     "price": 1900,
      "best": true,
      "bettable": true
     },
     {
      "book": "betmgm",
-     "price": 1750,
+     "price": 1800,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 1600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
      "price": 1500,
      "best": false,
      "bettable": true
@@ -697,6 +685,18 @@
     {
      "book": "fanatics",
      "price": 1500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1400,
      "best": false,
      "bettable": true
     }
@@ -717,10 +717,10 @@
    "snap_share": 1.0,
    "best_price": 1050,
    "best_book": "betmgm",
-   "mkt_p": 0.09307359307359307,
+   "mkt_p": 0.09761904761904762,
    "n_books": 6,
-   "mkt_p_consensus": 0.09307359307359307,
-   "edge": 0.039926406926406935,
+   "mkt_p_consensus": 0.09761904761904762,
+   "edge": 0.03538095238095239,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -733,19 +733,13 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 1000,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
+     "book": "draftkings",
      "price": 950,
      "best": false,
      "bettable": true
@@ -757,70 +751,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 575,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Charlie Woerner",
-   "nkey": "charlie woerner",
-   "pos": "WR/TE",
-   "team": "ATL",
-   "opp": "NO",
-   "game": "ATL@NO",
-   "commence": "2026-10-06T00:15:00Z",
-   "implied_total": 23.0,
-   "td_share": 0.009,
-   "model_p_cal": 0.076,
-   "thin": false,
-   "snap_share": 0.57,
-   "best_price": 3000,
-   "best_book": "fanduel",
-   "mkt_p": 0.04006410256410256,
-   "n_books": 6,
-   "mkt_p_consensus": 0.04006410256410256,
-   "edge": 0.03593589743589744,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 3000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 2500,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
-     "price": 2500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 2300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 2000,
+     "price": 900,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 1200,
+     "price": 650,
      "best": false,
      "bettable": true
     }
@@ -839,7 +777,7 @@
    "model_p_cal": 0.296,
    "thin": false,
    "snap_share": 1.0,
-   "best_price": 310,
+   "best_price": 295,
    "best_book": "ballybet",
    "mkt_p": 0.26144907723855093,
    "n_books": 6,
@@ -852,14 +790,14 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 310,
+     "price": 295,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 310,
-     "best": true,
+     "price": 290,
+     "best": false,
      "bettable": true
     },
     {
@@ -889,6 +827,68 @@
    ]
   },
   {
+   "player": "Charlie Woerner",
+   "nkey": "charlie woerner",
+   "pos": "WR/TE",
+   "team": "ATL",
+   "opp": "NO",
+   "game": "ATL@NO",
+   "commence": "2026-10-06T00:15:00Z",
+   "implied_total": 23.0,
+   "td_share": 0.009,
+   "model_p_cal": 0.076,
+   "thin": false,
+   "snap_share": 0.57,
+   "best_price": 3000,
+   "best_book": "fanduel",
+   "mkt_p": 0.04257246376811594,
+   "n_books": 6,
+   "mkt_p_consensus": 0.04257246376811594,
+   "edge": 0.03342753623188406,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 3000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 2500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 2300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 2200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 2000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 1150,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
    "player": "Emeka Egbuka",
    "nkey": "emeka egbuka",
    "pos": "WR/TE",
@@ -901,27 +901,21 @@
    "model_p_cal": 0.303,
    "thin": false,
    "snap_share": 0.85,
-   "best_price": 280,
-   "best_book": "draftkings",
-   "mkt_p": 0.2702702702702703,
+   "best_price": 275,
+   "best_book": "fanatics",
+   "mkt_p": 0.273972602739726,
    "n_books": 5,
-   "mkt_p_consensus": 0.2702702702702703,
-   "edge": 0.032729729729729706,
+   "mkt_p_consensus": 0.273972602739726,
+   "edge": 0.02902739726027398,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 280,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
+     "book": "fanatics",
      "price": 275,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -931,8 +925,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
+     "book": "williamhill_us",
      "price": 265,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 260,
      "best": false,
      "bettable": true
     },
@@ -957,7 +957,7 @@
    "model_p_cal": 0.324,
    "thin": false,
    "snap_share": 0.69,
-   "best_price": 250,
+   "best_price": 265,
    "best_book": "fanatics",
    "mkt_p": 0.29850746268656714,
    "n_books": 5,
@@ -970,7 +970,7 @@
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 250,
+     "price": 265,
      "best": true,
      "bettable": true
     },
@@ -995,62 +995,6 @@
     {
      "book": "fanduel",
      "price": 230,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Dak Prescott",
-   "nkey": "dak prescott",
-   "pos": "QB",
-   "team": "DAL",
-   "opp": "TB",
-   "game": "TB@DAL",
-   "commence": "2026-10-09T00:15:00Z",
-   "implied_total": 28.5,
-   "td_share": 0.047,
-   "model_p_cal": 0.19,
-   "thin": false,
-   "snap_share": 1.0,
-   "best_price": 525,
-   "best_book": "fanatics",
-   "mkt_p": 0.16666666666666666,
-   "n_books": 5,
-   "mkt_p_consensus": 0.16666666666666666,
-   "edge": 0.023333333333333345,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 525,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 475,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 470,
      "best": false,
      "bettable": true
     }
@@ -1069,7 +1013,7 @@
    "model_p_cal": 0.119,
    "thin": false,
    "snap_share": 0.17,
-   "best_price": 1500,
+   "best_price": 1700,
    "best_book": "fanatics",
    "mkt_p": 0.1,
    "n_books": 5,
@@ -1082,13 +1026,19 @@
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 1500,
+     "price": 1700,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 1100,
+     "price": 1150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 900,
      "best": false,
      "bettable": true
     },
@@ -1099,14 +1049,120 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": 850,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Chris Godwin Jr.",
+   "nkey": "chris godwin",
+   "pos": "WR/TE",
+   "team": "TB",
+   "opp": "DAL",
+   "game": "TB@DAL",
+   "commence": "2026-10-09T00:15:00Z",
+   "implied_total": 19.0,
+   "td_share": 0.078,
+   "model_p_cal": 0.2,
+   "thin": false,
+   "snap_share": 0.81,
+   "best_price": 500,
+   "best_book": "draftkings",
+   "mkt_p": 0.18181818181818182,
+   "n_books": 5,
+   "mkt_p_consensus": 0.18181818181818182,
+   "edge": 0.018181818181818188,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 350,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Dak Prescott",
+   "nkey": "dak prescott",
+   "pos": "QB",
+   "team": "DAL",
+   "opp": "TB",
+   "game": "TB@DAL",
+   "commence": "2026-10-09T00:15:00Z",
+   "implied_total": 28.5,
+   "td_share": 0.047,
+   "model_p_cal": 0.19,
+   "thin": false,
+   "snap_share": 1.0,
+   "best_price": 500,
+   "best_book": "draftkings",
+   "mkt_p": 0.1724137931034483,
+   "n_books": 5,
+   "mkt_p_consensus": 0.1724137931034483,
+   "edge": 0.017586206896551715,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 480,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 850,
+     "price": 475,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 470,
      "best": false,
      "bettable": true
     }
@@ -1169,62 +1225,6 @@
    ]
   },
   {
-   "player": "Chris Godwin Jr.",
-   "nkey": "chris godwin",
-   "pos": "WR/TE",
-   "team": "TB",
-   "opp": "DAL",
-   "game": "TB@DAL",
-   "commence": "2026-10-09T00:15:00Z",
-   "implied_total": 19.0,
-   "td_share": 0.078,
-   "model_p_cal": 0.2,
-   "thin": false,
-   "snap_share": 0.81,
-   "best_price": 500,
-   "best_book": "fanduel",
-   "mkt_p": 0.19047619047619047,
-   "n_books": 5,
-   "mkt_p_consensus": 0.19047619047619047,
-   "edge": 0.009523809523809545,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 425,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 425,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Cade Otton",
    "nkey": "cade otton",
    "pos": "WR/TE",
@@ -1238,20 +1238,32 @@
    "thin": false,
    "snap_share": 0.94,
    "best_price": 550,
-   "best_book": "fanduel",
-   "mkt_p": 0.17391304347826086,
+   "best_book": "draftkings",
+   "mkt_p": 0.16666666666666666,
    "n_books": 5,
-   "mkt_p_consensus": 0.17391304347826086,
-   "edge": 0.006086956521739129,
+   "mkt_p_consensus": 0.16666666666666666,
+   "edge": 0.013333333333333336,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
+     "book": "draftkings",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": 550,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 500,
+     "best": false,
      "bettable": true
     },
     {
@@ -1261,20 +1273,70 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 290,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Brian Robinson",
+   "nkey": "brian robinson",
+   "pos": "RB",
+   "team": "ATL",
+   "opp": "NO",
+   "game": "ATL@NO",
+   "commence": "2026-10-06T00:15:00Z",
+   "implied_total": 23.0,
+   "td_share": 0.082,
+   "model_p_cal": 0.224,
+   "thin": false,
+   "snap_share": 0.33,
+   "best_price": 400,
+   "best_book": "draftkings",
+   "mkt_p": 0.21749408983451535,
+   "n_books": 6,
+   "mkt_p_consensus": 0.21749408983451535,
+   "edge": 0.006505910165484657,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
      "book": "draftkings",
-     "price": 475,
+     "price": 400,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 390,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 370,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 475,
+     "price": 350,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 275,
+     "book": "ballybet",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 280,
      "best": false,
      "bettable": true
     }
@@ -1295,10 +1357,10 @@
    "snap_share": 0.68,
    "best_price": 500,
    "best_book": "betmgm",
-   "mkt_p": 0.18867924528301888,
+   "mkt_p": 0.18957771787960467,
    "n_books": 6,
-   "mkt_p_consensus": 0.18867924528301888,
-   "edge": -0.0006792452830188811,
+   "mkt_p_consensus": 0.18957771787960467,
+   "edge": -0.0015777178796046731,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -1317,12 +1379,6 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 430,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
      "price": 430,
      "best": false,
@@ -1335,70 +1391,14 @@
      "bettable": true
     },
     {
+     "book": "ballybet",
+     "price": 420,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
      "price": 400,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Brian Robinson",
-   "nkey": "brian robinson",
-   "pos": "RB",
-   "team": "ATL",
-   "opp": "NO",
-   "game": "ATL@NO",
-   "commence": "2026-10-06T00:15:00Z",
-   "implied_total": 23.0,
-   "td_share": 0.082,
-   "model_p_cal": 0.224,
-   "thin": false,
-   "snap_share": 0.33,
-   "best_price": 390,
-   "best_book": "fanatics",
-   "mkt_p": 0.22474747474747475,
-   "n_books": 6,
-   "mkt_p_consensus": 0.22474747474747475,
-   "edge": -0.0007474747474747467,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 390,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 360,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 340,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 290,
      "best": false,
      "bettable": true
     }
@@ -1417,12 +1417,12 @@
    "model_p_cal": 0.291,
    "thin": false,
    "snap_share": 0.66,
-   "best_price": 255,
+   "best_price": 250,
    "best_book": "ballybet",
-   "mkt_p": 0.29198635976129583,
+   "mkt_p": 0.29631255487269537,
    "n_books": 6,
-   "mkt_p_consensus": 0.29198635976129583,
-   "edge": -0.000986359761295852,
+   "mkt_p_consensus": 0.29631255487269537,
+   "edge": -0.005312554872695385,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -1430,26 +1430,14 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 255,
+     "price": 250,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
      "price": 250,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 245,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 240,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1459,8 +1447,20 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "betmgm",
-     "price": 230,
+     "price": 210,
      "best": false,
      "bettable": true
     }
@@ -1479,8 +1479,8 @@
    "model_p_cal": 0.293,
    "thin": false,
    "snap_share": 0.92,
-   "best_price": 240,
-   "best_book": "ballybet",
+   "best_price": 250,
+   "best_book": "fanatics",
    "mkt_p": 0.2985739750445633,
    "n_books": 6,
    "mkt_p_consensus": 0.2985739750445633,
@@ -1491,21 +1491,27 @@
    "wx_wind": 0.0,
    "book_prices": [
     {
+     "book": "fanatics",
+     "price": 250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": 240,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 240,
-     "best": true,
+     "book": "williamhill_us",
+     "price": 230,
+     "best": false,
      "bettable": true
     },
     {
@@ -1515,14 +1521,8 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 220,
+     "book": "betmgm",
+     "price": 230,
      "best": false,
      "bettable": true
     }
@@ -1541,7 +1541,7 @@
    "model_p_cal": 0.175,
    "thin": false,
    "snap_share": 0.66,
-   "best_price": 500,
+   "best_price": 475,
    "best_book": "draftkings",
    "mkt_p": 0.18181818181818182,
    "n_books": 5,
@@ -1554,7 +1554,7 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 500,
+     "price": 475,
      "best": true,
      "bettable": true
     },
@@ -1578,7 +1578,7 @@
     },
     {
      "book": "ballybet",
-     "price": 400,
+     "price": 390,
      "best": false,
      "bettable": true
     }
@@ -1690,7 +1690,7 @@
     },
     {
      "book": "fanatics",
-     "price": 900,
+     "price": 950,
      "best": false,
      "bettable": true
     }
@@ -1739,14 +1739,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
+     "book": "fanatics",
      "price": 850,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 850,
+     "book": "ballybet",
+     "price": 800,
      "best": false,
      "bettable": true
     }
@@ -1784,8 +1784,8 @@
     },
     {
      "book": "fanatics",
-     "price": 650,
-     "best": false,
+     "price": 750,
+     "best": true,
      "bettable": true
     },
     {
@@ -1795,14 +1795,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "fanduel",
      "price": 600,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 600,
+     "book": "williamhill_us",
+     "price": 575,
      "best": false,
      "bettable": true
     }
@@ -1823,10 +1823,10 @@
    "snap_share": 0.23,
    "best_price": 1300,
    "best_book": "betmgm",
-   "mkt_p": 0.08712121212121213,
+   "mkt_p": 0.08893280632411067,
    "n_books": 6,
-   "mkt_p_consensus": 0.08712121212121213,
-   "edge": -0.02812121212121213,
+   "mkt_p_consensus": 0.08893280632411067,
+   "edge": -0.029932806324110675,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -1839,14 +1839,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 1150,
+     "book": "draftkings",
+     "price": 1100,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 1100,
+     "book": "ballybet",
+     "price": 1050,
      "best": false,
      "bettable": true
     },
@@ -1864,7 +1864,7 @@
     },
     {
      "book": "fanatics",
-     "price": 900,
+     "price": 1000,
      "best": false,
      "bettable": true
     }
@@ -1885,10 +1885,10 @@
    "snap_share": 0.53,
    "best_price": 340,
    "best_book": "betmgm",
-   "mkt_p": 0.24695121951219512,
+   "mkt_p": 0.25,
    "n_books": 6,
-   "mkt_p_consensus": 0.24695121951219512,
-   "edge": -0.04795121951219511,
+   "mkt_p_consensus": 0.25,
+   "edge": -0.05099999999999999,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -1902,12 +1902,6 @@
     },
     {
      "book": "ballybet",
-     "price": 320,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": 310,
      "best": false,
      "bettable": true
@@ -1929,6 +1923,12 @@
      "price": 300,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 295,
+     "best": false,
+     "bettable": true
     }
    ]
   },
@@ -1945,25 +1945,31 @@
    "model_p_cal": 0.055,
    "thin": false,
    "snap_share": 0.21,
-   "best_price": 775,
-   "best_book": "betmgm",
-   "mkt_p": 0.12916666666666665,
+   "best_price": 800,
+   "best_book": "draftkings",
+   "mkt_p": 0.125,
    "n_books": 6,
-   "mkt_p_consensus": 0.12916666666666665,
-   "edge": -0.07416666666666666,
+   "mkt_p_consensus": 0.125,
+   "edge": -0.07,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 775,
+     "book": "draftkings",
+     "price": 800,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "betmgm",
+     "price": 775,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 700,
      "best": false,
      "bettable": true
@@ -1971,12 +1977,6 @@
     {
      "book": "ballybet",
      "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 650,
      "best": false,
      "bettable": true
     },
@@ -2007,32 +2007,32 @@
    "model_p_cal": 0.253,
    "thin": false,
    "snap_share": 0.62,
-   "best_price": 215,
-   "best_book": "draftkings",
-   "mkt_p": 0.32786885245901637,
+   "best_price": 210,
+   "best_book": "fanduel",
+   "mkt_p": 0.3333333333333333,
    "n_books": 5,
-   "mkt_p_consensus": 0.32786885245901637,
-   "edge": -0.07486885245901637,
+   "mkt_p_consensus": 0.3333333333333333,
+   "edge": -0.08033333333333331,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 215,
+     "book": "fanduel",
+     "price": 210,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 210,
+     "book": "draftkings",
+     "price": 205,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 205,
+     "price": 200,
      "best": false,
      "bettable": true
     },
@@ -2044,7 +2044,7 @@
     },
     {
      "book": "fanatics",
-     "price": 135,
+     "price": 130,
      "best": false,
      "bettable": true
     }
@@ -2106,7 +2106,7 @@
     },
     {
      "book": "ballybet",
-     "price": 104,
+     "price": 106,
      "best": false,
      "bettable": true
     }
@@ -2126,16 +2126,22 @@
    "thin": false,
    "snap_share": 0.24,
    "best_price": 290,
-   "best_book": "fanatics",
-   "mkt_p": 0.27212143650499815,
+   "best_book": "fanduel",
+   "mkt_p": 0.27046783625730997,
    "n_books": 6,
-   "mkt_p_consensus": 0.27212143650499815,
-   "edge": -0.11912143650499815,
+   "mkt_p_consensus": 0.27046783625730997,
+   "edge": -0.11746783625730997,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 290,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "fanatics",
      "price": 290,
@@ -2143,26 +2149,20 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 265,
+     "price": 280,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 240,
      "best": false,
      "bettable": true
     },
@@ -2189,10 +2189,10 @@
    "snap_share": 0.83,
    "best_price": 130,
    "best_book": "draftkings",
-   "mkt_p": 0.45248868778280543,
+   "mkt_p": 0.4484304932735426,
    "n_books": 5,
-   "mkt_p_consensus": 0.45248868778280543,
-   "edge": -0.13148868778280542,
+   "mkt_p_consensus": 0.4484304932735426,
+   "edge": -0.1274304932735426,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -2205,14 +2205,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 123,
+     "book": "williamhill_us",
+     "price": 125,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 121,
+     "book": "ballybet",
+     "price": 123,
      "best": false,
      "bettable": true
     },
@@ -2224,7 +2224,7 @@
     },
     {
      "book": "fanatics",
-     "price": 120,
+     "price": 115,
      "best": false,
      "bettable": true
     }
@@ -2273,14 +2273,14 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": 450,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 450,
+     "book": "draftkings",
+     "price": 425,
      "best": false,
      "bettable": true
     },
@@ -2324,13 +2324,7 @@
     },
     {
      "book": "ballybet",
-     "price": 130,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 115,
+     "price": 120,
      "best": false,
      "bettable": true
     },
@@ -2349,6 +2343,12 @@
     {
      "book": "fanatics",
      "price": 115,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 110,
      "best": false,
      "bettable": true
     }
@@ -2367,12 +2367,12 @@
    "model_p_cal": 0.104,
    "thin": false,
    "snap_share": 0.53,
-   "best_price": 370,
+   "best_price": 350,
    "best_book": "fanatics",
-   "mkt_p": 0.2631578947368421,
+   "mkt_p": 0.25,
    "n_books": 5,
-   "mkt_p_consensus": 0.2631578947368421,
-   "edge": -0.1591578947368421,
+   "mkt_p_consensus": 0.25,
+   "edge": -0.14600000000000002,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -2380,25 +2380,25 @@
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 370,
+     "price": 350,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 290,
+     "book": "draftkings",
+     "price": 310,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 280,
+     "price": 300,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 265,
+     "book": "fanduel",
+     "price": 290,
      "best": false,
      "bettable": true
     },
@@ -2423,32 +2423,32 @@
    "model_p_cal": 0.358,
    "thin": false,
    "snap_share": 0.81,
-   "best_price": -105,
-   "best_book": "draftkings",
-   "mkt_p": 0.5215311004784688,
+   "best_price": -108,
+   "best_book": "ballybet",
+   "mkt_p": 0.5238095238095238,
    "n_books": 5,
-   "mkt_p_consensus": 0.5215311004784688,
-   "edge": -0.16353110047846886,
+   "mkt_p_consensus": 0.5238095238095238,
+   "edge": -0.16580952380952385,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": -105,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": -108,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": -109,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -110,
      "best": false,
      "bettable": true
     },
@@ -2460,7 +2460,7 @@
     },
     {
      "book": "fanatics",
-     "price": -115,
+     "price": -110,
      "best": false,
      "bettable": true
     }
@@ -2479,7 +2479,7 @@
    "model_p_cal": 0.238,
    "thin": false,
    "snap_share": 0.3,
-   "best_price": 140,
+   "best_price": 145,
    "best_book": "draftkings",
    "mkt_p": 0.42109929078014185,
    "n_books": 6,
@@ -2492,20 +2492,20 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 140,
+     "price": 145,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 140,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 140,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 140,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -2515,14 +2515,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 130,
+     "book": "fanatics",
+     "price": 135,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 128,
+     "book": "ballybet",
+     "price": 125,
      "best": false,
      "bettable": true
     }
@@ -2565,26 +2565,26 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": -210,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -235,
+     "book": "ballybet",
+     "price": -210,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -240,
+     "book": "draftkings",
+     "price": -215,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -235,
      "best": false,
      "bettable": true
     }
@@ -2603,7 +2603,7 @@
    "model_p_cal": 0.462,
    "thin": false,
    "snap_share": 0.75,
-   "best_price": -185,
+   "best_price": -200,
    "best_book": "fanatics",
    "mkt_p": 0.696969696969697,
    "n_books": 5,
@@ -2616,13 +2616,13 @@
    "book_prices": [
     {
      "book": "fanatics",
-     "price": -185,
+     "price": -200,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -230,
+     "price": -225,
      "best": false,
      "bettable": true
     },
@@ -2647,43 +2647,18 @@
    ]
   },
   {
-   "player": "Travis Etienne",
-   "nkey": "travis etienne",
-   "pos": "RB",
-   "team": "NO",
-   "opp": "ATL",
-   "game": "ATL@NO",
-   "commence": "2026-10-06T00:15:00Z",
-   "implied_total": 24.5,
-   "td_share": 0.141,
-   "model_p_cal": 0.297,
-   "thin": false,
-   "snap_share": 0.5,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Jalen McMillan",
-   "nkey": "jalen mcmillan",
-   "pos": "WR/TE",
+   "player": "Baker Mayfield",
+   "nkey": "baker mayfield",
+   "pos": "QB",
    "team": "TB",
    "opp": "DAL",
    "game": "TB@DAL",
    "commence": "2026-10-09T00:15:00Z",
    "implied_total": 19.0,
-   "td_share": 0.038,
-   "model_p_cal": 0.141,
+   "td_share": 0.052,
+   "model_p_cal": 0.165,
    "thin": false,
-   "snap_share": 0.07,
+   "snap_share": 0.98,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -2747,18 +2722,43 @@
    "book_prices": []
   },
   {
-   "player": "Baker Mayfield",
-   "nkey": "baker mayfield",
-   "pos": "QB",
+   "player": "Jalen McMillan",
+   "nkey": "jalen mcmillan",
+   "pos": "WR/TE",
    "team": "TB",
    "opp": "DAL",
    "game": "TB@DAL",
    "commence": "2026-10-09T00:15:00Z",
    "implied_total": 19.0,
-   "td_share": 0.052,
-   "model_p_cal": 0.165,
+   "td_share": 0.038,
+   "model_p_cal": 0.141,
    "thin": false,
-   "snap_share": 0.98,
+   "snap_share": 0.07,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Travis Etienne",
+   "nkey": "travis etienne",
+   "pos": "RB",
+   "team": "NO",
+   "opp": "ATL",
+   "game": "ATL@NO",
+   "commence": "2026-10-06T00:15:00Z",
+   "implied_total": 24.5,
+   "td_share": 0.141,
+   "model_p_cal": 0.297,
+   "thin": false,
+   "snap_share": 0.5,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
