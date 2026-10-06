@@ -627,6 +627,42 @@ def main():
             **{k: (ctx.get(p["team"]) or {}).get(k)
                for k in ("opp_goalie", "opp_goalie_sv", "opp_pen60")},
         })
+    # ---- ENV: the three colour columns collapsed into one scannable 0-100 slate percentile.
+    # READABILITY, NOT A SIGNAL, and the tooltip says so. Tested 2026-10-06 (1,287 skater-games):
+    # env IS strongly predictive alone (worst quartile 8.7% -> best 22.1%, monotonic) but it is
+    # ~half the price already (corr +0.506 with market-implied) and adds NOTHING once model_p and
+    # the price are controlled for (coef +0.0097, clustered t +0.33 across 74 clusters). So it
+    # orders plays you have already decided to consider; it does not find them.
+    # Components: softer opposing goalie, opponent takes more penalties (= more PP), more PP time.
+    def _z(vals):
+        good = [v for v in vals if v is not None]
+        if len(good) < 8:
+            return None
+        mu = sum(good) / len(good)
+        sd = (sum((v - mu) ** 2 for v in good) / len(good)) ** 0.5
+        return (mu, sd) if sd > 1e-9 else None
+
+    _sv = _z([r.get("opp_goalie_sv") for r in rows])
+    _pn = _z([r.get("opp_pen60") for r in rows])
+    _pp = _z([r.get("pp_min") for r in rows])
+    raws = []
+    for r in rows:
+        parts = []
+        if _sv and r.get("opp_goalie_sv") is not None:
+            parts.append(-(r["opp_goalie_sv"] - _sv[0]) / _sv[1])   # softer goalie = better
+        if _pn and r.get("opp_pen60") is not None:
+            parts.append((r["opp_pen60"] - _pn[0]) / _pn[1])        # they take more penalties
+        if _pp and r.get("pp_min") is not None:
+            parts.append((r["pp_min"] - _pp[0]) / _pp[1])           # more PP time
+        raws.append(sum(parts) / len(parts) if parts else None)
+    ok = sorted(v for v in raws if v is not None)
+    for r, v in zip(rows, raws):
+        if v is None or not ok:
+            r["env"] = None
+        else:
+            below = sum(1 for x in ok if x < v)
+            r["env"] = int(round(100.0 * below / max(len(ok) - 1, 1)))
+
     rows.sort(key=lambda r: -r["model_p"])
     payload = {
         "meta": {

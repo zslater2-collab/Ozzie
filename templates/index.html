@@ -1740,6 +1740,8 @@
     {k:'pp_min',t:'PP',l:0,v:r=>r.pp_min??-1,
      d:'Projected power-play minutes per game. The one validated lever on this board — even-strength TOI barely discriminates (AUC .527)'},
     // --- colour columns, NOT model inputs (the MLB hitters table's Park/Wx equivalent) ---
+    {k:'env',t:'Env',l:0,v:r=>r.env??-1,
+     d:"The three colour columns as one 0-100 slate percentile: softer opposing goalie + opponent takes more penalties + more PP time. READABILITY, NOT A SIGNAL. Tested on 1,287 skater-games: Env IS strongly predictive alone (worst quartile 8.7% to score, best 22.1%) but it is already about half the price (corr +0.51 with market-implied) and adds nothing once model and price are known (clustered t +0.33). Use it to break ties between similarly-priced plays — it will not find mispricing, because the market sees all of this too."},
     {k:'opp_goalie',t:'Opp G',l:1,v:r=>r.opp_goalie||'',
      d:"Likely opposing starter — the opponent's most-used goalie, NOT a confirmed start. On back-to-backs the backup often goes, so check before leaning on it"},
     {k:'opp_goalie_sv',t:'G Sv%',l:0,v:r=>r.opp_goalie_sv??-1,
@@ -1794,6 +1796,9 @@
       const shop=r.shop_gain==null?'—':('+'+(r.shop_gain*100).toFixed(1)+'pp');
       // colour columns. Goalie save% is shaded against the ~.895 league mean so a tough or soft
       // matchup reads at a glance; penalty rate against ~3.7 per 60.
+      const envN=r.env;
+      const envDots=envN==null?'—':('●'.repeat(1+Math.floor(envN/25))+'○'.repeat(4-Math.floor(envN/25)));
+      const envCol=envN==null?'var(--muted)':(envN>=75?'#39d353':(envN<=25?'#ff6b3d':'var(--muted)'));
       const gsv=r.opp_goalie_sv==null?'—':(100*r.opp_goalie_sv).toFixed(1);
       const gsvCol=r.opp_goalie_sv==null?'var(--muted)'
                    :(r.opp_goalie_sv>=0.905?'#ff6b3d':(r.opp_goalie_sv<=0.885?'#39d353':'var(--muted)'));
@@ -1808,6 +1813,7 @@
         `<td class="l">${r.pos||''}</td>`+
         `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
         `<td>${r.pp_min!=null?r.pp_min.toFixed(1):'—'}</td>`+
+        `<td style="color:${envCol}" title="${envN==null?'':'environment percentile '+envN+' of 100 on this slate — already reflected in the price'}">${envDots}</td>`+
         `<td class="l" style="color:var(--muted);font-size:.9em">${r.opp_goalie||'—'}</td>`+
         `<td style="color:${gsvCol}">${gsv}</td>`+
         `<td style="color:${penCol}">${pen}</td>`+
