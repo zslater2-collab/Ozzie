@@ -14,9 +14,30 @@ on:
   schedule:
     # Times are chosen for DRIFT, not for neatness: GitHub has been running this repo's
     # scheduled jobs 3-6h late, and :00 is the most contended minute. See the header comment.
+    #
+    # CADENCE RAISED 2026-10-05, +5 runs/week, deliberately CONCENTRATED ON GAME DAYS. WHY: the
+    # retrospective found that a pick the market RE-PRICES away from after it fires underperforms
+    # (ozzie_data/06_tests/retro/test_flag_persistence.py). Testing that needs several looks at the
+    # SAME game at different distances from kickoff. At 1 look/day a game gets ~1 pre-kick look, so
+    # the board could not produce the price path at all.
+    # COST: ~130 credits/run, ODDS_API_KEY SHARED with hr/nhl/mma. Total burn across all four
+    # boards was ~445/day against a 100k/MONTH quota (~13% utilisation), so this is not
+    # cost-bound; extra runs are still CONCENTRATED ON GAME DAYS because that is where they buy a
+    # price path, not to save credits. Quiet midweek days keep the single daily freshness run.
+    # DRIFT IS USED, NOT FOUGHT: analysis bins by ACTUAL hours-to-kickoff from each row's
+    # `commence`, so a spread of looks matters, not precise placement. The cron also only prices
+    # UPCOMING games, so a drifted late run self-limits its own cost as games fall off the slate.
+    # Kickoffs in UTC: Sun 17:00 (1pm ET), 20:00-20:25 (4pm ET), 00:20 Mon (SNF); Mon/Thu ~00:15.
     - cron: '23 8 * * *'      # daily 08:23 UTC -- even +5h lands ~09:23 ET, before any kickoff
-    - cron: '23 14 * * 0'     # Sun 10:23 ET  -- second pre-slate pass on the freshest odds
-    - cron: '23 21 * * 1,4'   # Mon/Thu       -- ahead of the primetime game
+    - cron: '23 18 * * 6'     # Sat -- long-horizon (~T-22h) look at the Sunday slate
+    - cron: '23 11 * * 0'     # Sun -- early pass            (~T-6h on the 1pm ET window)
+    - cron: '23 14 * * 0'     # Sun 10:23 ET -- freshest pre-slate pass (~T-3h)
+    - cron: '23 16 * * 0'     # Sun -- last pass before the 1pm ET window (~T-1h)
+    - cron: '23 19 * * 0'     # Sun -- ~T-1h on the 4pm ET window
+    - cron: '23 23 * * 0'     # Sun -- ~T-1h on SNF
+    - cron: '23 17 * * 1,4'   # Mon/Thu -- earlier primetime look
+    - cron: '23 21 * * 1,4'   # Mon/Thu -- ahead of the primetime game
+    - cron: '23 23 * * 1,4'   # Mon/Thu -- ~T-1h on the primetime kickoff
   workflow_dispatch: {}
 
 permissions:

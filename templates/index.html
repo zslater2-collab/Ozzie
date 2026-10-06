@@ -1927,12 +1927,23 @@
     fetch('/api/nhl_board').then(r=>r.ok?r.json():null).then(data=>{
       if(!data||!data.rows||!data.rows.length)return;
       NHL_ROWS=data.rows;
-      const priced=NHL_ROWS.filter(r=>r.mkt_p!=null&&!r.thin).length;
+      // EARLY-SEASON FALLBACK. The cron sets thin = gp < 10, and this table hides thin rows by
+      // default -- so for the first ~3 weeks of every season EVERY skater is thin and the table
+      // renders EMPTY while the board itself is perfectly healthy (2026-10-05: 327 of 327 rows
+      // thin at 4 games in, 0 rendered). It then self-heals around 10 GP, which is why it never
+      // got caught. When hiding thin rows would leave nothing at all, show them and say why.
+      const allThin=NHL_ROWS.every(r=>r.thin);
+      if(allThin){
+        NHL_STATE.showThin=true;
+        const cb=document.getElementById('nhl-showthin'); if(cb)cb.checked=true;
+      }
+      const priced=NHL_ROWS.filter(r=>r.mkt_p!=null&&(allThin||!r.thin)).length;
       document.getElementById('nhl-count').textContent=priced+' priced';
       const m=data.meta||{};
       document.getElementById('nhl-note').textContent=
         (m.generated?`odds pulled ${bbAgo(m.generated)}`:'')+(m.n_games?` · ${m.n_games} games`:'')+
-        (m.features_through?` · role data through ${m.features_through}`:'');
+        (m.features_through?` · role data through ${m.features_through}`:'')+
+        (allThin?' · early season: every skater is under 10 GP, so role estimates rest on a handful of games — shown anyway, read them as noisy':'');
       const opts=(vals,label)=>'<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}">${v}</option>`).join('');
       document.getElementById('nhl-team').innerHTML=opts(NHL_ROWS.map(r=>r.team),'all teams');
       document.getElementById('nhl-game').innerHTML=opts(NHL_ROWS.map(r=>r.game),'all games');

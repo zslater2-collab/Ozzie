@@ -12,8 +12,36 @@ on:
   schedule:
     # Drift-aware (see td_board.yml header): the old 22:00 slot was executing ~00:52 UTC, i.e.
     # after the early puck drops it was meant to precede. Moved earlier so +5h still beats 7pm ET.
+    #
+    # CADENCE RAISED 2026-10-05 from 2/day to 5/day. WHY: the retrospective found a cross-market
+    # effect -- a pick the market RE-PRICES away from after it fires underperforms badly
+    # (see ozzie_data/06_tests/retro/test_flag_persistence.py). That was only testable on the HR
+    # board because HR committed ~6x/day, giving 334 snapshots. At 2/day this board cannot produce
+    # the intraday price path the test needs. NHL is the cheapest, fastest-accumulating place to
+    # replicate it (daily games, ~13 games x ~25 skaters a night).
+    #
+    # DRIFT IS NOT FOUGHT, IT IS USED: GitHub runs this repo's jobs 3-6h late, so you cannot place
+    # a snapshot at a target offset. The analysis bins by the ACTUAL hours-to-puck-drop computed
+    # from each row's `commence`, so what matters is a SPREAD of looks, not precise placement.
+    # These six slots bracket a typical 23:10 UTC (7pm ET) puck drop at roughly T-13h, T-10h,
+    # T-7h, T-4h, T-2h, and post-drop-for-East / still-pre-drop-for-West. The HR version of this
+    # effect showed up as "<3h out" vs "never inside 12h", so density in the FINAL HOURS is what
+    # matters, not even spacing. Post-drop rows are discarded at analysis time by the
+    # pulled_at <= commence filter, so a drifted late run risks nothing.
+    #
+    # COST, measured not guessed: ~100-150 credits/run (isolated from git history), and
+    # ODDS_API_KEY is SHARED with hr/td/mma. Total burn across all four boards was ~445/day
+    # against a 100k/MONTH quota, i.e. ~13% utilisation -- so cadence here is not cost-bound.
+    # 6/day adds roughly 600/day, taking all boards to ~30% of quota.
+    #
+    # Side benefit: the overnight gap drops from 18h to 11h, comfortably inside the board's
+    # max_age_h=16 staleness budget, so this also means FEWER spurious stale-board kicks.
+    - cron: '23 10 * * *'     # long-horizon look
     - cron: '23 13 * * *'     # morning build
+    - cron: '23 16 * * *'     # midday
     - cron: '23 19 * * *'     # 15:23 ET -- pre-puck-drop refresh even with heavy drift
+    - cron: '23 21 * * *'     # ~T-2h on a 7pm ET drop
+    - cron: '23 23 * * *'     # late window (West-coast games still pre-drop)
   workflow_dispatch: {}
 
 permissions:
