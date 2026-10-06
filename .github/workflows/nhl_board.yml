@@ -70,7 +70,14 @@ jobs:
         run: |
           git config user.name  "nhl-board-bot"
           git config user.email "nhl-board-bot@users.noreply.github.com"
+          # nhl_sog_latest.json is the shots-on-goal LINE CAPTURE (see sog_props in the cron).
+          # It is committed on every run for the same reason the board is: git history becomes
+          # the price panel. No history of these lines exists anywhere, so until this has been
+          # running a while nothing about shots can be backtested.
+          # Staged separately and guarded: `git add` on a missing pathspec is FATAL, so if the
+          # SOG write ever fails it must not take the board's commit down with it.
           git add nhl_board_latest.json
+          [ -f nhl_sog_latest.json ] && git add nhl_sog_latest.json || echo "no SOG artifact this run"
           if git diff --cached --quiet; then
             echo "no changes to commit"
             exit 0

@@ -31,6 +31,11 @@ import requests
 
 REPO  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOARD = os.path.join(REPO, "nhl_board_latest.json")
+# Shots-on-goal LINE CAPTURE -- a separate artifact, deliberately not folded into the board
+# payload (the board is served to the browser on every page load; ~1k SOG quotes would bloat it
+# for no UI benefit). Committed by the same workflow, so git history gives the price panel the
+# same way it did for the HR board.
+SOG   = os.path.join(REPO, "nhl_sog_latest.json")
 
 KEY = os.environ.get("ODDS_API_KEY", "")
 OB, SPORT = "https://api.the-odds-api.com/v4", "icehockey_nhl"
@@ -366,6 +371,46 @@ def props(ev):
     return out
 
 
+# Shots on goal is a TWO-WAY market: measured median vig 6.51%, against 17-29% on first-scorer
+# and 5-8% on anytime-goal. It also sits on an outcome our role signal predicts far better than
+# goals (model_p vs SOG r=0.412 / pp_min r=0.370, against 0.246 / 0.202 for goals), because
+# goals = shots x shooting% and game-level shooting% is mostly noise.
+# We have ZERO history of these lines, so nothing can be backtested until a record exists --
+# that is the only purpose of this capture. No model, no flag, no claim: just the prices.
+# Cost: ~1 credit per event-market-region, so 2 markets x 2 regions = ~4/event (~52 a run on a
+# 13-game slate). Set NHL_SOG=0 to switch the capture off if that ever matters.
+SOG_MARKETS = "player_shots_on_goal,player_shots_on_goal_alternate"
+
+
+def sog_props(ev):
+    """Long-form SOG quotes for one event. All books, not just MA-legal: dispersion across books
+    is part of what we want to study, and cost is per market-region, not per book."""
+    if os.environ.get("NHL_SOG", "1") != "1":
+        return []
+    d = _odds(OB + "/sports/" + SPORT + "/events/" + ev["id"] + "/odds",
+              {"apiKey": KEY, "regions": REGIONS, "markets": SOG_MARKETS,
+               "oddsFormat": "american"})
+    if not d:
+        return []
+    game = "%s@%s" % (TEAM_ABBR.get(d.get("away_team"), d.get("away_team")),
+                      TEAM_ABBR.get(d.get("home_team"), d.get("home_team")))
+    out = []
+    for b in d.get("bookmakers", []):
+        for mk in b.get("markets", []):
+            if not mk["key"].startswith("player_shots_on_goal"):
+                continue
+            for o in mk.get("outcomes", []):
+                if o.get("description") is None or o.get("point") is None:
+                    continue
+                out.append({"game": game, "commence": ev.get("commence_time"),
+                            "book": b["key"], "market": mk["key"],
+                            "player": o.get("description"), "pn": norm(o.get("description")),
+                            "line": o.get("point"), "side": str(o.get("name", "")).lower(),
+                            "price": o.get("price"),
+                            "bettable": b["key"] in BETTABLE_BOOKS})
+    return out
+
+
 # -- build -------------------------------------------------------------------
 def main():
     if not KEY:
@@ -395,13 +440,30 @@ def main():
 
     events = slate(30)
     print("[cron] %d events in window" % len(events))
-    imp, pr = {}, {}
+    imp, pr, sog = {}, {}, []
     for e in events:
         imp.update(game_lines(e))
         for k, v in props(e).items():
             pr[k] = v
-    print("[cron] %d teams priced, %d skaters quoted (credits %s)"
-          % (len(imp), len(pr), _odds.rem))
+        sog.extend(sog_props(e))
+    print("[cron] %d teams priced, %d skaters quoted, %d SOG quotes (credits %s)"
+          % (len(imp), len(pr), len(sog), _odds.rem))
+
+    # SOG line capture -- written even when empty, so a run that returned nothing is visible in
+    # git rather than looking like the job never ran.
+    try:
+        with open(SOG, "w") as f:
+            json.dump({"meta": {
+                "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
+                "n_events": len(events), "n_quotes": len(sog),
+                "books": sorted({q["book"] for q in sog}),
+                "credits_left": _odds.rem,
+                "note": "line capture only -- no model, no flag, no claimed edge"},
+                "quotes": sog}, f, indent=1)
+        print("[cron] wrote %s: %d quotes across %d books"
+              % (SOG, len(sog), len({q["book"] for q in sog})))
+    except Exception as e:
+        print("[cron] SOG write failed (non-fatal): %s" % e)
 
     # role-share denominator = the team's projected top-18 by exp_goals, INDEPENDENT of which
     # players a book happened to post (books post partial rosters; dividing by the posted subset
