@@ -289,6 +289,13 @@ def fetch_hr_odds(game_date):
         ET=timezone(timedelta(hours=-4))   # MLB season is EDT; fallback if zoneinfo unavailable
     now=datetime.now(timezone.utc)
     acc={}   # norm -> book -> {'over':price,'under':price}
+    # 2+ HR (the 1.5 line). It arrives in the SAME batter_home_runs_alternate response we already
+    # pay for and was being discarded by the point filter below -- so capturing it is free.
+    # Worth capturing because the cross-book spread on 2+HR is enormous (2026-10-06, top-20
+    # sluggers: median worst +2900 vs median best +6500, a 2.24x payout spread; Olson +2400 vs
+    # +7500) against a ~+3500 breakeven, i.e. the BOOK decides whether the bet is +EV at all.
+    # Shopping the 0.5 line, by contrast, is worth only ~4% of payout.
+    acc2={}  # norm -> book -> over price at the 1.5 line
     n_ev=0
     for ev in evs:
         ct=ev.get('commence_time') or ''
@@ -317,8 +324,17 @@ def fetch_hr_odds(game_date):
             for mk in bm.get('markets',[]):
                 if mk.get('key') not in HR_MARKET_KEYS: continue
                 for o in mk.get('outcomes',[]):
-                    if o.get('point') not in (0.5, None): continue   # anytime-HR line
                     nm=_norm(o.get('description','')); side=(o.get('name') or '').lower()
+                    if o.get('point')==1.5:
+                        # 2+HR: overs only (the under is a ~-5000 chalk bet nobody takes) and kept
+                        # in a SEPARATE accumulator so none of it can reach mkt_over / mkt_prob /
+                        # edge, which are defined on the anytime line.
+                        if nm and side=='over' and o.get('price') is not None:
+                            prev=acc2.setdefault(nm,{}).get(lbl)
+                            if prev is None or _payout(o['price'])>_payout(prev):
+                                acc2[nm][lbl]=o['price']
+                        continue
+                    if o.get('point') not in (0.5, None): continue   # anytime-HR line
                     if nm and side in ('over','under') and o.get('price') is not None:
                         # a book can quote the 0.5 line in BOTH markets -> keep its better price
                         cur=acc.setdefault(nm,{}).setdefault(lbl,{})
@@ -348,6 +364,19 @@ def fetch_hr_odds(game_date):
         out[nm]={'over':(int(best_over) if best_over is not None else None),'book':best_book,'book_prices':bp,
                  'mkt_prob':round(100*float(np.median(novigs)),1),'mkt_avg':avg_am,
                  'n_books':len(overs),'n_bettable':len(overs_bet)}
+        # ---- 2+HR (1.5 line), captured alongside but kept strictly separate from the edge layer.
+        # Carried per-book because WHICH BOOK you use is the whole bet here, not a refinement.
+        q2=acc2.get(nm) or {}
+        if q2:
+            q2b={b:p for b,p in q2.items() if b in BETTABLE_BOOKS}
+            bb2,bp2=(max(q2b.items(),key=lambda x:_payout(x[1])) if q2b else (None,None))
+            worst2=min(q2.values(),key=_payout)
+            out[nm].update({
+                'hr2_over':(int(bp2) if bp2 is not None else None),'hr2_book':bb2,
+                'hr2_n_books':len(q2),'hr2_worst':int(worst2),
+                'hr2_spread_x':round(_payout(bp2)/_payout(worst2),2) if bp2 is not None else None,
+                'hr2_prices':sorted([{'book':b,'price':int(p),'bettable':b in BETTABLE_BOOKS}
+                                     for b,p in q2.items()],key=lambda x:-_payout(x['price']))})
     print(f'HR odds: {n_ev} events priced, {len(out)} players with anytime-HR props '
           f'(regions={HR_ODDS_REGIONS}).')
     return out
@@ -859,6 +888,15 @@ def main():
             day['mkt_n_books']=_k.map(lambda n:hr_odds.get(n,{}).get('n_books'))
             day['mkt_n_bettable']=_k.map(lambda n:hr_odds.get(n,{}).get('n_bettable'))
             day['book_prices']=_k.map(lambda n:hr_odds.get(n,{}).get('book_prices') or [])
+            # 2+HR (1.5 line). Separate columns from the anytime ones so nothing here can leak
+            # into mkt_over / mkt_prob / edge. hr2_spread_x is the headline: on 2+HR the gap
+            # between the best and worst book is typically >2x of payout, which is larger than
+            # any model effect measured in this project, so it is surfaced per row.
+            for _c,_f in (('hr2_over','hr2_over'),('hr2_book','hr2_book'),
+                          ('hr2_n_books','hr2_n_books'),('hr2_worst','hr2_worst'),
+                          ('hr2_spread_x','hr2_spread_x')):
+                day[_c]=_k.map(lambda n,_f=_f:hr_odds.get(n,{}).get(_f))
+            day['hr2_prices']=_k.map(lambda n:hr_odds.get(n,{}).get('hr2_prices') or [])
         # DK salary (DFS leverage). Accent-safe name+team join to the players the board already has;
         # report coverage so a broken/stale pull is visible. Fail-open -> no salary column.
         dk_sal = fetch_dk_salaries(date)
@@ -875,13 +913,16 @@ def main():
         # not graded. Drop the display-only book_prices list column so it doesn't bloat the CSV.
         _amask = (day['proj']==False) if 'proj' in day.columns else pd.Series(True, index=day.index)
         if 'unverified' in day.columns: _amask &= (day['unverified']==False)
-        official=day[_amask].drop(columns=['book_prices'], errors='ignore')
+        official=day[_amask].drop(columns=['book_prices','hr2_prices'], errors='ignore')
         # CARRY FORWARD odds: HR props post late, so a game's price is often captured only by a later
         # run -- but once that game STARTS, fetch_hr_odds skips it (and an empty fetch adds no columns),
         # so without this each subsequent run would blank a price we already had. Ensure the odds
         # columns exist, then backfill any missing value from the prior archive for the same
         # (date, batter). The current run's fetch always wins where it has a value.
-        ODDC=['mkt_over','mkt_book','mkt_prob','mkt_avg','mkt_n_books','mkt_n_bettable']
+        # hr2_* carry forward for the same reason the anytime odds do: 2+HR prices post late
+        # and a later run that skips a started game must not blank a price already captured.
+        ODDC=['mkt_over','mkt_book','mkt_prob','mkt_avg','mkt_n_books','mkt_n_bettable',
+              'hr2_over','hr2_book','hr2_n_books','hr2_worst','hr2_spread_x']
         for c in ODDC:
             if c not in official.columns: official[c]=np.nan
         if os.path.exists(ARCH_CSV):
