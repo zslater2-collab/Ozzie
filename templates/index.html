@@ -1737,7 +1737,17 @@
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
     {k:'team',t:'Tm',l:0,v:r=>r.team||''},
     {k:'opp',t:'Opp',l:0,v:r=>r.opp||''},
-    {k:'pp_min',t:'PP',l:0,v:r=>r.pp_min??-1},
+    {k:'pp_min',t:'PP',l:0,v:r=>r.pp_min??-1,
+     d:'Projected power-play minutes per game. The one validated lever on this board — even-strength TOI barely discriminates (AUC .527)'},
+    // --- colour columns, NOT model inputs (the MLB hitters table's Park/Wx equivalent) ---
+    {k:'opp_goalie',t:'Opp G',l:1,v:r=>r.opp_goalie||'',
+     d:"Likely opposing starter — the opponent's most-used goalie, NOT a confirmed start. On back-to-backs the backup often goes, so check before leaning on it"},
+    {k:'opp_goalie_sv',t:'G Sv%',l:0,v:r=>r.opp_goalie_sv??-1,
+     f:r=>r.opp_goalie_sv==null?'—':(100*r.opp_goalie_sv).toFixed(1),
+     d:"That goalie's PRIOR-season save% (this season's is a 2-game sample). Context only: the posted team total already prices the goalie (corr −0.32) and leaves no measurable residual, so it is not in the model"},
+    {k:'opp_pen60',t:'Opp PIM/60',l:0,v:r=>r.opp_pen60??-1,
+     f:r=>r.opp_pen60==null?'—':(+r.opp_pen60).toFixed(2),
+     d:'Penalties the OPPONENT takes per 60 (prior season) = how often this skater should get a power play. Penalty volume tested real but unpriced-and-too-small to clear the vig, so it is colour, not a signal'},
     {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
     {k:'model_p',t:'Model P',l:0,v:r=>r.model_p??-1},
     {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
@@ -1780,8 +1790,16 @@
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
       const edge=r.edge==null?'—':((r.edge>0?'+':'')+(r.edge*100).toFixed(0)+'%');
-      // shop_gain = probability points the best price adds over the worst posted price
+      // shop_gain = probability points the best price adds over the MARKET AVERAGE
       const shop=r.shop_gain==null?'—':('+'+(r.shop_gain*100).toFixed(1)+'pp');
+      // colour columns. Goalie save% is shaded against the ~.895 league mean so a tough or soft
+      // matchup reads at a glance; penalty rate against ~3.7 per 60.
+      const gsv=r.opp_goalie_sv==null?'—':(100*r.opp_goalie_sv).toFixed(1);
+      const gsvCol=r.opp_goalie_sv==null?'var(--muted)'
+                   :(r.opp_goalie_sv>=0.905?'#ff6b3d':(r.opp_goalie_sv<=0.885?'#39d353':'var(--muted)'));
+      const pen=r.opp_pen60==null?'—':(+r.opp_pen60).toFixed(2);
+      const penCol=r.opp_pen60==null?'var(--muted)'
+                   :(r.opp_pen60>=4.0?'#39d353':(r.opp_pen60<=3.3?'#ff6b3d':'var(--muted)'));
       const bk=bookName(r.best_book);
       const bkHtml=r.soft_best?`<span style="color:var(--muted);font-size:.9em">${bk}</span>`
                               :`<span style="color:var(--muted);font-size:.9em" title="not a price leader — check DK/FD">${bk}</span>`;
@@ -1790,6 +1808,9 @@
         `<td class="l">${r.pos||''}</td>`+
         `<td>${r.team||''}</td><td>${r.opp||''}</td>`+
         `<td>${r.pp_min!=null?r.pp_min.toFixed(1):'—'}</td>`+
+        `<td class="l" style="color:var(--muted);font-size:.9em">${r.opp_goalie||'—'}</td>`+
+        `<td style="color:${gsvCol}">${gsv}</td>`+
+        `<td style="color:${penCol}">${pen}</td>`+
         `<td>${r.implied_total!=null?r.implied_total.toFixed(2):'—'}</td>`+
         `<td>${r.model_p!=null?(r.model_p*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+

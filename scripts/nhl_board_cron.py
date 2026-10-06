@@ -27,6 +27,7 @@ RESEARCH BASIS (nhl_goals/GAMEPLAN.md) -- this is a DECISION/SHOPPING AID, not a
     below are a near-identity refit kept for consistency with calibrate_model.py.
 """
 import os, sys, json, math, time, unicodedata, datetime as dt
+
 import requests
 
 REPO  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -279,6 +280,85 @@ def split_total(total, p_home):
     return (total + m) / 2, (total - m) / 2
 
 
+def _rest(path, cayenne, limit=200):
+    """NHL stats REST (not the skater-only _nhl helper). Free -- no Odds API credits."""
+    try:
+        r = requests.get("https://api.nhle.com/stats/rest/en/" + path, timeout=45,
+                         params={"limit": limit, "cayenneExp": cayenne})
+        if r.status_code == 200:
+            return (r.json() or {}).get("data", []) or []
+    except Exception as e:
+        print("  ! rest %s: %s" % (path, e))
+    return []
+
+
+def _ikey(name):
+    """first-initial + surname. The NHL's pre-game feed abbreviates ("J. Saros") while the stats
+    REST summary spells names out ("Juuse Saros"), so a full-name join silently matches nothing."""
+    t = norm(name).split()
+    return "%s %s" % (t[0][0], t[-1]) if len(t) >= 2 else " ".join(t)
+
+
+def context_layer(prev_season):
+    """COLOUR COLUMNS, not model inputs. Free NHL-API context so a pick can be eyeballed the way
+    the MLB hitters table uses HitHR / PitHR / Park / Wx:
+      * the likely opposing goalie and his PRIOR-season save% (this season's is 2-game noise)
+      * the opponent's penalty rate = how often this skater's team should get a power play
+
+    Deliberately NOT fed into model_p. Tested 2026-10-06: the posted team total already prices the
+    goalie (corr -0.317 with opposing save%) and leaves no residual (clustered t -0.32), and
+    penalty VOLUME was previously found real but too small to clear the vig. Both are genuine
+    decision context; neither is an edge, and wiring them into the model would be overfitting to
+    information the market already holds.
+
+    Returns {team_abbrev: {...}} describing what that team FACES.
+    """
+    sv = {}
+    for g in _rest("goalie/summary", "seasonId=%s and gameTypeId=2" % prev_season):
+        if (g.get("gamesPlayed") or 0) >= 10 and g.get("savePct"):
+            sv[_ikey(g.get("goalieFullName"))] = round(float(g["savePct"]), 4)
+    pen = {}
+    for t in _rest("team/penalties", "seasonId=%s and gameTypeId=2" % prev_season, limit=50):
+        ab = TEAM_ABBR.get(t.get("teamFullName"))
+        if ab and t.get("penaltiesTakenPer60") is not None:
+            pen[ab] = round(float(t["penaltiesTakenPer60"]), 2)
+    print("[cron] context: %d prior-season goalies, %d team penalty rates" % (len(sv), len(pen)))
+
+    out = {}
+    today = dt.date.today()
+    for day in (today, today + dt.timedelta(days=1)):
+        try:
+            r = requests.get("https://api-web.nhle.com/v1/score/%s" % day.isoformat(), timeout=30)
+            games = (r.json() or {}).get("games", []) if r.status_code == 200 else []
+        except Exception:
+            games = []
+        for g in games:
+            if g.get("gameType") != 2:
+                continue
+            try:
+                L = requests.get("https://api-web.nhle.com/v1/gamecenter/%s/landing" % g["id"],
+                                 timeout=30).json()
+                gc = ((L or {}).get("matchup") or {}).get("goalieComparison") or {}
+            except Exception:
+                gc = {}
+            for side, other in (("awayTeam", "homeTeam"), ("homeTeam", "awayTeam")):
+                facing = (g.get(other) or {}).get("abbrev")      # the team that FACES this goalie
+                if not facing:
+                    continue
+                ldrs = ((gc.get(side) or {}).get("leaders") or [])
+                nm = None
+                if ldrs:
+                    n = ldrs[0].get("name")
+                    nm = n.get("default") if isinstance(n, dict) else n
+                # `facing` is the team on the OTHER side, so its power-play opportunity comes
+                # from THIS side's penalty rate -- i.e. `side`, not `other`.
+                out[facing] = {"opp_goalie": nm,
+                               "opp_goalie_sv": sv.get(_ikey(nm)) if nm else None,
+                               "opp_pen60": pen.get((g.get(side) or {}).get("abbrev"))}
+    print("[cron] context: %d team-games with opposing-goalie/penalty colour" % len(out))
+    return out
+
+
 def slate(hours=30):
     js = _odds(OB + "/sports/" + SPORT + "/events", {"apiKey": KEY}) or []
     cut = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=hours)
@@ -440,6 +520,14 @@ def main():
 
     events = slate(30)
     print("[cron] %d events in window" % len(events))
+    # free NHL-API colour columns (no Odds API credits) -- see context_layer's docstring for why
+    # these are display-only and deliberately NOT model inputs
+    try:
+        ctx = context_layer(prev)
+    except Exception as e:
+        print("[cron] context layer failed (non-fatal): %s" % e)
+        ctx = {}
+
     imp, pr, sog = {}, {}, []
     for e in events:
         imp.update(game_lines(e))
@@ -536,6 +624,8 @@ def main():
             "shop_gain": round(sum(probs) / n - a2p(best_price), 4),
             "soft_best": best_book in SOFT_BOOKS,
             "thin": p["gp"] < 10,
+            **{k: (ctx.get(p["team"]) or {}).get(k)
+               for k in ("opp_goalie", "opp_goalie_sv", "opp_pen60")},
         })
     rows.sort(key=lambda r: -r["model_p"])
     payload = {
