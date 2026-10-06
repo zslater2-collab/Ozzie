@@ -526,7 +526,14 @@ def main():
             "edge": round(model_p - mkt_p, 4),
             "best_price": best_price, "best_book": best_book,
             "worst_price": worst, "n_books": len(prices),
-            "shop_gain": round(a2p(worst) - a2p(best_price), 4),
+            # Shop gain = best price vs the MARKET AVERAGE, not vs the worst book. The worst book
+            # is a single lazy quote you would never bet into, so best-vs-worst measures an
+            # outlier rather than value you can capture -- and it skewed the column badly:
+            # sorted by the old definition the top rows averaged +1738 and scored 5.0%, versus
+            # +1116 and 15.0% under this one (2026-10-06 test, 851 graded player-games).
+            # This also matches hr_board_cron's edge_shop (avg_impl - best_impl); the NHL board
+            # was the inconsistent one.
+            "shop_gain": round(sum(probs) / n - a2p(best_price), 4),
             "soft_best": best_book in SOFT_BOOKS,
             "thin": p["gp"] < 10,
         })

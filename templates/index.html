@@ -1742,7 +1742,8 @@
     {k:'model_p',t:'Model P',l:0,v:r=>r.model_p??-1},
     {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
     {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
-    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1},
+    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1,
+     d:'Probability points gained by taking the BEST price instead of the market average. An EXECUTION metric: it says how much the wrong book would cost, NOT whether the bet is good. Sorting by it and betting the top rows is the worst use of this board (tested: 5-15% hit rate, heavily negative) because book disagreement is widest on deep longshots. Pick on Model P, then use this to place it.'},
     {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99},
     // book-pinned columns -- only rendered once a book is selected
     {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
@@ -1774,7 +1775,7 @@
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
     document.getElementById('nhl-thead').innerHTML='<tr>'+NC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setNhlSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(s.book)):((c.d||'').replace(/"/g,'&quot;'))}" onclick="setNhlSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('nhl-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1819,7 +1820,8 @@
     {k:'best_book',t:'Book',l:1,v:r=>r.best_book||''},
     {k:'fair_p',t:'Fair%',l:0,v:r=>r.fair_p??-1},
     {k:'ev_best',t:'EV@best',l:0,v:r=>r.ev_best??-999},
-    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1},
+    {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1,
+     d:'Probability points gained by taking the BEST price instead of the market average. An EXECUTION metric: it says how much the wrong book would cost, NOT whether the bet is good. Sorting by it and betting the top rows is the worst use of this board (tested: 5-15% hit rate, heavily negative) because book disagreement is widest on deep longshots. Pick on Model P, then use this to place it.'},
     {k:'combined_hold',t:'Hold',l:0,v:r=>r.combined_hold??99},
     {k:'n_books',t:'#',l:0,v:r=>r.n_books??0},
     {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
