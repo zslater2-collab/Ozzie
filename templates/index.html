@@ -1294,6 +1294,9 @@
     mkt_over:'Best available anytime-HR price across your bettable books',
     mkt_book:'Book offering that best price',
     mkt_avg:'Average anytime-HR price across all tracked books',
+    hr2_over:'Best 2+HR (1.5 line) price across your bettable books. Green = at or above ~+3500, the breakeven at the measured 2.78% multi-HR rate for flagged bats (6 events — wide error bars)',
+    hr2_book:'Book offering that best 2+HR price. It FLIPS by power tier: sluggers pay best at FanDuel/Bovada, mid-power bats at Bally/BetParx/BetRivers. BetMGM/BetOnline/Rebet/MyBookie post a flat default and are never best',
+    hr2_spread_x:'Best 2+HR payout ÷ worst, across books. Orange ≥2x means the worst book pays less than half — on this market the book you use decides whether the bet is +EV at all. Click the row for every book’s price',
     edge:'Model% − de-vigged market consensus%. ⚠ FADE: positive historically UNDERperforms (model overrates weak hitters) — not a bet',
     edge_best:'Model% − implied% of the best bettable price. ⚠ Same fade caveat as Edge',
     edge_shop:'How much the best price beats the market-average book (line-shopping value). Positive = better-than-average price',
@@ -1330,6 +1333,17 @@
       {k:'mkt_over',t:'Best',f:r=>_exAm(r.mkt_over)},
       {k:'mkt_book',t:'Book',l:1,f:r=>r.mkt_book||'—'},
       {k:'mkt_avg',t:'Mkt Avg',f:r=>_exAm(r.mkt_avg)},
+      // 2+HR (the 1.5 line). Surfaced because on this market the BOOK is the bet: measured on a
+      // live slate the best price pays ~2.2-2.5x the worst, against a ~+3500 breakeven, so the
+      // same nibble runs from -14% to +84% EV depending only on where it is struck. The best
+      // book also FLIPS by power tier (sluggers -> FanDuel/Bovada, mid-power -> Bally family),
+      // so there is no rule to memorise -- which is exactly why it belongs in the table.
+      {k:'hr2_over',t:'2+HR',f:r=>_exAm(r.hr2_over),
+       c:r=>r.hr2_over==null?'':(r.hr2_over>=3500?'#39d353':'var(--muted)')},
+      {k:'hr2_book',t:'2+ Book',l:1,f:r=>r.hr2_book||'—'},
+      {k:'hr2_spread_x',t:'2+ Spread',
+       f:r=>r.hr2_spread_x==null?'—':(+r.hr2_spread_x).toFixed(2)+'x',
+       c:r=>r.hr2_spread_x==null?'':(r.hr2_spread_x>=2?'#ff6b3d':(r.hr2_spread_x>=1.5?'#ffd700':'var(--muted)'))},
       {k:'edge',t:'Edge',f:r=>r.edge==null?'—':((r.edge>=0?'+':'')+(+r.edge).toFixed(1)),c:r=>_exFadeCol(r.edge)},
       {k:'edge_best',t:'Edge@Best',f:r=>r.edge_best==null?'—':((r.edge_best>=0?'+':'')+(+r.edge_best).toFixed(1)),c:r=>_exFadeCol(r.edge_best)},
       {k:'edge_shop',t:'Shop',f:r=>r.edge_shop==null?'—':((r.edge_shop>=0?'+':'')+(+r.edge_shop).toFixed(1)),c:r=>r.edge_shop==null?'':(r.edge_shop>0?'#39d353':'var(--muted)')},
@@ -1452,7 +1466,12 @@
       if(EXP.expanded===i){
         const bp=(EXP.tab==='hitters'?r.book_prices:r.kprop_book_prices)||[];
         const bt=document.createElement('tr');bt.className='exp-books';
-        bt.innerHTML=`<td colspan="${cols.length}">${bp.length?('Odds by book (best ✓): '+bp.map(b=>`${b.best?'✓ ':''}${b.book} ${(b.price>=0?'+':'')+b.price}`).join('  ·  ')):'no per-book odds posted for this one'}</td>`;
+        const h2=(EXP.tab==='hitters'?r.hr2_prices:null)||[];
+        const anyLine=bp.length?('Anytime by book (best ✓): '+bp.map(b=>`${b.best?'✓ ':''}${b.book} ${(b.price>=0?'+':'')+b.price}`).join('  ·  ')):'no per-book odds posted for this one';
+        // 2+HR ladder: the spread here is routinely >2x, so showing every book is the whole point
+        const h2Best=(h2.find(b=>b.bettable)||{}).book;
+        const h2Line=h2.length?('<div style="margin-top:4px">2+HR by book: '+h2.map(b=>`${b.book===h2Best?'✓ ':''}${b.book} ${(b.price>=0?'+':'')+b.price}${b.bettable?'':' <span style="opacity:.5">(not bettable)</span>'}`).join('  ·  ')+'</div>'):'';
+        bt.innerHTML=`<td colspan="${cols.length}">${anyLine}${h2Line}</td>`;
         tb.appendChild(bt);
       }
     });
