@@ -411,6 +411,11 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="nhl-game" onchange="NHL_STATE.game=this.value;renderNhlTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <label title="American odds range on the BEST price. Use it to pick the payout range you want for a boost token — NOT because any band is proven better: on 7 slates no price band is distinguishable from another (every pairwise |t| under 1.1, raw-ROI error bars of 8-26pp).">price
+        <input id="nhl-pmin" type="number" step="50" placeholder="min" oninput="NHL_STATE.pmin=this.value===''?null:+this.value;renderNhlTable()"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:62px">
+        <input id="nhl-pmax" type="number" step="50" placeholder="max" oninput="NHL_STATE.pmax=this.value===''?null:+this.value;renderNhlTable()"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:62px"></label>
       <span id="nhl-bookwrap"></span>
       <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
         <input id="nhl-boost" type="number" step="5" min="0" max="200" value="0" oninput="setNhlBoost(this.value)"
@@ -1586,6 +1591,8 @@
       && (!s.game || r.game===s.game)
       && (!s.time || tdKick(r)===s.time)
       && (!s.book || r.bk_price!=null)
+      && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
+      && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.player||'').toLowerCase().includes(q)));
     const TC=TD_COLS.filter(c=>!c.bb||s.book);
     const col=TC.find(c=>c.k===s.sort)||TD_COLS[5];
@@ -1731,7 +1738,7 @@
 
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
   let NHL_ROWS=[];
-  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0};
+  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0,pmin:null,pmax:null};
   const NHL_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
@@ -1781,6 +1788,8 @@
       && (!s.team || r.team===s.team)
       && (!s.game || r.game===s.game)
       && (!s.book || r.bk_price!=null)
+      && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
+      && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.player||'').toLowerCase().includes(q)));
     const NC=NHL_COLS.filter(c=>!c.bb||s.book);
     const col=NC.find(c=>c.k===s.sort)||NHL_COLS[6];
@@ -1884,6 +1893,8 @@
       && (!s.dogsOnly || (r.best_price!=null && r.best_price>0))
       && (!s.lockOnly || r.arb_roi)
       && (!s.book || r.bk_price!=null)
+      && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
+      && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.fighter||'').toLowerCase().includes(q) || (r.opponent||'').toLowerCase().includes(q)));
     const MC=MMA_COLS.filter(c=>(!c.bb||s.book)&&(!c.ab||s.boost>0));
     const col=MC.find(c=>c.k===s.sort)||MMA_COLS[3];
