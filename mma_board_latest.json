@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-10-07 19:23Z",
+  "generated": "2026-10-08 00:15Z",
   "n_rows": 58,
   "n_fights": 29,
-  "n_cards": 11,
+  "n_cards": 12,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "96400",
+  "credits_left": "96046",
   "sports": [
    "Boxing",
    "MMA"
@@ -598,48 +598,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Lupita Godinez",
-   "opponent": "Ketlen Souza",
-   "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": -230,
-   "best_book": "draftkings",
-   "worst_price": -265,
-   "n_books": 3,
-   "fair_p": 0.6792,
-   "mkt_p": 0.697,
-   "ev_best": -2.54,
-   "shop_gain": 0.0291,
-   "hedge_price": 200,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -230,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -265,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Malcolm Wellmaker",
    "opponent": "Otari Tanzilovi",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
@@ -694,29 +652,71 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Lupita Godinez",
+   "opponent": "Ketlen Souza",
+   "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:00:00Z",
+   "is_main": false,
+   "best_price": -230,
+   "best_book": "draftkings",
+   "worst_price": -265,
+   "n_books": 3,
+   "fair_p": 0.669,
+   "mkt_p": 0.697,
+   "ev_best": -4.01,
+   "shop_gain": 0.0291,
+   "hedge_price": 200,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0303,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -265,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Matheus Camilo",
    "opponent": "Jai Herbert",
    "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
    "card_date": "2026-10-11",
    "commence": "2026-10-11T00:00:00Z",
    "is_main": false,
-   "best_price": -198,
+   "best_price": -192,
    "best_book": "draftkings",
    "worst_price": -205,
    "n_books": 5,
-   "fair_p": 0.6369,
-   "mkt_p": 0.6644,
-   "ev_best": -4.14,
-   "shop_gain": 0.0077,
+   "fair_p": 0.6342,
+   "mkt_p": 0.6575,
+   "ev_best": -3.54,
+   "shop_gain": 0.0146,
    "hedge_price": 170,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0348,
+   "combined_hold": 0.0279,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -198,
+     "price": -192,
      "best": true,
      "bettable": true
     },
@@ -971,7 +971,7 @@
    "commence": "2026-10-11T00:00:00Z",
    "is_main": false,
    "best_price": -112,
-   "best_book": "draftkings",
+   "best_book": "ballybet",
    "worst_price": -120,
    "n_books": 5,
    "fair_p": 0.5108,
@@ -979,21 +979,21 @@
    "ev_best": -3.31,
    "shop_gain": 0.0172,
    "hedge_price": -105,
-   "hedge_book": "williamhill_us",
+   "hedge_book": "draftkings",
    "combined_hold": 0.0405,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
+     "book": "ballybet",
      "price": -112,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -112,
-     "best": true,
+     "book": "draftkings",
+     "price": -115,
+     "best": false,
      "bettable": true
     },
     {
@@ -1133,7 +1133,7 @@
    "commence": "2026-10-11T00:00:00Z",
    "is_main": false,
    "best_price": -105,
-   "best_book": "williamhill_us",
+   "best_book": "draftkings",
    "worst_price": -112,
    "n_books": 5,
    "fair_p": 0.4892,
@@ -1141,11 +1141,17 @@
    "ev_best": -4.5,
    "shop_gain": 0.0161,
    "hedge_price": -112,
-   "hedge_book": "draftkings",
+   "hedge_book": "ballybet",
    "combined_hold": 0.0405,
    "low_hold": false,
    "arb": false,
    "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -105,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "williamhill_us",
      "price": -105,
@@ -1161,12 +1167,6 @@
     {
      "book": "fanduel",
      "price": -106,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -108,
      "best": false,
      "bettable": true
     },
@@ -1406,13 +1406,13 @@
    "best_book": "williamhill_us",
    "worst_price": 155,
    "n_books": 5,
-   "fair_p": 0.3631,
+   "fair_p": 0.3658,
    "mkt_p": 0.3704,
-   "ev_best": -1.96,
+   "ev_best": -1.25,
    "shop_gain": 0.0218,
-   "hedge_price": -198,
+   "hedge_price": -192,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0348,
+   "combined_hold": 0.0279,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1430,7 +1430,7 @@
     },
     {
      "book": "draftkings",
-     "price": 164,
+     "price": 160,
      "best": false,
      "bettable": true
     },
@@ -1443,6 +1443,48 @@
     {
      "book": "ballybet",
      "price": 155,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Ketlen Souza",
+   "opponent": "Lupita Godinez",
+   "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:00:00Z",
+   "is_main": false,
+   "best_price": 200,
+   "best_book": "fanduel",
+   "worst_price": 190,
+   "n_books": 3,
+   "fair_p": 0.331,
+   "mkt_p": 0.3333,
+   "ev_best": -0.7,
+   "shop_gain": 0.0115,
+   "hedge_price": -230,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0303,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 190,
      "best": false,
      "bettable": true
     }
@@ -1497,48 +1539,6 @@
     {
      "book": "williamhill_us",
      "price": 185,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ketlen Souza",
-   "opponent": "Lupita Godinez",
-   "card": "2026-10-11 - Darya Zheleznyakova vs Alice Pereira",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": 200,
-   "best_book": "fanduel",
-   "worst_price": 190,
-   "n_books": 3,
-   "fair_p": 0.3208,
-   "mkt_p": 0.3333,
-   "ev_best": -3.77,
-   "shop_gain": 0.0115,
-   "hedge_price": -230,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 190,
      "best": false,
      "bettable": true
     }
