@@ -411,6 +411,8 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <select id="nhl-game" onchange="NHL_STATE.game=this.value;renderNhlTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
+      <span id="nhl-datewrap" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"></span>
+      <span id="nhl-timewrap" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"></span>
       <label title="American odds range on the BEST price. Use it to pick the payout range you want for a boost token — NOT because any band is proven better: on 7 slates no price band is distinguishable from another (every pairwise |t| under 1.1, raw-ROI error bars of 8-26pp).">price
         <input id="nhl-pmin" type="number" step="50" placeholder="min" oninput="NHL_STATE.pmin=this.value===''?null:+this.value;renderNhlTable()"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:62px">
@@ -425,7 +427,7 @@
     </div>
     <div class="exp-count" id="nhl-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="nhl-thead"></thead><tbody id="nhl-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Click a header to sort.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Click a header to sort. Table shows <b>upcoming games only</b> and opens on the nearest date — use the <b>Date</b> / <b>Start</b> checkboxes for a later slate.</div>
   </div>
 </div>
 </div><!--/view-hk-->
@@ -1738,7 +1740,8 @@
 
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
   let NHL_ROWS=[];
-  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0,pmin:null,pmax:null};
+  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0,pmin:null,pmax:null,
+                   dates:[],times:[],hidePast:true};
   const NHL_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
@@ -1778,10 +1781,55 @@
   function setNhlSort(k){ if(NHL_STATE.sort===k)NHL_STATE.dir*=-1; else{NHL_STATE.sort=k;NHL_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderNhlTable(); }
   function setNhlBook(b){ NHL_STATE.book=b; renderNhlTable(); }
   function setNhlBoost(v){ NHL_STATE.boost=+v||0; renderNhlTable(); }
+  // ── NHL date + start-time filters ─────────────────────────────────────
+  // WHY: the cron pulls slate(30), a THIRTY-DAY window, and this table had no time filter at
+  // all -- so it showed tomorrow's (and yesterday's) skaters mixed in with tonight's. On
+  // 2026-10-09 that was 139 rows for tonight's 4 games against 57 rows for games that had
+  // ALREADY FINISHED. The baseball board drops started games (gstart_ms > now); this mirrors
+  // that and adds the date/start checkboxes the Explorer has.
+  // All keys are LOCAL (America/New_York) because a UTC date splits a night slate in half:
+  // a 2026-10-10T00:10Z puck drop is an Oct 9 8:10pm ET game, not an Oct 10 game.
+  function _nhlMs(c){ const t=new Date(c).getTime(); return isNaN(t)?null:t; }
+  function _nhlDateKey(c){ const t=_nhlMs(c); return t==null?'':new Date(t)
+      .toLocaleDateString('en-CA',{timeZone:'America/New_York'}); }
+  function _nhlDateLabel(k){ if(!k)return '';
+    const [y,m,d]=k.split('-').map(Number), dt=new Date(Date.UTC(y,m-1,d));
+    const today=new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+    const tmr=new Date(Date.now()+864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+    const nm=k===today?'Tonight':(k===tmr?'Tomorrow':
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getUTCDay()]);
+    return nm+' '+m+'/'+d; }
+  function nhlToggleDate(k,on){ const st=new Set(NHL_STATE.dates);
+    on?st.add(k):st.delete(k); NHL_STATE.dates=[...st];
+    NHL_STATE.times=[];                       // times belong to a date; stale ones would hide all
+    renderNhlDateTime(); renderNhlTable(); }
+  function nhlToggleTime(k,on){ const st=new Set(NHL_STATE.times);
+    on?st.add(k):st.delete(k); NHL_STATE.times=[...st];
+    renderNhlDateTime(); renderNhlTable(); }
+  // Build both groups from the UPCOMING rows only. Times are scoped to the selected dates, so
+  // the Start row never offers a time that the Date filter has already excluded.
+  function renderNhlDateTime(){
+    const now=Date.now(), s=NHL_STATE;
+    const live=NHL_ROWS.filter(r=>r.commence&&(!s.hidePast||_nhlMs(r.commence)>now));
+    const dmap={}; live.forEach(r=>{const k=_nhlDateKey(r.commence); if(k)dmap[k]=(dmap[k]||0)+1;});
+    const dates=Object.keys(dmap).sort();
+    const dw=document.getElementById('nhl-datewrap'); if(!dw)return;
+    dw.innerHTML=dates.length<2?'':('<span style="color:var(--muted)">Date</span>'
+      +dates.map(k=>`<label style="font-weight:400;cursor:pointer" title="${dmap[k]} skaters"><input type="checkbox" ${s.dates.includes(k)?'checked':''} onchange="nhlToggleDate('${k}',this.checked)"> ${_nhlDateLabel(k)}</label>`).join(''));
+    const inDate=live.filter(r=>!s.dates.length||s.dates.includes(_nhlDateKey(r.commence)));
+    const tmap={}; inDate.forEach(r=>{const t=_nhlMs(r.commence); if(t!=null)tmap[t]=(tmap[t]||0)+1;});
+    const times=Object.keys(tmap).map(Number).sort((a,b)=>a-b);
+    const tw=document.getElementById('nhl-timewrap');
+    tw.innerHTML=times.length<2?'':('<span style="color:var(--muted)">Start</span>'
+      +times.map(t=>`<label style="font-weight:400;cursor:pointer" title="${tmap[t]} skaters"><input type="checkbox" ${s.times.includes(''+t)?'checked':''} onchange="nhlToggleTime('${t}',this.checked)"> ${_exGtimeLabel(t)}</label>`).join(''));
+  }
   function renderNhlTable(){
-    const s=NHL_STATE, q=s.search.trim();
+    const s=NHL_STATE, q=s.search.trim(), _nhlNow=Date.now();
     bbApply(NHL_ROWS,'book_prices',s.book,s.boost,'model_p',1);
     let rows=NHL_ROWS.filter(r=>r.mkt_p!=null
+      && (!s.hidePast || !r.commence || _nhlMs(r.commence)>_nhlNow)
+      && (!s.dates.length || !r.commence || s.dates.includes(_nhlDateKey(r.commence)))
+      && (!s.times.length || !r.commence || s.times.includes(''+_nhlMs(r.commence)))
       && (s.showThin || !r.thin)
       && (s.tab==='ALL' || (s.tab==='D' ? r.pos==='D' : r.pos!=='D'))
       && (!s.softOnly || r.soft_best)
@@ -2008,6 +2056,15 @@
       document.getElementById('nhl-game').innerHTML=opts(NHL_ROWS.map(r=>r.game),'all games');
       document.getElementById('nhl-bookwrap').innerHTML=
         bbBookSelect('nhl-book',NHL_STATE.book,bbBooksIn(NHL_ROWS,'book_prices'),'setNhlBook(this.value)');
+      // DEFAULT = the nearest upcoming local date only, so the table opens on tonight's slate
+      // instead of every game in the 30-day pull. Other dates stay one checkbox away.
+      (function(){
+        const now=Date.now();
+        const ds=[...new Set(NHL_ROWS.filter(r=>r.commence&&_nhlMs(r.commence)>now)
+                                     .map(r=>_nhlDateKey(r.commence)).filter(Boolean))].sort();
+        if(ds.length>1)NHL_STATE.dates=[ds[0]];
+      })();
+      renderNhlDateTime();
       renderNhlTable();
       document.getElementById('nhl-section').style.display='block';
     }).catch(()=>{});
