@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-10-09 00:28Z",
-  "n_rows": 72,
-  "n_fights": 36,
-  "n_cards": 11,
+  "generated": "2026-10-09 18:51Z",
+  "n_rows": 66,
+  "n_fights": 33,
+  "n_cards": 12,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "95135",
+  "credits_left": "94792",
   "sports": [
    "Boxing",
    "MMA"
@@ -21,253 +21,31 @@
  },
  "rows": [
   {
-   "sport": "Boxing",
-   "fighter": "Imam Khatev",
-   "opponent": "Padraig McCrory",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T00:35:00Z",
+   "sport": "MMA",
+   "fighter": "Yanis Ghemmouri",
+   "opponent": "Taha Bendaoud",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": -2500,
-   "best_book": "draftkings",
-   "worst_price": -3300,
-   "n_books": 3,
-   "fair_p": 0.9136,
-   "mkt_p": 0.9615,
-   "ev_best": -4.98,
-   "shop_gain": 0.009,
-   "hedge_price": 1200,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0385,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -2500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -3000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -3300,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Padraig McCrory",
-   "opponent": "Imam Khatev",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T00:35:00Z",
-   "is_main": false,
-   "best_price": 1200,
-   "best_book": "espnbet",
-   "worst_price": 900,
-   "n_books": 3,
-   "fair_p": 0.0864,
-   "mkt_p": 0.0769,
-   "ev_best": 12.29,
-   "shop_gain": 0.0231,
-   "hedge_price": -2500,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0385,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 1200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Wilkens Mathieu",
-   "opponent": "Vladimir Shishkin",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T01:45:00Z",
-   "is_main": false,
-   "best_price": -1400,
-   "best_book": "draftkings",
-   "worst_price": -2000,
-   "n_books": 3,
-   "fair_p": 0.8881,
-   "mkt_p": 0.9333,
-   "ev_best": -4.85,
-   "shop_gain": 0.019,
-   "hedge_price": 850,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0386,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -1400,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -1600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -2000,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Vladimir Shishkin",
-   "opponent": "Wilkens Mathieu",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T01:45:00Z",
-   "is_main": false,
-   "best_price": 850,
-   "best_book": "espnbet",
-   "worst_price": 660,
-   "n_books": 3,
-   "fair_p": 0.1119,
-   "mkt_p": 0.1053,
-   "ev_best": 6.34,
-   "shop_gain": 0.0263,
-   "hedge_price": -1400,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0386,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 850,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 660,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Osleys Iglesias",
-   "opponent": "Oliver Zaren",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T04:00:00Z",
-   "is_main": true,
-   "best_price": -1500,
+   "best_price": -250,
    "best_book": "fanduel",
-   "worst_price": -2000,
-   "n_books": 3,
-   "fair_p": 0.9005,
-   "mkt_p": 0.9375,
-   "ev_best": -3.95,
-   "shop_gain": 0.0149,
-   "hedge_price": 960,
+   "worst_price": -250,
+   "n_books": 1,
+   "fair_p": 0.6804,
+   "mkt_p": 0.7143,
+   "ev_best": -4.75,
+   "shop_gain": 0.0,
+   "hedge_price": 198,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0318,
+   "combined_hold": 0.0499,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -1500,
+     "price": -250,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -1600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -2000,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Oliver Zaren",
-   "opponent": "Osleys Iglesias",
-   "card": "2026-10-09 - Oliver Zaren vs Osleys Iglesias",
-   "card_date": "2026-10-09",
-   "commence": "2026-10-09T04:00:00Z",
-   "is_main": true,
-   "best_price": 960,
-   "best_book": "fanduel",
-   "worst_price": 800,
-   "n_books": 3,
-   "fair_p": 0.0995,
-   "mkt_p": 0.0943,
-   "ev_best": 5.5,
-   "shop_gain": 0.0168,
-   "hedge_price": -1500,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0318,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 960,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 800,
-     "best": false,
      "bettable": true
     }
    ]
@@ -276,87 +54,27 @@
    "sport": "MMA",
    "fighter": "Patrick Ocheme",
    "opponent": "Cornel Thompson",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": -245,
+   "best_price": -230,
    "best_book": "fanduel",
-   "worst_price": -245,
+   "worst_price": -230,
    "n_books": 1,
-   "fair_p": 0.6761,
-   "mkt_p": 0.7101,
-   "ev_best": -4.79,
+   "fair_p": 0.6644,
+   "mkt_p": 0.697,
+   "ev_best": -4.68,
    "shop_gain": 0.0,
-   "hedge_price": 194,
+   "hedge_price": 184,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0503,
+   "combined_hold": 0.0491,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -245,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Yanis Ghemmouri",
-   "opponent": "Taha Bendaoud",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T16:00:00Z",
-   "is_main": false,
-   "best_price": -215,
-   "best_book": "fanduel",
-   "worst_price": -215,
-   "n_books": 1,
-   "fair_p": 0.6499,
-   "mkt_p": 0.6825,
-   "ev_best": -4.78,
-   "shop_gain": 0.0,
-   "hedge_price": 172,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0502,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -215,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Dwight Joseph",
-   "opponent": "Boule Godogo",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T16:00:00Z",
-   "is_main": false,
-   "best_price": -148,
-   "best_book": "fanduel",
-   "worst_price": -148,
-   "n_books": 1,
-   "fair_p": 0.5676,
-   "mkt_p": 0.5968,
-   "ev_best": -4.88,
-   "shop_gain": 0.0,
-   "hedge_price": 120,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0513,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -148,
+     "price": -230,
      "best": true,
      "bettable": true
     }
@@ -366,27 +84,27 @@
    "sport": "MMA",
    "fighter": "Alain Majorique",
    "opponent": "Raphael Uchegbu",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": -115,
+   "best_price": -130,
    "best_book": "fanduel",
-   "worst_price": -115,
+   "worst_price": -130,
    "n_books": 1,
-   "fair_p": 0.5108,
-   "mkt_p": 0.5349,
-   "ev_best": -4.5,
+   "fair_p": 0.538,
+   "mkt_p": 0.5652,
+   "ev_best": -4.82,
    "shop_gain": 0.0,
-   "hedge_price": -105,
+   "hedge_price": 106,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0471,
+   "combined_hold": 0.0507,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -115,
+     "price": -130,
      "best": true,
      "bettable": true
     }
@@ -394,29 +112,29 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Raphael Uchegbu",
-   "opponent": "Alain Majorique",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "fighter": "Dwight Joseph",
+   "opponent": "Boule Godogo",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": -105,
+   "best_price": -124,
    "best_book": "fanduel",
-   "worst_price": -105,
+   "worst_price": -124,
    "n_books": 1,
-   "fair_p": 0.4892,
-   "mkt_p": 0.5122,
-   "ev_best": -4.5,
+   "fair_p": 0.5328,
+   "mkt_p": 0.5536,
+   "ev_best": -3.75,
    "shop_gain": 0.0,
-   "hedge_price": -115,
+   "hedge_price": 106,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0471,
+   "combined_hold": 0.039,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -105,
+     "price": -124,
      "best": true,
      "bettable": true
     }
@@ -426,27 +144,27 @@
    "sport": "MMA",
    "fighter": "Boule Godogo",
    "opponent": "Dwight Joseph",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": 120,
+   "best_price": 106,
    "best_book": "fanduel",
-   "worst_price": 120,
+   "worst_price": 106,
    "n_books": 1,
-   "fair_p": 0.4324,
-   "mkt_p": 0.4545,
-   "ev_best": -4.88,
+   "fair_p": 0.4672,
+   "mkt_p": 0.4854,
+   "ev_best": -3.75,
    "shop_gain": 0.0,
-   "hedge_price": -148,
+   "hedge_price": -124,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0513,
+   "combined_hold": 0.039,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 120,
+     "price": 106,
      "best": true,
      "bettable": true
     }
@@ -454,29 +172,29 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Taha Bendaoud",
-   "opponent": "Yanis Ghemmouri",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "fighter": "Raphael Uchegbu",
+   "opponent": "Alain Majorique",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": 172,
+   "best_price": 106,
    "best_book": "fanduel",
-   "worst_price": 172,
+   "worst_price": 106,
    "n_books": 1,
-   "fair_p": 0.3501,
-   "mkt_p": 0.3676,
-   "ev_best": -4.78,
+   "fair_p": 0.462,
+   "mkt_p": 0.4854,
+   "ev_best": -4.82,
    "shop_gain": 0.0,
-   "hedge_price": -215,
+   "hedge_price": -130,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0502,
+   "combined_hold": 0.0507,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 172,
+     "price": 106,
      "best": true,
      "bettable": true
     }
@@ -486,27 +204,57 @@
    "sport": "MMA",
    "fighter": "Cornel Thompson",
    "opponent": "Patrick Ocheme",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
    "commence": "2026-10-10T16:00:00Z",
    "is_main": false,
-   "best_price": 194,
+   "best_price": 184,
    "best_book": "fanduel",
-   "worst_price": 194,
+   "worst_price": 184,
    "n_books": 1,
-   "fair_p": 0.3239,
-   "mkt_p": 0.3401,
-   "ev_best": -4.79,
+   "fair_p": 0.3356,
+   "mkt_p": 0.3521,
+   "ev_best": -4.68,
    "shop_gain": 0.0,
-   "hedge_price": -245,
+   "hedge_price": -230,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0503,
+   "combined_hold": 0.0491,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 194,
+     "price": 184,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Taha Bendaoud",
+   "opponent": "Yanis Ghemmouri",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T16:00:00Z",
+   "is_main": false,
+   "best_price": 198,
+   "best_book": "fanduel",
+   "worst_price": 198,
+   "n_books": 1,
+   "fair_p": 0.3196,
+   "mkt_p": 0.3356,
+   "ev_best": -4.75,
+   "shop_gain": 0.0,
+   "hedge_price": -250,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0499,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 198,
      "best": true,
      "bettable": true
     }
@@ -586,320 +334,26 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Felipe Franco",
-   "opponent": "Brendson Ribeiro",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": -340,
-   "best_book": "draftkings",
-   "worst_price": -385,
-   "n_books": 4,
-   "fair_p": 0.7522,
-   "mkt_p": 0.7727,
-   "ev_best": -2.66,
-   "shop_gain": 0.0211,
-   "hedge_price": 290,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0291,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -340,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -370,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -375,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -385,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "RJ Harris",
-   "opponent": "Allen Frye Jr.",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": -325,
-   "best_book": "fanduel",
-   "worst_price": -345,
-   "n_books": 4,
-   "fair_p": 0.7372,
-   "mkt_p": 0.7647,
-   "ev_best": -3.59,
-   "shop_gain": 0.0106,
-   "hedge_price": 270,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.035,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -325,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -340,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -340,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -345,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Julius Walker",
-   "opponent": "Gerald Meerschaert",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": -286,
-   "best_book": "ballybet",
-   "worst_price": -310,
-   "n_books": 4,
-   "fair_p": 0.7175,
-   "mkt_p": 0.7409,
-   "ev_best": -3.17,
-   "shop_gain": 0.0152,
-   "hedge_price": 240,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0351,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -286,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -298,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -310,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Leon Shahbazyan",
-   "opponent": "Niko Price",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": -142,
-   "best_book": "draftkings",
-   "worst_price": -165,
-   "n_books": 4,
-   "fair_p": 0.5706,
-   "mkt_p": 0.5868,
-   "ev_best": -2.76,
-   "shop_gain": 0.0359,
-   "hedge_price": 140,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0034,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -142,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -148,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -152,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -165,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Alice Pereira",
-   "opponent": "Darya Zheleznyakova",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": true,
-   "best_price": -142,
-   "best_book": "draftkings",
-   "worst_price": -150,
-   "n_books": 4,
-   "fair_p": 0.5662,
-   "mkt_p": 0.5868,
-   "ev_best": -3.5,
-   "shop_gain": 0.0132,
-   "hedge_price": 125,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0312,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -142,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -144,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Francisco Prado",
-   "opponent": "Ismael Bonfim",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": -117,
-   "best_book": "ballybet",
-   "worst_price": -122,
-   "n_books": 4,
-   "fair_p": 0.5217,
-   "mkt_p": 0.5392,
-   "ev_best": -3.23,
-   "shop_gain": 0.0104,
-   "hedge_price": 100,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -117,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -122,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Melissa Gatto",
    "opponent": "Ernesta Kareckaite",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
+   "commence": "2026-10-10T21:15:00Z",
    "is_main": false,
    "best_price": -115,
-   "best_book": "draftkings",
-   "worst_price": -130,
+   "best_book": "fanduel",
+   "worst_price": -120,
    "n_books": 4,
-   "fair_p": 0.5108,
+   "fair_p": 0.5163,
    "mkt_p": 0.5349,
-   "ev_best": -4.5,
-   "shop_gain": 0.0303,
-   "hedge_price": 110,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0111,
-   "low_hold": true,
+   "ev_best": -3.48,
+   "shop_gain": 0.0106,
+   "hedge_price": 100,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0349,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -115,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "fanduel",
      "price": -115,
@@ -913,8 +367,14 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
-     "price": -130,
+     "price": -120,
      "best": false,
      "bettable": true
     }
@@ -924,34 +384,34 @@
    "sport": "MMA",
    "fighter": "Ernesta Kareckaite",
    "opponent": "Melissa Gatto",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
+   "commence": "2026-10-10T21:15:00Z",
    "is_main": false,
-   "best_price": 110,
-   "best_book": "williamhill_us",
+   "best_price": 100,
+   "best_book": "draftkings",
    "worst_price": -107,
    "n_books": 4,
-   "fair_p": 0.4892,
-   "mkt_p": 0.4762,
-   "ev_best": 2.72,
-   "shop_gain": 0.0407,
+   "fair_p": 0.4837,
+   "mkt_p": 0.5,
+   "ev_best": -3.26,
+   "shop_gain": 0.0169,
    "hedge_price": -115,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0111,
-   "low_hold": true,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0349,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 110,
+     "book": "draftkings",
+     "price": 100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -105,
-     "best": false,
+     "book": "williamhill_us",
+     "price": 100,
+     "best": true,
      "bettable": true
     },
     {
@@ -970,47 +430,47 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Ismael Bonfim",
-   "opponent": "Francisco Prado",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "fighter": "Alice Pereira",
+   "opponent": "Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
+   "commence": "2026-10-10T21:45:00Z",
    "is_main": false,
-   "best_price": 100,
+   "best_price": -135,
    "best_book": "draftkings",
-   "worst_price": -106,
+   "worst_price": -150,
    "n_books": 4,
-   "fair_p": 0.4783,
-   "mkt_p": 0.5,
-   "ev_best": -4.35,
-   "shop_gain": 0.0146,
-   "hedge_price": -117,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0392,
-   "low_hold": false,
+   "fair_p": 0.5612,
+   "mkt_p": 0.5745,
+   "ev_best": -2.31,
+   "shop_gain": 0.0255,
+   "hedge_price": 125,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 100,
+     "price": -135,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": -106,
+     "price": -143,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -144,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -150,
      "best": false,
      "bettable": true
     }
@@ -1020,22 +480,22 @@
    "sport": "MMA",
    "fighter": "Darya Zheleznyakova",
    "opponent": "Alice Pereira",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
    "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": true,
+   "commence": "2026-10-10T21:45:00Z",
+   "is_main": false,
    "best_price": 125,
    "best_book": "williamhill_us",
-   "worst_price": 118,
+   "worst_price": 114,
    "n_books": 4,
-   "fair_p": 0.4338,
+   "fair_p": 0.4388,
    "mkt_p": 0.4444,
-   "ev_best": -2.4,
-   "shop_gain": 0.0143,
-   "hedge_price": -142,
+   "ev_best": -1.26,
+   "shop_gain": 0.0228,
+   "hedge_price": -135,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0312,
-   "low_hold": false,
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -1045,212 +505,20 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 118,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Niko Price",
-   "opponent": "Leon Shahbazyan",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": 140,
-   "best_book": "williamhill_us",
-   "worst_price": 120,
-   "n_books": 4,
-   "fair_p": 0.4294,
-   "mkt_p": 0.4167,
-   "ev_best": 3.05,
-   "shop_gain": 0.0379,
-   "hedge_price": -142,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0034,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 140,
-     "best": true,
-     "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 123,
+     "price": 116,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Gerald Meerschaert",
-   "opponent": "Julius Walker",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": 240,
-   "best_book": "draftkings",
-   "worst_price": 220,
-   "n_books": 4,
-   "fair_p": 0.2825,
-   "mkt_p": 0.2941,
-   "ev_best": -3.94,
-   "shop_gain": 0.0184,
-   "hedge_price": -286,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0351,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 235,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 220,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Allen Frye Jr.",
-   "opponent": "RJ Harris",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": 270,
-   "best_book": "draftkings",
-   "worst_price": 250,
-   "n_books": 4,
-   "fair_p": 0.2628,
-   "mkt_p": 0.2703,
-   "ev_best": -2.78,
-   "shop_gain": 0.0154,
-   "hedge_price": -325,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.035,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 270,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Brendson Ribeiro",
-   "opponent": "Felipe Franco",
-   "card": "2026-10-10 - Alice Pereira vs Darya Zheleznyakova",
-   "card_date": "2026-10-10",
-   "commence": "2026-10-10T21:00:00Z",
-   "is_main": false,
-   "best_price": 290,
-   "best_book": "fanduel",
-   "worst_price": 270,
-   "n_books": 4,
-   "fair_p": 0.2478,
-   "mkt_p": 0.2564,
-   "ev_best": -3.34,
-   "shop_gain": 0.0139,
-   "hedge_price": -340,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0291,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 290,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 290,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 270,
+     "price": 114,
      "best": false,
      "bettable": true
     }
@@ -1301,29 +569,29 @@
    "commence": "2026-10-10T22:00:00Z",
    "is_main": true,
    "best_price": -600,
-   "best_book": "draftkings",
+   "best_book": "fanduel",
    "worst_price": -700,
    "n_books": 3,
-   "fair_p": 0.8108,
+   "fair_p": 0.814,
    "mkt_p": 0.8571,
-   "ev_best": -5.41,
+   "ev_best": -5.04,
    "shop_gain": 0.0179,
-   "hedge_price": 400,
+   "hedge_price": 450,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0571,
+   "combined_hold": 0.039,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
+     "book": "fanduel",
      "price": -600,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -600,
-     "best": true,
+     "book": "draftkings",
+     "price": -700,
+     "best": false,
      "bettable": true
     },
     {
@@ -1342,30 +610,30 @@
    "card_date": "2026-10-10",
    "commence": "2026-10-10T22:00:00Z",
    "is_main": true,
-   "best_price": 400,
+   "best_price": 450,
    "best_book": "draftkings",
    "worst_price": 380,
    "n_books": 3,
-   "fair_p": 0.1892,
-   "mkt_p": 0.2,
-   "ev_best": -5.41,
-   "shop_gain": 0.0083,
+   "fair_p": 0.186,
+   "mkt_p": 0.1818,
+   "ev_best": 2.33,
+   "shop_gain": 0.0265,
    "hedge_price": -600,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0571,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.039,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 400,
+     "price": 450,
      "best": true,
      "bettable": true
     },
     {
      "book": "espnbet",
      "price": 400,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -1407,6 +675,486 @@
     {
      "book": "fanduel",
      "price": 1550,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "RJ Harris",
+   "opponent": "Allen Frye Jr.",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T22:15:00Z",
+   "is_main": false,
+   "best_price": -325,
+   "best_book": "fanduel",
+   "worst_price": -355,
+   "n_books": 4,
+   "fair_p": 0.7404,
+   "mkt_p": 0.7647,
+   "ev_best": -3.17,
+   "shop_gain": 0.0155,
+   "hedge_price": 280,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0279,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -325,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -345,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -350,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -355,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Allen Frye Jr.",
+   "opponent": "RJ Harris",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T22:15:00Z",
+   "is_main": false,
+   "best_price": 280,
+   "best_book": "draftkings",
+   "worst_price": 250,
+   "n_books": 4,
+   "fair_p": 0.2596,
+   "mkt_p": 0.2632,
+   "ev_best": -1.37,
+   "shop_gain": 0.0226,
+   "hedge_price": -325,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0279,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 280,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Felipe Franco",
+   "opponent": "Brendson Ribeiro",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T22:45:00Z",
+   "is_main": false,
+   "best_price": -375,
+   "best_book": "ballybet",
+   "worst_price": -400,
+   "n_books": 4,
+   "fair_p": 0.7609,
+   "mkt_p": 0.7895,
+   "ev_best": -3.62,
+   "shop_gain": 0.0105,
+   "hedge_price": 310,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0334,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -375,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -385,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -395,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -400,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Brendson Ribeiro",
+   "opponent": "Felipe Franco",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T22:45:00Z",
+   "is_main": false,
+   "best_price": 310,
+   "best_book": "draftkings",
+   "worst_price": 280,
+   "n_books": 4,
+   "fair_p": 0.2391,
+   "mkt_p": 0.2439,
+   "ev_best": -1.96,
+   "shop_gain": 0.0193,
+   "hedge_price": -375,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0334,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 310,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 310,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 290,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 280,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Leon Shahbazyan",
+   "opponent": "Niko Price",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:15:00Z",
+   "is_main": false,
+   "best_price": -142,
+   "best_book": "draftkings",
+   "worst_price": -165,
+   "n_books": 4,
+   "fair_p": 0.5706,
+   "mkt_p": 0.5868,
+   "ev_best": -2.76,
+   "shop_gain": 0.0359,
+   "hedge_price": 140,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0034,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -142,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -148,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -152,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -165,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Niko Price",
+   "opponent": "Leon Shahbazyan",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:15:00Z",
+   "is_main": false,
+   "best_price": 140,
+   "best_book": "williamhill_us",
+   "worst_price": 120,
+   "n_books": 4,
+   "fair_p": 0.4294,
+   "mkt_p": 0.4167,
+   "ev_best": 3.05,
+   "shop_gain": 0.0379,
+   "hedge_price": -142,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0034,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 140,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 123,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 120,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Francisco Prado",
+   "opponent": "Ismael Bonfim",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:30:00Z",
+   "is_main": false,
+   "best_price": -122,
+   "best_book": "fanduel",
+   "worst_price": -130,
+   "n_books": 4,
+   "fair_p": 0.5358,
+   "mkt_p": 0.5495,
+   "ev_best": -2.51,
+   "shop_gain": 0.0157,
+   "hedge_price": 110,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0257,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -122,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -130,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Ismael Bonfim",
+   "opponent": "Francisco Prado",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:30:00Z",
+   "is_main": false,
+   "best_price": 110,
+   "best_book": "draftkings",
+   "worst_price": 100,
+   "n_books": 4,
+   "fair_p": 0.4642,
+   "mkt_p": 0.4762,
+   "ev_best": -2.51,
+   "shop_gain": 0.0238,
+   "hedge_price": -122,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0257,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 110,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 110,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 100,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Julius Walker",
+   "opponent": "Gerald Meerschaert",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:45:00Z",
+   "is_main": true,
+   "best_price": -300,
+   "best_book": "williamhill_us",
+   "worst_price": -310,
+   "n_books": 4,
+   "fair_p": 0.7176,
+   "mkt_p": 0.75,
+   "ev_best": -4.32,
+   "shop_gain": 0.0061,
+   "hedge_price": 245,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0399,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -305,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -305,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -310,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Gerald Meerschaert",
+   "opponent": "Julius Walker",
+   "card": "2026-10-10 - Gerald Meerschaert vs Julius Walker",
+   "card_date": "2026-10-10",
+   "commence": "2026-10-10T23:45:00Z",
+   "is_main": true,
+   "best_price": 245,
+   "best_book": "draftkings",
+   "worst_price": 235,
+   "n_books": 4,
+   "fair_p": 0.2824,
+   "mkt_p": 0.2899,
+   "ev_best": -2.58,
+   "shop_gain": 0.0087,
+   "hedge_price": -300,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0399,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 245,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 235,
      "best": false,
      "bettable": true
     }
@@ -1479,378 +1227,6 @@
     {
      "book": "espnbet",
      "price": -1600,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Lupita Godinez",
-   "opponent": "Ketlen Souza",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": -230,
-   "best_book": "williamhill_us",
-   "worst_price": -265,
-   "n_books": 3,
-   "fair_p": 0.675,
-   "mkt_p": 0.697,
-   "ev_best": -3.15,
-   "shop_gain": 0.0291,
-   "hedge_price": 200,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -230,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -238,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -265,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Malcolm Wellmaker",
-   "opponent": "Otari Tanzilovi",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": -220,
-   "best_book": "ballybet",
-   "worst_price": -230,
-   "n_books": 4,
-   "fair_p": 0.6636,
-   "mkt_p": 0.6875,
-   "ev_best": -3.47,
-   "shop_gain": 0.0095,
-   "hedge_price": 185,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0384,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -230,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Matheus Camilo",
-   "opponent": "Jai Herbert",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": -180,
-   "best_book": "williamhill_us",
-   "worst_price": -205,
-   "n_books": 4,
-   "fair_p": 0.626,
-   "mkt_p": 0.6429,
-   "ev_best": -2.61,
-   "shop_gain": 0.0293,
-   "hedge_price": 158,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0305,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -205,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Andre Fili",
-   "opponent": "Kai Kamaka",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": -135,
-   "best_book": "williamhill_us",
-   "worst_price": -160,
-   "n_books": 4,
-   "fair_p": 0.5662,
-   "mkt_p": 0.5745,
-   "ev_best": -1.43,
-   "shop_gain": 0.0409,
-   "hedge_price": 124,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0209,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -135,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -142,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -160,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kai Kamaka",
-   "opponent": "Andre Fili",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": 124,
-   "best_book": "fanduel",
-   "worst_price": 115,
-   "n_books": 4,
-   "fair_p": 0.4338,
-   "mkt_p": 0.4464,
-   "ev_best": -2.84,
-   "shop_gain": 0.0187,
-   "hedge_price": -135,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0209,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 124,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 115,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jai Herbert",
-   "opponent": "Matheus Camilo",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": 158,
-   "best_book": "fanduel",
-   "worst_price": 150,
-   "n_books": 4,
-   "fair_p": 0.374,
-   "mkt_p": 0.3876,
-   "ev_best": -3.52,
-   "shop_gain": 0.0124,
-   "hedge_price": -180,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0305,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 158,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 155,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 154,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Otari Tanzilovi",
-   "opponent": "Malcolm Wellmaker",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": 185,
-   "best_book": "draftkings",
-   "worst_price": 170,
-   "n_books": 4,
-   "fair_p": 0.3364,
-   "mkt_p": 0.3509,
-   "ev_best": -4.14,
-   "shop_gain": 0.0195,
-   "hedge_price": -220,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0384,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 185,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 185,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 184,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ketlen Souza",
-   "opponent": "Lupita Godinez",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:00:00Z",
-   "is_main": false,
-   "best_price": 200,
-   "best_book": "fanduel",
-   "worst_price": 190,
-   "n_books": 3,
-   "fair_p": 0.325,
-   "mkt_p": 0.3333,
-   "ev_best": -2.51,
-   "shop_gain": 0.0115,
-   "hedge_price": -230,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 195,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 190,
      "best": false,
      "bettable": true
     }
@@ -1930,23 +1306,491 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Malcolm Wellmaker",
+   "opponent": "Otari Tanzilovi",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:15:00Z",
+   "is_main": false,
+   "best_price": -210,
+   "best_book": "ballybet",
+   "worst_price": -230,
+   "n_books": 4,
+   "fair_p": 0.6636,
+   "mkt_p": 0.6774,
+   "ev_best": -2.03,
+   "shop_gain": 0.0196,
+   "hedge_price": 185,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0283,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -210,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Otari Tanzilovi",
+   "opponent": "Malcolm Wellmaker",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:15:00Z",
+   "is_main": false,
+   "best_price": 185,
+   "best_book": "draftkings",
+   "worst_price": 165,
+   "n_books": 4,
+   "fair_p": 0.3364,
+   "mkt_p": 0.3509,
+   "ev_best": -4.14,
+   "shop_gain": 0.0265,
+   "hedge_price": -210,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0283,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 185,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 185,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 184,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 165,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Andre Fili",
+   "opponent": "Kai Kamaka",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:45:00Z",
+   "is_main": false,
+   "best_price": -140,
+   "best_book": "williamhill_us",
+   "worst_price": -154,
+   "n_books": 4,
+   "fair_p": 0.5659,
+   "mkt_p": 0.5833,
+   "ev_best": -2.98,
+   "shop_gain": 0.023,
+   "hedge_price": 126,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0258,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -140,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -143,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -148,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -154,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Kai Kamaka",
+   "opponent": "Andre Fili",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T00:45:00Z",
+   "is_main": false,
+   "best_price": 126,
+   "best_book": "fanduel",
+   "worst_price": 116,
+   "n_books": 4,
+   "fair_p": 0.4341,
+   "mkt_p": 0.4425,
+   "ev_best": -1.9,
+   "shop_gain": 0.0205,
+   "hedge_price": -140,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0258,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 126,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 124,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 118,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 116,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Lupita Godinez",
+   "opponent": "Ketlen Souza",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T01:15:00Z",
+   "is_main": false,
+   "best_price": -230,
+   "best_book": "williamhill_us",
+   "worst_price": -250,
+   "n_books": 3,
+   "fair_p": 0.675,
+   "mkt_p": 0.697,
+   "ev_best": -3.15,
+   "shop_gain": 0.0173,
+   "hedge_price": 198,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0325,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -238,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Ketlen Souza",
+   "opponent": "Lupita Godinez",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T01:15:00Z",
+   "is_main": false,
+   "best_price": 198,
+   "best_book": "fanduel",
+   "worst_price": 190,
+   "n_books": 3,
+   "fair_p": 0.325,
+   "mkt_p": 0.3356,
+   "ev_best": -3.16,
+   "shop_gain": 0.0093,
+   "hedge_price": -230,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0325,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 198,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 195,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Matheus Camilo",
+   "opponent": "Jai Herbert",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T01:45:00Z",
+   "is_main": false,
+   "best_price": -180,
+   "best_book": "williamhill_us",
+   "worst_price": -194,
+   "n_books": 4,
+   "fair_p": 0.6254,
+   "mkt_p": 0.6429,
+   "ev_best": -2.71,
+   "shop_gain": 0.017,
+   "hedge_price": 160,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0275,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -180,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -192,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -194,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jai Herbert",
+   "opponent": "Matheus Camilo",
+   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T01:45:00Z",
+   "is_main": false,
+   "best_price": 160,
+   "best_book": "draftkings",
+   "worst_price": 150,
+   "n_books": 4,
+   "fair_p": 0.3746,
+   "mkt_p": 0.3846,
+   "ev_best": -2.61,
+   "shop_gain": 0.0154,
+   "hedge_price": -180,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0275,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 160,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 158,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Ricardo Rafael Sandoval",
+   "opponent": "Sergio Mendoza",
+   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T02:00:00Z",
+   "is_main": false,
+   "best_price": -600,
+   "best_book": "fanduel",
+   "worst_price": -700,
+   "n_books": 4,
+   "fair_p": 0.8117,
+   "mkt_p": 0.8571,
+   "ev_best": -5.31,
+   "shop_gain": 0.0179,
+   "hedge_price": 450,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.039,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -700,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Sergio Mendoza",
+   "opponent": "Ricardo Rafael Sandoval",
+   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
+   "card_date": "2026-10-11",
+   "commence": "2026-10-11T02:00:00Z",
+   "is_main": false,
+   "best_price": 450,
+   "best_book": "draftkings",
+   "worst_price": 380,
+   "n_books": 4,
+   "fair_p": 0.1883,
+   "mkt_p": 0.1818,
+   "ev_best": 3.59,
+   "shop_gain": 0.0265,
+   "hedge_price": -600,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.039,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 450,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 380,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Brendan Allen",
    "opponent": "Christian Leroy Duncan",
    "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
    "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:00:00Z",
+   "commence": "2026-10-11T02:15:00Z",
    "is_main": true,
    "best_price": -115,
    "best_book": "williamhill_us",
-   "worst_price": -138,
+   "worst_price": -134,
    "n_books": 4,
    "fair_p": 0.5306,
    "mkt_p": 0.5349,
    "ev_best": -0.79,
-   "shop_gain": 0.0449,
-   "hedge_price": 108,
+   "shop_gain": 0.0378,
+   "hedge_price": 110,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0157,
+   "combined_hold": 0.0111,
    "low_hold": true,
    "arb": false,
    "book_prices": [
@@ -1970,7 +1814,7 @@
     },
     {
      "book": "fanduel",
-     "price": -138,
+     "price": -134,
      "best": false,
      "bettable": true
     }
@@ -1982,25 +1826,25 @@
    "opponent": "Brendan Allen",
    "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
    "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:00:00Z",
+   "commence": "2026-10-11T02:15:00Z",
    "is_main": true,
-   "best_price": 108,
+   "best_price": 110,
    "best_book": "fanduel",
    "worst_price": -105,
    "n_books": 4,
    "fair_p": 0.4694,
-   "mkt_p": 0.4808,
-   "ev_best": -2.37,
-   "shop_gain": 0.0314,
+   "mkt_p": 0.4762,
+   "ev_best": -1.43,
+   "shop_gain": 0.036,
    "hedge_price": -115,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0157,
+   "combined_hold": 0.0111,
    "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 108,
+     "price": 110,
      "best": true,
      "bettable": true
     },
@@ -2026,131 +1870,35 @@
   },
   {
    "sport": "Boxing",
-   "fighter": "Ricardo Rafael Sandoval",
-   "opponent": "Sergio Mendoza",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:00:00Z",
-   "is_main": false,
-   "best_price": -500,
-   "best_book": "betmgm",
-   "worst_price": -700,
-   "n_books": 4,
-   "fair_p": 0.8076,
-   "mkt_p": 0.8333,
-   "ev_best": -3.08,
-   "shop_gain": 0.0417,
-   "hedge_price": 450,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0152,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": -500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -700,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Sergio Mendoza",
-   "opponent": "Ricardo Rafael Sandoval",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:00:00Z",
-   "is_main": false,
-   "best_price": 450,
-   "best_book": "draftkings",
-   "worst_price": 333,
-   "n_books": 4,
-   "fair_p": 0.1924,
-   "mkt_p": 0.1818,
-   "ev_best": 5.8,
-   "shop_gain": 0.0491,
-   "hedge_price": -500,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0152,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 450,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 380,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 333,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
    "fighter": "Floyd Scholfield",
    "opponent": "Lucas Bahdi",
    "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
    "card_date": "2026-10-11",
    "commence": "2026-10-11T03:00:00Z",
    "is_main": true,
-   "best_price": -900,
-   "best_book": "espnbet",
+   "best_price": -850,
+   "best_book": "fanduel",
    "worst_price": -1200,
    "n_books": 3,
-   "fair_p": 0.8608,
-   "mkt_p": 0.9,
-   "ev_best": -4.36,
-   "shop_gain": 0.0231,
+   "fair_p": 0.8606,
+   "mkt_p": 0.8947,
+   "ev_best": -3.82,
+   "shop_gain": 0.0283,
    "hedge_price": 650,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0333,
+   "combined_hold": 0.0281,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": -900,
+     "book": "fanduel",
+     "price": -850,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -1000,
+     "book": "espnbet",
+     "price": -900,
      "best": false,
      "bettable": true
     },
@@ -2174,13 +1922,13 @@
    "best_book": "draftkings",
    "worst_price": 550,
    "n_books": 3,
-   "fair_p": 0.1392,
+   "fair_p": 0.1394,
    "mkt_p": 0.1333,
-   "ev_best": 4.43,
+   "ev_best": 4.55,
    "shop_gain": 0.0205,
-   "hedge_price": -900,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0333,
+   "hedge_price": -850,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0281,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -2192,7 +1940,7 @@
     },
     {
      "book": "fanduel",
-     "price": 580,
+     "price": 590,
      "best": false,
      "bettable": true
     },
