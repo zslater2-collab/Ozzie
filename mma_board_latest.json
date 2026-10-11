@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-10-10 23:40Z",
-  "n_rows": 64,
-  "n_fights": 32,
-  "n_cards": 10,
+  "generated": "2026-10-11 18:08Z",
+  "n_rows": 48,
+  "n_fights": 24,
+  "n_cards": 9,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "93520",
+  "credits_left": "93167",
   "sports": [
    "Boxing",
    "MMA"
@@ -22,773 +22,35 @@
  "rows": [
   {
    "sport": "Boxing",
-   "fighter": "Jan Paul Rivera",
-   "opponent": "Abraham Perfecto Valdez",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:10:00Z",
+   "fighter": "Louie O'Doherty",
+   "opponent": "Michael Gomez Jr",
+   "card": "2026-10-17 - Fabio Wardley vs Daniel Dubois",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T19:00:00Z",
    "is_main": false,
-   "best_price": -3500,
-   "best_book": "draftkings",
-   "worst_price": -3500,
-   "n_books": 1,
-   "fair_p": 0.9211,
-   "mkt_p": 0.9722,
-   "ev_best": -5.26,
-   "shop_gain": 0.0,
-   "hedge_price": 1100,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0556,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -3500,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Abraham Perfecto Valdez",
-   "opponent": "Jan Paul Rivera",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:10:00Z",
-   "is_main": false,
-   "best_price": 1100,
-   "best_book": "draftkings",
-   "worst_price": 1100,
-   "n_books": 1,
-   "fair_p": 0.0789,
-   "mkt_p": 0.0833,
-   "ev_best": -5.26,
-   "shop_gain": 0.0,
-   "hedge_price": -3500,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0556,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Malcolm Wellmaker",
-   "opponent": "Otari Tanzilovi",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:15:00Z",
-   "is_main": false,
-   "best_price": -198,
-   "best_book": "draftkings",
-   "worst_price": -220,
-   "n_books": 5,
-   "fair_p": 0.6422,
-   "mkt_p": 0.6644,
-   "ev_best": -3.34,
-   "shop_gain": 0.0231,
-   "hedge_price": 180,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0216,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -198,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -220,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Otari Tanzilovi",
-   "opponent": "Malcolm Wellmaker",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:15:00Z",
-   "is_main": false,
-   "best_price": 180,
-   "best_book": "williamhill_us",
-   "worst_price": 164,
-   "n_books": 5,
-   "fair_p": 0.3578,
-   "mkt_p": 0.3571,
-   "ev_best": 0.17,
-   "shop_gain": 0.0216,
-   "hedge_price": -198,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0216,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 176,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 164,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Andre Fili",
-   "opponent": "Kai Kamaka",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:45:00Z",
-   "is_main": false,
-   "best_price": -142,
-   "best_book": "draftkings",
-   "worst_price": -152,
-   "n_books": 5,
-   "fair_p": 0.569,
-   "mkt_p": 0.5868,
-   "ev_best": -3.04,
-   "shop_gain": 0.0164,
-   "hedge_price": 128,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0254,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -142,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -145,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -152,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kai Kamaka",
-   "opponent": "Andre Fili",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T00:45:00Z",
-   "is_main": false,
-   "best_price": 128,
-   "best_book": "fanduel",
-   "worst_price": 120,
-   "n_books": 5,
-   "fair_p": 0.431,
-   "mkt_p": 0.4386,
-   "ev_best": -1.72,
-   "shop_gain": 0.0159,
-   "hedge_price": -142,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0254,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 128,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 125,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Jahmal Harvey",
-   "opponent": "Pedro Castaneda",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:00:00Z",
-   "is_main": false,
-   "best_price": -3000,
-   "best_book": "fanduel",
-   "worst_price": -3000,
-   "n_books": 1,
-   "fair_p": 0.9019,
-   "mkt_p": 0.9677,
-   "ev_best": -6.8,
-   "shop_gain": 0.0,
-   "hedge_price": 850,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.073,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -3000,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Pedro Castaneda",
-   "opponent": "Jahmal Harvey",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:00:00Z",
-   "is_main": false,
-   "best_price": 850,
-   "best_book": "fanduel",
-   "worst_price": 850,
-   "n_books": 1,
-   "fair_p": 0.0981,
-   "mkt_p": 0.1053,
-   "ev_best": -6.8,
-   "shop_gain": 0.0,
-   "hedge_price": -3000,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.073,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 850,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Lupita Godinez",
-   "opponent": "Ketlen Souza",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:15:00Z",
-   "is_main": false,
-   "best_price": -240,
-   "best_book": "fanduel",
-   "worst_price": -245,
-   "n_books": 3,
-   "fair_p": 0.6792,
-   "mkt_p": 0.7059,
-   "ev_best": -3.77,
-   "shop_gain": 0.0043,
-   "hedge_price": 200,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ketlen Souza",
-   "opponent": "Lupita Godinez",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:15:00Z",
-   "is_main": false,
-   "best_price": 200,
-   "best_book": "draftkings",
-   "worst_price": 198,
-   "n_books": 3,
-   "fair_p": 0.3208,
-   "mkt_p": 0.3333,
-   "ev_best": -3.77,
-   "shop_gain": 0.0022,
-   "hedge_price": -240,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 198,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Matheus Camilo",
-   "opponent": "Jai Herbert",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:45:00Z",
-   "is_main": false,
-   "best_price": -190,
-   "best_book": "fanduel",
-   "worst_price": -200,
-   "n_books": 5,
-   "fair_p": 0.6309,
-   "mkt_p": 0.6552,
-   "ev_best": -3.7,
-   "shop_gain": 0.0115,
-   "hedge_price": 165,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0325,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -192,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -200,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jai Herbert",
-   "opponent": "Matheus Camilo",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T01:45:00Z",
-   "is_main": false,
-   "best_price": 165,
-   "best_book": "betmgm",
-   "worst_price": 150,
-   "n_books": 5,
-   "fair_p": 0.3691,
-   "mkt_p": 0.3774,
-   "ev_best": -2.2,
-   "shop_gain": 0.0226,
-   "hedge_price": -190,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0325,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 165,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 162,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Ricardo Rafael Sandoval",
-   "opponent": "Sergio Mendoza",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:00:00Z",
-   "is_main": false,
-   "best_price": -600,
+   "best_price": -275,
    "best_book": "espnbet",
-   "worst_price": -700,
-   "n_books": 4,
-   "fair_p": 0.814,
-   "mkt_p": 0.8571,
-   "ev_best": -5.03,
-   "shop_gain": 0.0179,
-   "hedge_price": 450,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.039,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": -600,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -700,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Sergio Mendoza",
-   "opponent": "Ricardo Rafael Sandoval",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:00:00Z",
-   "is_main": false,
-   "best_price": 450,
-   "best_book": "draftkings",
-   "worst_price": 400,
-   "n_books": 4,
-   "fair_p": 0.186,
-   "mkt_p": 0.1818,
-   "ev_best": 2.3,
-   "shop_gain": 0.0182,
-   "hedge_price": -600,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.039,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 450,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 410,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Brendan Allen",
-   "opponent": "Christian Leroy Duncan",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:15:00Z",
-   "is_main": true,
-   "best_price": -115,
-   "best_book": "draftkings",
-   "worst_price": -122,
-   "n_books": 5,
-   "fair_p": 0.5108,
-   "mkt_p": 0.5349,
-   "ev_best": -4.5,
-   "shop_gain": 0.0147,
-   "hedge_price": 100,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0349,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -115,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -115,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -115,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -116,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -122,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Christian Leroy Duncan",
-   "opponent": "Brendan Allen",
-   "card": "2026-10-11 - Christian Leroy Duncan vs Brendan Allen",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T02:15:00Z",
-   "is_main": true,
-   "best_price": 100,
-   "best_book": "ballybet",
-   "worst_price": -105,
-   "n_books": 5,
-   "fair_p": 0.4892,
-   "mkt_p": 0.5,
-   "ev_best": -2.17,
-   "shop_gain": 0.0122,
-   "hedge_price": -115,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0349,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -102,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -105,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -105,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -105,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Floyd Scholfield",
-   "opponent": "Lucas Bahdi",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T03:00:00Z",
-   "is_main": true,
-   "best_price": -900,
-   "best_book": "espnbet",
-   "worst_price": -1050,
-   "n_books": 3,
-   "fair_p": 0.8642,
-   "mkt_p": 0.9,
-   "ev_best": -3.98,
-   "shop_gain": 0.013,
-   "hedge_price": 670,
+   "worst_price": -370,
+   "n_books": 2,
+   "fair_p": 0.7141,
+   "mkt_p": 0.7333,
+   "ev_best": -2.62,
+   "shop_gain": 0.0539,
+   "hedge_price": 250,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0299,
-   "low_hold": false,
+   "combined_hold": 0.019,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": -900,
+     "price": -275,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -1000,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": -1050,
+     "price": -370,
      "best": false,
      "bettable": true
     }
@@ -796,41 +58,35 @@
   },
   {
    "sport": "Boxing",
-   "fighter": "Lucas Bahdi",
-   "opponent": "Floyd Scholfield",
-   "card": "2026-10-11 - Lucas Bahdi vs Floyd Scholfield",
-   "card_date": "2026-10-11",
-   "commence": "2026-10-11T03:00:00Z",
-   "is_main": true,
-   "best_price": 670,
+   "fighter": "Michael Gomez Jr",
+   "opponent": "Louie O'Doherty",
+   "card": "2026-10-17 - Fabio Wardley vs Daniel Dubois",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T19:00:00Z",
+   "is_main": false,
+   "best_price": 250,
    "best_book": "fanduel",
-   "worst_price": 550,
-   "n_books": 3,
-   "fair_p": 0.1358,
-   "mkt_p": 0.1299,
-   "ev_best": 4.57,
-   "shop_gain": 0.024,
-   "hedge_price": -900,
+   "worst_price": 210,
+   "n_books": 2,
+   "fair_p": 0.2859,
+   "mkt_p": 0.2857,
+   "ev_best": 0.06,
+   "shop_gain": 0.0369,
+   "hedge_price": -275,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0299,
-   "low_hold": false,
+   "combined_hold": 0.019,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 670,
+     "price": 250,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "espnbet",
-     "price": 550,
+     "price": 210,
      "best": false,
      "bettable": true
     }
@@ -964,6 +220,54 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Erin Blanchfield",
+   "opponent": "Jasmine Jasudavicius",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": false,
+   "best_price": -275,
+   "best_book": "betmgm",
+   "worst_price": -305,
+   "n_books": 4,
+   "fair_p": 0.7133,
+   "mkt_p": 0.7333,
+   "ev_best": -2.74,
+   "shop_gain": 0.0198,
+   "hedge_price": 245,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0232,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -275,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -295,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -305,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Mandel Nallo",
    "opponent": "Nate Landwehr",
    "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
@@ -973,15 +277,15 @@
    "best_price": -250,
    "best_book": "williamhill_us",
    "worst_price": -286,
-   "n_books": 3,
-   "fair_p": 0.7034,
+   "n_books": 4,
+   "fair_p": 0.7023,
    "mkt_p": 0.7143,
-   "ev_best": -1.53,
+   "ev_best": -1.68,
    "shop_gain": 0.0266,
-   "hedge_price": 225,
+   "hedge_price": 230,
    "hedge_book": "draftkings",
-   "combined_hold": 0.022,
-   "low_hold": false,
+   "combined_hold": 0.0173,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -991,8 +295,14 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": -275,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": -278,
+     "price": -285,
      "best": false,
      "bettable": true
     },
@@ -1006,83 +316,41 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Erin Blanchfield",
-   "opponent": "Jasmine Jasudavicius",
-   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
-   "card_date": "2026-10-17",
-   "commence": "2026-10-17T21:00:00Z",
-   "is_main": false,
-   "best_price": -250,
-   "best_book": "ballybet",
-   "worst_price": -260,
-   "n_books": 3,
-   "fair_p": 0.6854,
-   "mkt_p": 0.7143,
-   "ev_best": -4.04,
-   "shop_gain": 0.0079,
-   "hedge_price": 210,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0369,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -260,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Melissa Croden",
    "opponent": "Chelsea Chandler",
    "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": true,
-   "best_price": -238,
-   "best_book": "draftkings",
-   "worst_price": -250,
+   "best_price": -270,
+   "best_book": "williamhill_us",
+   "worst_price": -275,
    "n_books": 3,
-   "fair_p": 0.675,
-   "mkt_p": 0.7041,
-   "ev_best": -4.13,
-   "shop_gain": 0.0101,
-   "hedge_price": 205,
+   "fair_p": 0.7002,
+   "mkt_p": 0.7297,
+   "ev_best": -4.05,
+   "shop_gain": 0.0036,
+   "hedge_price": 220,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.032,
+   "combined_hold": 0.0422,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": -270,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": -238,
+     "price": -270,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -250,
+     "price": -275,
      "best": false,
      "bettable": true
     }
@@ -1099,14 +367,14 @@
    "best_price": -225,
    "best_book": "williamhill_us",
    "worst_price": -230,
-   "n_books": 3,
+   "n_books": 4,
    "fair_p": 0.6636,
    "mkt_p": 0.6923,
    "ev_best": -4.14,
    "shop_gain": 0.0047,
-   "hedge_price": 185,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0432,
+   "hedge_price": 190,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0371,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1117,13 +385,19 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "betmgm",
      "price": -225,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
      "price": -230,
      "best": false,
      "bettable": true
@@ -1138,35 +412,35 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": -160,
-   "best_book": "williamhill_us",
-   "worst_price": -175,
+   "best_price": -175,
+   "best_book": "ballybet",
+   "worst_price": -205,
    "n_books": 3,
-   "fair_p": 0.5996,
-   "mkt_p": 0.6154,
-   "ev_best": -2.56,
-   "shop_gain": 0.021,
-   "hedge_price": 140,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0321,
-   "low_hold": false,
+   "fair_p": 0.6447,
+   "mkt_p": 0.6364,
+   "ev_best": 1.31,
+   "shop_gain": 0.0358,
+   "hedge_price": 170,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0067,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -160,
+     "book": "ballybet",
+     "price": -175,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -166,
+     "book": "williamhill_us",
+     "price": -205,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -175,
+     "book": "draftkings",
+     "price": -205,
      "best": false,
      "bettable": true
     }
@@ -1180,35 +454,41 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": -150,
+   "best_price": -140,
    "best_book": "williamhill_us",
-   "worst_price": -155,
-   "n_books": 3,
-   "fair_p": 0.5745,
-   "mkt_p": 0.6,
-   "ev_best": -4.26,
-   "shop_gain": 0.0078,
-   "hedge_price": 130,
+   "worst_price": -152,
+   "n_books": 4,
+   "fair_p": 0.5659,
+   "mkt_p": 0.5833,
+   "ev_best": -2.98,
+   "shop_gain": 0.0198,
+   "hedge_price": 124,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0348,
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": -150,
+     "price": -140,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -140,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -148,
+     "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": -152,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -155,
      "best": false,
      "bettable": true
     }
@@ -1222,35 +502,41 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 130,
+   "best_price": 124,
    "best_book": "draftkings",
-   "worst_price": 123,
-   "n_books": 3,
-   "fair_p": 0.4255,
-   "mkt_p": 0.4348,
-   "ev_best": -2.13,
-   "shop_gain": 0.0136,
-   "hedge_price": -150,
+   "worst_price": 115,
+   "n_books": 4,
+   "fair_p": 0.4341,
+   "mkt_p": 0.4464,
+   "ev_best": -2.77,
+   "shop_gain": 0.0187,
+   "hedge_price": -140,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0348,
+   "combined_hold": 0.0298,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 130,
+     "price": 124,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 125,
-     "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 123,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 118,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 115,
      "best": false,
      "bettable": true
     }
@@ -1264,35 +550,35 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 140,
-   "best_book": "draftkings",
-   "worst_price": 135,
+   "best_price": 170,
+   "best_book": "williamhill_us",
+   "worst_price": 138,
    "n_books": 3,
-   "fair_p": 0.4004,
-   "mkt_p": 0.4167,
-   "ev_best": -3.91,
-   "shop_gain": 0.0089,
-   "hedge_price": -160,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0321,
-   "low_hold": false,
+   "fair_p": 0.3553,
+   "mkt_p": 0.3704,
+   "ev_best": -4.08,
+   "shop_gain": 0.0498,
+   "hedge_price": -175,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0067,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": 170,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": 140,
+     "price": 170,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 138,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 135,
      "best": false,
      "bettable": true
     }
@@ -1306,30 +592,36 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 185,
-   "best_book": "williamhill_us",
+   "best_price": 190,
+   "best_book": "draftkings",
    "worst_price": 180,
-   "n_books": 3,
+   "n_books": 4,
    "fair_p": 0.3364,
-   "mkt_p": 0.3509,
-   "ev_best": -4.14,
-   "shop_gain": 0.0063,
+   "mkt_p": 0.3448,
+   "ev_best": -2.46,
+   "shop_gain": 0.0123,
    "hedge_price": -225,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0432,
+   "combined_hold": 0.0371,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 185,
+     "book": "draftkings",
+     "price": 190,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": 185,
-     "best": true,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 185,
+     "best": false,
      "bettable": true
     },
     {
@@ -1348,77 +640,35 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": true,
-   "best_price": 205,
+   "best_price": 220,
    "best_book": "williamhill_us",
-   "worst_price": 190,
+   "worst_price": 210,
    "n_books": 3,
-   "fair_p": 0.325,
-   "mkt_p": 0.3279,
-   "ev_best": -0.88,
-   "shop_gain": 0.017,
-   "hedge_price": -238,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.032,
+   "fair_p": 0.2998,
+   "mkt_p": 0.3125,
+   "ev_best": -4.05,
+   "shop_gain": 0.0101,
+   "hedge_price": -270,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0422,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": 205,
+     "price": 220,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 195,
-     "best": false,
+     "price": 220,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jasmine Jasudavicius",
-   "opponent": "Erin Blanchfield",
-   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
-   "card_date": "2026-10-17",
-   "commence": "2026-10-17T21:00:00Z",
-   "is_main": false,
-   "best_price": 210,
-   "best_book": "williamhill_us",
-   "worst_price": 195,
-   "n_books": 3,
-   "fair_p": 0.3146,
-   "mkt_p": 0.3226,
-   "ev_best": -2.47,
-   "shop_gain": 0.0164,
-   "hedge_price": -250,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0369,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
      "price": 210,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 205,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 195,
      "best": false,
      "bettable": true
     }
@@ -1432,23 +682,23 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 225,
+   "best_price": 230,
    "best_book": "draftkings",
    "worst_price": 205,
-   "n_books": 3,
-   "fair_p": 0.2966,
-   "mkt_p": 0.3077,
-   "ev_best": -3.59,
-   "shop_gain": 0.0202,
+   "n_books": 4,
+   "fair_p": 0.2977,
+   "mkt_p": 0.303,
+   "ev_best": -1.75,
+   "shop_gain": 0.0248,
    "hedge_price": -250,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.022,
-   "low_hold": false,
+   "combined_hold": 0.0173,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 225,
+     "price": 230,
      "best": true,
      "bettable": true
     },
@@ -1459,8 +709,62 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
      "price": 205,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jasmine Jasudavicius",
+   "opponent": "Erin Blanchfield",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": false,
+   "best_price": 245,
+   "best_book": "draftkings",
+   "worst_price": 225,
+   "n_books": 4,
+   "fair_p": 0.2867,
+   "mkt_p": 0.2899,
+   "ev_best": -1.08,
+   "shop_gain": 0.0178,
+   "hedge_price": -275,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0232,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 245,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 225,
      "best": false,
      "bettable": true
     }
@@ -1576,35 +880,35 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -550,
-   "best_book": "williamhill_us",
-   "worst_price": -590,
+   "best_price": -590,
+   "best_book": "ballybet",
+   "worst_price": -600,
    "n_books": 3,
-   "fair_p": 0.8104,
-   "mkt_p": 0.8462,
-   "ev_best": -4.22,
-   "shop_gain": 0.0089,
-   "hedge_price": 410,
+   "fair_p": 0.8196,
+   "mkt_p": 0.8551,
+   "ev_best": -4.15,
+   "shop_gain": 0.0021,
+   "hedge_price": 440,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0422,
+   "combined_hold": 0.0403,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -550,
+     "book": "ballybet",
+     "price": -590,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -600,
+     "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -550,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -590,
+     "price": -600,
      "best": false,
      "bettable": true
     }
@@ -1696,35 +1000,41 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -250,
-   "best_book": "ballybet",
-   "worst_price": -260,
-   "n_books": 3,
-   "fair_p": 0.6854,
-   "mkt_p": 0.7143,
-   "ev_best": -4.04,
-   "shop_gain": 0.0079,
-   "hedge_price": 210,
+   "best_price": -230,
+   "best_book": "draftkings",
+   "worst_price": -250,
+   "n_books": 4,
+   "fair_p": 0.6787,
+   "mkt_p": 0.697,
+   "ev_best": -2.62,
+   "shop_gain": 0.0173,
+   "hedge_price": 200,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0369,
+   "combined_hold": 0.0303,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": -250,
+     "price": -230,
      "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": -260,
+     "price": -240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -250,
      "best": false,
      "bettable": true
     }
@@ -1738,34 +1048,34 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -148,
-   "best_book": "draftkings",
+   "best_price": -150,
+   "best_book": "ballybet",
    "worst_price": -155,
    "n_books": 3,
-   "fair_p": 0.5721,
-   "mkt_p": 0.5968,
-   "ev_best": -4.14,
-   "shop_gain": 0.0111,
+   "fair_p": 0.583,
+   "mkt_p": 0.6,
+   "ev_best": -2.83,
+   "shop_gain": 0.0078,
    "hedge_price": 130,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0316,
+   "combined_hold": 0.0348,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": -148,
+     "book": "ballybet",
+     "price": -150,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -150,
+     "book": "williamhill_us",
+     "price": -155,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "draftkings",
      "price": -155,
      "best": false,
      "bettable": true
@@ -1780,30 +1090,36 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": true,
-   "best_price": -130,
-   "best_book": "williamhill_us",
+   "best_price": -112,
+   "best_book": "draftkings",
    "worst_price": -132,
-   "n_books": 3,
-   "fair_p": 0.5427,
-   "mkt_p": 0.5652,
-   "ev_best": -3.98,
-   "shop_gain": 0.0037,
+   "n_books": 4,
+   "fair_p": 0.5418,
+   "mkt_p": 0.5283,
+   "ev_best": 2.55,
+   "shop_gain": 0.0407,
    "hedge_price": 110,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0414,
-   "low_hold": false,
+   "combined_hold": 0.0045,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -130,
+     "book": "draftkings",
+     "price": -112,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": -130,
-     "best": true,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -130,
+     "best": false,
      "bettable": true
     },
     {
@@ -1824,16 +1140,16 @@
    "is_main": true,
    "best_price": 110,
    "best_book": "williamhill_us",
-   "worst_price": 107,
-   "n_books": 3,
-   "fair_p": 0.4573,
+   "worst_price": -108,
+   "n_books": 4,
+   "fair_p": 0.4582,
    "mkt_p": 0.4762,
-   "ev_best": -3.98,
-   "shop_gain": 0.0069,
-   "hedge_price": -130,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0414,
-   "low_hold": false,
+   "ev_best": -3.77,
+   "shop_gain": 0.043,
+   "hedge_price": -112,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0045,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -1843,7 +1159,7 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "betmgm",
      "price": 110,
      "best": true,
      "bettable": true
@@ -1851,6 +1167,12 @@
     {
      "book": "ballybet",
      "price": 107,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -108,
      "best": false,
      "bettable": true
     }
@@ -1868,13 +1190,13 @@
    "best_book": "williamhill_us",
    "worst_price": 120,
    "n_books": 3,
-   "fair_p": 0.4279,
+   "fair_p": 0.417,
    "mkt_p": 0.4348,
-   "ev_best": -1.57,
+   "ev_best": -4.09,
    "shop_gain": 0.0198,
-   "hedge_price": -148,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0316,
+   "hedge_price": -150,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0348,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1886,8 +1208,8 @@
     },
     {
      "book": "draftkings",
-     "price": 124,
-     "best": false,
+     "price": 130,
+     "best": true,
      "bettable": true
     },
     {
@@ -1906,35 +1228,41 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": 210,
+   "best_price": 200,
    "best_book": "williamhill_us",
-   "worst_price": 195,
-   "n_books": 3,
-   "fair_p": 0.3146,
-   "mkt_p": 0.3226,
-   "ev_best": -2.47,
-   "shop_gain": 0.0164,
-   "hedge_price": -250,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0369,
+   "worst_price": 190,
+   "n_books": 4,
+   "fair_p": 0.3213,
+   "mkt_p": 0.3333,
+   "ev_best": -3.61,
+   "shop_gain": 0.0115,
+   "hedge_price": -230,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0303,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": 210,
+     "price": 200,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 205,
-     "best": false,
+     "book": "betmgm",
+     "price": 200,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 195,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 190,
      "best": false,
      "bettable": true
     }
@@ -2026,29 +1354,29 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": 410,
+   "best_price": 440,
    "best_book": "draftkings",
    "worst_price": 400,
    "n_books": 3,
-   "fair_p": 0.1896,
-   "mkt_p": 0.1961,
-   "ev_best": -3.32,
-   "shop_gain": 0.0039,
-   "hedge_price": -550,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0422,
+   "fair_p": 0.1804,
+   "mkt_p": 0.1852,
+   "ev_best": -2.58,
+   "shop_gain": 0.0148,
+   "hedge_price": -590,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0403,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 410,
+     "price": 440,
      "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 400,
+     "price": 430,
      "best": false,
      "bettable": true
     },
