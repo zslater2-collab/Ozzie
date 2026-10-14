@@ -1,8 +1,8 @@
 {
  "meta": {
-  "generated": "2026-10-13 23:45Z",
-  "n_rows": 58,
-  "n_fights": 29,
+  "generated": "2026-10-14 18:03Z",
+  "n_rows": 74,
+  "n_fights": 37,
   "n_cards": 10,
   "books": [
    "ballybet",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "91179",
+  "credits_left": "90831",
   "sports": [
    "Boxing",
    "MMA"
@@ -22,29 +22,65 @@
  "rows": [
   {
    "sport": "MMA",
-   "fighter": "Luis Francischinelli",
-   "opponent": "Will Rentz",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:05:00Z",
+   "fighter": "Gamid Khizriev",
+   "opponent": "Michael Boylan",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
    "is_main": false,
-   "best_price": -250,
-   "best_book": "betmgm",
-   "worst_price": -250,
+   "best_price": -2500,
+   "best_book": "ballybet",
+   "worst_price": -4000,
+   "n_books": 2,
+   "fair_p": 0.9175,
+   "mkt_p": 0.9615,
+   "ev_best": -4.58,
+   "shop_gain": 0.0141,
+   "hedge_price": 1100,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0449,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -2500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -4000,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Paulina Wi\u015bniewska",
+   "opponent": "Chelsea Hackett",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": -530,
+   "best_book": "ballybet",
+   "worst_price": -530,
    "n_books": 1,
-   "fair_p": 0.6818,
-   "mkt_p": 0.7143,
-   "ev_best": -4.55,
+   "fair_p": 0.7854,
+   "mkt_p": 0.8413,
+   "ev_best": -6.64,
    "shop_gain": 0.0,
-   "hedge_price": 200,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0476,
+   "hedge_price": 335,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0712,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": -250,
+     "book": "ballybet",
+     "price": -530,
      "best": true,
      "bettable": true
     }
@@ -52,29 +88,137 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Will Rentz",
-   "opponent": "Luis Francischinelli",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:05:00Z",
+   "fighter": "Timur Khizriev",
+   "opponent": "Gabriel Alves Braga",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
    "is_main": false,
-   "best_price": 200,
-   "best_book": "betmgm",
-   "worst_price": 200,
+   "best_price": -435,
+   "best_book": "ballybet",
+   "worst_price": -440,
+   "n_books": 2,
+   "fair_p": 0.7672,
+   "mkt_p": 0.8131,
+   "ev_best": -5.64,
+   "shop_gain": 0.0017,
+   "hedge_price": 310,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.057,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -435,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -440,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Liz Carmouche",
+   "opponent": "Jena Bishop",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": -350,
+   "best_book": "fanduel",
+   "worst_price": -360,
+   "n_books": 2,
+   "fair_p": 0.7361,
+   "mkt_p": 0.7778,
+   "ev_best": -5.36,
+   "shop_gain": 0.0048,
+   "hedge_price": 260,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -350,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -360,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Abraham Bably",
+   "opponent": "Emiliano Sordi",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": true,
+   "best_price": -286,
+   "best_book": "ballybet",
+   "worst_price": -295,
+   "n_books": 2,
+   "fair_p": 0.6956,
+   "mkt_p": 0.7409,
+   "ev_best": -6.12,
+   "shop_gain": 0.0059,
+   "hedge_price": 220,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0534,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -286,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -295,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Kevin Pease",
+   "opponent": "C\u00e1ssio Bar\u00e3o",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": -275,
+   "best_book": "ballybet",
+   "worst_price": -275,
    "n_books": 1,
-   "fair_p": 0.3182,
-   "mkt_p": 0.3333,
-   "ev_best": -4.55,
+   "fair_p": 0.6787,
+   "mkt_p": 0.7333,
+   "ev_best": -7.46,
    "shop_gain": 0.0,
-   "hedge_price": -250,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0476,
+   "hedge_price": 188,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0806,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 200,
+     "book": "ballybet",
+     "price": -275,
      "best": true,
      "bettable": true
     }
@@ -82,35 +226,35 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Smilla Sundell",
-   "opponent": "Aline Pereira",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:30:00Z",
+   "fighter": "Eliezer Kubanza",
+   "opponent": "Trey Waters",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
    "is_main": false,
-   "best_price": -490,
+   "best_price": -156,
    "best_book": "fanduel",
-   "worst_price": -550,
+   "worst_price": -157,
    "n_books": 2,
-   "fair_p": 0.8041,
-   "mkt_p": 0.8305,
-   "ev_best": -3.17,
-   "shop_gain": 0.0156,
-   "hedge_price": 400,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0305,
+   "fair_p": 0.5696,
+   "mkt_p": 0.6094,
+   "ev_best": -6.52,
+   "shop_gain": 0.0015,
+   "hedge_price": 122,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0598,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -490,
+     "price": -156,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -550,
+     "book": "ballybet",
+     "price": -157,
      "best": false,
      "bettable": true
     }
@@ -118,35 +262,35 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Aline Pereira",
-   "opponent": "Smilla Sundell",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:30:00Z",
+   "fighter": "Trey Waters",
+   "opponent": "Eliezer Kubanza",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
    "is_main": false,
-   "best_price": 400,
-   "best_book": "betmgm",
-   "worst_price": 380,
+   "best_price": 122,
+   "best_book": "fanduel",
+   "worst_price": 112,
    "n_books": 2,
-   "fair_p": 0.1959,
-   "mkt_p": 0.2,
-   "ev_best": -2.07,
-   "shop_gain": 0.0083,
-   "hedge_price": -490,
+   "fair_p": 0.4304,
+   "mkt_p": 0.4505,
+   "ev_best": -4.46,
+   "shop_gain": 0.0212,
+   "hedge_price": -156,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0305,
+   "combined_hold": 0.0598,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 400,
+     "book": "fanduel",
+     "price": 122,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 380,
+     "book": "ballybet",
+     "price": 112,
      "best": false,
      "bettable": true
     }
@@ -154,35 +298,65 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Ilias Bulaid",
-   "opponent": "Erick Visconde",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:55:00Z",
+   "fighter": "C\u00e1ssio Bar\u00e3o",
+   "opponent": "Kevin Pease",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": 188,
+   "best_book": "ballybet",
+   "worst_price": 188,
+   "n_books": 1,
+   "fair_p": 0.3213,
+   "mkt_p": 0.3472,
+   "ev_best": -7.46,
+   "shop_gain": 0.0,
+   "hedge_price": -275,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0806,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 188,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Emiliano Sordi",
+   "opponent": "Abraham Bably",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
    "is_main": true,
-   "best_price": -134,
+   "best_price": 220,
    "best_book": "fanduel",
-   "worst_price": -135,
+   "worst_price": 195,
    "n_books": 2,
-   "fair_p": 0.5487,
-   "mkt_p": 0.5726,
-   "ev_best": -4.18,
-   "shop_gain": 0.0018,
-   "hedge_price": 114,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0399,
+   "fair_p": 0.3044,
+   "mkt_p": 0.3125,
+   "ev_best": -2.58,
+   "shop_gain": 0.0265,
+   "hedge_price": -286,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0534,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -134,
+     "price": 220,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -135,
+     "book": "ballybet",
+     "price": 195,
      "best": false,
      "bettable": true
     }
@@ -190,35 +364,329 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Erick Visconde",
-   "opponent": "Ilias Bulaid",
-   "card": "2026-10-14 - Erick Visconde vs Ilias Bulaid",
-   "card_date": "2026-10-14",
-   "commence": "2026-10-14T00:55:00Z",
-   "is_main": true,
-   "best_price": 114,
-   "best_book": "fanduel",
-   "worst_price": 110,
+   "fighter": "Jena Bishop",
+   "opponent": "Liz Carmouche",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": 260,
+   "best_book": "ballybet",
+   "worst_price": 255,
    "n_books": 2,
-   "fair_p": 0.4513,
-   "mkt_p": 0.4673,
-   "ev_best": -3.42,
-   "shop_gain": 0.0089,
-   "hedge_price": -134,
+   "fair_p": 0.2639,
+   "mkt_p": 0.2778,
+   "ev_best": -4.99,
+   "shop_gain": 0.0039,
+   "hedge_price": -350,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0399,
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 260,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 255,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Gabriel Alves Braga",
+   "opponent": "Timur Khizriev",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": 310,
+   "best_book": "fanduel",
+   "worst_price": 300,
+   "n_books": 2,
+   "fair_p": 0.2328,
+   "mkt_p": 0.2439,
+   "ev_best": -4.56,
+   "shop_gain": 0.0061,
+   "hedge_price": -435,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.057,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 114,
+     "price": 310,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 110,
+     "book": "ballybet",
+     "price": 300,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Chelsea Hackett",
+   "opponent": "Paulina Wi\u015bniewska",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": 335,
+   "best_book": "ballybet",
+   "worst_price": 335,
+   "n_books": 1,
+   "fair_p": 0.2146,
+   "mkt_p": 0.2299,
+   "ev_best": -6.64,
+   "shop_gain": 0.0,
+   "hedge_price": -530,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0712,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 335,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Michael Boylan",
+   "opponent": "Gamid Khizriev",
+   "card": "2026-10-16 - Abraham Bably vs Emiliano Sordi",
+   "card_date": "2026-10-16",
+   "commence": "2026-10-16T22:00:00Z",
+   "is_main": false,
+   "best_price": 1100,
+   "best_book": "fanduel",
+   "worst_price": 1000,
+   "n_books": 2,
+   "fair_p": 0.0825,
+   "mkt_p": 0.0833,
+   "ev_best": -0.96,
+   "shop_gain": 0.0076,
+   "hedge_price": -2500,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0449,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Justin Pauldo",
+   "opponent": "Rene Tellez Giron",
+   "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T01:00:00Z",
+   "is_main": false,
+   "best_price": -115,
+   "best_book": "espnbet",
+   "worst_price": -115,
+   "n_books": 1,
+   "fair_p": 0.5052,
+   "mkt_p": 0.5349,
+   "ev_best": -5.54,
+   "shop_gain": 0.0,
+   "hedge_price": -110,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0587,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -115,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Rene Tellez Giron",
+   "opponent": "Justin Pauldo",
+   "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T01:00:00Z",
+   "is_main": false,
+   "best_price": -110,
+   "best_book": "espnbet",
+   "worst_price": -110,
+   "n_books": 1,
+   "fair_p": 0.4948,
+   "mkt_p": 0.5238,
+   "ev_best": -5.54,
+   "shop_gain": 0.0,
+   "hedge_price": -115,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0587,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -110,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Joshua Kevin Anton",
+   "opponent": "Freudis Rojas Jr",
+   "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T02:00:00Z",
+   "is_main": false,
+   "best_price": -1200,
+   "best_book": "espnbet",
+   "worst_price": -1200,
+   "n_books": 1,
+   "fair_p": 0.8738,
+   "mkt_p": 0.9231,
+   "ev_best": -5.34,
+   "shop_gain": 0.0,
+   "hedge_price": 650,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0564,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -1200,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Freudis Rojas Jr",
+   "opponent": "Joshua Kevin Anton",
+   "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T02:00:00Z",
+   "is_main": false,
+   "best_price": 650,
+   "best_book": "espnbet",
+   "worst_price": 650,
+   "n_books": 1,
+   "fair_p": 0.1262,
+   "mkt_p": 0.1333,
+   "ev_best": -5.34,
+   "shop_gain": 0.0,
+   "hedge_price": -1200,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0564,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Sarvarjon Hamidov",
+   "opponent": "Rafael do Nascimento",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T03:00:00Z",
+   "is_main": false,
+   "best_price": -340,
+   "best_book": "fanduel",
+   "worst_price": -345,
+   "n_books": 2,
+   "fair_p": 0.729,
+   "mkt_p": 0.7727,
+   "ev_best": -5.66,
+   "shop_gain": 0.0026,
+   "hedge_price": 250,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0584,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -345,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Rafael do Nascimento",
+   "opponent": "Sarvarjon Hamidov",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T03:00:00Z",
+   "is_main": false,
+   "best_price": 250,
+   "best_book": "fanduel",
+   "worst_price": 245,
+   "n_books": 2,
+   "fair_p": 0.271,
+   "mkt_p": 0.2857,
+   "ev_best": -5.14,
+   "shop_gain": 0.0041,
+   "hedge_price": -340,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0584,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 245,
      "best": false,
      "bettable": true
     }
@@ -232,24 +700,30 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T18:00:00Z",
    "is_main": false,
-   "best_price": -1100,
-   "best_book": "draftkings",
+   "best_price": -900,
+   "best_book": "espnbet",
    "worst_price": -1100,
-   "n_books": 1,
-   "fair_p": 0.8652,
-   "mkt_p": 0.9167,
-   "ev_best": -5.62,
-   "shop_gain": 0.0,
+   "n_books": 2,
+   "fair_p": 0.8545,
+   "mkt_p": 0.9,
+   "ev_best": -5.06,
+   "shop_gain": 0.0167,
    "hedge_price": 600,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0595,
+   "combined_hold": 0.0429,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "espnbet",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -1100,
-     "best": true,
+     "best": false,
      "bettable": true
     }
    ]
@@ -264,15 +738,15 @@
    "is_main": false,
    "best_price": 600,
    "best_book": "draftkings",
-   "worst_price": 600,
-   "n_books": 1,
-   "fair_p": 0.1348,
+   "worst_price": 500,
+   "n_books": 2,
+   "fair_p": 0.1455,
    "mkt_p": 0.1429,
-   "ev_best": -5.62,
-   "shop_gain": 0.0,
-   "hedge_price": -1100,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0595,
+   "ev_best": 1.88,
+   "shop_gain": 0.0238,
+   "hedge_price": -900,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0429,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -280,6 +754,12 @@
      "book": "draftkings",
      "price": 600,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": false,
      "bettable": true
     }
    ]
@@ -290,19 +770,19 @@
    "opponent": "Michael Gomez Jr",
    "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
    "card_date": "2026-10-17",
-   "commence": "2026-10-17T19:00:00Z",
+   "commence": "2026-10-17T19:30:00Z",
    "is_main": false,
    "best_price": -200,
    "best_book": "espnbet",
-   "worst_price": -250,
+   "worst_price": -215,
    "n_books": 3,
    "fair_p": 0.636,
    "mkt_p": 0.6667,
-   "ev_best": -4.59,
-   "shop_gain": 0.0476,
-   "hedge_price": 180,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0238,
+   "ev_best": -4.6,
+   "shop_gain": 0.0159,
+   "hedge_price": 160,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0513,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -320,7 +800,7 @@
     },
     {
      "book": "fanduel",
-     "price": -250,
+     "price": -215,
      "best": false,
      "bettable": true
     }
@@ -332,37 +812,37 @@
    "opponent": "Louie O'Doherty",
    "card": "2026-10-17 - Braulio Matias Ferreira vs Marco Romero",
    "card_date": "2026-10-17",
-   "commence": "2026-10-17T19:00:00Z",
+   "commence": "2026-10-17T19:30:00Z",
    "is_main": false,
-   "best_price": 180,
-   "best_book": "fanduel",
-   "worst_price": 160,
+   "best_price": 160,
+   "best_book": "espnbet",
+   "worst_price": 156,
    "n_books": 3,
    "fair_p": 0.364,
-   "mkt_p": 0.3571,
-   "ev_best": 1.91,
-   "shop_gain": 0.0275,
+   "mkt_p": 0.3846,
+   "ev_best": -5.36,
+   "shop_gain": 0.006,
    "hedge_price": -200,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0238,
+   "combined_hold": 0.0513,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 180,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "espnbet",
      "price": 160,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": 160,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 156,
      "best": false,
      "bettable": true
     }
@@ -378,15 +858,15 @@
    "is_main": false,
    "best_price": -450,
    "best_book": "espnbet",
-   "worst_price": -525,
+   "worst_price": -500,
    "n_books": 3,
    "fair_p": 0.7766,
    "mkt_p": 0.8182,
    "ev_best": -5.08,
-   "shop_gain": 0.0218,
-   "hedge_price": 360,
+   "shop_gain": 0.0152,
+   "hedge_price": 350,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0356,
+   "combined_hold": 0.0404,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -404,7 +884,7 @@
     },
     {
      "book": "draftkings",
-     "price": -525,
+     "price": -500,
      "best": false,
      "bettable": true
     }
@@ -418,23 +898,23 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T20:00:00Z",
    "is_main": false,
-   "best_price": 360,
+   "best_price": 350,
    "best_book": "draftkings",
    "worst_price": 300,
    "n_books": 3,
    "fair_p": 0.2234,
-   "mkt_p": 0.2174,
-   "ev_best": 2.74,
-   "shop_gain": 0.0326,
+   "mkt_p": 0.2222,
+   "ev_best": 0.51,
+   "shop_gain": 0.0278,
    "hedge_price": -450,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0356,
+   "combined_hold": 0.0404,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 360,
+     "price": 350,
      "best": true,
      "bettable": true
     },
@@ -462,15 +942,15 @@
    "is_main": false,
    "best_price": -370,
    "best_book": "draftkings",
-   "worst_price": -450,
+   "worst_price": -430,
    "n_books": 3,
    "fair_p": 0.7619,
    "mkt_p": 0.7872,
    "ev_best": -3.22,
-   "shop_gain": 0.0309,
-   "hedge_price": 310,
+   "shop_gain": 0.0241,
+   "hedge_price": 300,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0311,
+   "combined_hold": 0.0372,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -488,7 +968,7 @@
     },
     {
      "book": "fanduel",
-     "price": -450,
+     "price": -430,
      "best": false,
      "bettable": true
     }
@@ -502,29 +982,29 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": -300,
-   "best_book": "williamhill_us",
-   "worst_price": -340,
-   "n_books": 4,
-   "fair_p": 0.7297,
-   "mkt_p": 0.75,
-   "ev_best": -2.7,
-   "shop_gain": 0.0227,
-   "hedge_price": 260,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0278,
+   "best_price": -325,
+   "best_book": "draftkings",
+   "worst_price": -350,
+   "n_books": 5,
+   "fair_p": 0.7341,
+   "mkt_p": 0.7647,
+   "ev_best": -4.0,
+   "shop_gain": 0.0131,
+   "hedge_price": 275,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0314,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -300,
+     "book": "draftkings",
+     "price": -325,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -325,
+     "book": "williamhill_us",
+     "price": -330,
      "best": false,
      "bettable": true
     },
@@ -535,8 +1015,14 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": -350,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
-     "price": -340,
+     "price": -350,
      "best": false,
      "bettable": true
     }
@@ -600,15 +1086,15 @@
    "is_main": true,
    "best_price": -270,
    "best_book": "williamhill_us",
-   "worst_price": -295,
-   "n_books": 4,
-   "fair_p": 0.7042,
+   "worst_price": -300,
+   "n_books": 5,
+   "fair_p": 0.705,
    "mkt_p": 0.7297,
-   "ev_best": -3.5,
-   "shop_gain": 0.0171,
-   "hedge_price": 225,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0374,
+   "ev_best": -3.39,
+   "shop_gain": 0.0203,
+   "hedge_price": 240,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0238,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -619,20 +1105,26 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -278,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": -286,
      "best": false,
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": -290,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": -295,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -300,
      "best": false,
      "bettable": true
     }
@@ -649,10 +1141,10 @@
    "best_price": -270,
    "best_book": "williamhill_us",
    "worst_price": -310,
-   "n_books": 4,
-   "fair_p": 0.7042,
+   "n_books": 5,
+   "fair_p": 0.7034,
    "mkt_p": 0.7297,
-   "ev_best": -3.5,
+   "ev_best": -3.61,
    "shop_gain": 0.0264,
    "hedge_price": 230,
    "hedge_book": "fanduel",
@@ -664,6 +1156,12 @@
      "book": "williamhill_us",
      "price": -270,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -275,
+     "best": false,
      "bettable": true
     },
     {
@@ -688,54 +1186,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Louis Jourdain",
-   "opponent": "Timothy Cuamba",
-   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
-   "card_date": "2026-10-17",
-   "commence": "2026-10-17T21:00:00Z",
-   "is_main": false,
-   "best_price": -205,
-   "best_book": "williamhill_us",
-   "worst_price": -220,
-   "n_books": 4,
-   "fair_p": 0.6447,
-   "mkt_p": 0.6721,
-   "ev_best": -4.08,
-   "shop_gain": 0.0154,
-   "hedge_price": 170,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0425,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -205,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -205,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -220,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Kyle Daukaus",
    "opponent": "Marc-Andre Barriault",
    "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
@@ -744,16 +1194,16 @@
    "is_main": false,
    "best_price": -195,
    "best_book": "williamhill_us",
-   "worst_price": -235,
-   "n_books": 4,
-   "fair_p": 0.6435,
+   "worst_price": -225,
+   "n_books": 5,
+   "fair_p": 0.6447,
    "mkt_p": 0.661,
-   "ev_best": -2.65,
-   "shop_gain": 0.0405,
-   "hedge_price": 180,
+   "ev_best": -2.46,
+   "shop_gain": 0.0313,
+   "hedge_price": 176,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0182,
-   "low_hold": true,
+   "combined_hold": 0.0233,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
@@ -775,8 +1225,62 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": -210,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
-     "price": -235,
+     "price": -225,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Louis Jourdain",
+   "opponent": "Timothy Cuamba",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": false,
+   "best_price": -198,
+   "best_book": "draftkings",
+   "worst_price": -220,
+   "n_books": 4,
+   "fair_p": 0.6439,
+   "mkt_p": 0.6644,
+   "ev_best": -3.09,
+   "shop_gain": 0.0231,
+   "hedge_price": 170,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0348,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -198,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -205,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -215,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -220,
      "best": false,
      "bettable": true
     }
@@ -793,10 +1297,10 @@
    "best_price": -125,
    "best_book": "fanduel",
    "worst_price": -135,
-   "n_books": 4,
-   "fair_p": 0.5432,
+   "n_books": 5,
+   "fair_p": 0.5436,
    "mkt_p": 0.5556,
-   "ev_best": -2.23,
+   "ev_best": -2.15,
    "shop_gain": 0.0189,
    "hedge_price": 114,
    "hedge_book": "draftkings",
@@ -827,52 +1331,10 @@
      "price": -135,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Javad Mahjoub",
-   "opponent": "Joel Faglier",
-   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
-   "card_date": "2026-10-17",
-   "commence": "2026-10-17T21:00:00Z",
-   "is_main": false,
-   "best_price": -112,
-   "best_book": "draftkings",
-   "worst_price": -120,
-   "n_books": 4,
-   "fair_p": 0.5095,
-   "mkt_p": 0.5283,
-   "ev_best": -3.57,
-   "shop_gain": 0.0172,
-   "hedge_price": 100,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0283,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -112,
-     "best": true,
-     "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -112,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -120,
+     "book": "betmgm",
+     "price": -135,
      "best": false,
      "bettable": true
     }
@@ -886,20 +1348,80 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
+   "best_price": -112,
+   "best_book": "draftkings",
+   "worst_price": -120,
+   "n_books": 5,
+   "fair_p": 0.5146,
+   "mkt_p": 0.5283,
+   "ev_best": -2.6,
+   "shop_gain": 0.0172,
+   "hedge_price": 100,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0283,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -112,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -117,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Javad Mahjoub",
+   "opponent": "Joel Faglier",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": false,
    "best_price": 100,
-   "best_book": "williamhill_us",
-   "worst_price": -112,
-   "n_books": 4,
-   "fair_p": 0.4905,
+   "best_book": "betmgm",
+   "worst_price": -108,
+   "n_books": 5,
+   "fair_p": 0.4854,
    "mkt_p": 0.5,
-   "ev_best": -1.89,
-   "shop_gain": 0.0283,
+   "ev_best": -2.91,
+   "shop_gain": 0.0192,
    "hedge_price": -112,
    "hedge_book": "draftkings",
    "combined_hold": 0.0283,
    "low_hold": false,
    "arb": false,
    "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 100,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "williamhill_us",
      "price": 100,
@@ -913,14 +1435,14 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -108,
+     "book": "ballybet",
+     "price": -107,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -112,
+     "book": "draftkings",
+     "price": -108,
      "best": false,
      "bettable": true
     }
@@ -937,10 +1459,10 @@
    "best_price": 114,
    "best_book": "draftkings",
    "worst_price": -102,
-   "n_books": 4,
-   "fair_p": 0.4568,
+   "n_books": 5,
+   "fair_p": 0.4564,
    "mkt_p": 0.4673,
-   "ev_best": -2.24,
+   "ev_best": -2.33,
    "shop_gain": 0.0377,
    "hedge_price": -125,
    "hedge_book": "fanduel",
@@ -961,6 +1483,12 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": 110,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": 108,
      "best": false,
@@ -976,54 +1504,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Marc-Andre Barriault",
-   "opponent": "Kyle Daukaus",
-   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
-   "card_date": "2026-10-17",
-   "commence": "2026-10-17T21:00:00Z",
-   "is_main": false,
-   "best_price": 180,
-   "best_book": "fanduel",
-   "worst_price": 165,
-   "n_books": 4,
-   "fair_p": 0.3565,
-   "mkt_p": 0.3571,
-   "ev_best": -0.18,
-   "shop_gain": 0.0202,
-   "hedge_price": -195,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0182,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Timothy Cuamba",
    "opponent": "Louis Jourdain",
    "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
@@ -1032,15 +1512,15 @@
    "is_main": false,
    "best_price": 170,
    "best_book": "williamhill_us",
-   "worst_price": 162,
+   "worst_price": 164,
    "n_books": 4,
-   "fair_p": 0.3553,
+   "fair_p": 0.3561,
    "mkt_p": 0.3704,
-   "ev_best": -4.08,
-   "shop_gain": 0.0113,
-   "hedge_price": -205,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0425,
+   "ev_best": -3.86,
+   "shop_gain": 0.0084,
+   "hedge_price": -198,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0348,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1058,13 +1538,13 @@
     },
     {
      "book": "draftkings",
-     "price": 170,
-     "best": true,
+     "price": 164,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 162,
+     "price": 164,
      "best": false,
      "bettable": true
     }
@@ -1072,47 +1552,53 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Chelsea Chandler",
-   "opponent": "Melissa Croden",
+   "fighter": "Marc-Andre Barriault",
+   "opponent": "Kyle Daukaus",
    "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
-   "is_main": true,
-   "best_price": 225,
-   "best_book": "draftkings",
-   "worst_price": 220,
-   "n_books": 4,
-   "fair_p": 0.2958,
-   "mkt_p": 0.3077,
-   "ev_best": -3.86,
-   "shop_gain": 0.0048,
-   "hedge_price": -270,
+   "is_main": false,
+   "best_price": 176,
+   "best_book": "fanduel",
+   "worst_price": 165,
+   "n_books": 5,
+   "fair_p": 0.3553,
+   "mkt_p": 0.3623,
+   "ev_best": -1.95,
+   "shop_gain": 0.015,
+   "hedge_price": -195,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0374,
+   "combined_hold": 0.0233,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 225,
+     "book": "fanduel",
+     "price": 176,
      "best": true,
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
-     "price": 220,
+     "price": 165,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 220,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 220,
+     "price": 165,
      "best": false,
      "bettable": true
     }
@@ -1129,10 +1615,10 @@
    "best_price": 230,
    "best_book": "fanduel",
    "worst_price": 220,
-   "n_books": 4,
-   "fair_p": 0.2958,
+   "n_books": 5,
+   "fair_p": 0.2966,
    "mkt_p": 0.303,
-   "ev_best": -2.38,
+   "ev_best": -2.11,
    "shop_gain": 0.0095,
    "hedge_price": -270,
    "hedge_book": "williamhill_us",
@@ -1160,6 +1646,66 @@
     },
     {
      "book": "ballybet",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Chelsea Chandler",
+   "opponent": "Melissa Croden",
+   "card": "2026-10-17 - Chelsea Chandler vs Melissa Croden",
+   "card_date": "2026-10-17",
+   "commence": "2026-10-17T21:00:00Z",
+   "is_main": true,
+   "best_price": 240,
+   "best_book": "betmgm",
+   "worst_price": 220,
+   "n_books": 5,
+   "fair_p": 0.295,
+   "mkt_p": 0.2941,
+   "ev_best": 0.3,
+   "shop_gain": 0.0184,
+   "hedge_price": -270,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0238,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
      "price": 220,
      "best": false,
      "bettable": true
@@ -1222,41 +1768,47 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 260,
-   "best_book": "draftkings",
-   "worst_price": 240,
-   "n_books": 4,
-   "fair_p": 0.2703,
-   "mkt_p": 0.2778,
-   "ev_best": -2.7,
-   "shop_gain": 0.0163,
-   "hedge_price": -300,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0278,
+   "best_price": 275,
+   "best_book": "betmgm",
+   "worst_price": 250,
+   "n_books": 5,
+   "fair_p": 0.2659,
+   "mkt_p": 0.2667,
+   "ev_best": -0.3,
+   "shop_gain": 0.019,
+   "hedge_price": -325,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0314,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 260,
+     "book": "betmgm",
+     "price": 275,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 250,
+     "book": "williamhill_us",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 260,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 250,
+     "price": 255,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 240,
+     "book": "ballybet",
+     "price": 250,
      "best": false,
      "bettable": true
     }
@@ -1270,36 +1822,96 @@
    "card_date": "2026-10-17",
    "commence": "2026-10-17T21:00:00Z",
    "is_main": false,
-   "best_price": 310,
+   "best_price": 300,
    "best_book": "fanduel",
    "worst_price": 275,
    "n_books": 3,
    "fair_p": 0.2381,
-   "mkt_p": 0.2439,
-   "ev_best": -2.38,
-   "shop_gain": 0.0228,
+   "mkt_p": 0.25,
+   "ev_best": -4.76,
+   "shop_gain": 0.0167,
    "hedge_price": -370,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0311,
+   "combined_hold": 0.0372,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 310,
+     "price": 300,
      "best": true,
      "bettable": true
     },
     {
      "book": "espnbet",
      "price": 300,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": 275,
      "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Jose Armando Resendiz",
+   "opponent": "Koen Mazoudier",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T01:00:00Z",
+   "is_main": false,
+   "best_price": -900,
+   "best_book": "espnbet",
+   "worst_price": -900,
+   "n_books": 1,
+   "fair_p": 0.8438,
+   "mkt_p": 0.9,
+   "ev_best": -6.25,
+   "shop_gain": 0.0,
+   "hedge_price": 500,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0667,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Koen Mazoudier",
+   "opponent": "Jose Armando Resendiz",
+   "card": "2026-10-18 - Ermal Hadribeaj vs Sebastian Fundora",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T01:00:00Z",
+   "is_main": false,
+   "best_price": 500,
+   "best_book": "espnbet",
+   "worst_price": 500,
+   "n_books": 1,
+   "fair_p": 0.1562,
+   "mkt_p": 0.1667,
+   "ev_best": -6.25,
+   "shop_gain": 0.0,
+   "hedge_price": -900,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0667,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 500,
+     "best": true,
      "bettable": true
     }
    ]
@@ -1312,29 +1924,35 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -590,
-   "best_book": "ballybet",
+   "best_price": -600,
+   "best_book": "williamhill_us",
    "worst_price": -650,
-   "n_books": 4,
-   "fair_p": 0.819,
-   "mkt_p": 0.8551,
-   "ev_best": -4.22,
-   "shop_gain": 0.0116,
+   "n_books": 5,
+   "fair_p": 0.8196,
+   "mkt_p": 0.8571,
+   "ev_best": -4.38,
+   "shop_gain": 0.0095,
    "hedge_price": 455,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0353,
+   "combined_hold": 0.0373,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": -590,
+     "book": "williamhill_us",
+     "price": -600,
      "best": true,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "betmgm",
      "price": -600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -625,
      "best": false,
      "bettable": true
     },
@@ -1360,29 +1978,29 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -450,
-   "best_book": "espnbet",
-   "worst_price": -500,
+   "best_price": -500,
+   "best_book": "draftkings",
+   "worst_price": -600,
    "n_books": 2,
-   "fair_p": 0.782,
-   "mkt_p": 0.8182,
-   "ev_best": -4.42,
-   "shop_gain": 0.0152,
-   "hedge_price": 350,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0404,
+   "fair_p": 0.8001,
+   "mkt_p": 0.8333,
+   "ev_best": -3.98,
+   "shop_gain": 0.0238,
+   "hedge_price": 400,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0333,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": -450,
+     "book": "draftkings",
+     "price": -500,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -500,
+     "book": "espnbet",
+     "price": -600,
      "best": false,
      "bettable": true
     }
@@ -1396,30 +2014,24 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": -340,
-   "best_book": "fanduel",
-   "worst_price": -380,
+   "best_price": -360,
+   "best_book": "ballybet",
+   "worst_price": -400,
    "n_books": 4,
-   "fair_p": 0.7502,
-   "mkt_p": 0.7727,
-   "ev_best": -2.91,
-   "shop_gain": 0.0189,
+   "fair_p": 0.756,
+   "mkt_p": 0.7826,
+   "ev_best": -3.39,
+   "shop_gain": 0.0174,
    "hedge_price": 300,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0227,
+   "combined_hold": 0.0326,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -340,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": -360,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1431,6 +2043,12 @@
     {
      "book": "williamhill_us",
      "price": -380,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -400,
      "best": false,
      "bettable": true
     }
@@ -1447,10 +2065,10 @@
    "best_price": -240,
    "best_book": "williamhill_us",
    "worst_price": -260,
-   "n_books": 4,
-   "fair_p": 0.6803,
+   "n_books": 5,
+   "fair_p": 0.6813,
    "mkt_p": 0.7059,
-   "ev_best": -3.63,
+   "ev_best": -3.48,
    "shop_gain": 0.0163,
    "hedge_price": 205,
    "hedge_book": "draftkings",
@@ -1477,8 +2095,68 @@
      "bettable": true
     },
     {
+     "book": "betmgm",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": -260,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Steven Koslow",
+   "opponent": "Chad Anheliger",
+   "card": "2026-10-18 - Steven Koslow vs Chad Anheliger",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T02:00:00Z",
+   "is_main": true,
+   "best_price": -148,
+   "best_book": "draftkings",
+   "worst_price": -158,
+   "n_books": 5,
+   "fair_p": 0.5776,
+   "mkt_p": 0.5968,
+   "ev_best": -3.21,
+   "shop_gain": 0.0156,
+   "hedge_price": 130,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0316,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -148,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -155,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -155,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -158,
      "best": false,
      "bettable": true
     }
@@ -1494,16 +2172,16 @@
    "is_main": false,
    "best_price": -130,
    "best_book": "williamhill_us",
-   "worst_price": -150,
+   "worst_price": -146,
    "n_books": 4,
-   "fair_p": 0.5615,
+   "fair_p": 0.5555,
    "mkt_p": 0.5652,
-   "ev_best": -0.66,
-   "shop_gain": 0.0348,
-   "hedge_price": 120,
+   "ev_best": -1.73,
+   "shop_gain": 0.0283,
+   "hedge_price": 116,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0198,
-   "low_hold": true,
+   "combined_hold": 0.0282,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
@@ -1514,115 +2192,19 @@
     },
     {
      "book": "draftkings",
-     "price": -142,
+     "price": -135,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -143,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": -146,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Steven Koslow",
-   "opponent": "Chad Anheliger",
-   "card": "2026-10-18 - Steven Koslow vs Chad Anheliger",
-   "card_date": "2026-10-18",
-   "commence": "2026-10-18T02:00:00Z",
-   "is_main": true,
-   "best_price": -132,
-   "best_book": "ballybet",
-   "worst_price": -148,
-   "n_books": 4,
-   "fair_p": 0.5569,
-   "mkt_p": 0.569,
-   "ev_best": -2.11,
-   "shop_gain": 0.0278,
-   "hedge_price": 125,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0134,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -132,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -136,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -145,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -148,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Chad Anheliger",
-   "opponent": "Steven Koslow",
-   "card": "2026-10-18 - Steven Koslow vs Chad Anheliger",
-   "card_date": "2026-10-18",
-   "commence": "2026-10-18T02:00:00Z",
-   "is_main": true,
-   "best_price": 125,
-   "best_book": "williamhill_us",
-   "worst_price": 106,
-   "n_books": 4,
-   "fair_p": 0.4431,
-   "mkt_p": 0.4444,
-   "ev_best": -0.31,
-   "shop_gain": 0.041,
-   "hedge_price": -132,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0134,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 125,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 124,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 107,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 106,
      "best": false,
      "bettable": true
     }
@@ -1636,30 +2218,30 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": 120,
+   "best_price": 116,
    "best_book": "ballybet",
    "worst_price": 110,
    "n_books": 4,
-   "fair_p": 0.4385,
-   "mkt_p": 0.4545,
-   "ev_best": -3.53,
-   "shop_gain": 0.0216,
+   "fair_p": 0.4445,
+   "mkt_p": 0.463,
+   "ev_best": -3.98,
+   "shop_gain": 0.0132,
    "hedge_price": -130,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0198,
-   "low_hold": true,
+   "combined_hold": 0.0282,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 120,
+     "price": 116,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 120,
-     "best": true,
+     "price": 114,
+     "best": false,
      "bettable": true
     },
     {
@@ -1678,6 +2260,60 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Chad Anheliger",
+   "opponent": "Steven Koslow",
+   "card": "2026-10-18 - Steven Koslow vs Chad Anheliger",
+   "card_date": "2026-10-18",
+   "commence": "2026-10-18T02:00:00Z",
+   "is_main": true,
+   "best_price": 130,
+   "best_book": "williamhill_us",
+   "worst_price": 124,
+   "n_books": 5,
+   "fair_p": 0.4224,
+   "mkt_p": 0.4348,
+   "ev_best": -2.86,
+   "shop_gain": 0.0116,
+   "hedge_price": -148,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0316,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 130,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 124,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 124,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Tanner Boser",
    "opponent": "Jhonata Diniz",
    "card": "2026-10-18 - Steven Koslow vs Chad Anheliger",
@@ -1687,10 +2323,10 @@
    "best_price": 205,
    "best_book": "draftkings",
    "worst_price": 195,
-   "n_books": 4,
-   "fair_p": 0.3197,
+   "n_books": 5,
+   "fair_p": 0.3187,
    "mkt_p": 0.3279,
-   "ev_best": -2.48,
+   "ev_best": -2.8,
    "shop_gain": 0.0111,
    "hedge_price": -240,
    "hedge_book": "williamhill_us",
@@ -1706,6 +2342,12 @@
     },
     {
      "book": "williamhill_us",
+     "price": 200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
      "price": 200,
      "best": false,
      "bettable": true
@@ -1734,15 +2376,15 @@
    "is_main": false,
    "best_price": 300,
    "best_book": "williamhill_us",
-   "worst_price": 250,
+   "worst_price": 270,
    "n_books": 4,
-   "fair_p": 0.2498,
+   "fair_p": 0.244,
    "mkt_p": 0.25,
-   "ev_best": -0.1,
-   "shop_gain": 0.0357,
-   "hedge_price": -340,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0227,
+   "ev_best": -2.42,
+   "shop_gain": 0.0203,
+   "hedge_price": -360,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0326,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1759,14 +2401,14 @@
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 270,
+     "book": "fanduel",
+     "price": 285,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 250,
+     "book": "ballybet",
+     "price": 270,
      "best": false,
      "bettable": true
     }
@@ -1780,29 +2422,29 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T02:00:00Z",
    "is_main": false,
-   "best_price": 350,
-   "best_book": "draftkings",
-   "worst_price": 320,
+   "best_price": 400,
+   "best_book": "espnbet",
+   "worst_price": 350,
    "n_books": 2,
-   "fair_p": 0.218,
-   "mkt_p": 0.2222,
-   "ev_best": -1.91,
-   "shop_gain": 0.0159,
-   "hedge_price": -450,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0404,
+   "fair_p": 0.1999,
+   "mkt_p": 0.2,
+   "ev_best": -0.07,
+   "shop_gain": 0.0222,
+   "hedge_price": -500,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0333,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 350,
+     "book": "espnbet",
+     "price": 400,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 320,
+     "book": "draftkings",
+     "price": 350,
      "best": false,
      "bettable": true
     }
@@ -1818,15 +2460,15 @@
    "is_main": false,
    "best_price": 455,
    "best_book": "draftkings",
-   "worst_price": 400,
-   "n_books": 4,
-   "fair_p": 0.181,
+   "worst_price": 420,
+   "n_books": 5,
+   "fair_p": 0.1804,
    "mkt_p": 0.1802,
-   "ev_best": 0.46,
-   "shop_gain": 0.0198,
-   "hedge_price": -590,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0353,
+   "ev_best": 0.13,
+   "shop_gain": 0.0121,
+   "hedge_price": -600,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0373,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1843,14 +2485,20 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 420,
+     "book": "ballybet",
+     "price": 430,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 400,
+     "book": "betmgm",
+     "price": 425,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 420,
      "best": false,
      "bettable": true
     }
@@ -1866,15 +2514,15 @@
    "is_main": true,
    "best_price": -1400,
    "best_book": "draftkings",
-   "worst_price": -1450,
+   "worst_price": -1600,
    "n_books": 3,
-   "fair_p": 0.8819,
+   "fair_p": 0.8871,
    "mkt_p": 0.9333,
-   "ev_best": -5.51,
-   "shop_gain": 0.0022,
-   "hedge_price": 740,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0524,
+   "ev_best": -4.95,
+   "shop_gain": 0.0078,
+   "hedge_price": 750,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.051,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1885,14 +2533,14 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -1400,
-     "best": true,
+     "book": "fanduel",
+     "price": -1450,
+     "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -1450,
+     "book": "espnbet",
+     "price": -1600,
      "best": false,
      "bettable": true
     }
@@ -1906,34 +2554,34 @@
    "card_date": "2026-10-18",
    "commence": "2026-10-18T03:00:00Z",
    "is_main": true,
-   "best_price": 740,
-   "best_book": "fanduel",
+   "best_price": 750,
+   "best_book": "espnbet",
    "worst_price": 700,
    "n_books": 3,
-   "fair_p": 0.1181,
-   "mkt_p": 0.119,
-   "ev_best": -0.79,
-   "shop_gain": 0.006,
+   "fair_p": 0.1129,
+   "mkt_p": 0.1176,
+   "ev_best": -4.04,
+   "shop_gain": 0.0074,
    "hedge_price": -1400,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0524,
+   "combined_hold": 0.051,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 740,
+     "book": "espnbet",
+     "price": 750,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 700,
+     "book": "fanduel",
+     "price": 740,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "draftkings",
      "price": 700,
      "best": false,
      "bettable": true
