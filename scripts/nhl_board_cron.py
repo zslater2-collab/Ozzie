@@ -37,6 +37,7 @@ BOARD = os.path.join(REPO, "nhl_board_latest.json")
 # for no UI benefit). Committed by the same workflow, so git history gives the price panel the
 # same way it did for the HR board.
 SOG   = os.path.join(REPO, "nhl_sog_latest.json")
+PTS   = os.path.join(REPO, "nhl_points_latest.json")
 
 KEY = os.environ.get("ODDS_API_KEY", "")
 OB, SPORT = "https://api.the-odds-api.com/v4", "icehockey_nhl"
@@ -462,6 +463,49 @@ def props(ev):
 SOG_MARKETS = "player_shots_on_goal,player_shots_on_goal_alternate"
 
 
+# ── 1+ POINTS capture ────────────────────────────────────────────────────────
+# WHY: Zach bets 5-leg boosted parlays of "Over 0.5 points", and we had no coverage of that
+# market at all. Measured 2026-10-16: two-way overround 6.95% median (BetMGM 7.11% = 3.56% per
+# side), and the 0.5 line is quoted by SEVEN books once the _alternate market is included
+# (betmgm, betonlineag, draftkings, betrivers, fanatics, fanduel, williamhill_us) -- all in the
+# "us" region, so us2 would be pure cost and is deliberately excluded here.
+# The number that matters: a boosted parlay is +EV iff (1+boost) > (1+vig)^legs, so at a 15%
+# boost the break-even per-leg vig is 2.83% at 5 legs vs 4.77% at 3 -- i.e. LEG COUNT is the
+# lever, and that is only checkable with a price history. We have none, so this starts one.
+# Cost: 2 markets x 1 region x ~13 events = ~26 credits/run, ~156/day at the 6x cadence
+# (~4.7% of the 100k monthly quota). Set NHL_PTS=0 to switch it off.
+PTS_MARKETS = "player_points,player_points_alternate"
+PTS_REGIONS = "us"
+
+
+def points_props(ev):
+    """Long-form 1+ points quotes for one event (all books; dispersion is part of the study)."""
+    if os.environ.get("NHL_PTS", "1") != "1":
+        return []
+    d = _odds(OB + "/sports/" + SPORT + "/events/" + ev["id"] + "/odds",
+              {"apiKey": KEY, "regions": PTS_REGIONS, "markets": PTS_MARKETS,
+               "oddsFormat": "american"})
+    if not d:
+        return []
+    game = "%s@%s" % (TEAM_ABBR.get(d.get("away_team"), d.get("away_team")),
+                      TEAM_ABBR.get(d.get("home_team"), d.get("home_team")))
+    out = []
+    for b in d.get("bookmakers", []):
+        for mk in b.get("markets", []):
+            if not mk["key"].startswith("player_points"):
+                continue
+            for o in mk.get("outcomes", []):
+                if o.get("description") is None or o.get("point") is None:
+                    continue
+                out.append({"game": game, "commence": ev.get("commence_time"),
+                            "book": b["key"], "market": mk["key"],
+                            "player": o.get("description"), "pn": norm(o.get("description")),
+                            "line": o.get("point"), "side": str(o.get("name", "")).lower(),
+                            "price": o.get("price"),
+                            "bettable": b["key"] in BETTABLE_BOOKS})
+    return out
+
+
 def sog_props(ev):
     """Long-form SOG quotes for one event. All books, not just MA-legal: dispersion across books
     is part of what we want to study, and cost is per market-region, not per book."""
@@ -528,14 +572,15 @@ def main():
         print("[cron] context layer failed (non-fatal): %s" % e)
         ctx = {}
 
-    imp, pr, sog = {}, {}, []
+    imp, pr, sog, pts = {}, {}, [], []
     for e in events:
         imp.update(game_lines(e))
         for k, v in props(e).items():
             pr[k] = v
         sog.extend(sog_props(e))
-    print("[cron] %d teams priced, %d skaters quoted, %d SOG quotes (credits %s)"
-          % (len(imp), len(pr), len(sog), _odds.rem))
+        pts.extend(points_props(e))
+    print("[cron] %d teams priced, %d skaters quoted, %d SOG quotes, %d points quotes "
+          "(credits %s)" % (len(imp), len(pr), len(sog), len(pts), _odds.rem))
 
     # SOG line capture -- written even when empty, so a run that returned nothing is visible in
     # git rather than looking like the job never ran.
@@ -552,6 +597,21 @@ def main():
               % (SOG, len(sog), len({q["book"] for q in sog})))
     except Exception as e:
         print("[cron] SOG write failed (non-fatal): %s" % e)
+
+    # 1+ points capture -- written even when empty so a dead run is visible in git, same as SOG
+    try:
+        with open(PTS, "w") as f:
+            json.dump({"meta": {
+                "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
+                "n_events": len(events), "n_quotes": len(pts),
+                "books": sorted({q["book"] for q in pts}),
+                "credits_left": _odds.rem,
+                "note": "line capture only -- no model, no flag, no claimed edge"},
+                "quotes": pts}, f, indent=1)
+        print("[cron] wrote %s: %d quotes across %d books"
+              % (PTS, len(pts), len({q["book"] for q in pts})))
+    except Exception as e:
+        print("[cron] points write failed (non-fatal): %s" % e)
 
     # role-share denominator = the team's projected top-18 by exp_goals, INDEPENDENT of which
     # players a book happened to post (books post partial rosters; dividing by the posted subset
