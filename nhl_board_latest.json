@@ -1,18 +1,19 @@
 {
  "meta": {
-  "generated": "2026-10-16 14:56Z",
+  "generated": "2026-10-16 17:32Z",
   "season": "20262027",
   "features_through": "2026-10-15",
-  "n_rows": 68,
-  "n_teams": 4,
-  "n_games": 2,
+  "n_rows": 137,
+  "n_teams": 24,
+  "n_games": 12,
   "unmatched": [
    "Yegor Chinakhov",
    "Roger McQueen",
    "A.J. Greer",
-   "Will Borgen"
+   "Will Borgen",
+   "Alex Wennberg"
   ],
-  "credits_left": "89178"
+  "credits_left": "89103"
  },
  "rows": [
   {
@@ -24,31 +25,31 @@
      "bettable": true
     },
     {
+     "book": "fanduel",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -121,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": -122,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -129,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -130,
+     "book": "draftkings",
+     "price": -140,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": -135,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": -140,
      "best": false,
      "bettable": true
@@ -62,22 +63,258 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 4.3,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.4553,
-   "mkt_p": 0.5643,
-   "edge": -0.1089,
+   "model_p": 0.442,
+   "mkt_p": 0.5485,
+   "edge": -0.1065,
    "best_price": -105,
    "best_book": "betmgm",
    "worst_price": -140,
    "n_books": 6,
-   "shop_gain": 0.0458,
+   "shop_gain": 0.0414,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
+   "opp_pen60": null,
    "env": 99
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 155,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 152,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Alex DeBrincat",
+   "pos": "R",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.8,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.3941,
+   "mkt_p": 0.3945,
+   "edge": -0.0004,
+   "best_price": 155,
+   "best_book": "fanduel",
+   "worst_price": 152,
+   "n_books": 2,
+   "shop_gain": 0.0023,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 93
+  },
+  {
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 125,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 125,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 115,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Auston Matthews",
+   "pos": "C",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 3.5,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.3776,
+   "mkt_p": 0.4444,
+   "edge": -0.0668,
+   "best_price": 125,
+   "best_book": "williamhill_us",
+   "worst_price": 115,
+   "n_books": 3,
+   "shop_gain": 0.0069,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 87
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 165,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 165,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 155,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 154,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Martin Necas",
+   "pos": "C",
+   "team": "COL",
+   "opp": "PIT",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 7,
+   "pp_min": 4.3,
+   "implied_total": 3.92,
+   "tt_source": "posted",
+   "model_p": 0.3688,
+   "mkt_p": 0.3848,
+   "edge": -0.0159,
+   "best_price": 175,
+   "best_book": "draftkings",
+   "worst_price": 150,
+   "n_books": 6,
+   "shop_gain": 0.0204,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 99
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 160,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 156,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "William Nylander",
+   "pos": "R",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 3.4,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.3582,
+   "mkt_p": 0.3906,
+   "edge": -0.0324,
+   "best_price": 160,
+   "best_book": "fanduel",
+   "worst_price": 150,
+   "n_books": 3,
+   "shop_gain": 0.0071,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 85
+  },
+  {
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 145,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 145,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "player": "Macklin Celebrini",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 5,
+   "pp_min": 3.7,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.3522,
+   "mkt_p": 0.4082,
+   "edge": -0.056,
+   "best_price": 145,
+   "best_book": "williamhill_us",
+   "worst_price": 145,
+   "n_books": 2,
+   "shop_gain": 0.0,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 90
   },
   {
    "book_prices": [
@@ -106,14 +343,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "fanatics",
      "price": 140,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 135,
+     "book": "williamhill_us",
+     "price": 140,
      "best": false,
      "bettable": true
     }
@@ -128,32 +365,158 @@
    "pp_min": 3.2,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.3555,
+   "model_p": 0.3494,
    "mkt_p": 0.4141,
-   "edge": -0.0586,
+   "edge": -0.0647,
    "best_price": 175,
    "best_book": "betmgm",
-   "worst_price": 135,
+   "worst_price": 140,
    "n_books": 6,
-   "shop_gain": 0.0434,
+   "shop_gain": 0.0419,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 91
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 82
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 270,
+     "book": "fanduel",
+     "price": 175,
      "best": true,
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": 169,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanatics",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Bo Horvat",
+   "pos": "C",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.7,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.3469,
+   "mkt_p": 0.3717,
+   "edge": -0.0248,
+   "best_price": 175,
+   "best_book": "fanduel",
+   "worst_price": 160,
+   "n_books": 3,
+   "shop_gain": 0.0097,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 90
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 190,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 184,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Dylan Larkin",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 5,
+   "pp_min": 3.8,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.3192,
+   "mkt_p": 0.3485,
+   "edge": -0.0293,
+   "best_price": 190,
+   "best_book": "fanduel",
+   "worst_price": 184,
+   "n_books": 2,
+   "shop_gain": 0.0036,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 93
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Viktor Arvidsson",
+   "pos": "L",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.0,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.3118,
+   "mkt_p": 0.3078,
+   "edge": 0.004,
+   "best_price": 230,
+   "best_book": "fanduel",
+   "worst_price": 220,
+   "n_books": 2,
+   "shop_gain": 0.0047,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 81
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
      "price": 250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 240,
      "best": false,
      "bettable": true
     },
@@ -164,8 +527,8 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 240,
+     "book": "fanatics",
+     "price": 230,
      "best": false,
      "bettable": true
     },
@@ -190,22 +553,68 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 2.4,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.308,
-   "mkt_p": 0.2941,
-   "edge": 0.0139,
-   "best_price": 270,
-   "best_book": "draftkings",
+   "model_p": 0.2979,
+   "mkt_p": 0.2986,
+   "edge": -0.0007,
+   "best_price": 250,
+   "best_book": "fanduel",
    "worst_price": 200,
    "n_books": 6,
-   "shop_gain": 0.0265,
+   "shop_gain": 0.0165,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 70
+   "opp_pen60": null,
+   "env": 73
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 169,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Kirill Marchenko",
+   "pos": "R",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 3.4,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.2945,
+   "mkt_p": 0.3636,
+   "edge": -0.0692,
+   "best_price": 175,
+   "best_book": "fanatics",
+   "worst_price": 169,
+   "n_books": 3,
+   "shop_gain": 0.0027,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 85
   },
   {
    "book_prices": [
@@ -228,13 +637,13 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 180,
+     "book": "fanatics",
+     "price": 185,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
+     "book": "draftkings",
      "price": 180,
      "best": false,
      "bettable": true
@@ -256,29 +665,87 @@
    "pp_min": 3.3,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.297,
-   "mkt_p": 0.3481,
-   "edge": -0.0511,
+   "model_p": 0.2916,
+   "mkt_p": 0.3449,
+   "edge": -0.0533,
    "best_price": 200,
    "best_book": "betmgm",
    "worst_price": 179,
    "n_books": 6,
-   "shop_gain": 0.014,
+   "shop_gain": 0.013,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 93
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 83
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 275,
+     "book": "betmgm",
+     "price": 200,
      "best": true,
      "bettable": true
     },
+    {
+     "book": "fanduel",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 179,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 175,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 175,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 165,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Leo Carlsson",
+   "pos": "C",
+   "team": "ANA",
+   "opp": "BOS",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 6,
+   "pp_min": 3.8,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.2899,
+   "mkt_p": 0.361,
+   "edge": -0.0711,
+   "best_price": 200,
+   "best_book": "betmgm",
+   "worst_price": 165,
+   "n_books": 6,
+   "shop_gain": 0.0256,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 93
+  },
+  {
+   "book_prices": [
     {
      "book": "fanatics",
      "price": 275,
@@ -287,7 +754,13 @@
     },
     {
      "book": "fanduel",
-     "price": 270,
+     "price": 275,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 265,
      "best": false,
      "bettable": true
     },
@@ -318,86 +791,22 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 2.1,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.2891,
-   "mkt_p": 0.274,
-   "edge": 0.0151,
-   "best_price": 275,
-   "best_book": "draftkings",
-   "worst_price": 250,
-   "n_books": 6,
-   "shop_gain": 0.0088,
-   "soft_best": true,
-   "thin": true,
-   "opp_goalie": "S. Murashov",
-   "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 64
-  },
-  {
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 275,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Cale Makar",
-   "pos": "D",
-   "team": "COL",
-   "opp": "PIT",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 6,
-   "pp_min": 4.4,
-   "implied_total": 3.9,
-   "tt_source": "posted",
-   "model_p": 0.282,
-   "mkt_p": 0.2778,
-   "edge": 0.0042,
+   "model_p": 0.2795,
+   "mkt_p": 0.2759,
+   "edge": 0.0036,
    "best_price": 275,
    "best_book": "fanatics",
-   "worst_price": 240,
+   "worst_price": 250,
    "n_books": 6,
-   "shop_gain": 0.0121,
+   "shop_gain": 0.0094,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 100
+   "opp_pen60": null,
+   "env": 70
   },
   {
    "book_prices": [
@@ -446,11 +855,11 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 2.7,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.2768,
+   "model_p": 0.2787,
    "mkt_p": 0.3413,
-   "edge": -0.0645,
+   "edge": -0.0626,
    "best_price": 200,
    "best_book": "betmgm",
    "worst_price": 170,
@@ -458,10 +867,74 @@
    "shop_gain": 0.0108,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 82
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 76
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 270,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 255,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Cale Makar",
+   "pos": "D",
+   "team": "COL",
+   "opp": "PIT",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 6,
+   "pp_min": 4.4,
+   "implied_total": 3.92,
+   "tt_source": "posted",
+   "model_p": 0.2726,
+   "mkt_p": 0.2837,
+   "edge": -0.0111,
+   "best_price": 270,
+   "best_book": "fanduel",
+   "worst_price": 240,
+   "n_books": 6,
+   "shop_gain": 0.0123,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 100
   },
   {
    "book_prices": [
@@ -472,8 +945,14 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": 240,
+     "price": 245,
      "best": false,
      "bettable": true
     },
@@ -491,13 +970,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 230,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 225,
+     "price": 235,
      "best": false,
      "bettable": true
     }
@@ -510,150 +983,22 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 2.6,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.2657,
-   "mkt_p": 0.2941,
-   "edge": -0.0284,
+   "model_p": 0.2676,
+   "mkt_p": 0.292,
+   "edge": -0.0244,
    "best_price": 270,
    "best_book": "betmgm",
-   "worst_price": 225,
+   "worst_price": 235,
    "n_books": 6,
-   "shop_gain": 0.0236,
+   "shop_gain": 0.0185,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 81
-  },
-  {
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 155,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 145,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 145,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Martin Necas",
-   "pos": "C",
-   "team": "COL",
-   "opp": "PIT",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 7,
-   "pp_min": 3.1,
-   "implied_total": 3.9,
-   "tt_source": "posted",
-   "model_p": 0.2645,
-   "mkt_p": 0.4041,
-   "edge": -0.1396,
-   "best_price": 155,
-   "best_book": "betmgm",
-   "worst_price": 140,
-   "n_books": 6,
-   "shop_gain": 0.012,
-   "soft_best": false,
-   "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 88
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 215,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Sidney Crosby",
-   "pos": "C",
-   "team": "PIT",
-   "opp": "COL",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 7,
-   "pp_min": 3.6,
-   "implied_total": 2.8,
-   "tt_source": "posted",
-   "model_p": 0.2626,
-   "mkt_p": 0.3009,
-   "edge": -0.0383,
-   "best_price": 250,
-   "best_book": "draftkings",
-   "worst_price": 215,
-   "n_books": 6,
-   "shop_gain": 0.0154,
-   "soft_best": true,
-   "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 84
+   "opp_pen60": null,
+   "env": 74
   },
   {
    "book_prices": [
@@ -702,11 +1047,11 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 3.3,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.2581,
+   "model_p": 0.2598,
    "mkt_p": 0.4167,
-   "edge": -0.1586,
+   "edge": -0.1568,
    "best_price": 145,
    "best_book": "draftkings",
    "worst_price": 125,
@@ -714,17 +1059,301 @@
    "shop_gain": 0.0123,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 94
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 83
   },
   {
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 290,
+     "price": 250,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 245,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Sidney Crosby",
+   "pos": "C",
+   "team": "PIT",
+   "opp": "COL",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 7,
+   "pp_min": 3.6,
+   "implied_total": 2.8,
+   "tt_source": "posted",
+   "model_p": 0.2577,
+   "mkt_p": 0.2986,
+   "edge": -0.0409,
+   "best_price": 250,
+   "best_book": "fanduel",
+   "worst_price": 225,
+   "n_books": 6,
+   "shop_gain": 0.0123,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 88
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 220,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 205,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 200,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jack Roslovic",
+   "pos": "C",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 1.4,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.2576,
+   "mkt_p": 0.3279,
+   "edge": -0.0703,
+   "best_price": 220,
+   "best_book": "fanduel",
+   "worst_price": 200,
+   "n_books": 3,
+   "shop_gain": 0.0121,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 275,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 275,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 275,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Bryan Rust",
+   "pos": "R",
+   "team": "PIT",
+   "opp": "COL",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 4,
+   "pp_min": 2.7,
+   "implied_total": 2.8,
+   "tt_source": "posted",
+   "model_p": 0.2564,
+   "mkt_p": 0.2722,
+   "edge": -0.0158,
+   "best_price": 275,
+   "best_book": "draftkings",
+   "worst_price": 250,
+   "n_books": 6,
+   "shop_gain": 0.0082,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 76
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 210,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 200,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Will Smith",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.3,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.2551,
+   "mkt_p": 0.328,
+   "edge": -0.0729,
+   "best_price": 210,
+   "best_book": "fanduel",
+   "worst_price": 200,
+   "n_books": 2,
+   "shop_gain": 0.0054,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 83
+  },
+  {
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 390,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 310,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 310,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 285,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 285,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Fraser Minten",
+   "pos": "C",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 7,
+   "pp_min": 1.0,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.241,
+   "mkt_p": 0.2439,
+   "edge": -0.0029,
+   "best_price": 390,
+   "best_book": "betmgm",
+   "worst_price": 285,
+   "n_books": 6,
+   "shop_gain": 0.0375,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 43
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 285,
+     "best": false,
      "bettable": true
     },
     {
@@ -736,12 +1365,6 @@
     {
      "book": "ballybet",
      "price": 280,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 275,
      "best": false,
      "bettable": true
     },
@@ -768,20 +1391,20 @@
    "pp_min": 3.2,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.2445,
-   "mkt_p": 0.2649,
-   "edge": -0.0204,
-   "best_price": 290,
+   "model_p": 0.2399,
+   "mkt_p": 0.2632,
+   "edge": -0.0232,
+   "best_price": 300,
    "best_book": "fanduel",
    "worst_price": 255,
    "n_books": 6,
-   "shop_gain": 0.0105,
+   "shop_gain": 0.0147,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 78
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 82
   },
   {
    "book_prices": [
@@ -793,12 +1416,6 @@
     },
     {
      "book": "draftkings",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 260,
      "best": false,
      "bettable": true
@@ -816,8 +1433,14 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
-     "price": 235,
+     "price": 230,
      "best": false,
      "bettable": true
     }
@@ -830,47 +1453,109 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 2.0,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.238,
-   "mkt_p": 0.2778,
-   "edge": -0.0398,
+   "model_p": 0.2397,
+   "mkt_p": 0.2797,
+   "edge": -0.0401,
    "best_price": 300,
    "best_book": "betmgm",
-   "worst_price": 235,
+   "worst_price": 230,
    "n_books": 6,
-   "shop_gain": 0.0273,
+   "shop_gain": 0.0293,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 72
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 68
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 410,
+     "book": "fanduel",
+     "price": 380,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 390,
+     "book": "williamhill_us",
+     "price": 330,
      "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mason Marchment",
+   "pos": "L",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 2.1,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.2239,
+   "mkt_p": 0.2204,
+   "edge": 0.0034,
+   "best_price": 380,
+   "best_book": "fanduel",
+   "worst_price": 330,
+   "n_books": 2,
+   "shop_gain": 0.0121,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 70
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 300,
+     "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 380,
+     "book": "williamhill_us",
+     "price": 270,
      "best": false,
      "bettable": true
-    },
+    }
+   ],
+   "player": "Igor Chernyshov",
+   "pos": "L",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.6,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.2172,
+   "mkt_p": 0.2601,
+   "edge": -0.0429,
+   "best_price": 300,
+   "best_book": "fanduel",
+   "worst_price": 270,
+   "n_books": 2,
+   "shop_gain": 0.0101,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 60
+  },
+  {
+   "book_prices": [
     {
      "book": "betmgm",
      "price": 360,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -880,8 +1565,26 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 300,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
-     "price": 330,
+     "price": 285,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 270,
      "best": false,
      "bettable": true
     }
@@ -894,46 +1597,86 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 1.7,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.2236,
-   "mkt_p": 0.2129,
-   "edge": 0.0108,
-   "best_price": 410,
-   "best_book": "fanatics",
-   "worst_price": 330,
+   "model_p": 0.2159,
+   "mkt_p": 0.2549,
+   "edge": -0.039,
+   "best_price": 360,
+   "best_book": "betmgm",
+   "worst_price": 270,
    "n_books": 6,
-   "shop_gain": 0.0174,
+   "shop_gain": 0.0303,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 42
+   "opp_pen60": null,
+   "env": 61
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 320,
+     "book": "fanduel",
+     "price": 250,
      "best": true,
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Lucas Raymond",
+   "pos": "L",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.9,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.2152,
+   "mkt_p": 0.2921,
+   "edge": -0.0769,
+   "best_price": 250,
+   "best_book": "fanduel",
+   "worst_price": 235,
+   "n_books": 2,
+   "shop_gain": 0.0064,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 96
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
-     "price": 300,
+     "price": 310,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 295,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 285,
      "best": false,
      "bettable": true
     },
@@ -958,52 +1701,34 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 2.6,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.2218,
-   "mkt_p": 0.2565,
-   "edge": -0.0347,
-   "best_price": 320,
-   "best_book": "draftkings",
+   "model_p": 0.2141,
+   "mkt_p": 0.2485,
+   "edge": -0.0345,
+   "best_price": 340,
+   "best_book": "fanatics",
    "worst_price": 230,
    "n_books": 6,
-   "shop_gain": 0.0243,
-   "soft_best": true,
+   "shop_gain": 0.0278,
+   "soft_best": false,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 75
+   "opp_pen60": null,
+   "env": 74
   },
   {
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 390,
+     "book": "fanduel",
+     "price": 310,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 325,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 320,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 310,
+     "price": 300,
      "best": false,
      "bettable": true
     },
@@ -1014,94 +1739,226 @@
      "bettable": true
     }
    ],
-   "player": "Fraser Minten",
+   "player": "Brayden Schenn",
    "pos": "C",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
    "gp": 7,
-   "pp_min": 1.2,
-   "implied_total": 3.24,
+   "pp_min": 2.9,
+   "implied_total": 2.98,
    "tt_source": "posted",
-   "model_p": 0.2218,
-   "mkt_p": 0.241,
-   "edge": -0.0192,
-   "best_price": 390,
-   "best_book": "betmgm",
+   "model_p": 0.2138,
+   "mkt_p": 0.25,
+   "edge": -0.0362,
+   "best_price": 310,
+   "best_book": "fanduel",
    "worst_price": 285,
-   "n_books": 6,
-   "shop_gain": 0.0334,
-   "soft_best": false,
+   "n_books": 3,
+   "shop_gain": 0.0073,
+   "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 55
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 79
   },
   {
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 200,
+     "book": "fanduel",
+     "price": 360,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 180,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 175,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
-     "price": 175,
+     "price": 350,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 165,
+     "price": 320,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Matias Maccelli",
+   "pos": "L",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 2.9,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.2048,
+   "mkt_p": 0.2222,
+   "edge": -0.0174,
+   "best_price": 360,
+   "best_book": "fanduel",
+   "worst_price": 320,
+   "n_books": 3,
+   "shop_gain": 0.0085,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 79
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 230,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Kyle Palmieri",
+   "pos": "C",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.7,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.2027,
+   "mkt_p": 0.2941,
+   "edge": -0.0914,
+   "best_price": 250,
+   "best_book": "fanatics",
+   "worst_price": 230,
+   "n_books": 3,
+   "shop_gain": 0.0086,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 90
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 500,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 165,
+     "price": 430,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 400,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Leo Carlsson",
-   "pos": "C",
-   "team": "ANA",
-   "opp": "BOS",
+   "player": "Charlie McAvoy",
+   "pos": "D",
+   "team": "BOS",
+   "opp": "ANA",
    "game": "BOS@ANA",
    "commence": "2026-10-17T02:10:00Z",
-   "gp": 6,
-   "pp_min": 1.7,
+   "gp": 1,
+   "pp_min": 2.9,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.204,
-   "mkt_p": 0.3636,
-   "edge": -0.1596,
-   "best_price": 200,
-   "best_book": "betmgm",
-   "worst_price": 165,
+   "model_p": 0.1981,
+   "mkt_p": 0.1667,
+   "edge": 0.0315,
+   "best_price": 550,
+   "best_book": "draftkings",
+   "worst_price": 400,
    "n_books": 6,
-   "shop_gain": 0.0287,
-   "soft_best": false,
+   "shop_gain": 0.0188,
+   "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 67
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 79
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 490,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Kiefer Sherwood",
+   "pos": "L",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.3,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.1964,
+   "mkt_p": 0.1847,
+   "edge": 0.0117,
+   "best_price": 490,
+   "best_book": "fanduel",
+   "worst_price": 400,
+   "n_books": 2,
+   "shop_gain": 0.0153,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
   },
   {
    "book_prices": [
@@ -1113,8 +1970,8 @@
     },
     {
      "book": "fanduel",
-     "price": 380,
-     "best": false,
+     "price": 400,
+     "best": true,
      "bettable": true
     },
     {
@@ -1146,32 +2003,72 @@
    "pp_min": 2.0,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1998,
+   "model_p": 0.196,
    "mkt_p": 0.2174,
-   "edge": -0.0176,
+   "edge": -0.0214,
    "best_price": 400,
    "best_book": "betmgm",
    "worst_price": 320,
    "n_books": 5,
-   "shop_gain": 0.0172,
+   "shop_gain": 0.0155,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 57
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 68
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 265,
+     "book": "fanduel",
+     "price": 300,
      "best": true,
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": 270,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Tyler Toffoli",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 2.3,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.1952,
+   "mkt_p": 0.2601,
+   "edge": -0.065,
+   "best_price": 300,
+   "best_book": "fanduel",
+   "worst_price": 270,
+   "n_books": 2,
+   "shop_gain": 0.0101,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 71
+  },
+  {
+   "book_prices": [
+    {
      "book": "betmgm",
      "price": 260,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 250,
      "best": false,
      "bettable": true
     },
@@ -1210,84 +2107,20 @@
    "pp_min": 3.7,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1985,
+   "model_p": 0.1947,
    "mkt_p": 0.2857,
-   "edge": -0.0872,
-   "best_price": 265,
-   "best_book": "draftkings",
+   "edge": -0.091,
+   "best_price": 260,
+   "best_book": "betmgm",
    "worst_price": 230,
    "n_books": 6,
-   "shop_gain": 0.0135,
-   "soft_best": true,
-   "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 87
-  },
-  {
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 525,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 525,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 430,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Charlie McAvoy",
-   "pos": "D",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 1,
-   "pp_min": 2.9,
-   "implied_total": 3.24,
-   "tt_source": "posted",
-   "model_p": 0.1967,
-   "mkt_p": 0.1667,
-   "edge": 0.0301,
-   "best_price": 525,
-   "best_book": "fanatics",
-   "worst_price": 400,
-   "n_books": 6,
-   "shop_gain": 0.0137,
+   "shop_gain": 0.0116,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 85
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 90
   },
   {
    "book_prices": [
@@ -1298,14 +2131,14 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "draftkings",
      "price": 550,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 475,
+     "book": "fanduel",
+     "price": 550,
      "best": false,
      "bettable": true
     },
@@ -1316,14 +2149,14 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "williamhill_us",
      "price": 425,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 400,
+     "book": "betmgm",
+     "price": 425,
      "best": false,
      "bettable": true
     }
@@ -1336,22 +2169,286 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 1.4,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.19,
-   "mkt_p": 0.1779,
-   "edge": 0.0122,
+   "model_p": 0.1914,
+   "mkt_p": 0.1678,
+   "edge": 0.0236,
    "best_price": 575,
    "best_book": "fanatics",
-   "worst_price": 400,
+   "worst_price": 425,
    "n_books": 6,
-   "shop_gain": 0.0266,
+   "shop_gain": 0.0216,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 440,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 430,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Emil Heineman",
+   "pos": "L",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.9,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1905,
+   "mkt_p": 0.1887,
+   "edge": 0.0018,
+   "best_price": 440,
+   "best_book": "fanduel",
+   "worst_price": 360,
+   "n_books": 3,
+   "shop_gain": 0.0119,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 38
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 325,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 305,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Matthew Schaefer",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.7,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1893,
+   "mkt_p": 0.2353,
+   "edge": -0.046,
+   "best_price": 340,
+   "best_book": "fanduel",
+   "worst_price": 305,
+   "n_books": 3,
+   "shop_gain": 0.0092,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 90
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 320,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 295,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Emmitt Finnie",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.4,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1892,
+   "mkt_p": 0.2456,
+   "edge": -0.0565,
+   "best_price": 320,
+   "best_book": "fanduel",
+   "worst_price": 295,
+   "n_books": 2,
+   "shop_gain": 0.0075,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Justin Faulk",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.7,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1844,
+   "mkt_p": 0.1241,
+   "edge": 0.0603,
+   "best_price": 850,
+   "best_book": "fanduel",
+   "worst_price": 600,
+   "n_books": 2,
+   "shop_gain": 0.0188,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
    "env": 61
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 330,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 295,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Easton Cowan",
+   "pos": "R",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 1.3,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1832,
+   "mkt_p": 0.25,
+   "edge": -0.0668,
+   "best_price": 330,
+   "best_book": "fanduel",
+   "worst_price": 295,
+   "n_books": 3,
+   "shop_gain": 0.0127,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 575,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 425,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Darren Raddysh",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 3.9,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1827,
+   "mkt_p": 0.16,
+   "edge": 0.0227,
+   "best_price": 575,
+   "best_book": "fanatics",
+   "worst_price": 425,
+   "n_books": 3,
+   "shop_gain": 0.0181,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 96
   },
   {
    "book_prices": [
@@ -1362,13 +2459,13 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 700,
+     "book": "fanduel",
+     "price": 750,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "fanatics",
      "price": 700,
      "best": false,
      "bettable": true
@@ -1400,21 +2497,21 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 0.0,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.1872,
+   "model_p": 0.1806,
    "mkt_p": 0.1292,
-   "edge": 0.058,
+   "edge": 0.0514,
    "best_price": 800,
    "best_book": "draftkings",
    "worst_price": 450,
    "n_books": 6,
-   "shop_gain": 0.0283,
+   "shop_gain": 0.027,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
+   "opp_pen60": null,
    "env": 0
   },
   {
@@ -1427,6 +2524,12 @@
     },
     {
      "book": "draftkings",
+     "price": 350,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
      "price": 340,
      "best": false,
      "bettable": true
@@ -1434,12 +2537,6 @@
     {
      "book": "fanduel",
      "price": 340,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 325,
      "best": false,
      "bettable": true
     },
@@ -1466,20 +2563,130 @@
    "pp_min": 2.8,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.184,
-   "mkt_p": 0.2313,
-   "edge": -0.0473,
+   "model_p": 0.1804,
+   "mkt_p": 0.2273,
+   "edge": -0.0469,
    "best_price": 400,
    "best_book": "betmgm",
    "worst_price": 300,
    "n_books": 6,
-   "shop_gain": 0.0311,
+   "shop_gain": 0.0289,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 73
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 77
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 850,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Matthew Poitras",
+   "pos": "C",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 4,
+   "pp_min": 0.9,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1773,
+   "mkt_p": 0.125,
+   "edge": 0.0523,
+   "best_price": 850,
+   "best_book": "draftkings",
+   "worst_price": 550,
+   "n_books": 6,
+   "shop_gain": 0.0214,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 38
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 430,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 430,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Simon Holmstrom",
+   "pos": "R",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.4,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1773,
+   "mkt_p": 0.1887,
+   "edge": -0.0114,
+   "best_price": 430,
+   "best_book": "fanatics",
+   "worst_price": 360,
+   "n_books": 3,
+   "shop_gain": 0.0096,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
   },
   {
    "book_prices": [
@@ -1524,9 +2731,9 @@
    "pp_min": 0.5,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1792,
+   "model_p": 0.1757,
    "mkt_p": 0.1562,
-   "edge": 0.023,
+   "edge": 0.0195,
    "best_price": 600,
    "best_book": "draftkings",
    "worst_price": 450,
@@ -1534,33 +2741,61 @@
    "shop_gain": 0.0167,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 22
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 30
   },
   {
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": 360,
+     "book": "fanduel",
+     "price": 1500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "William Wallinder",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 3,
+   "pp_min": 0.9,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1742,
+   "mkt_p": 0.0868,
+   "edge": 0.0874,
+   "best_price": 1500,
+   "best_book": "fanduel",
+   "worst_price": 800,
+   "n_books": 2,
+   "shop_gain": 0.0243,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 38
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 350,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": 340,
      "best": false,
      "bettable": true
@@ -1570,172 +2805,78 @@
      "price": 305,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 280,
-     "best": false,
-     "bettable": true
     }
    ],
-   "player": "Elias Lindholm",
-   "pos": "C",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 7,
-   "pp_min": 2.3,
-   "implied_total": 3.24,
+   "player": "Gavin McKenna",
+   "pos": "L",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 1.7,
+   "implied_total": 3.43,
    "tt_source": "posted",
-   "model_p": 0.1772,
-   "mkt_p": 0.2247,
-   "edge": -0.0475,
-   "best_price": 360,
-   "best_book": "ballybet",
-   "worst_price": 280,
-   "n_books": 6,
-   "shop_gain": 0.0158,
-   "soft_best": false,
-   "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 76
-  },
-  {
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 280,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 245,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Bryan Rust",
-   "pos": "R",
-   "team": "PIT",
-   "opp": "COL",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 4,
-   "pp_min": 1.5,
-   "implied_total": 2.8,
-   "tt_source": "posted",
-   "model_p": 0.1763,
-   "mkt_p": 0.274,
-   "edge": -0.0977,
-   "best_price": 280,
+   "model_p": 0.1725,
+   "mkt_p": 0.2273,
+   "edge": -0.0548,
+   "best_price": 350,
    "best_book": "fanduel",
-   "worst_price": 245,
-   "n_books": 6,
-   "shop_gain": 0.0124,
+   "worst_price": 305,
+   "n_books": 3,
+   "shop_gain": 0.0099,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 40
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 61
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 800,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 800,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 650,
-     "best": false,
+     "price": 550,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 550,
+     "price": 450,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Matthew Poitras",
-   "pos": "C",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 4,
-   "pp_min": 0.9,
-   "implied_total": 3.24,
+   "player": "Collin Graf",
+   "pos": "R",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.2,
+   "implied_total": 3.09,
    "tt_source": "posted",
-   "model_p": 0.176,
-   "mkt_p": 0.1213,
-   "edge": 0.0547,
-   "best_price": 800,
-   "best_book": "draftkings",
-   "worst_price": 550,
-   "n_books": 6,
-   "shop_gain": 0.0142,
+   "model_p": 0.1718,
+   "mkt_p": 0.1678,
+   "edge": 0.004,
+   "best_price": 550,
+   "best_book": "fanduel",
+   "worst_price": 450,
+   "n_books": 2,
+   "shop_gain": 0.014,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 43
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
   },
   {
    "book_prices": [
     {
      "book": "betmgm",
-     "price": 475,
+     "price": 500,
      "best": true,
      "bettable": true
     },
@@ -1746,20 +2887,20 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 340,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
      "price": 340,
      "best": false,
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
-     "price": 325,
+     "price": 330,
      "best": false,
      "bettable": true
     },
@@ -1778,22 +2919,22 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 1.4,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1703,
-   "mkt_p": 0.2273,
-   "edge": -0.057,
-   "best_price": 475,
+   "model_p": 0.1715,
+   "mkt_p": 0.2299,
+   "edge": -0.0584,
+   "best_price": 500,
    "best_book": "betmgm",
    "worst_price": 305,
    "n_books": 6,
-   "shop_gain": 0.0474,
+   "shop_gain": 0.0539,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 61
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
   },
   {
    "book_prices": [
@@ -1804,141 +2945,307 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
      "price": 450,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 375,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 325,
+     "price": 380,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Frank Vatrano",
-   "pos": "R",
-   "team": "ANA",
-   "opp": "BOS",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 3,
-   "pp_min": 1.1,
-   "implied_total": 3.26,
+   "player": "Calum Ritchie",
+   "pos": "C",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.7,
+   "implied_total": 2.98,
    "tt_source": "posted",
-   "model_p": 0.166,
+   "model_p": 0.168,
    "mkt_p": 0.1818,
-   "edge": -0.0159,
+   "edge": -0.0138,
    "best_price": 460,
    "best_book": "fanduel",
-   "worst_price": 325,
-   "n_books": 6,
-   "shop_gain": 0.0164,
+   "worst_price": 380,
+   "n_books": 3,
+   "shop_gain": 0.011,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 51
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 61
   },
   {
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 360,
+     "book": "fanduel",
+     "price": 900,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 330,
+     "book": "williamhill_us",
+     "price": 600,
      "best": false,
      "bettable": true
-    },
+    }
+   ],
+   "player": "Luca Cagnoni",
+   "pos": "D",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 2.3,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.1643,
+   "mkt_p": 0.1214,
+   "edge": 0.0428,
+   "best_price": 900,
+   "best_book": "fanduel",
+   "worst_price": 600,
+   "n_books": 2,
+   "shop_gain": 0.0214,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 71
+  },
+  {
+   "book_prices": [
     {
-     "book": "ballybet",
-     "price": 330,
-     "best": false,
+     "book": "fanduel",
+     "price": 480,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 325,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 320,
+     "price": 475,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 305,
+     "price": 400,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Alex Killorn",
+   "player": "Anthony Duclair",
    "pos": "L",
-   "team": "ANA",
-   "opp": "BOS",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 6,
-   "pp_min": 1.0,
-   "implied_total": 3.26,
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.2,
+   "implied_total": 2.98,
    "tt_source": "posted",
-   "model_p": 0.1615,
-   "mkt_p": 0.2339,
-   "edge": -0.0725,
-   "best_price": 360,
-   "best_book": "betmgm",
-   "worst_price": 305,
-   "n_books": 6,
-   "shop_gain": 0.0164,
-   "soft_best": false,
+   "model_p": 0.1606,
+   "mkt_p": 0.1739,
+   "edge": -0.0134,
+   "best_price": 480,
+   "best_book": "fanduel",
+   "worst_price": 400,
+   "n_books": 3,
+   "shop_gain": 0.0097,
+   "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
    "env": 46
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 265,
+     "book": "fanatics",
+     "price": 650,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 260,
+     "price": 625,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jean-Gabriel Pageau",
+   "pos": "C",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.3,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1593,
+   "mkt_p": 0.1379,
+   "edge": 0.0214,
+   "best_price": 650,
+   "best_book": "fanatics",
+   "worst_price": 475,
+   "n_books": 3,
+   "shop_gain": 0.0151,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 26
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 700,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Marat Khusnutdinov",
+   "pos": "C",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 7,
+   "pp_min": 0.3,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1538,
+   "mkt_p": 0.1333,
+   "edge": 0.0204,
+   "best_price": 750,
+   "best_book": "fanduel",
+   "worst_price": 525,
+   "n_books": 6,
+   "shop_gain": 0.0177,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 26
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 420,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 410,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Victor Eklund",
+   "pos": "R",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.3,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1535,
+   "mkt_p": 0.1961,
+   "edge": -0.0425,
+   "best_price": 420,
+   "best_book": "fanduel",
+   "worst_price": 360,
+   "n_books": 3,
+   "shop_gain": 0.0096,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 270,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 255,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
      "price": 250,
      "best": false,
      "bettable": true
@@ -1954,12 +3261,6 @@
      "price": 240,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 235,
-     "best": false,
-     "bettable": true
     }
    ],
    "player": "Nazem Kadri",
@@ -1970,22 +3271,86 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 3.6,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.159,
-   "mkt_p": 0.2899,
-   "edge": -0.1309,
-   "best_price": 265,
+   "model_p": 0.1533,
+   "mkt_p": 0.2857,
+   "edge": -0.1324,
+   "best_price": 270,
    "best_book": "draftkings",
-   "worst_price": 235,
+   "worst_price": 240,
    "n_books": 6,
-   "shop_gain": 0.0134,
+   "shop_gain": 0.015,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 97
+   "opp_pen60": null,
+   "env": 88
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mason Lohrei",
+   "pos": "D",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 7,
+   "pp_min": 1.3,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1526,
+   "mkt_p": 0.0981,
+   "edge": 0.0546,
+   "best_price": 1000,
+   "best_book": "draftkings",
+   "worst_price": 650,
+   "n_books": 6,
+   "shop_gain": 0.0119,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
   },
   {
    "book_prices": [
@@ -2036,9 +3401,9 @@
    "pp_min": 2.6,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1538,
+   "model_p": 0.1507,
    "mkt_p": 0.167,
-   "edge": -0.0132,
+   "edge": -0.0162,
    "best_price": 550,
    "best_book": "draftkings",
    "worst_price": 375,
@@ -2046,74 +3411,114 @@
    "shop_gain": 0.0225,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 69
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 74
   },
   {
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 750,
+     "price": 1400,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 700,
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Anton Johansson",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.6,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1507,
+   "mkt_p": 0.0922,
+   "edge": 0.0585,
+   "best_price": 1400,
+   "best_book": "fanduel",
+   "worst_price": 750,
+   "n_books": 2,
+   "shop_gain": 0.0255,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 31
+  },
+  {
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 360,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 350,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 650,
+     "price": 340,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 600,
+     "book": "draftkings",
+     "price": 330,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 525,
+     "price": 305,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 300,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Marat Khusnutdinov",
+   "player": "Elias Lindholm",
    "pos": "C",
    "team": "BOS",
    "opp": "ANA",
    "game": "BOS@ANA",
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
-   "pp_min": 0.3,
-   "implied_total": 3.24,
+   "pp_min": 1.6,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1527,
-   "mkt_p": 0.1333,
-   "edge": 0.0193,
-   "best_price": 750,
-   "best_book": "fanduel",
-   "worst_price": 525,
+   "model_p": 0.15,
+   "mkt_p": 0.2299,
+   "edge": -0.0799,
+   "best_price": 360,
+   "best_book": "ballybet",
+   "worst_price": 300,
    "n_books": 6,
-   "shop_gain": 0.0177,
-   "soft_best": true,
+   "shop_gain": 0.0153,
+   "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 34
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 60
   },
   {
    "book_prices": [
@@ -2143,7 +3548,7 @@
     },
     {
      "book": "fanatics",
-     "price": 360,
+     "price": 350,
      "best": false,
      "bettable": true
     },
@@ -2164,84 +3569,314 @@
    "pp_min": 1.2,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1523,
+   "model_p": 0.1493,
    "mkt_p": 0.2129,
-   "edge": -0.0605,
+   "edge": -0.0635,
    "best_price": 475,
    "best_book": "betmgm",
    "worst_price": 325,
    "n_books": 6,
-   "shop_gain": 0.0323,
+   "shop_gain": 0.0331,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 52
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 46
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 1000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
-     "price": 850,
+     "price": 360,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 330,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 850,
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 310,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 650,
+     "price": 305,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Mason Lohrei",
-   "pos": "D",
-   "team": "BOS",
-   "opp": "ANA",
+   "player": "Alex Killorn",
+   "pos": "L",
+   "team": "ANA",
+   "opp": "BOS",
    "game": "BOS@ANA",
    "commence": "2026-10-17T02:10:00Z",
-   "gp": 7,
-   "pp_min": 1.3,
-   "implied_total": 3.24,
+   "gp": 6,
+   "pp_min": 0.9,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1515,
-   "mkt_p": 0.1053,
-   "edge": 0.0463,
-   "best_price": 1000,
-   "best_book": "draftkings",
-   "worst_price": 650,
+   "model_p": 0.1487,
+   "mkt_p": 0.2353,
+   "edge": -0.0866,
+   "best_price": 360,
+   "best_book": "betmgm",
+   "worst_price": 305,
    "n_books": 6,
-   "shop_gain": 0.0142,
+   "shop_gain": 0.0178,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 38
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 370,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Michael Brandsegg-Nyg\u00e5rd",
+   "pos": "R",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.1,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1467,
+   "mkt_p": 0.2254,
+   "edge": -0.0787,
+   "best_price": 370,
+   "best_book": "fanduel",
+   "worst_price": 320,
+   "n_books": 2,
+   "shop_gain": 0.0127,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 58
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 45
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 675,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Nick Blankenburg",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 3,
+   "pp_min": 1.1,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1453,
+   "mkt_p": 0.0833,
+   "edge": 0.0619,
+   "best_price": 1100,
+   "best_book": "fanatics",
+   "worst_price": 675,
+   "n_books": 3,
+   "shop_gain": 0.0152,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 45
+  },
+  {
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 390,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 380,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 340,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Nikita Klepov",
+   "pos": "R",
+   "team": "ANA",
+   "opp": "BOS",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 1,
+   "pp_min": 1.2,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1448,
+   "mkt_p": 0.2062,
+   "edge": -0.0614,
+   "best_price": 550,
+   "best_book": "betmgm",
+   "worst_price": 340,
+   "n_books": 6,
+   "shop_gain": 0.048,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 46
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 380,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Andrew Copp",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.7,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1443,
+   "mkt_p": 0.2204,
+   "edge": -0.0761,
+   "best_price": 380,
+   "best_book": "fanduel",
+   "worst_price": 330,
+   "n_books": 2,
+   "shop_gain": 0.0121,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 61
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 330,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 295,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Ivar Stenberg",
+   "pos": "L",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.8,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.1437,
+   "mkt_p": 0.2429,
+   "edge": -0.0991,
+   "best_price": 330,
+   "best_book": "fanduel",
+   "worst_price": 295,
+   "n_books": 2,
+   "shop_gain": 0.0103,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 66
   },
   {
    "book_prices": [
@@ -2252,14 +3887,14 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 550,
-     "best": false,
+     "book": "fanatics",
+     "price": 600,
+     "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 525,
+     "book": "betmgm",
+     "price": 550,
      "best": false,
      "bettable": true
     },
@@ -2290,86 +3925,22 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 1.8,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.1485,
-   "mkt_p": 0.1633,
-   "edge": -0.0148,
+   "model_p": 0.1431,
+   "mkt_p": 0.1603,
+   "edge": -0.0171,
    "best_price": 600,
    "best_book": "draftkings",
    "worst_price": 400,
    "n_books": 6,
-   "shop_gain": 0.0252,
+   "shop_gain": 0.0224,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 49
-  },
-  {
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 550,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 390,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 390,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 380,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 330,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Nikita Klepov",
-   "pos": "R",
-   "team": "ANA",
-   "opp": "BOS",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 1,
-   "pp_min": 1.2,
-   "implied_total": 3.26,
-   "tt_source": "posted",
-   "model_p": 0.1477,
-   "mkt_p": 0.2041,
-   "edge": -0.0564,
-   "best_price": 550,
-   "best_book": "betmgm",
-   "worst_price": 330,
-   "n_books": 6,
-   "shop_gain": 0.0466,
-   "soft_best": false,
-   "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 52
+   "opp_pen60": null,
+   "env": 66
   },
   {
    "book_prices": [
@@ -2380,26 +3951,26 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 310,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": 310,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "fanduel",
      "price": 300,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 300,
+     "price": 285,
      "best": false,
      "bettable": true
     },
@@ -2418,22 +3989,86 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 2.8,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.1441,
-   "mkt_p": 0.25,
-   "edge": -0.1059,
+   "model_p": 0.1389,
+   "mkt_p": 0.247,
+   "edge": -0.1081,
    "best_price": 333,
    "best_book": "betmgm",
    "worst_price": 270,
    "n_books": 6,
-   "shop_gain": 0.0182,
+   "shop_gain": 0.0188,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 79
+   "opp_pen60": null,
+   "env": 77
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Frederic Brunet",
+   "pos": "D",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 4,
+   "pp_min": 1.5,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1376,
+   "mkt_p": 0.0955,
+   "edge": 0.0422,
+   "best_price": 1100,
+   "best_book": "draftkings",
+   "worst_price": 550,
+   "n_books": 6,
+   "shop_gain": 0.0254,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 59
   },
   {
    "book_prices": [
@@ -2444,13 +4079,13 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 525,
+     "book": "draftkings",
+     "price": 500,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "fanatics",
      "price": 500,
      "best": false,
      "bettable": true
@@ -2484,102 +4119,152 @@
    "pp_min": 3.6,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1386,
+   "model_p": 0.1359,
    "mkt_p": 0.1667,
-   "edge": -0.028,
+   "edge": -0.0308,
    "best_price": 550,
    "best_book": "betmgm",
    "worst_price": 400,
    "n_books": 6,
-   "shop_gain": 0.0161,
+   "shop_gain": 0.0172,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 96
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 88
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
+     "book": "fanduel",
+     "price": 430,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Michael Misa",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.3,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.1339,
+   "mkt_p": 0.203,
+   "edge": -0.0691,
+   "best_price": 430,
+   "best_book": "fanduel",
+   "worst_price": 360,
+   "n_books": 2,
+   "shop_gain": 0.0144,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 410,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "player": "Nick Paul",
+   "pos": "L",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 1.2,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1331,
+   "mkt_p": 0.1961,
+   "edge": -0.063,
+   "best_price": 410,
+   "best_book": "fanatics",
+   "worst_price": 410,
+   "n_books": 1,
+   "shop_gain": 0.0,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 46
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
      "price": 1100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 550,
+     "price": 675,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Frederic Brunet",
+   "player": "Jacob Trouba",
    "pos": "D",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 4,
-   "pp_min": 1.5,
-   "implied_total": 3.24,
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.7,
+   "implied_total": 3.09,
    "tt_source": "posted",
-   "model_p": 0.1366,
-   "mkt_p": 0.1,
-   "edge": 0.0366,
+   "model_p": 0.1325,
+   "mkt_p": 0.1062,
+   "edge": 0.0264,
    "best_price": 1100,
-   "best_book": "draftkings",
-   "worst_price": 550,
-   "n_books": 6,
-   "shop_gain": 0.0269,
+   "best_book": "fanduel",
+   "worst_price": 675,
+   "n_books": 2,
+   "shop_gain": 0.0228,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 66
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 33
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 1000,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 950,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 950,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 900,
      "best": false,
      "bettable": true
     },
@@ -2612,20 +4297,170 @@
    "pp_min": 1.0,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1333,
-   "mkt_p": 0.1032,
-   "edge": 0.0301,
-   "best_price": 1000,
-   "best_book": "fanatics",
+   "model_p": 0.1306,
+   "mkt_p": 0.1056,
+   "edge": 0.0251,
+   "best_price": 950,
+   "best_book": "draftkings",
    "worst_price": 625,
    "n_books": 6,
-   "shop_gain": 0.0165,
+   "shop_gain": 0.0137,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 43
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 460,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 375,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 325,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Frank Vatrano",
+   "pos": "R",
+   "team": "ANA",
+   "opp": "BOS",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 3,
+   "pp_min": 0.7,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1283,
+   "mkt_p": 0.1818,
+   "edge": -0.0535,
+   "best_price": 460,
+   "best_book": "fanduel",
+   "worst_price": 325,
+   "n_books": 6,
+   "shop_gain": 0.0164,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 33
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 575,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Sheldon Dries",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 4,
+   "pp_min": 0.8,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.126,
+   "mkt_p": 0.1267,
+   "edge": -0.0007,
+   "best_price": 850,
+   "best_book": "fanduel",
+   "worst_price": 575,
+   "n_books": 2,
+   "shop_gain": 0.0214,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 36
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 675,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Zack MacEwen",
+   "pos": "R",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 2,
+   "pp_min": 1.0,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1254,
+   "mkt_p": 0.0833,
+   "edge": 0.0421,
+   "best_price": 1100,
+   "best_book": "fanatics",
+   "worst_price": 675,
+   "n_books": 3,
+   "shop_gain": 0.0152,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 46
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 43
   },
   {
    "book_prices": [
@@ -2676,9 +4511,9 @@
    "pp_min": 3.8,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1268,
+   "model_p": 0.1243,
    "mkt_p": 0.1633,
-   "edge": -0.0365,
+   "edge": -0.0391,
    "best_price": 550,
    "best_book": "fanduel",
    "worst_price": 425,
@@ -2686,10 +4521,74 @@
    "shop_gain": 0.0114,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 90
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 93
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mark Kastelic",
+   "pos": "C",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 7,
+   "pp_min": 0.1,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1219,
+   "mkt_p": 0.1292,
+   "edge": -0.0073,
+   "best_price": 850,
+   "best_book": "fanduel",
+   "worst_price": 475,
+   "n_books": 6,
+   "shop_gain": 0.0285,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
@@ -2701,7 +4600,7 @@
     },
     {
      "book": "draftkings",
-     "price": 850,
+     "price": 800,
      "best": false,
      "bettable": true
     },
@@ -2740,102 +4639,38 @@
    "pp_min": 0.0,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1222,
+   "model_p": 0.1197,
    "mkt_p": 0.1181,
-   "edge": 0.0041,
+   "edge": 0.0017,
    "best_price": 900,
    "best_book": "fanduel",
    "worst_price": 550,
    "n_books": 6,
-   "shop_gain": 0.023,
+   "shop_gain": 0.024,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 10
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 900,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 475,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Mark Kastelic",
-   "pos": "C",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 7,
-   "pp_min": 0.1,
-   "implied_total": 3.24,
-   "tt_source": "posted",
-   "model_p": 0.121,
-   "mkt_p": 0.1193,
-   "edge": 0.0017,
-   "best_price": 900,
-   "best_book": "draftkings",
-   "worst_price": 475,
-   "n_books": 6,
-   "shop_gain": 0.0286,
-   "soft_best": true,
-   "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 28
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
   },
   {
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 2000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": 1900,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 1900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1800,
      "best": false,
      "bettable": true
     },
@@ -2846,13 +4681,13 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 800,
+     "book": "betmgm",
+     "price": 825,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "williamhill_us",
      "price": 800,
      "best": false,
      "bettable": true
@@ -2868,20 +4703,20 @@
    "pp_min": 0.7,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1203,
-   "mkt_p": 0.0705,
-   "edge": 0.0498,
-   "best_price": 2000,
+   "model_p": 0.1179,
+   "mkt_p": 0.0718,
+   "edge": 0.0461,
+   "best_price": 1900,
    "best_book": "fanatics",
    "worst_price": 800,
    "n_books": 6,
-   "shop_gain": 0.0292,
+   "shop_gain": 0.0271,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 37
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 33
   },
   {
    "book_prices": [
@@ -2932,9 +4767,9 @@
    "pp_min": 0.1,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1187,
+   "model_p": 0.1163,
    "mkt_p": 0.198,
-   "edge": -0.0793,
+   "edge": -0.0817,
    "best_price": 550,
    "best_book": "betmgm",
    "worst_price": 350,
@@ -2942,10 +4777,10 @@
    "shop_gain": 0.0385,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 25
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
@@ -2969,7 +4804,7 @@
     },
     {
      "book": "betmgm",
-     "price": 900,
+     "price": 950,
      "best": false,
      "bettable": true
     },
@@ -2990,33 +4825,183 @@
    "pp_min": 0.7,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1183,
+   "model_p": 0.1159,
    "mkt_p": 0.087,
-   "edge": 0.0313,
+   "edge": 0.029,
    "best_price": 1800,
    "best_book": "fanatics",
    "worst_price": 800,
    "n_books": 5,
-   "shop_gain": 0.0293,
+   "shop_gain": 0.0283,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 37
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 33
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
+     "book": "draftkings",
      "price": 1200,
      "best": true,
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
-     "price": 1200,
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 775,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 675,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Hampus Lindholm",
+   "pos": "D",
+   "team": "BOS",
+   "opp": "ANA",
+   "game": "BOS@ANA",
+   "commence": "2026-10-17T02:10:00Z",
+   "gp": 7,
+   "pp_min": 1.3,
+   "implied_total": 3.26,
+   "tt_source": "posted",
+   "model_p": 0.1128,
+   "mkt_p": 0.0893,
+   "edge": 0.0235,
+   "best_price": 1200,
+   "best_book": "draftkings",
+   "worst_price": 675,
+   "n_books": 6,
+   "shop_gain": 0.0201,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 49
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 650,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Moritz Seider",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 3.9,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.1125,
+   "mkt_p": 0.15,
+   "edge": -0.0375,
+   "best_price": 650,
+   "best_book": "fanduel",
+   "worst_price": 500,
+   "n_books": 2,
+   "shop_gain": 0.0167,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 96
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 625,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Tony DeAngelo",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.4,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1107,
+   "mkt_p": 0.1,
+   "edge": 0.0107,
+   "best_price": 1000,
+   "best_book": "fanduel",
+   "worst_price": 625,
+   "n_books": 3,
+   "shop_gain": 0.0187,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1200,
+     "best": false,
      "bettable": true
     },
     {
@@ -3039,7 +5024,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 700,
+     "price": 675,
      "best": false,
      "bettable": true
     }
@@ -3052,92 +5037,120 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 0.3,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.1143,
+   "model_p": 0.1101,
    "mkt_p": 0.0943,
-   "edge": 0.02,
-   "best_price": 1200,
-   "best_book": "fanatics",
-   "worst_price": 700,
+   "edge": 0.0158,
+   "best_price": 1300,
+   "best_book": "fanduel",
+   "worst_price": 675,
    "n_books": 6,
-   "shop_gain": 0.02,
-   "soft_best": false,
+   "shop_gain": 0.0253,
+   "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 7
+   "opp_pen60": null,
+   "env": 26
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 1200,
+     "book": "fanatics",
+     "price": 800,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 1100,
+     "price": 800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 575,
      "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Casey Cizikas",
+   "pos": "C",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.6,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1088,
+   "mkt_p": 0.1111,
+   "edge": -0.0023,
+   "best_price": 800,
+   "best_book": "fanatics",
+   "worst_price": 575,
+   "n_books": 3,
+   "shop_gain": 0.0123,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 31
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 950,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 800,
+     "price": 575,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 700,
+     "price": 450,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Hampus Lindholm",
-   "pos": "D",
-   "team": "BOS",
-   "opp": "ANA",
-   "game": "BOS@ANA",
-   "commence": "2026-10-17T02:10:00Z",
-   "gp": 7,
-   "pp_min": 1.3,
-   "implied_total": 3.24,
+   "player": "Colton Sissons",
+   "pos": "C",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.2,
+   "implied_total": 3.43,
    "tt_source": "posted",
-   "model_p": 0.1119,
-   "mkt_p": 0.0931,
-   "edge": 0.0189,
-   "best_price": 1200,
-   "best_book": "draftkings",
-   "worst_price": 700,
-   "n_books": 6,
-   "shop_gain": 0.0202,
+   "model_p": 0.1057,
+   "mkt_p": 0.1481,
+   "edge": -0.0424,
+   "best_price": 600,
+   "best_book": "fanduel",
+   "worst_price": 450,
+   "n_books": 3,
+   "shop_gain": 0.0148,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 58
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
   },
   {
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 800,
+     "price": 700,
      "best": true,
      "bettable": true
     },
@@ -3180,22 +5193,114 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 1,
    "pp_min": 0.9,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.109,
+   "model_p": 0.105,
    "mkt_p": 0.1333,
-   "edge": -0.0243,
-   "best_price": 800,
+   "edge": -0.0284,
+   "best_price": 700,
    "best_book": "draftkings",
    "worst_price": 500,
    "n_books": 6,
-   "shop_gain": 0.0257,
+   "shop_gain": 0.0141,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 21
+   "opp_pen60": null,
+   "env": 38
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 950,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Morgan Rielly",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 1.7,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.1043,
+   "mkt_p": 0.1,
+   "edge": 0.0043,
+   "best_price": 950,
+   "best_book": "fanduel",
+   "worst_price": 600,
+   "n_books": 3,
+   "shop_gain": 0.0175,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 61
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Logan Stanley",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.3,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.1022,
+   "mkt_p": 0.0667,
+   "edge": 0.0355,
+   "best_price": 1600,
+   "best_book": "fanatics",
+   "worst_price": 750,
+   "n_books": 3,
+   "shop_gain": 0.0222,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 26
   },
   {
    "book_prices": [
@@ -3246,9 +5351,9 @@
    "pp_min": 0.6,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1016,
+   "model_p": 0.0996,
    "mkt_p": 0.0911,
-   "edge": 0.0105,
+   "edge": 0.0085,
    "best_price": 1200,
    "best_book": "draftkings",
    "worst_price": 750,
@@ -3256,28 +5361,28 @@
    "shop_gain": 0.0162,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 36
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 31
   },
   {
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 1800,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1800,
+     "price": 2000,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 1700,
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1600,
      "best": false,
      "bettable": true
     },
@@ -3310,83 +5415,19 @@
    "pp_min": 0.0,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.1013,
-   "mkt_p": 0.0778,
-   "edge": 0.0235,
-   "best_price": 1800,
+   "model_p": 0.0992,
+   "mkt_p": 0.0794,
+   "edge": 0.0198,
+   "best_price": 2000,
    "best_book": "fanatics",
    "worst_price": 800,
    "n_books": 6,
-   "shop_gain": 0.0269,
+   "shop_gain": 0.0316,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 10
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 1500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 775,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Josh Manson",
-   "pos": "D",
-   "team": "COL",
-   "opp": "PIT",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 7,
-   "pp_min": 0.0,
-   "implied_total": 3.9,
-   "tt_source": "posted",
-   "model_p": 0.1009,
-   "mkt_p": 0.0885,
-   "edge": 0.0125,
-   "best_price": 1500,
-   "best_book": "draftkings",
-   "worst_price": 775,
-   "n_books": 6,
-   "shop_gain": 0.0251,
-   "soft_best": true,
-   "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
+   "opp_pen60": null,
    "env": 0
   },
   {
@@ -3438,9 +5479,9 @@
    "pp_min": 0.2,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.1003,
+   "model_p": 0.0983,
    "mkt_p": 0.1053,
-   "edge": -0.0049,
+   "edge": -0.007,
    "best_price": 950,
    "best_book": "fanduel",
    "worst_price": 625,
@@ -3448,29 +5489,167 @@
    "shop_gain": 0.0185,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 33
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1400,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "player": "Axel Sandin-Pellikka",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 6,
+   "pp_min": 1.4,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.0977,
+   "mkt_p": 0.0667,
+   "edge": 0.031,
+   "best_price": 1400,
+   "best_book": "fanduel",
+   "worst_price": 1400,
+   "n_books": 1,
+   "shop_gain": 0.0,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 54
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 775,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Josh Manson",
+   "pos": "D",
+   "team": "COL",
+   "opp": "PIT",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 7,
+   "pp_min": 0.0,
+   "implied_total": 3.92,
+   "tt_source": "posted",
+   "model_p": 0.0972,
+   "mkt_p": 0.0833,
+   "edge": 0.0139,
+   "best_price": 1600,
+   "best_book": "fanatics",
+   "worst_price": 775,
+   "n_books": 6,
+   "shop_gain": 0.0258,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 410,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 350,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Michael Rasmussen",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.9,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.0955,
+   "mkt_p": 0.2092,
+   "edge": -0.1137,
+   "best_price": 410,
+   "best_book": "fanduel",
+   "worst_price": 350,
+   "n_books": 2,
+   "shop_gain": 0.0131,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 38
   },
   {
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 1100,
+     "price": 1200,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
      "price": 1100,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 1100,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -3481,7 +5660,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 650,
+     "price": 675,
      "best": false,
      "bettable": true
     },
@@ -3500,86 +5679,114 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 0.1,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.0939,
+   "model_p": 0.0946,
    "mkt_p": 0.0943,
-   "edge": -0.0004,
-   "best_price": 1100,
+   "edge": 0.0003,
+   "best_price": 1200,
    "best_book": "draftkings",
    "worst_price": 550,
    "n_books": 6,
-   "shop_gain": 0.0237,
+   "shop_gain": 0.0284,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 28
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 750,
+     "book": "fanduel",
+     "price": 900,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 725,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanatics",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 650,
+     "price": 850,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 550,
+     "price": 600,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Sam Malinski",
-   "pos": "D",
-   "team": "COL",
-   "opp": "PIT",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 6,
-   "pp_min": 0.3,
-   "implied_total": 3.9,
+   "player": "Ondrej Palat",
+   "pos": "L",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.4,
+   "implied_total": 2.98,
    "tt_source": "posted",
-   "model_p": 0.092,
-   "mkt_p": 0.125,
-   "edge": -0.033,
-   "best_price": 750,
-   "best_book": "draftkings",
-   "worst_price": 550,
-   "n_books": 6,
-   "shop_gain": 0.0117,
+   "model_p": 0.0926,
+   "mkt_p": 0.1053,
+   "edge": -0.0126,
+   "best_price": 900,
+   "best_book": "fanduel",
+   "worst_price": 600,
+   "n_books": 3,
+   "shop_gain": 0.016,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 7
+   "opp_pen60": null,
+   "env": 29
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Teddy Blueger",
+   "pos": "C",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.1,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.0897,
+   "mkt_p": 0.1739,
+   "edge": -0.0842,
+   "best_price": 500,
+   "best_book": "fanduel",
+   "worst_price": 400,
+   "n_books": 3,
+   "shop_gain": 0.0135,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
@@ -3630,9 +5837,9 @@
    "pp_min": 0.1,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.0913,
+   "model_p": 0.0894,
    "mkt_p": 0.1366,
-   "edge": -0.0453,
+   "edge": -0.0471,
    "best_price": 800,
    "best_book": "fanduel",
    "worst_price": 525,
@@ -3640,28 +5847,132 @@
    "shop_gain": 0.0261,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 18
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 370,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Nate Danielson",
+   "pos": "C",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 6,
+   "pp_min": 0.8,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.0892,
+   "mkt_p": 0.2254,
+   "edge": -0.1362,
+   "best_price": 370,
+   "best_book": "fanduel",
+   "worst_price": 320,
+   "n_books": 2,
+   "shop_gain": 0.0127,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 36
   },
   {
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 900,
+     "price": 800,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 900,
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Sam Malinski",
+   "pos": "D",
+   "team": "COL",
+   "opp": "PIT",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 6,
+   "pp_min": 0.3,
+   "implied_total": 3.92,
+   "tt_source": "posted",
+   "model_p": 0.0886,
+   "mkt_p": 0.125,
+   "edge": -0.0364,
+   "best_price": 800,
+   "best_book": "draftkings",
+   "worst_price": 550,
+   "n_books": 6,
+   "shop_gain": 0.0165,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 26
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 950,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
      "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 800,
      "best": false,
      "bettable": true
     },
@@ -3692,22 +6003,68 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 0.2,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.0897,
-   "mkt_p": 0.1151,
-   "edge": -0.0254,
-   "best_price": 900,
-   "best_book": "draftkings",
+   "model_p": 0.0864,
+   "mkt_p": 0.1181,
+   "edge": -0.0317,
+   "best_price": 950,
+   "best_book": "fanduel",
    "worst_price": 600,
    "n_books": 6,
-   "shop_gain": 0.0164,
+   "shop_gain": 0.0222,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 6
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 2000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Matthew Kessel",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 2,
+   "pp_min": 0.1,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.0854,
+   "mkt_p": 0.0526,
+   "edge": 0.0327,
+   "best_price": 2000,
+   "best_book": "fanatics",
+   "worst_price": 800,
+   "n_books": 3,
+   "shop_gain": 0.0228,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
@@ -3725,8 +6082,8 @@
     },
     {
      "book": "fanduel",
-     "price": 2000,
-     "best": true,
+     "price": 1900,
+     "best": false,
      "bettable": true
     },
     {
@@ -3758,38 +6115,38 @@
    "pp_min": 0.2,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.087,
-   "mkt_p": 0.0595,
-   "edge": 0.0274,
+   "model_p": 0.0852,
+   "mkt_p": 0.0607,
+   "edge": 0.0245,
    "best_price": 2000,
    "best_book": "draftkings",
    "worst_price": 900,
    "n_books": 6,
-   "shop_gain": 0.0206,
+   "shop_gain": 0.021,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 19
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
   },
   {
    "book_prices": [
     {
+     "book": "fanatics",
+     "price": 1000,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 950,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 800,
      "best": false,
      "bettable": true
     },
@@ -3816,29 +6173,69 @@
    "pp_min": 0.0,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.0855,
-   "mkt_p": 0.1111,
-   "edge": -0.0257,
-   "best_price": 950,
-   "best_book": "draftkings",
+   "model_p": 0.0837,
+   "mkt_p": 0.1053,
+   "edge": -0.0215,
+   "best_price": 1000,
+   "best_book": "fanatics",
    "worst_price": 600,
    "n_books": 5,
-   "shop_gain": 0.0199,
-   "soft_best": true,
+   "shop_gain": 0.0202,
+   "soft_best": false,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 24
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
   },
   {
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 1100,
+     "price": 1400,
      "best": true,
      "bettable": true
     },
+    {
+     "book": "fanduel",
+     "price": 1300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Oliver Ekman-Larsson",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.8,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.0811,
+   "mkt_p": 0.0714,
+   "edge": 0.0097,
+   "best_price": 1400,
+   "best_book": "fanatics",
+   "worst_price": 750,
+   "n_books": 3,
+   "shop_gain": 0.0186,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 36
+  },
+  {
+   "book_prices": [
     {
      "book": "fanduel",
      "price": 1100,
@@ -3848,6 +6245,12 @@
     {
      "book": "draftkings",
      "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 900,
      "best": false,
      "bettable": true
     },
@@ -3880,19 +6283,139 @@
    "pp_min": 0.0,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.0744,
-   "mkt_p": 0.1032,
-   "edge": -0.0288,
+   "model_p": 0.0729,
+   "mkt_p": 0.1056,
+   "edge": -0.0327,
    "best_price": 1100,
-   "best_book": "fanatics",
+   "best_book": "fanduel",
    "worst_price": 600,
    "n_books": 6,
-   "shop_gain": 0.0242,
-   "soft_best": false,
+   "shop_gain": 0.0269,
+   "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 575,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Keegan Kolesar",
+   "pos": "R",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.1,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.0728,
+   "mkt_p": 0.1267,
+   "edge": -0.0539,
+   "best_price": 850,
+   "best_book": "fanduel",
+   "worst_price": 575,
+   "n_books": 2,
+   "shop_gain": 0.0214,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Ben Chiarot",
+   "pos": "D",
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.2,
+   "implied_total": 3.45,
+   "tt_source": "posted",
+   "model_p": 0.0649,
+   "mkt_p": 0.0945,
+   "edge": -0.0296,
+   "best_price": 1300,
+   "best_book": "fanduel",
+   "worst_price": 750,
+   "n_books": 2,
+   "shop_gain": 0.0231,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Zack Ostapchuk",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.1,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.0635,
+   "mkt_p": 0.101,
+   "edge": -0.0374,
+   "best_price": 1200,
+   "best_book": "fanduel",
+   "worst_price": 700,
+   "n_books": 2,
+   "shop_gain": 0.024,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
    "env": 10
   },
   {
@@ -3944,9 +6467,9 @@
    "pp_min": 0.1,
    "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.0642,
+   "model_p": 0.0629,
    "mkt_p": 0.0607,
-   "edge": 0.0035,
+   "edge": 0.0022,
    "best_price": 2300,
    "best_book": "fanduel",
    "worst_price": 900,
@@ -3954,23 +6477,109 @@
    "shop_gain": 0.0261,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "J. Swayman",
-   "opp_goalie_sv": 0.9077,
-   "opp_pen60": 4.47,
-   "env": 25
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 1100,
+     "book": "fanduel",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Barclay Goodrow",
+   "pos": "C",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.0,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.0582,
+   "mkt_p": 0.101,
+   "edge": -0.0428,
+   "best_price": 1200,
+   "best_book": "fanduel",
+   "worst_price": 700,
+   "n_books": 2,
+   "shop_gain": 0.024,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1400,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 1100,
+     "price": 1400,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jake McCabe",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.2,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.0577,
+   "mkt_p": 0.0667,
+   "edge": -0.0089,
+   "best_price": 1400,
+   "best_book": "fanatics",
+   "worst_price": 750,
+   "n_books": 3,
+   "shop_gain": 0.017,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1000,
+     "best": false,
      "bettable": true
     },
     {
@@ -4008,20 +6617,262 @@
    "pp_min": 1.7,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.0542,
+   "model_p": 0.0531,
    "mkt_p": 0.0955,
-   "edge": -0.0412,
-   "best_price": 1100,
-   "best_book": "draftkings",
+   "edge": -0.0424,
+   "best_price": 1200,
+   "best_book": "fanduel",
    "worst_price": 650,
    "n_books": 6,
-   "shop_gain": 0.016,
+   "shop_gain": 0.0226,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 45
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 61
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Dmitry Orlov",
+   "pos": "D",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 1.8,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.0527,
+   "mkt_p": 0.1388,
+   "edge": -0.0861,
+   "best_price": 750,
+   "best_book": "fanduel",
+   "worst_price": 525,
+   "n_books": 2,
+   "shop_gain": 0.0212,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 66
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 2100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 2000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Troy Stecher",
+   "pos": "D",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.0,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.0505,
+   "mkt_p": 0.0476,
+   "edge": 0.0029,
+   "best_price": 2100,
+   "best_book": "fanduel",
+   "worst_price": 900,
+   "n_books": 3,
+   "shop_gain": 0.0189,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Adam Pelech",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.2,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.0497,
+   "mkt_p": 0.0526,
+   "edge": -0.003,
+   "best_price": 1900,
+   "best_book": "fanatics",
+   "worst_price": 800,
+   "n_books": 3,
+   "shop_gain": 0.0212,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Ryan Pulock",
+   "pos": "D",
+   "team": "NYI",
+   "opp": "TOR",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.1,
+   "implied_total": 2.98,
+   "tt_source": "posted",
+   "model_p": 0.0486,
+   "mkt_p": 0.0667,
+   "edge": -0.0181,
+   "best_price": 1500,
+   "best_book": "fanduel",
+   "worst_price": 750,
+   "n_books": 3,
+   "shop_gain": 0.0198,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 2800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 2500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 1250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Spencer Stastney",
+   "pos": "D",
+   "team": "PIT",
+   "opp": "COL",
+   "game": "PIT@COL",
+   "commence": "2026-10-17T01:10:00Z",
+   "gp": 2,
+   "pp_min": 0.0,
+   "implied_total": 2.8,
+   "tt_source": "posted",
+   "model_p": 0.0465,
+   "mkt_p": 0.057,
+   "edge": -0.0106,
+   "best_price": 2800,
+   "best_book": "fanatics",
+   "worst_price": 800,
+   "n_books": 6,
+   "shop_gain": 0.0311,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
   },
   {
    "book_prices": [
@@ -4032,20 +6883,20 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 1600,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "betmgm",
      "price": 1600,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": 1300,
+     "price": 1400,
      "best": false,
      "bettable": true
     },
@@ -4070,92 +6921,154 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 5,
    "pp_min": 0.0,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.0475,
-   "mkt_p": 0.069,
-   "edge": -0.0216,
+   "model_p": 0.0456,
+   "mkt_p": 0.0627,
+   "edge": -0.0171,
    "best_price": 1800,
    "best_book": "draftkings",
    "worst_price": 750,
    "n_books": 6,
-   "shop_gain": 0.0237,
+   "shop_gain": 0.0216,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
+   "opp_pen60": null,
    "env": 0
   },
   {
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 3000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 3000,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": 2200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 1250,
-     "best": false,
+     "price": 1500,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
      "price": 800,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Spencer Stastney",
+   "player": "Albert Johansson",
    "pos": "D",
-   "team": "PIT",
-   "opp": "COL",
-   "game": "PIT@COL",
-   "commence": "2026-10-17T01:10:00Z",
-   "gp": 2,
-   "pp_min": 0.0,
-   "implied_total": 2.8,
+   "team": "DET",
+   "opp": "SJS",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.2,
+   "implied_total": 3.45,
    "tt_source": "posted",
-   "model_p": 0.0475,
-   "mkt_p": 0.0588,
-   "edge": -0.0113,
-   "best_price": 3000,
-   "best_book": "draftkings",
+   "model_p": 0.0452,
+   "mkt_p": 0.0868,
+   "edge": -0.0416,
+   "best_price": 1500,
+   "best_book": "fanduel",
    "worst_price": 800,
-   "n_books": 6,
-   "shop_gain": 0.0318,
+   "n_books": 2,
+   "shop_gain": 0.0243,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 10
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Michael Kesselring",
+   "pos": "D",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 7,
+   "pp_min": 0.0,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.0436,
+   "mkt_p": 0.0833,
+   "edge": -0.0398,
+   "best_price": 1700,
+   "best_book": "fanduel",
+   "worst_price": 800,
+   "n_books": 2,
+   "shop_gain": 0.0278,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 575,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Brandon Duhaime",
+   "pos": "L",
+   "team": "TOR",
+   "opp": "NYI",
+   "game": "NYI@TOR",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 8,
+   "pp_min": 0.0,
+   "implied_total": 3.43,
+   "tt_source": "posted",
+   "model_p": 0.0429,
+   "mkt_p": 0.16,
+   "edge": -0.1171,
+   "best_price": 575,
+   "best_book": "fanduel",
+   "worst_price": 450,
+   "n_books": 3,
+   "shop_gain": 0.0152,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
   },
   {
    "book_prices": [
     {
      "book": "fanatics",
-     "price": 2500,
+     "price": 2800,
      "best": true,
      "bettable": true
     },
@@ -4167,7 +7080,7 @@
     },
     {
      "book": "fanduel",
-     "price": 2200,
+     "price": 2100,
      "best": false,
      "bettable": true
     },
@@ -4200,20 +7113,60 @@
    "pp_min": 0.0,
    "implied_total": 2.8,
    "tt_source": "posted",
-   "model_p": 0.0417,
-   "mkt_p": 0.052,
-   "edge": -0.0104,
-   "best_price": 2500,
+   "model_p": 0.0408,
+   "mkt_p": 0.053,
+   "edge": -0.0122,
+   "best_price": 2800,
    "best_book": "fanatics",
    "worst_price": 900,
    "n_books": 6,
-   "shop_gain": 0.0259,
+   "shop_gain": 0.0295,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "C. Hart",
-   "opp_goalie_sv": 0.891,
-   "opp_pen60": 3.06,
-   "env": 10
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 0
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Sam Dickinson",
+   "pos": "D",
+   "team": "SJS",
+   "opp": "DET",
+   "game": "SJS@DET",
+   "commence": "2026-10-17T23:10:00Z",
+   "gp": 5,
+   "pp_min": 0.2,
+   "implied_total": 3.09,
+   "tt_source": "posted",
+   "model_p": 0.0399,
+   "mkt_p": 0.0868,
+   "edge": -0.0469,
+   "best_price": 1500,
+   "best_book": "fanduel",
+   "worst_price": 800,
+   "n_books": 2,
+   "shop_gain": 0.0243,
+   "soft_best": true,
+   "thin": true,
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 18
   },
   {
    "book_prices": [
@@ -4262,11 +7215,11 @@
    "commence": "2026-10-17T02:10:00Z",
    "gp": 7,
    "pp_min": 0.1,
-   "implied_total": 3.24,
+   "implied_total": 3.26,
    "tt_source": "posted",
-   "model_p": 0.0392,
+   "model_p": 0.0395,
    "mkt_p": 0.077,
-   "edge": -0.0378,
+   "edge": -0.0375,
    "best_price": 1900,
    "best_book": "fanatics",
    "worst_price": 800,
@@ -4274,10 +7227,10 @@
    "shop_gain": 0.0288,
    "soft_best": false,
    "thin": true,
-   "opp_goalie": "D. Kuemper",
-   "opp_goalie_sv": 0.8914,
-   "opp_pen60": 3.4,
-   "env": 28
+   "opp_goalie": null,
+   "opp_goalie_sv": null,
+   "opp_pen60": null,
+   "env": 10
   },
   {
    "book_prices": [
@@ -4326,11 +7279,11 @@
    "commence": "2026-10-17T01:10:00Z",
    "gp": 7,
    "pp_min": 0.1,
-   "implied_total": 3.9,
+   "implied_total": 3.92,
    "tt_source": "posted",
-   "model_p": 0.0343,
+   "model_p": 0.033,
    "mkt_p": 0.075,
-   "edge": -0.0407,
+   "edge": -0.042,
    "best_price": 2000,
    "best_book": "draftkings",
    "worst_price": 850,
@@ -4338,10 +7291,10 @@
    "shop_gain": 0.0302,
    "soft_best": true,
    "thin": true,
-   "opp_goalie": "S. Murashov",
+   "opp_goalie": null,
    "opp_goalie_sv": null,
-   "opp_pen60": 3.44,
-   "env": 4
+   "opp_pen60": null,
+   "env": 10
   }
  ]
 }
