@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-10-18 16:34Z",
+  "generated": "2026-10-18 22:28Z",
   "n_rows": 40,
   "n_fights": 20,
   "n_cards": 5,
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "87357",
+  "credits_left": "87160",
   "sports": [
    "Boxing",
    "MMA"
@@ -70,23 +70,23 @@
    "card_date": "2026-10-24",
    "commence": "2026-10-24T14:00:00Z",
    "is_main": false,
-   "best_price": -225,
+   "best_price": -218,
    "best_book": "draftkings",
    "worst_price": -250,
    "n_books": 4,
    "fair_p": 0.6747,
-   "mkt_p": 0.6923,
-   "ev_best": -2.55,
-   "shop_gain": 0.022,
+   "mkt_p": 0.6855,
+   "ev_best": -1.59,
+   "shop_gain": 0.0288,
    "hedge_price": 200,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0256,
-   "low_hold": false,
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -225,
+     "price": -218,
      "best": true,
      "bettable": true
     },
@@ -226,41 +226,83 @@
    "card_date": "2026-10-24",
    "commence": "2026-10-24T14:00:00Z",
    "is_main": false,
-   "best_price": -118,
-   "best_book": "fanduel",
-   "worst_price": -130,
+   "best_price": -125,
+   "best_book": "betmgm",
+   "worst_price": -132,
    "n_books": 4,
-   "fair_p": 0.5249,
-   "mkt_p": 0.5413,
-   "ev_best": -3.02,
-   "shop_gain": 0.0239,
+   "fair_p": 0.54,
+   "mkt_p": 0.5556,
+   "ev_best": -2.81,
+   "shop_gain": 0.0134,
    "hedge_price": 110,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0175,
-   "low_hold": true,
+   "combined_hold": 0.0317,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -118,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -118,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
      "price": -125,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": -130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -132,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Losene Keita",
+   "opponent": "Aaron Pico",
+   "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
+   "card_date": "2026-10-24",
+   "commence": "2026-10-24T14:00:00Z",
+   "is_main": false,
+   "best_price": -112,
+   "best_book": "draftkings",
+   "worst_price": -122,
+   "n_books": 3,
+   "fair_p": 0.5188,
+   "mkt_p": 0.5283,
+   "ev_best": -1.81,
+   "shop_gain": 0.0212,
+   "hedge_price": 100,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0283,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -112,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -122,
      "best": false,
      "bettable": true
     }
@@ -278,9 +320,9 @@
    "best_book": "williamhill_us",
    "worst_price": -125,
    "n_books": 4,
-   "fair_p": 0.5148,
+   "fair_p": 0.5181,
    "mkt_p": 0.5349,
-   "ev_best": -3.76,
+   "ev_best": -3.14,
    "shop_gain": 0.0207,
    "hedge_price": 105,
    "hedge_book": "betmgm",
@@ -296,8 +338,8 @@
     },
     {
      "book": "draftkings",
-     "price": -115,
-     "best": true,
+     "price": -118,
+     "best": false,
      "bettable": true
     },
     {
@@ -316,71 +358,29 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Losene Keita",
-   "opponent": "Aaron Pico",
-   "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
-   "card_date": "2026-10-24",
-   "commence": "2026-10-24T14:00:00Z",
-   "is_main": false,
-   "best_price": -110,
-   "best_book": "williamhill_us",
-   "worst_price": -122,
-   "n_books": 3,
-   "fair_p": 0.5043,
-   "mkt_p": 0.5238,
-   "ev_best": -3.72,
-   "shop_gain": 0.0257,
-   "hedge_price": -104,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0336,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -112,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -122,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Cam Rowston",
    "opponent": "Abusupyian Magomedov",
    "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
    "card_date": "2026-10-24",
    "commence": "2026-10-24T14:00:00Z",
    "is_main": false,
-   "best_price": -108,
+   "best_price": 102,
    "best_book": "draftkings",
-   "worst_price": -120,
+   "worst_price": -113,
    "n_books": 3,
    "fair_p": 0.5,
-   "mkt_p": 0.5192,
-   "ev_best": -3.7,
-   "shop_gain": 0.0262,
-   "hedge_price": -106,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0338,
-   "low_hold": false,
+   "mkt_p": 0.495,
+   "ev_best": 1.0,
+   "shop_gain": 0.0355,
+   "hedge_price": -110,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -108,
+     "price": 102,
      "best": true,
      "bettable": true
     },
@@ -392,7 +392,7 @@
     },
     {
      "book": "fanduel",
-     "price": -120,
+     "price": -113,
      "best": false,
      "bettable": true
     }
@@ -406,35 +406,35 @@
    "card_date": "2026-10-24",
    "commence": "2026-10-24T14:00:00Z",
    "is_main": false,
-   "best_price": -106,
-   "best_book": "fanduel",
-   "worst_price": -112,
+   "best_price": -110,
+   "best_book": "williamhill_us",
+   "worst_price": -122,
    "n_books": 3,
    "fair_p": 0.5,
-   "mkt_p": 0.5146,
-   "ev_best": -2.83,
-   "shop_gain": 0.0137,
-   "hedge_price": -108,
+   "mkt_p": 0.5238,
+   "ev_best": -4.55,
+   "shop_gain": 0.0257,
+   "hedge_price": 102,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0338,
-   "low_hold": false,
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -106,
+     "book": "williamhill_us",
+     "price": -110,
      "best": true,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -110,
+     "book": "fanduel",
+     "price": -113,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -112,
+     "price": -122,
      "best": false,
      "bettable": true
     }
@@ -526,48 +526,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Aaron Pico",
-   "opponent": "Losene Keita",
-   "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
-   "card_date": "2026-10-24",
-   "commence": "2026-10-24T14:00:00Z",
-   "is_main": false,
-   "best_price": -104,
-   "best_book": "fanduel",
-   "worst_price": -110,
-   "n_books": 3,
-   "fair_p": 0.4957,
-   "mkt_p": 0.5098,
-   "ev_best": -2.77,
-   "shop_gain": 0.014,
-   "hedge_price": -110,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0336,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -104,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -108,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -110,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Rizvan Kuniev",
    "opponent": "Alexander Volkov",
    "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
@@ -578,9 +536,9 @@
    "best_book": "betmgm",
    "worst_price": -105,
    "n_books": 4,
-   "fair_p": 0.4852,
+   "fair_p": 0.4819,
    "mkt_p": 0.4878,
-   "ev_best": -0.53,
+   "ev_best": -1.2,
    "shop_gain": 0.0244,
    "hedge_price": -115,
    "hedge_book": "williamhill_us",
@@ -595,6 +553,12 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": -102,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": -104,
      "best": false,
@@ -605,10 +569,46 @@
      "price": -105,
      "best": false,
      "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Aaron Pico",
+   "opponent": "Losene Keita",
+   "card": "2026-10-24 - Movsar Evloev vs Alex Volkanovski",
+   "card_date": "2026-10-24",
+   "commence": "2026-10-24T14:00:00Z",
+   "is_main": false,
+   "best_price": 100,
+   "best_book": "williamhill_us",
+   "worst_price": -108,
+   "n_books": 3,
+   "fair_p": 0.4812,
+   "mkt_p": 0.5,
+   "ev_best": -3.75,
+   "shop_gain": 0.0192,
+   "hedge_price": -112,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0283,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -104,
+     "best": false,
+     "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -105,
+     "price": -108,
      "best": false,
      "bettable": true
     }
@@ -624,20 +624,26 @@
    "is_main": false,
    "best_price": 110,
    "best_book": "williamhill_us",
-   "worst_price": -108,
+   "worst_price": 104,
    "n_books": 4,
-   "fair_p": 0.4751,
+   "fair_p": 0.46,
    "mkt_p": 0.4762,
-   "ev_best": -0.23,
-   "shop_gain": 0.043,
-   "hedge_price": -118,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0175,
-   "low_hold": true,
+   "ev_best": -3.39,
+   "shop_gain": 0.014,
+   "hedge_price": -125,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0317,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
+     "price": 110,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
      "price": 110,
      "best": true,
      "bettable": true
@@ -649,14 +655,8 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -102,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": -108,
+     "price": 104,
      "best": false,
      "bettable": true
     }
@@ -780,16 +780,16 @@
    "is_main": false,
    "best_price": 200,
    "best_book": "williamhill_us",
-   "worst_price": 185,
+   "worst_price": 180,
    "n_books": 4,
    "fair_p": 0.3253,
    "mkt_p": 0.3333,
    "ev_best": -2.4,
-   "shop_gain": 0.0175,
-   "hedge_price": -225,
+   "shop_gain": 0.0238,
+   "hedge_price": -218,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0256,
-   "low_hold": false,
+   "combined_hold": 0.0189,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -812,7 +812,7 @@
     },
     {
      "book": "draftkings",
-     "price": 185,
+     "price": 180,
      "best": false,
      "bettable": true
     }
@@ -988,30 +988,30 @@
    "card_date": "2026-10-24",
    "commence": "2026-10-24T19:45:00Z",
    "is_main": false,
-   "best_price": -170,
-   "best_book": "williamhill_us",
+   "best_price": -175,
+   "best_book": "draftkings",
    "worst_price": -186,
    "n_books": 5,
    "fair_p": 0.6106,
-   "mkt_p": 0.6296,
-   "ev_best": -3.03,
-   "shop_gain": 0.0207,
+   "mkt_p": 0.6364,
+   "ev_best": -4.05,
+   "shop_gain": 0.014,
    "hedge_price": 150,
    "hedge_book": "betmgm",
-   "combined_hold": 0.0296,
+   "combined_hold": 0.0364,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -170,
+     "book": "draftkings",
+     "price": -175,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": -175,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1050,9 +1050,9 @@
    "mkt_p": 0.4,
    "ev_best": -2.64,
    "shop_gain": 0.0132,
-   "hedge_price": -170,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0296,
+   "hedge_price": -175,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0364,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1076,7 +1076,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 143,
+     "price": 145,
      "best": false,
      "bettable": true
     },
@@ -1096,23 +1096,23 @@
    "card_date": "2026-10-24",
    "commence": "2026-10-24T20:30:00Z",
    "is_main": true,
-   "best_price": -110,
+   "best_price": -105,
    "best_book": "williamhill_us",
    "worst_price": -115,
    "n_books": 5,
    "fair_p": 0.5,
-   "mkt_p": 0.5238,
-   "ev_best": -4.55,
-   "shop_gain": 0.0111,
+   "mkt_p": 0.5122,
+   "ev_best": -2.38,
+   "shop_gain": 0.0227,
    "hedge_price": -105,
    "hedge_book": "draftkings",
-   "combined_hold": 0.036,
+   "combined_hold": 0.0244,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": -110,
+     "price": -105,
      "best": true,
      "bettable": true
     },
@@ -1152,15 +1152,15 @@
    "is_main": true,
    "best_price": -105,
    "best_book": "draftkings",
-   "worst_price": -113,
+   "worst_price": -115,
    "n_books": 5,
    "fair_p": 0.5,
    "mkt_p": 0.5122,
    "ev_best": -2.38,
-   "shop_gain": 0.0183,
-   "hedge_price": -110,
+   "shop_gain": 0.0227,
+   "hedge_price": -105,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.036,
+   "combined_hold": 0.0244,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1177,12 +1177,6 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -110,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": -112,
      "best": false,
@@ -1191,6 +1185,12 @@
     {
      "book": "fanduel",
      "price": -113,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -115,
      "best": false,
      "bettable": true
     }
