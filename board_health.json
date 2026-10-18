@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-10-18 11:45Z",
+ "checked_at": "2026-10-18 16:09Z",
  "n_stale": 0,
  "boards": [
   {
@@ -7,7 +7,7 @@
    "file": "hr_board_latest.json",
    "workflow": "hr_board.yml",
    "max_age_h": 10,
-   "age_h": 4.41,
+   "age_h": 8.8,
    "source": "odds_at",
    "rows": 23,
    "stamp": "2026-10-18 07:21Z",
@@ -19,10 +19,10 @@
    "file": "td_board_latest.json",
    "workflow": "td_board.yml",
    "max_age_h": 22,
-   "age_h": 14.99,
+   "age_h": 1.49,
    "source": "meta.generated",
-   "rows": 362,
-   "stamp": "2026-10-17 20:46Z",
+   "rows": 337,
+   "stamp": "2026-10-18 14:40Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -31,10 +31,10 @@
    "file": "nhl_board_latest.json",
    "workflow": "nhl_board.yml",
    "max_age_h": 16,
-   "age_h": 10.54,
+   "age_h": 2.09,
    "source": "meta.generated",
-   "rows": 377,
-   "stamp": "2026-10-18 01:13Z",
+   "rows": 71,
+   "stamp": "2026-10-18 14:04Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -43,12 +43,13 @@
    "file": "mma_board_latest.json",
    "workflow": "mma_board.yml",
    "max_age_h": 16,
-   "age_h": 13.33,
+   "age_h": 17.72,
    "source": "meta.generated",
    "rows": 56,
    "stamp": "2026-10-17 22:26Z",
-   "status": "ok",
-   "consecutive_stale": 0
+   "status": "idle",
+   "note": "no upcoming events -- offseason/empty slate, not an outage",
+   "consecutive_stale": 1
   }
  ]
 }
