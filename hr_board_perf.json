@@ -1,22 +1,22 @@
 {
-  "graded_dates": 89,
-  "graded_picks": 10587,
-  "base_hr_rate": 12.33,
+  "graded_dates": 90,
+  "graded_picks": 10601,
+  "base_hr_rate": 12.31,
   "buckets": {
     "top10": {
-      "n": 887,
-      "hit_rate": 16.69,
-      "lift_vs_base": 4.36
+      "n": 897,
+      "hit_rate": 16.5,
+      "lift_vs_base": 4.19
     },
     "top25": {
-      "n": 1237,
-      "hit_rate": 15.84,
-      "lift_vs_base": 3.52
+      "n": 1241,
+      "hit_rate": 15.79,
+      "lift_vs_base": 3.48
     },
     "rest": {
       "n": 8463,
       "hit_rate": 11.36,
-      "lift_vs_base": -0.97
+      "lift_vs_base": -0.95
     }
   },
   "calibration": [
@@ -24,13 +24,13 @@
       "q": 0,
       "pred": 6.8,
       "actual": 7.9,
-      "n": 2162
+      "n": 2167
     },
     {
       "q": 1,
       "pred": 9.8,
-      "actual": 10.8,
-      "n": 2151
+      "actual": 10.7,
+      "n": 2159
     },
     {
       "q": 2,
@@ -42,7 +42,7 @@
       "q": 3,
       "pred": 14.9,
       "actual": 14.5,
-      "n": 2168
+      "n": 2169
     },
     {
       "q": 4,
@@ -56,46 +56,46 @@
     "mlb_multi_among_hr_pct": 6.12,
     "tiers": {
       "top3": {
-        "n": 267,
+        "n": 270,
         "multi": 10,
-        "rate_per_pick": 3.75,
-        "breakeven_odds": 2570,
+        "rate_per_pick": 3.7,
+        "breakeven_odds": 2600,
         "multi_among_winners": 21.28
       },
       "top5": {
-        "n": 445,
+        "n": 450,
         "multi": 11,
-        "rate_per_pick": 2.47,
-        "breakeven_odds": 3945,
+        "rate_per_pick": 2.44,
+        "breakeven_odds": 3991,
         "multi_among_winners": 14.47
       },
       "top10": {
-        "n": 887,
+        "n": 897,
         "multi": 17,
-        "rate_per_pick": 1.92,
-        "breakeven_odds": 5118,
+        "rate_per_pick": 1.9,
+        "breakeven_odds": 5176,
         "multi_among_winners": 11.49
       },
       "top25": {
-        "n": 2124,
+        "n": 2138,
         "multi": 27,
-        "rate_per_pick": 1.27,
-        "breakeven_odds": 7767,
+        "rate_per_pick": 1.26,
+        "breakeven_odds": 7819,
         "multi_among_winners": 7.85
       },
       "all": {
-        "n": 10587,
+        "n": 10601,
         "multi": 79,
         "rate_per_pick": 0.75,
-        "breakeven_odds": 13301,
+        "breakeven_odds": 13319,
         "multi_among_winners": 6.05
       }
     }
   },
   "calib": {
-    "slope": 0.5827,
-    "intercept": 4.901,
-    "n": 10587
+    "slope": 0.5845,
+    "intercept": 4.864,
+    "n": 10601
   },
   "prop_power": {
     "power_bar": "top 15% HR% (daily pctile)",
@@ -110,49 +110,49 @@
   },
   "smash": {
     "bar": "top 1% HR% (daily pctile)",
-    "n": 149,
+    "n": 150,
     "multi_2plus": 6,
-    "rate_2plus": 4.03,
-    "breakeven_odds": 2383,
-    "had_hr_rate": 16.11,
+    "rate_2plus": 4.0,
+    "breakeven_odds": 2400,
+    "had_hr_rate": 16.0,
     "note": "thin sample -- forward-track, do not size"
   },
   "edge_buckets": {
     "pos_edge": {
-      "n": 1374,
-      "hit_rate": 7.21,
-      "roi": -29.84
+      "n": 1366,
+      "hit_rate": 6.95,
+      "roi": -32.69
     },
     "neg_edge": {
-      "n": 3549,
-      "hit_rate": 15.13,
-      "roi": -2.39
+      "n": 3571,
+      "hit_rate": 15.15,
+      "roi": -1.74
     },
     "edge_ge3": {
-      "n": 145,
-      "hit_rate": 7.59,
-      "roi": -18.83
+      "n": 143,
+      "hit_rate": 7.69,
+      "roi": -17.69
     },
     "best_pos": {
-      "n": 1571,
-      "hit_rate": 7.26,
-      "roi": -29.1
+      "n": 1564,
+      "hit_rate": 7.29,
+      "roi": -28.78
     },
     "best_neg": {
-      "n": 3352,
-      "hit_rate": 15.57,
-      "roi": -1.12
+      "n": 3373,
+      "hit_rate": 15.48,
+      "roi": -1.74
     }
   },
-  "edge_graded_picks": 4923,
+  "edge_graded_picks": 4937,
   "shop": {
-    "n": 4664,
+    "n": 4678,
     "avg_pts": 0.99
   },
   "edge_blind": {
-    "n": 4923,
-    "roi": -10.05,
-    "actual_hr": 12.92,
-    "mkt_implied": 14.12
+    "n": 4937,
+    "roi": -10.3,
+    "actual_hr": 12.88,
+    "mkt_implied": 14.11
   }
 }
