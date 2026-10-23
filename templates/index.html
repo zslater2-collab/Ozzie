@@ -375,9 +375,11 @@
       <select id="td-time" onchange="TD_STATE.time=this.value;renderTdTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <span id="td-bookwrap"></span>
+      <span id="td-gapwrap"></span>
       <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
         <input id="td-boost" type="number" step="5" min="0" max="200" value="0" oninput="setTdBoost(this.value)"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
+      <span id="td-allbookwrap"></span>
       <label style="cursor:pointer"><input type="checkbox" id="td-flagonly" onchange="TD_STATE.flagOnly=this.checked;renderTdTable()"> 🎯 focus slice only</label>
       <label style="cursor:pointer" title="the cron pulls 8 days of events; unchecked shows only kickoffs still ahead within 3 days (this week's slate)"><input type="checkbox" id="td-allupcoming" onchange="TD_STATE.slate=this.checked?'all':'now';renderTdTable()"> all upcoming weeks</label>
       <label style="cursor:pointer"><input type="checkbox" id="td-showthin" onchange="TD_STATE.showThin=this.checked;renderTdTable()"> show thin/longshot roles</label>
@@ -419,15 +421,17 @@
         <input id="nhl-pmax" type="number" step="50" placeholder="max" oninput="NHL_STATE.pmax=this.value===''?null:+this.value;renderNhlTable()"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:62px"></label>
       <span id="nhl-bookwrap"></span>
+      <span id="nhl-gapwrap"></span>
       <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
         <input id="nhl-boost" type="number" step="5" min="0" max="200" value="0" oninput="setNhlBoost(this.value)"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
+      <span id="nhl-allbookwrap"></span>
       <label style="cursor:pointer"><input type="checkbox" id="nhl-softonly" onchange="NHL_STATE.softOnly=this.checked;renderNhlTable()"> best price at DK/FD only</label>
       <label style="cursor:pointer"><input type="checkbox" id="nhl-showthin" onchange="NHL_STATE.showThin=this.checked;renderNhlTable()"> show thin roles (&lt;10 GP)</label>
     </div>
     <div class="exp-count" id="nhl-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="nhl-thead"></thead><tbody id="nhl-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Click a header to sort. Table shows <b>upcoming games only</b> and opens on the nearest date — use the <b>Date</b> / <b>Start</b> checkboxes for a later slate.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Pin a <b>book</b> and the <b>within N pp of best</b> box keeps only skaters that book prices within N implied-probability points of the best price anywhere — i.e. the players it is actually competitive on, which is the list you want when spending a boost token. <b>all book columns</b> puts every playable book in its own column, green where it holds the best price and red where it is 2+ points worse. Click a header to sort. Table shows <b>upcoming games only</b> and opens on the nearest date — use the <b>Date</b> / <b>Start</b> checkboxes for a later slate.</div>
   </div>
 </div>
 </div><!--/view-hk-->
@@ -450,9 +454,11 @@
       <select id="mma-card" onchange="MMA_STATE.card=this.value;renderMmaTable()"
         style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.66rem"></select>
       <span id="mma-bookwrap"></span>
+      <span id="mma-gapwrap"></span>
       <label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost %
         <input id="mma-boost" type="number" step="5" min="0" max="200" value="0" oninput="setMmaBoost(this.value)"
           style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"></label>
+      <span id="mma-allbookwrap"></span>
       <label style="cursor:pointer" title="fights where the best price on EACH side leaves under 2% combined hold — the cheapest spots on the card"><input type="checkbox" id="mma-lowhold" onchange="MMA_STATE.lowHold=this.checked;renderMmaTable()"> 💧 low hold only</label>
       <label style="cursor:pointer"><input type="checkbox" id="mma-dogs" onchange="MMA_STATE.dogsOnly=this.checked;renderMmaTable()"> underdogs only</label>
       <label style="cursor:pointer" title="only sides where boosting this side and hedging the other locks a guaranteed profit"><input type="checkbox" id="mma-lockonly" onchange="MMA_STATE.lockOnly=this.checked;renderMmaTable()"> 🔒 boost-locks only</label>
@@ -1262,7 +1268,8 @@
   var EXP = {tab:'hitters', data:{hitters:[],pitchers:[]},
     sort:{hitters:{col:'hr_prob',dir:-1}, pitchers:{col:'pq_percentile',dir:-1}},
     filters:{game:'',team:'',confirmed:false,search:'',minEdge:'',minProb:'',pos:'',slot:'',times:[],
-             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false,smash:false,book:'',boost:0}, expanded:null, _rows:[]};
+             minSalary:'',maxSalary:'',minLev:'',minShop:'',minEdgeBest:'',propOver:false,propPower:false,smash:false,book:'',boost:0,
+             gapMax:'',allBooks:false}, expanded:null, _rows:[]};
   function _exEsc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
   function _exAm(v){return (v==null||v==='')?'—':((+v>=0?'+':'')+(+v));}
   function _exN(v,d){return v==null?'—':(+v).toFixed(d);}
@@ -1423,6 +1430,10 @@
   function expToggleTime(t,on){const s=new Set(EXP.filters.times);on?s.add(t):s.delete(t);EXP.filters.times=[...s];EXP.expanded=null;renderExplorer();}
   function sortExplorer(col){const s=EXP.sort[EXP.tab];if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1;}EXP.expanded=null;renderExplorer();}
   function toggleExplorerBooks(i){EXP.expanded=(EXP.expanded===i?null:i);renderExplorer();}
+  function _exBbField(){ return EXP.tab==='hitters'?'book_prices':'kprop_book_prices'; }
+  // all-book columns for the Explorer, one per playable book (empty unless the toggle is on)
+  function _exAllBookCols(){ return EXP.filters.allBooks
+      ? bbBookCols(bbBooksIn(EXP.data[EXP.tab],_exBbField()),_exAm) : []; }
   function _exFiltered(){
     const F=EXP.filters;let rows=EXP.data[EXP.tab].slice();
     // hitters carry hr_prob as a PERCENT (27.5), so scale it to a probability for EV; the
@@ -1431,6 +1442,8 @@
             F.book, F.boost, EXP.tab==='hitters'?'hr_prob':null,
             EXP.tab==='hitters'?0.01:null);
     if(F.book)rows=rows.filter(r=>r.bk_price!=null);
+    // "within N pp of best": only rows where the PINNED book is that close to the best price
+    if(F.book&&F.gapMax!=='')rows=rows.filter(r=>r.bk_gap!=null&&r.bk_gap<=+F.gapMax);
     if(F.game)rows=rows.filter(r=>r.game===F.game);
     if(F.team)rows=rows.filter(r=>r.team===F.team||r.opp===F.team);
     if(F.confirmed&&EXP.tab==='hitters')rows=rows.filter(r=>!r.proj);
@@ -1462,8 +1475,8 @@
     return rows;
   }
   function renderExplorer(){
-    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book),s=EXP.sort[EXP.tab];
-    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" style="${c.bb?'color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(EXP.filters.book)):((EXP_DESC[c.k]||'').replace(/"/g,'&quot;'))}" onclick="sortExplorer('${c.k}')">${bbColT(c,EXP.filters.book)}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book).concat(_exAllBookCols()),s=EXP.sort[EXP.tab];
+    document.getElementById('exp-thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.l?'l':''} ${c.k===s.col?'sorted':''}" style="${(c.bb||c.ab2)?'color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(EXP.filters.book)):((c.d||EXP_DESC[c.k]||'').replace(/"/g,'&quot;'))}" onclick="sortExplorer('${c.k}')">${bbColT(c,EXP.filters.book)}${c.k===s.col?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const rows=_exFiltered();EXP._rows=rows;
     const tb=document.getElementById('exp-tbody');tb.innerHTML='';
     rows.forEach((r,i)=>{
@@ -1524,12 +1537,14 @@
     // book + boost: pin one sportsbook, see its own price vs the best, and where a boost pays most
     const bbField=EXP.tab==='hitters'?'book_prices':'kprop_book_prices';
     h+=bbBookSelect('exp-book',F.book,bbBooksIn(all,bbField),"expSetFilter('book',this.value)");
+    h+=bbGapInput('exp-gapmax',F.gapMax===''?null:F.gapMax,"expSetFilter('gapMax',this.value)");
     h+=`<label title="profit boost % you plan to apply (e.g. 50 for a 50% profit boost)">boost % <input type="number" step="5" min="0" max="200" value="${F.boost}" oninput="expSetFilter('boost',this.value)" style="width:54px"></label>`;
+    h+=bbAllBooksToggle('exp-allbooks',F.allBooks,"expSetFilter('allBooks',this.checked)");
     h+=`<button onclick="exportExplorerCSV()" style="background:var(--surface2);color:var(--accent);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:.62rem;cursor:pointer">Export CSV</button>`;
     document.getElementById('exp-filters').innerHTML=h;
   }
   function exportExplorerCSV(){
-    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book),rows=EXP._rows.length?EXP._rows:_exFiltered();
+    const cols=EXP_COLS[EXP.tab].filter(c=>!c.bb||EXP.filters.book).concat(_exAllBookCols()),rows=EXP._rows.length?EXP._rows:_exFiltered();
     const strip=s=>String(s).replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/"/g,'""').trim();
     const csv=cols.map(c=>c.t).join(',')+'\n'+rows.map(r=>cols.map(c=>`"${strip(c.f(r))}"`).join(',')).join('\n');
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
@@ -1538,7 +1553,8 @@
 
   // ── NFL Anytime-TD Board ────────────────────────────────────────────
   let TD_ROWS=[];
-  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1,book:'',boost:0,slate:'now'};
+  const TD_STATE={tab:'ALL',search:'',team:'',game:'',time:'',flagOnly:false,showThin:false,sort:'model_p_cal',dir:-1,book:'',boost:0,slate:'now',
+                  gapMax:null,allBooks:false};
   // kickoff -> short local label ("Sun 1:00p"); '' if no commence on the row
   function tdKick(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
@@ -1576,6 +1592,8 @@
     return '<span title="bad weather — fade pass-catcher longshots">'+(t.includes('wet')?'🌧️':'')+(t.includes('windy')?'💨':'')+'</span>'; }
   function setTdBook(b){ TD_STATE.book=b; renderTdTable(); }
   function setTdBoost(v){ TD_STATE.boost=+v||0; renderTdTable(); }
+  function setTdGapMax(v){ TD_STATE.gapMax=(v===''||v==null)?null:+v; renderTdTable(); }
+  function setTdAllBooks(on){ TD_STATE.allBooks=!!on; renderTdTable(); }
   function renderTdTable(){
     const s=TD_STATE, q=s.search.trim();
     bbApply(TD_ROWS,'book_prices',s.book,s.boost,'model_p_cal',1);
@@ -1593,15 +1611,17 @@
       && (!s.game || r.game===s.game)
       && (!s.time || tdKick(r)===s.time)
       && (!s.book || r.bk_price!=null)
+      && (s.gapMax==null || !s.book || (r.bk_gap!=null && r.bk_gap<=s.gapMax))
       && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
       && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.player||'').toLowerCase().includes(q)));
-    const TC=TD_COLS.filter(c=>!c.bb||s.book);
+    const abBooks=s.allBooks?bbBooksIn(TD_ROWS,'book_prices'):[];
+    const TC=TD_COLS.filter(c=>!c.bb||s.book).concat(bbBookCols(abBooks));
     const col=TC.find(c=>c.k===s.sort)||TD_COLS[5];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('td-tablecount').textContent=`${rows.length} players`;
     document.getElementById('td-thead').innerHTML='<tr>'+TC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setTdSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${(c.bb||c.ab2)?';color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(s.book)):((c.d||'').replace(/"/g,'&quot;'))}" onclick="setTdSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('td-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1623,7 +1643,8 @@
           `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
-        ):'');
+        ):'')+
+        bbBookCells(r,abBooks);
       tb.appendChild(tr);
     });
   }
@@ -1666,9 +1687,19 @@
     const k=bbKey(book);
     (rows||[]).forEach(r=>{
       const qs=r[field]||[]; let mine=null,best=null;
+      // playable-only price map + that row's best playable price, for the all-book columns. Kept
+      // separate from `best` above, which spans every book including the unbettable
+      // shop-context ones (Fliff / Hard Rock / BetRivers / BetPARX).
+      const bp={}; let pbest=null;
       qs.forEach(q=>{ if(!q||q.price==null)return;
         if(best==null||q.price>best)best=q.price;
-        if(bbKey(q.book)===k)mine=q.price; });
+        if(bbKey(q.book)===k)mine=q.price;
+        if(q.bettable!==false){ bp[bbKey(q.book)]=q.price;
+          if(pbest==null||q.price>pbest)pbest=q.price; } });
+      r._bp=bp; r._bpBest=pbest;
+      // also stamp each book's price as a plain row property, because the Explorer sorts by
+      // reading row[col.key] rather than calling the column's accessor
+      Object.keys(bp).forEach(bk=>{ r['bkall_'+bk]=bp[bk]; });
       r.bk_price=(k&&mine!=null)?mine:null;
       r.bk_ties=(best!=null)?qs.filter(q=>q&&q.price===best).length:null;
       r.bk_gap=(r.bk_price!=null&&best!=null)?+(100*(bbImp(r.bk_price)-bbImp(best))).toFixed(2):null;
@@ -1738,10 +1769,56 @@
   }
   function bbGapCol(v){ if(v==null)return 'var(--muted)'; if(v<=0.3)return '#39d353'; if(v<=1.5)return '#e0a020'; return '#ff6b3d'; }
 
+  // -- "within X pp of best" screen + all-book price columns --------------------
+  // WHY: pinning one book answers "what does DK have on this guy?" -- but the question when
+  // spending a boost token is the inverse: "which of tonight's players does DK price
+  // competitively?" So (1) the `within N pp` box keeps only rows where the PINNED book is within
+  // N implied-probability points of the best price anywhere (0 = it IS the best), and (2) the
+  // all-books toggle gives every playable book its own column, heat-coloured per ROW: green =
+  // that player's best price, red = his worst. Both read r._bp, stashed by bbApply.
+  function _bbMix(a,b,t){ return a.map((x,i)=>Math.round(x+(b[i]-x)*t)); }
+  // Colour on the ABSOLUTE gap from the best price, in implied-probability points -- NOT on each
+  // row's own best-to-worst range. A rank-normalised scale painted +470-against-+475 bright red
+  // (worst of two, but 0.15pp of actual cost), which is backwards: it flags noise, and makes the
+  // colours mean something different on every row. Same scale as the `vs best` column:
+  // 0pp = green (this IS the best price), ~1pp amber, 2pp+ red.
+  const BB_HEAT_MAX=2.0;
+  function bbHeatCol(p,best){
+    if(p==null)return 'var(--muted)';
+    const pi=bbImp(p),bi=bbImp(best);
+    if(pi==null||bi==null)return 'var(--muted)';
+    const gap=100*(pi-bi);                                // 0 when this book IS the best price
+    let t=Math.max(0,Math.min(1,1-gap/BB_HEAT_MAX));      // 1 = best, 0 = 2pp+ worse
+    const R=[255,107,61],M=[139,148,158],G=[57,211,83];
+    const c=t<0.5?_bbMix(R,M,t*2):_bbMix(M,G,(t-0.5)*2);
+    return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+  }
+  // one sortable column per playable book, in the shape every board's col array already uses
+  function bbBookCols(books,fmt){ const F=fmt||fmtOdds;
+    return (books||[]).map(b=>({k:'bkall_'+b,t:bbShort(b),l:0,ab2:1,
+      v:r=>((r._bp||{})[b]!=null)?r._bp[b]:-99999,
+      f:r=>F((r._bp||{})[b]),
+      c:r=>bbHeatCol((r._bp||{})[b],r._bpBest),
+      d:'price at '+bbLabel(b)+'. Green = the best price available on this row; red = 2+ implied-probability points worse than the best. Blank = this book posts nothing here.'}));
+  }
+  // the same cells as an HTML string, for the boards that hand-write their rows
+  function bbBookCells(r,books,fmt){ const F=fmt||fmtOdds;
+    return (books||[]).map(b=>{const p=(r._bp||{})[b];
+      return `<td style="color:${bbHeatCol(p,r._bpBest)}">${p==null?'—':F(p)}</td>`;}).join('');
+  }
+  function bbGapInput(id,cur,onchange){
+    return `<label title="keep only rows where the PINNED book is within this many implied-probability points of the best price available anywhere. 0 = the pinned book is the best price; 0.5 = within half a point. Needs a book pinned.">within `
+      +`<input id="${id}" type="number" step="0.25" min="0" placeholder="pp" value="${cur==null?'':cur}" oninput="${onchange}"`
+      +` style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"> pp of best</label>`;
+  }
+  function bbAllBooksToggle(id,cur,onchange){
+    return `<label style="cursor:pointer" title="add one column per playable book, coloured by distance from the best price available on that row: green = it IS the best, amber ~1pp worse, red 2+ implied-probability points worse"><input type="checkbox" id="${id}" ${cur?'checked':''} onchange="${onchange}"> all book columns</label>`;
+  }
+
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
   let NHL_ROWS=[];
   const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0,pmin:null,pmax:null,
-                   dates:[],times:[],hidePast:true};
+                   dates:[],times:[],hidePast:true,gapMax:null,allBooks:false};
   const NHL_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
@@ -1781,6 +1858,8 @@
   function setNhlSort(k){ if(NHL_STATE.sort===k)NHL_STATE.dir*=-1; else{NHL_STATE.sort=k;NHL_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderNhlTable(); }
   function setNhlBook(b){ NHL_STATE.book=b; renderNhlTable(); }
   function setNhlBoost(v){ NHL_STATE.boost=+v||0; renderNhlTable(); }
+  function setNhlGapMax(v){ NHL_STATE.gapMax=(v===''||v==null)?null:+v; renderNhlTable(); }
+  function setNhlAllBooks(on){ NHL_STATE.allBooks=!!on; renderNhlTable(); }
   // ── NHL date + start-time filters ─────────────────────────────────────
   // WHY: the cron pulls slate(30), a THIRTY-DAY window, and this table had no time filter at
   // all -- so it showed tomorrow's (and yesterday's) skaters mixed in with tonight's. On
@@ -1836,15 +1915,17 @@
       && (!s.team || r.team===s.team)
       && (!s.game || r.game===s.game)
       && (!s.book || r.bk_price!=null)
+      && (s.gapMax==null || !s.book || (r.bk_gap!=null && r.bk_gap<=s.gapMax))
       && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
       && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.player||'').toLowerCase().includes(q)));
-    const NC=NHL_COLS.filter(c=>!c.bb||s.book);
+    const abBooks=s.allBooks?bbBooksIn(NHL_ROWS,'book_prices'):[];
+    const NC=NHL_COLS.filter(c=>!c.bb||s.book).concat(bbBookCols(abBooks));
     const col=NC.find(c=>c.k===s.sort)||NHL_COLS[6];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
     document.getElementById('nhl-thead').innerHTML='<tr>'+NC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${c.bb?';color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(s.book)):((c.d||'').replace(/"/g,'&quot;'))}" onclick="setNhlSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${(c.bb||c.ab2)?';color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(s.book)):((c.d||'').replace(/"/g,'&quot;'))}" onclick="setNhlSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('nhl-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -1885,13 +1966,15 @@
           `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+
           `<td style="color:#39d353">${fmtOdds(r.bk_boost)}</td>`+
           `<td style="color:${r.bk_ev==null?'var(--muted)':(r.bk_ev>0?'#39d353':'var(--muted)')}">${r.bk_ev==null?'—':((r.bk_ev>0?'+':'')+r.bk_ev.toFixed(0)+'%')}</td>`
-        ):'');
+        ):'')+
+        bbBookCells(r,abBooks);
       tb.appendChild(tr);
     });
   }
   // -- UFC / MMA moneyline board (line shopping only) ---------------------
   let MMA_ROWS=[];
-  const MMA_STATE={sport:'MMA',search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false,lockOnly:false};
+  const MMA_STATE={sport:'MMA',search:'',card:'',sort:'commence',dir:1,book:'',boost:0,lowHold:false,dogsOnly:false,lockOnly:false,
+                   gapMax:null,allBooks:false};
   function mmaTime(r){ if(!r.commence)return ''; const d=new Date(r.commence); if(isNaN(d))return '';
     let h=d.getHours(),m=d.getMinutes(),ap=h<12?'a':'p'; h=h%12||12;
     return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+h+':'+String(m).padStart(2,'0')+ap; }
@@ -1918,6 +2001,8 @@
   ];
   function setMmaBook(b){ MMA_STATE.book=b; renderMmaTable(); }
   function setMmaBoost(v){ MMA_STATE.boost=+v||0; renderMmaTable(); }
+  function setMmaGapMax(v){ MMA_STATE.gapMax=(v===''||v==null)?null:+v; renderMmaTable(); }
+  function setMmaAllBooks(on){ MMA_STATE.allBooks=!!on; renderMmaTable(); }
   function setMmaSort(k){ if(MMA_STATE.sort===k)MMA_STATE.dir*=-1; else{MMA_STATE.sort=k;MMA_STATE.dir=(k==='fighter'||k==='opponent'||k==='card_date'||k==='commence'||k==='best_book')?1:-1;} renderMmaTable(); }
   function renderMmaTable(){
     const s=MMA_STATE, q=s.search.trim();
@@ -1941,15 +2026,17 @@
       && (!s.dogsOnly || (r.best_price!=null && r.best_price>0))
       && (!s.lockOnly || r.arb_roi)
       && (!s.book || r.bk_price!=null)
+      && (s.gapMax==null || !s.book || (r.bk_gap!=null && r.bk_gap<=s.gapMax))
       && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
       && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
       && (!q || (r.fighter||'').toLowerCase().includes(q) || (r.opponent||'').toLowerCase().includes(q)));
-    const MC=MMA_COLS.filter(c=>(!c.bb||s.book)&&(!c.ab||s.boost>0));
+    const abBooks=s.allBooks?bbBooksIn(MMA_ROWS,'book_prices'):[];
+    const MC=MMA_COLS.filter(c=>(!c.bb||s.book)&&(!c.ab||s.boost>0)).concat(bbBookCols(abBooks));
     const col=MC.find(c=>c.k===s.sort)||MMA_COLS[3];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('mma-tablecount').textContent=rows.length+' sides';
     document.getElementById('mma-thead').innerHTML='<tr>'+MC.map(c=>
-      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${(c.bb||c.ab)?';color:var(--accent)':''}"${c.bb?` title="price at ${bbLabel(s.book)}"`:''} onclick="setMmaSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
+      `<th class="${c.l?'l':''} ${c.k===s.sort?'sorted':''}" style="cursor:pointer${(c.bb||c.ab||c.ab2)?';color:var(--accent)':''}" title="${c.bb?('price at '+bbLabel(s.book)):((c.d||'').replace(/"/g,'&quot;'))}" onclick="setMmaSort('${c.k}')">${bbColT(c,s.book)}${c.k===s.sort?(s.dir<0?' ▼':' ▲'):''}</th>`).join('')+'</tr>';
     const tb=document.getElementById('mma-tbody'); tb.innerHTML='';
     rows.forEach(r=>{
       const tr=document.createElement('tr'); tr.className='exp-row';
@@ -2025,6 +2112,10 @@
       renderMmaCards();
       document.getElementById('mma-bookwrap').innerHTML=
         bbBookSelect('mma-book',MMA_STATE.book,bbBooksIn(MMA_ROWS,'book_prices'),'setMmaBook(this.value)');
+      document.getElementById('mma-gapwrap').innerHTML=
+        bbGapInput('mma-gapmax',MMA_STATE.gapMax,'setMmaGapMax(this.value)');
+      document.getElementById('mma-allbookwrap').innerHTML=
+        bbAllBooksToggle('mma-allbooks',MMA_STATE.allBooks,'setMmaAllBooks(this.checked)');
       renderMmaTable();
       document.getElementById('mma-section').style.display='block';
     }).catch(()=>{});
@@ -2056,6 +2147,10 @@
       document.getElementById('nhl-game').innerHTML=opts(NHL_ROWS.map(r=>r.game),'all games');
       document.getElementById('nhl-bookwrap').innerHTML=
         bbBookSelect('nhl-book',NHL_STATE.book,bbBooksIn(NHL_ROWS,'book_prices'),'setNhlBook(this.value)');
+      document.getElementById('nhl-gapwrap').innerHTML=
+        bbGapInput('nhl-gapmax',NHL_STATE.gapMax,'setNhlGapMax(this.value)');
+      document.getElementById('nhl-allbookwrap').innerHTML=
+        bbAllBooksToggle('nhl-allbooks',NHL_STATE.allBooks,'setNhlAllBooks(this.checked)');
       // DEFAULT = the nearest upcoming local date only, so the table opens on tonight's slate
       // instead of every game in the 30-day pull. Other dates stay one checkbox away.
       (function(){
@@ -2087,6 +2182,10 @@
       document.getElementById('td-time').innerHTML='<option value="">all times</option>'+kicks.map(c=>{const l=tdKick({commence:c});return `<option value="${l}">${l}</option>`;}).join('');
       document.getElementById('td-bookwrap').innerHTML=
         bbBookSelect('td-book',TD_STATE.book,bbBooksIn(TD_ROWS,'book_prices'),'setTdBook(this.value)');
+      document.getElementById('td-gapwrap').innerHTML=
+        bbGapInput('td-gapmax',TD_STATE.gapMax,'setTdGapMax(this.value)');
+      document.getElementById('td-allbookwrap').innerHTML=
+        bbAllBooksToggle('td-allbooks',TD_STATE.allBooks,'setTdAllBooks(this.checked)');
       renderTdTable();
       document.getElementById('td-section').style.display='block';
     }).catch(()=>{});
