@@ -1,2201 +1,654 @@
 {
-  "date": "2026-10-19",
-  "asof": "2026-10-18",
+  "date": "2026-10-23",
+  "asof": "2026-10-19",
   "calib": {
-    "slope": 0.5845,
-    "intercept": 4.864,
-    "n": 10601
+    "slope": 0.5872,
+    "intercept": 4.833,
+    "n": 10616
   },
   "ranked_by": "prob",
-  "generated_at": "2026-10-19 23:11Z",
-  "odds_at": "2026-10-19 23:11Z",
-  "n_odds_players": 18,
+  "generated_at": "2026-10-23 01:00Z",
+  "odds_at": null,
+  "n_odds_players": 0,
   "rows": [
     {
-      "date": "2026-10-19",
-      "batter": 691406,
-      "pitcher": 542888,
-      "game": "CLE@TB",
-      "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 641343,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 180,
-      "slot": 4,
-      "est_slot": null,
-      "pos": "3B",
-      "arch": "Oppo Fastball Hunter",
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 3.6,
+      "pos": "1B",
+      "arch": "",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 4.18,
+      "pit_hr": 2.93,
+      "park": 1.119,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 4.445,
+      "hr_prob": 15.6,
+      "fair": "+541",
+      "Batter": "Jake Bauers",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 18.4,
+      "hr_season_pctile": 89,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 694192,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 1.0,
+      "pos": "LF",
+      "arch": "Middle Fastball Crusher",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 5.31,
-      "pit_hr": 2.59,
-      "park": 1.022,
+      "hit_hr": 4.18,
+      "pit_hr": 2.93,
+      "park": 1.045,
       "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 4.386,
-      "hr_prob": 15.4,
-      "fair": "+549",
-      "Batter": "Junior Caminero",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 420.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 18.8,
-      "mkt_avg": 385.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 420,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 420,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 420,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 410,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 409,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 400,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 400,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 390,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 350,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Fliff",
-          "price": 335,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 310,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 6000.0,
-      "hr2_book": "theScore Bet",
-      "hr2_n_books": 10.0,
-      "hr2_worst": 2500.0,
-      "hr2_spread_x": 2.4,
-      "hr2_prices": [
-        {
-          "book": "theScore Bet",
-          "price": 6000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 4500,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 4500,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 4500,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 4500,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 4500,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 4000,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 4000,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 4000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 2500,
-          "bettable": true
-        }
-      ],
+      "supp": 0.979,
+      "pa_hr": 4.151,
+      "hr_prob": 15.5,
+      "fair": "+545",
+      "Batter": "Jackson Chourio",
+      "Pitcher": "Nick Mart\u00ednez",
       "hr_prob_raw": 18.1,
-      "edge": -3.4,
       "hr_season_pctile": 88,
       "tier": "chalk"
     },
     {
-      "date": "2026-10-19",
-      "batter": 666176,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 691406,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 776,
-      "slot": 4,
-      "est_slot": null,
-      "pos": "DH",
-      "arch": "Middle Slider Crusher",
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 3.4,
+      "pos": "3B",
+      "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.23,
-      "pit_hr": 3.08,
-      "park": 1.022,
+      "hit_hr": 5.4,
+      "pit_hr": 2.17,
+      "park": 1.045,
       "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 3.217,
-      "hr_prob": 12.8,
-      "fair": "+681",
-      "Batter": "Jo Adell",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 700.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 15.0,
-      "mkt_avg": 583.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 700,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 700,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 700,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 660,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 575,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 550,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "FanDuel",
-          "price": 540,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 525,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 525,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 525,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 500,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 12000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 9.0,
-      "hr2_worst": 4000.0,
-      "hr2_spread_x": 3.0,
-      "hr2_prices": [
-        {
-          "book": "BetRivers",
-          "price": 12000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 12000,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 10000,
-          "bettable": false
-        },
-        {
-          "book": "FanDuel",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 7800,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 7000,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 6000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 6000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4000,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 13.6,
-      "edge": -2.2,
-      "hr_season_pctile": 62,
+      "supp": 0.9,
+      "pa_hr": 3.654,
+      "hr_prob": 13.9,
+      "fair": "+619",
+      "Batter": "Junior Caminero",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 15.4,
+      "hr_season_pctile": 74,
       "tier": "chalk"
     },
     {
-      "date": "2026-10-19",
-      "batter": 683748,
-      "pitcher": 542888,
-      "game": "CLE@TB",
-      "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 596142,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 180,
-      "slot": 6,
+      "pit_bf": 756,
+      "slot": null,
       "est_slot": null,
+      "pos": "C",
+      "arch": "High Zone Fastball Hitter",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 3.94,
+      "pit_hr": 2.93,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 3.905,
+      "hr_prob": 13.7,
+      "fair": "+630",
+      "Batter": "Gary S\u00e1nchez",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 15.1,
+      "hr_season_pctile": 72,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 668930,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 2.8,
+      "pos": "2B",
+      "arch": "Inside Breaking Ball Specialist (LH)",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 3.05,
+      "pit_hr": 2.93,
+      "park": 1.119,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 3.237,
+      "hr_prob": 12.9,
+      "fair": "+675",
+      "Batter": "Brice Turang",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 13.8,
+      "hr_season_pctile": 63,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 661388,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 3.2,
+      "pos": "C",
+      "arch": "Middle Fastball Crusher",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 3.1,
+      "pit_hr": 2.93,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 3.073,
+      "hr_prob": 12.5,
+      "fair": "+700",
+      "Batter": "William Contreras",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 13.1,
+      "hr_season_pctile": 58,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 683748,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 5.3,
       "pos": "RF",
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 4.52,
-      "pit_hr": 2.59,
-      "park": 0.902,
+      "hit_hr": 4.48,
+      "pit_hr": 2.17,
+      "park": 1.119,
       "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 3.295,
-      "hr_prob": 12.4,
-      "fair": "+706",
+      "supp": 0.9,
+      "pa_hr": 3.243,
+      "hr_prob": 12.5,
+      "fair": "+700",
       "Batter": "Victor Mesa",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": null,
-      "mkt_book": null,
-      "mkt_prob": null,
-      "mkt_avg": null,
-      "mkt_n_books": null,
-      "mkt_n_bettable": null,
-      "book_prices": [],
-      "hr2_over": null,
-      "hr2_book": null,
-      "hr2_n_books": null,
-      "hr2_worst": null,
-      "hr2_spread_x": null,
-      "hr2_prices": [],
-      "hr_prob_raw": 12.9,
-      "edge": null,
-      "hr_season_pctile": 56,
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 13.0,
+      "hr_season_pctile": 57,
       "tier": "chalk"
     },
     {
-      "date": "2026-10-19",
-      "batter": 663993,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 668723,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 776,
-      "slot": 5,
-      "est_slot": null,
-      "pos": "1B",
-      "arch": "Oppo Fastball Hunter (LH)",
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 4.0,
+      "pos": "RF",
+      "arch": "",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 3.86,
+      "pit_hr": 2.17,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.9,
+      "pa_hr": 2.61,
+      "hr_prob": 11.4,
+      "fair": "+777",
+      "Batter": "Ryan Vilade",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 11.1,
+      "hr_season_pctile": 42,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 592885,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 4.6,
+      "pos": "DH",
+      "arch": "Middle Slider Crusher (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.5,
-      "pit_hr": 3.08,
-      "park": 0.902,
+      "hit_hr": 2.41,
+      "pit_hr": 2.93,
+      "park": 1.119,
       "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 3.051,
-      "hr_prob": 12.1,
-      "fair": "+726",
-      "Batter": "Nathaniel Lowe",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 760.0,
-      "mkt_book": "DraftKings",
-      "mkt_prob": 11.7,
-      "mkt_avg": 698.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "DraftKings",
-          "price": 760,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 750,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 750,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 750,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 710,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 700,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 700,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 700,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 700,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 600,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 600,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 14000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 4500.0,
-      "hr2_spread_x": 3.11,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 14000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 14000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 14000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 9500,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 9000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 12.4,
-      "edge": 0.4,
-      "hr_season_pctile": 53,
+      "supp": 0.979,
+      "pa_hr": 2.558,
+      "hr_prob": 11.1,
+      "fair": "+801",
+      "Batter": "Christian Yelich",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 10.7,
+      "hr_season_pctile": 38,
       "tier": "chalk"
     },
     {
-      "date": "2026-10-19",
-      "batter": 650490,
-      "pitcher": 542888,
-      "game": "CLE@TB",
+      "date": "2026-10-23",
+      "batter": 666018,
+      "pitcher": 694819,
+      "game": "TB@MIL",
       "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 180,
-      "slot": 1,
-      "est_slot": null,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 2.0,
+      "pos": "1B",
+      "arch": "",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 3.21,
+      "pit_hr": 2.17,
+      "park": 1.119,
+      "wx": 1.0,
+      "supp": 0.9,
+      "pa_hr": 2.326,
+      "hr_prob": 10.9,
+      "fair": "+817",
+      "Batter": "Jonathan Aranda",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 10.3,
+      "hr_season_pctile": 35,
+      "tier": "chalk"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 669003,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 6.2,
+      "pos": "CF",
+      "arch": "",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 2.42,
+      "pit_hr": 2.93,
+      "park": 1.119,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 2.567,
+      "hr_prob": 10.8,
+      "fair": "+826",
+      "Batter": "Garrett Mitchell",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 10.1,
+      "hr_season_pctile": 33,
+      "tier": "value"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 650490,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 1.0,
       "pos": "DH",
       "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.16,
-      "pit_hr": 2.59,
-      "park": 1.022,
+      "hit_hr": 3.26,
+      "pit_hr": 2.17,
+      "park": 1.045,
       "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 2.611,
-      "hr_prob": 11.7,
-      "fair": "+755",
+      "supp": 0.9,
+      "pa_hr": 2.206,
+      "hr_prob": 10.7,
+      "fair": "+835",
       "Batter": "Yandy D\u00edaz",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 750.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 13.3,
-      "mkt_avg": 637.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 750,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 750,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 750,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 690,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 650,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 630,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 625,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 600,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 600,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 530,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 525,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 12000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 4500.0,
-      "hr2_spread_x": 2.67,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 13000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 12000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 12000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 8300,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 11.7,
-      "edge": -1.6,
-      "hr_season_pctile": 47,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 800050,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 776,
-      "slot": 3,
-      "est_slot": null,
-      "pos": "RF",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 2.86,
-      "pit_hr": 3.08,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.526,
-      "hr_prob": 11.2,
-      "fair": "+793",
-      "Batter": "Chase Delauter",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 850.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 10.4,
-      "mkt_avg": 730.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 900,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 850,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 850,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 800,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 790,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 700,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 700,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 700,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 680,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 645,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 550,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 15000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 4500.0,
-      "hr2_spread_x": 3.33,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 15000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 15000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 15000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 10.8,
-      "edge": 0.8,
-      "hr_season_pctile": 39,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 672275,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 776,
-      "slot": 7,
-      "est_slot": null,
-      "pos": "C",
-      "arch": "Inside Breaking Ball Specialist (LH)",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 3.16,
-      "pit_hr": 3.08,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.785,
-      "hr_prob": 11.0,
-      "fair": "+809",
-      "Batter": "Patrick Bailey",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 1040.0,
-      "mkt_book": "DraftKings",
-      "mkt_prob": 9.4,
-      "mkt_avg": 903.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "DraftKings",
-          "price": 1040,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetPARX",
-          "price": 950,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 950,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 950,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 950,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 900,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 900,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 880,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 750,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 750,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 22500.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 5500.0,
-      "hr2_spread_x": 4.09,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 22500,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 22500,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 22500,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 17500,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 12000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 5500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 10.5,
-      "edge": 1.6,
-      "hr_season_pctile": 37,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 666018,
-      "pitcher": 542888,
-      "game": "CLE@TB",
-      "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 180,
-      "slot": 2,
-      "est_slot": null,
-      "pos": "1B",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 3.23,
-      "pit_hr": 2.59,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 2.355,
-      "hr_prob": 10.9,
-      "fair": "+817",
-      "Batter": "Jonathan Aranda",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 650.0,
-      "mkt_book": "Fanatics",
-      "mkt_prob": 14.3,
-      "mkt_avg": 590.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "Fanatics",
-          "price": 650,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 650,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 630,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 620,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 600,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 575,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 550,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 505,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 475,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 12000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 9.0,
-      "hr2_worst": 4000.0,
-      "hr2_spread_x": 3.0,
-      "hr2_prices": [
-        {
-          "book": "BetRivers",
-          "price": 12000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 12000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 10000,
-          "bettable": false
-        },
-        {
-          "book": "Fanatics",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 7900,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 7500,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4000,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 10.4,
-      "edge": -3.4,
-      "hr_season_pctile": 36,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 683953,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 776,
-      "slot": 6,
-      "est_slot": null,
-      "pos": "2B",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 2.9,
-      "pit_hr": 3.08,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.567,
-      "hr_prob": 10.8,
-      "fair": "+826",
-      "Batter": "Travis Bazzana",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 850.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 10.4,
-      "mkt_avg": 764.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 850,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 850,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 850,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 800,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "DraftKings",
-          "price": 780,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 760,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 750,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 750,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 650,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 630,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 16000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 4500.0,
-      "hr2_spread_x": 3.56,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 18000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 16000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 16000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 9700,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 10.2,
-      "edge": 0.4,
-      "hr_season_pctile": 34,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 689414,
-      "pitcher": 542888,
-      "game": "CLE@TB",
-      "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 180,
-      "slot": 3,
-      "est_slot": null,
-      "pos": "C",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 3.08,
-      "pit_hr": 2.59,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 2.249,
-      "hr_prob": 10.5,
-      "fair": "+852",
-      "Batter": "Liam Hicks",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 1000.0,
-      "mkt_book": "Fanatics",
-      "mkt_prob": 9.4,
-      "mkt_avg": 910.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "Fanatics",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 980,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 950,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 900,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 900,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 900,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 900,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 800,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 755,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 22500.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 7.0,
-      "hr2_worst": 6000.0,
-      "hr2_spread_x": 3.75,
-      "hr2_prices": [
-        {
-          "book": "BetRivers",
-          "price": 22500,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 22500,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 20000,
-          "bettable": false
-        },
-        {
-          "book": "FanDuel",
-          "price": 17500,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 6000,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 9.7,
-      "edge": 1.1,
-      "hr_season_pctile": 30,
-      "tier": "chalk"
-    },
-    {
-      "date": "2026-10-19",
-      "batter": 608070,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
-      "upcoming": true,
-      "proj": false,
-      "unverified": false,
-      "pit_bf": 776,
-      "slot": 2,
-      "est_slot": null,
-      "pos": "3B",
-      "arch": "",
-      "bat_hand": "L",
-      "pit_hand": "R",
-      "hit_hr": 2.49,
-      "pit_hr": 3.08,
-      "park": 0.902,
-      "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.204,
-      "hr_prob": 10.5,
-      "fair": "+852",
-      "Batter": "Jos\u00e9 Ram\u00edrez",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 680.0,
-      "mkt_book": "DraftKings",
-      "mkt_prob": 14.3,
-      "mkt_avg": 611.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "DraftKings",
-          "price": 680,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 650,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 650,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 650,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 625,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 600,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 600,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "FanDuel",
-          "price": 590,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 550,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 510,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 11000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 4500.0,
-      "hr2_spread_x": 2.44,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 11000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 11000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 11000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 8000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 7700,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 7500,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 7000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 4500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 9.7,
-      "edge": -3.8,
-      "hr_season_pctile": 30,
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 10.0,
+      "hr_season_pctile": 33,
       "tier": "value"
     },
     {
-      "date": "2026-10-19",
-      "batter": 676356,
-      "pitcher": 542888,
-      "game": "CLE@TB",
+      "date": "2026-10-23",
+      "batter": 689414,
+      "pitcher": 694819,
+      "game": "TB@MIL",
       "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 180,
-      "slot": 7,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 4.2,
+      "pos": "C",
+      "arch": "",
+      "bat_hand": "L",
+      "pit_hand": "R",
+      "hit_hr": 3.06,
+      "pit_hr": 2.17,
+      "park": 1.119,
+      "wx": 1.0,
+      "supp": 0.9,
+      "pa_hr": 2.219,
+      "hr_prob": 10.4,
+      "fair": "+862",
+      "Batter": "Liam Hicks",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 9.4,
+      "hr_season_pctile": 28,
+      "tier": "value"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 656775,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
       "est_slot": null,
       "pos": "CF",
-      "arch": "",
-      "bat_hand": "R",
+      "arch": "Middle Slider Crusher (LH)",
+      "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.82,
-      "pit_hr": 2.59,
-      "park": 1.022,
+      "hit_hr": 3.12,
+      "pit_hr": 2.17,
+      "park": 1.119,
       "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 2.327,
+      "supp": 0.9,
+      "pa_hr": 2.26,
       "hr_prob": 10.1,
       "fair": "+890",
-      "Batter": "Jonny Deluca",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 1000.0,
-      "mkt_book": "theScore Bet",
-      "mkt_prob": 9.0,
-      "mkt_avg": 917.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "theScore Bet",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "DraftKings",
-          "price": 1000,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 950,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 950,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 950,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 950,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 920,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 900,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 775,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 765,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 22500.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 8.0,
-      "hr2_worst": 5500.0,
-      "hr2_spread_x": 4.09,
-      "hr2_prices": [
-        {
-          "book": "BetRivers",
-          "price": 22500,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 22500,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 18000,
-          "bettable": false
-        },
-        {
-          "book": "FanDuel",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 5500,
-          "bettable": true
-        }
-      ],
+      "Batter": "Cedric Mullins",
+      "Pitcher": "Jacob Misiorowski",
       "hr_prob_raw": 8.9,
-      "edge": 1.1,
       "hr_season_pctile": 24,
       "tier": "value"
     },
     {
-      "date": "2026-10-19",
-      "batter": 690984,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 683734,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 776,
-      "slot": 8,
+      "pit_bf": 756,
+      "slot": null,
       "est_slot": null,
-      "pos": "CF",
-      "arch": "",
-      "bat_hand": "L",
+      "pos": "1B",
+      "arch": "Inside Breaking Ball Specialist",
+      "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.6,
-      "pit_hr": 3.08,
-      "park": 0.902,
+      "hit_hr": 2.08,
+      "pit_hr": 2.93,
+      "park": 1.045,
       "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.297,
-      "hr_prob": 9.8,
-      "fair": "+920",
-      "Batter": "Petey Halpin",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 1200.0,
-      "mkt_book": "Bally Bet",
-      "mkt_prob": 7.9,
-      "mkt_avg": 1079.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "BetPARX",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 1200,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "DraftKings",
-          "price": 1200,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 1120,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 1100,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 1100,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 1100,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 850,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 800,
-          "best": false,
-          "bettable": false
-        }
-      ],
-      "hr2_over": 35000.0,
-      "hr2_book": "Bally Bet",
-      "hr2_n_books": 6.0,
-      "hr2_worst": 5500.0,
-      "hr2_spread_x": 6.36,
-      "hr2_prices": [
-        {
-          "book": "BetPARX",
-          "price": 42500,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 35000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 35000,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 20000,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 5500,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 8.4,
-      "edge": 1.9,
-      "hr_season_pctile": 20,
+      "supp": 0.979,
+      "pa_hr": 2.067,
+      "hr_prob": 9.6,
+      "fair": "+942",
+      "Batter": "Andrew Vaughn",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 8.2,
+      "hr_season_pctile": 18,
       "tier": "value"
     },
     {
-      "date": "2026-10-19",
-      "batter": 677587,
-      "pitcher": 642547,
-      "game": "CLE@TB",
-      "team": "CLE",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "date": "2026-10-23",
+      "batter": 687401,
+      "pitcher": 607259,
+      "game": "TB@MIL",
+      "team": "MIL",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 776,
-      "slot": 9,
+      "pit_bf": 756,
+      "slot": null,
+      "est_slot": 9.0,
+      "pos": "SS",
+      "arch": "Middle Fastball Crusher",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 2.28,
+      "pit_hr": 2.93,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.979,
+      "pa_hr": 2.265,
+      "hr_prob": 9.5,
+      "fair": "+953",
+      "Batter": "Joey Ortiz",
+      "Pitcher": "Nick Mart\u00ednez",
+      "hr_prob_raw": 7.9,
+      "hr_season_pctile": 16,
+      "tier": "value"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 676356,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 7.0,
+      "pos": "RF",
+      "arch": "",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 2.8,
+      "pit_hr": 2.17,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.9,
+      "pa_hr": 1.892,
+      "hr_prob": 9.1,
+      "fair": "+999",
+      "Batter": "Jonny Deluca",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 7.2,
+      "hr_season_pctile": 12,
+      "tier": "value"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 622761,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
       "est_slot": null,
       "pos": "SS",
-      "arch": "Middle Slider Crusher (LH)",
-      "bat_hand": "L",
+      "arch": "Middle Fastball Crusher",
+      "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.49,
-      "pit_hr": 3.08,
-      "park": 0.902,
+      "hit_hr": 2.53,
+      "pit_hr": 2.17,
+      "park": 1.045,
       "wx": 1.0,
-      "supp": 0.961,
-      "pa_hr": 2.202,
-      "hr_prob": 9.4,
-      "fair": "+964",
-      "Batter": "Brayan Rocchio",
-      "Pitcher": "Freddy Peralta",
-      "mkt_over": 1480.0,
-      "mkt_book": "DraftKings",
-      "mkt_prob": 7.3,
-      "mkt_avg": 1176.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "DraftKings",
-          "price": 1480,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 1300,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Caesars",
-          "price": 1300,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 1260,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 1200,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 1200,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 1200,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fliff",
-          "price": 920,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 900,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 40000.0,
-      "hr2_book": "FanDuel",
-      "hr2_n_books": 6.0,
-      "hr2_worst": 6000.0,
-      "hr2_spread_x": 6.67,
-      "hr2_prices": [
-        {
-          "book": "FanDuel",
-          "price": 40000,
-          "bettable": true
-        },
-        {
-          "book": "BetRivers",
-          "price": 40000,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 40000,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 35000,
-          "bettable": false
-        },
-        {
-          "book": "theScore Bet",
-          "price": 12500,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 6000,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 7.7,
-      "edge": 2.1,
-      "hr_season_pctile": 15,
+      "supp": 0.9,
+      "pa_hr": 1.711,
+      "hr_prob": 8.8,
+      "fair": "+1036",
+      "Batter": "Jorge Mateo",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 6.8,
+      "hr_season_pctile": 10,
       "tier": "value"
     },
     {
-      "date": "2026-10-19",
+      "date": "2026-10-23",
       "batter": 680700,
-      "pitcher": 542888,
-      "game": "CLE@TB",
+      "pitcher": 694819,
+      "game": "TB@MIL",
       "team": "TB",
-      "gtime": "8:08p",
-      "gstart_ms": 1792454880000,
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
       "upcoming": true,
-      "proj": false,
+      "proj": true,
       "unverified": false,
-      "pit_bf": 180,
-      "slot": 8,
-      "est_slot": null,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": 8.0,
       "pos": "2B",
       "arch": "Oppo Fastball Hunter (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.54,
-      "pit_hr": 2.59,
-      "park": 0.902,
+      "hit_hr": 2.52,
+      "pit_hr": 2.17,
+      "park": 1.119,
       "wx": 1.0,
-      "supp": 0.944,
-      "pa_hr": 1.85,
+      "supp": 0.9,
+      "pa_hr": 1.824,
       "hr_prob": 8.8,
       "fair": "+1036",
       "Batter": "Richie Palacios",
-      "Pitcher": "Shawn Armstrong",
-      "mkt_over": 1300.0,
-      "mkt_book": "Fanatics",
-      "mkt_prob": 9.0,
-      "mkt_avg": 1094.0,
-      "mkt_n_books": 11.0,
-      "mkt_n_bettable": 7.0,
-      "book_prices": [
-        {
-          "book": "Fanatics",
-          "price": 1300,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 1300,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "DraftKings",
-          "price": 1300,
-          "best": true,
-          "bettable": true
-        },
-        {
-          "book": "FanDuel",
-          "price": 1260,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "BetRivers",
-          "price": 1200,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 1200,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Caesars",
-          "price": 1100,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Hard Rock Bet",
-          "price": 1000,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "Fliff",
-          "price": 870,
-          "best": false,
-          "bettable": false
-        },
-        {
-          "book": "BetMGM",
-          "price": 800,
-          "best": false,
-          "bettable": true
-        }
-      ],
-      "hr2_over": 35000.0,
-      "hr2_book": "FanDuel",
-      "hr2_n_books": 6.0,
-      "hr2_worst": 6000.0,
-      "hr2_spread_x": 5.83,
-      "hr2_prices": [
-        {
-          "book": "FanDuel",
-          "price": 35000,
-          "bettable": true
-        },
-        {
-          "book": "BetPARX",
-          "price": 35000,
-          "bettable": false
-        },
-        {
-          "book": "BetRivers",
-          "price": 32500,
-          "bettable": false
-        },
-        {
-          "book": "Bally Bet",
-          "price": 32500,
-          "bettable": true
-        },
-        {
-          "book": "theScore Bet",
-          "price": 10000,
-          "bettable": true
-        },
-        {
-          "book": "BetMGM",
-          "price": 6000,
-          "bettable": true
-        }
-      ],
-      "hr_prob_raw": 6.8,
-      "edge": -0.2,
-      "hr_season_pctile": 10,
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 6.7,
+      "hr_season_pctile": 9,
+      "tier": "value"
+    },
+    {
+      "date": "2026-10-23",
+      "batter": 663743,
+      "pitcher": 694819,
+      "game": "TB@MIL",
+      "team": "TB",
+      "gtime": "8:00p",
+      "gstart_ms": 1792800000000,
+      "upcoming": true,
+      "proj": true,
+      "unverified": false,
+      "pit_bf": 703,
+      "slot": null,
+      "est_slot": null,
+      "pos": "C",
+      "arch": "Inside Breaking Ball Specialist",
+      "bat_hand": "R",
+      "pit_hand": "R",
+      "hit_hr": 2.15,
+      "pit_hr": 2.17,
+      "park": 1.045,
+      "wx": 1.0,
+      "supp": 0.9,
+      "pa_hr": 1.457,
+      "hr_prob": 8.2,
+      "fair": "+1120",
+      "Batter": "Nick Fortes",
+      "Pitcher": "Jacob Misiorowski",
+      "hr_prob_raw": 5.8,
+      "hr_season_pctile": 5,
       "tier": "value"
     }
   ]
