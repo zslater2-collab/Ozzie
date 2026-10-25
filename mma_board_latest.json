@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-10-25 17:04Z",
-  "n_rows": 60,
-  "n_fights": 30,
-  "n_cards": 10,
+  "generated": "2026-10-25 22:39Z",
+  "n_rows": 56,
+  "n_fights": 28,
+  "n_cards": 9,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "82407",
+  "credits_left": "82163",
   "sports": [
    "Boxing",
    "MMA"
@@ -20,294 +20,6 @@
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
-  {
-   "sport": "Boxing",
-   "fighter": "Jermaine Dhliwayo",
-   "opponent": "Jacob Robinson",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T17:30:00Z",
-   "is_main": false,
-   "best_price": -1000,
-   "best_book": "fanduel",
-   "worst_price": -1000,
-   "n_books": 1,
-   "fair_p": 0.8493,
-   "mkt_p": 0.9091,
-   "ev_best": -6.58,
-   "shop_gain": 0.0,
-   "hedge_price": 520,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0704,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -1000,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Jacob Robinson",
-   "opponent": "Jermaine Dhliwayo",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T17:30:00Z",
-   "is_main": false,
-   "best_price": 520,
-   "best_book": "fanduel",
-   "worst_price": 520,
-   "n_books": 1,
-   "fair_p": 0.1507,
-   "mkt_p": 0.1613,
-   "ev_best": -6.58,
-   "shop_gain": 0.0,
-   "hedge_price": -1000,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0704,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 520,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Tiago Muxanga",
-   "opponent": "Muzamiru Kakande",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T18:15:00Z",
-   "is_main": false,
-   "best_price": -300,
-   "best_book": "draftkings",
-   "worst_price": -350,
-   "n_books": 2,
-   "fair_p": 0.7218,
-   "mkt_p": 0.75,
-   "ev_best": -3.76,
-   "shop_gain": 0.0278,
-   "hedge_price": 250,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0357,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -300,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -350,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Muzamiru Kakande",
-   "opponent": "Tiago Muxanga",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T18:15:00Z",
-   "is_main": false,
-   "best_price": 250,
-   "best_book": "espnbet",
-   "worst_price": 230,
-   "n_books": 2,
-   "fair_p": 0.2782,
-   "mkt_p": 0.2857,
-   "ev_best": -2.63,
-   "shop_gain": 0.0173,
-   "hedge_price": -300,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0357,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 230,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Archie Sharp",
-   "opponent": "Ross Driscoll",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T19:15:00Z",
-   "is_main": false,
-   "best_price": -200,
-   "best_book": "espnbet",
-   "worst_price": -205,
-   "n_books": 2,
-   "fair_p": 0.6305,
-   "mkt_p": 0.6667,
-   "ev_best": -5.42,
-   "shop_gain": 0.0055,
-   "hedge_price": 160,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0513,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": -200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -205,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Ross Driscoll",
-   "opponent": "Archie Sharp",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T19:15:00Z",
-   "is_main": false,
-   "best_price": 160,
-   "best_book": "draftkings",
-   "worst_price": 150,
-   "n_books": 2,
-   "fair_p": 0.3695,
-   "mkt_p": 0.3846,
-   "ev_best": -3.93,
-   "shop_gain": 0.0154,
-   "hedge_price": -200,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0513,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 160,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Shauna Browne",
-   "opponent": "Jade Burden",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T20:15:00Z",
-   "is_main": true,
-   "best_price": -380,
-   "best_book": "draftkings",
-   "worst_price": -550,
-   "n_books": 3,
-   "fair_p": 0.766,
-   "mkt_p": 0.7917,
-   "ev_best": -3.25,
-   "shop_gain": 0.0545,
-   "hedge_price": 350,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0139,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -380,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -450,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -550,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Jade Burden",
-   "opponent": "Shauna Browne",
-   "card": "2026-10-25 - Jade Burden vs Shauna Browne",
-   "card_date": "2026-10-25",
-   "commence": "2026-10-25T20:15:00Z",
-   "is_main": true,
-   "best_price": 350,
-   "best_book": "espnbet",
-   "worst_price": 280,
-   "n_books": 3,
-   "fair_p": 0.234,
-   "mkt_p": 0.2222,
-   "ev_best": 5.32,
-   "shop_gain": 0.0409,
-   "hedge_price": -380,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0139,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 350,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
   {
    "sport": "MMA",
    "fighter": "Lucia Szabov\u00e1",
@@ -544,24 +256,30 @@
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": false,
-   "best_price": -305,
-   "best_book": "ballybet",
+   "best_price": -300,
+   "best_book": "betmgm",
    "worst_price": -330,
    "n_books": 5,
-   "fair_p": 0.7258,
-   "mkt_p": 0.7531,
-   "ev_best": -3.63,
-   "shop_gain": 0.0144,
-   "hedge_price": 260,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0309,
+   "fair_p": 0.7241,
+   "mkt_p": 0.75,
+   "ev_best": -3.45,
+   "shop_gain": 0.0174,
+   "hedge_price": 250,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "betmgm",
+     "price": -300,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "ballybet",
      "price": -305,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -577,15 +295,39 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -325,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": -330,
      "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Zachary Reese",
+   "opponent": "Mickey Gall",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": -270,
+   "best_book": "williamhill_us",
+   "worst_price": -270,
+   "n_books": 1,
+   "fair_p": 0.7002,
+   "mkt_p": 0.7297,
+   "ev_best": -4.05,
+   "shop_gain": 0.0,
+   "hedge_price": 220,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0422,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -270,
+     "best": true,
      "bettable": true
     }
    ]
@@ -653,25 +395,19 @@
    "commence": "2026-11-01T00:00:00Z",
    "is_main": false,
    "best_price": -250,
-   "best_book": "betmgm",
-   "worst_price": -270,
+   "best_book": "ballybet",
+   "worst_price": -300,
    "n_books": 5,
-   "fair_p": 0.6853,
+   "fair_p": 0.6958,
    "mkt_p": 0.7143,
-   "ev_best": -4.05,
-   "shop_gain": 0.0154,
-   "hedge_price": 220,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0268,
-   "low_hold": false,
+   "ev_best": -2.59,
+   "shop_gain": 0.0357,
+   "hedge_price": 240,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0084,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
-    {
-     "book": "betmgm",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "ballybet",
      "price": -250,
@@ -693,6 +429,102 @@
     {
      "book": "draftkings",
      "price": -270,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -300,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jacobe Smith",
+   "opponent": "Randy Brown",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": -250,
+   "best_book": "williamhill_us",
+   "worst_price": -275,
+   "n_books": 2,
+   "fair_p": 0.6899,
+   "mkt_p": 0.7143,
+   "ev_best": -3.41,
+   "shop_gain": 0.019,
+   "hedge_price": 210,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0369,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -275,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Luana Santos",
+   "opponent": "Yana Santos",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": -235,
+   "best_book": "fanduel",
+   "worst_price": -275,
+   "n_books": 5,
+   "fair_p": 0.6854,
+   "mkt_p": 0.7015,
+   "ev_best": -2.3,
+   "shop_gain": 0.0318,
+   "hedge_price": 220,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.014,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -235,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -265,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -275,
      "best": false,
      "bettable": true
     }
@@ -754,60 +586,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Luana Santos",
-   "opponent": "Yana Santos",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": -220,
-   "best_book": "betmgm",
-   "worst_price": -270,
-   "n_books": 5,
-   "fair_p": 0.6782,
-   "mkt_p": 0.6875,
-   "ev_best": -1.36,
-   "shop_gain": 0.0422,
-   "hedge_price": 220,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": -220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -235,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -250,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -250,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -270,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Rodrigo Sezinando",
    "opponent": "Theodor Berggren",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
@@ -818,9 +596,9 @@
    "best_book": "draftkings",
    "worst_price": -188,
    "n_books": 5,
-   "fair_p": 0.6164,
+   "fair_p": 0.6162,
    "mkt_p": 0.6296,
-   "ev_best": -2.1,
+   "ev_best": -2.13,
    "shop_gain": 0.0231,
    "hedge_price": 150,
    "hedge_book": "williamhill_us",
@@ -835,14 +613,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -180,
-     "best": false,
+     "book": "betmgm",
+     "price": -170,
+     "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -185,
+     "book": "williamhill_us",
+     "price": -180,
      "best": false,
      "bettable": true
     },
@@ -910,36 +688,36 @@
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": true,
-   "best_price": -125,
-   "best_book": "draftkings",
+   "best_price": -120,
+   "best_book": "betmgm",
    "worst_price": -130,
    "n_books": 5,
    "fair_p": 0.5325,
-   "mkt_p": 0.5556,
-   "ev_best": -4.16,
-   "shop_gain": 0.0097,
+   "mkt_p": 0.5455,
+   "ev_best": -2.38,
+   "shop_gain": 0.0198,
    "hedge_price": 105,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0434,
+   "combined_hold": 0.0333,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": -125,
+     "book": "betmgm",
+     "price": -120,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "draftkings",
      "price": -125,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": -125,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -964,34 +742,40 @@
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": false,
-   "best_price": -120,
-   "best_book": "betmgm",
-   "worst_price": -136,
+   "best_price": -115,
+   "best_book": "williamhill_us",
+   "worst_price": -127,
    "n_books": 5,
-   "fair_p": 0.5325,
-   "mkt_p": 0.5455,
-   "ev_best": -2.38,
-   "shop_gain": 0.0308,
-   "hedge_price": 106,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0309,
+   "fair_p": 0.5188,
+   "mkt_p": 0.5349,
+   "ev_best": -3.01,
+   "shop_gain": 0.0246,
+   "hedge_price": 105,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0227,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": -120,
+     "book": "williamhill_us",
+     "price": -115,
      "best": true,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -125,
+     "book": "draftkings",
+     "price": -118,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "fanduel",
+     "price": -122,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
      "price": -125,
      "best": false,
      "bettable": true
@@ -1001,10 +785,58 @@
      "price": -127,
      "best": false,
      "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Renato Moicano",
+   "opponent": "Tom Nolan",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": 105,
+   "best_book": "betmgm",
+   "worst_price": -105,
+   "n_books": 5,
+   "fair_p": 0.4812,
+   "mkt_p": 0.4878,
+   "ev_best": -1.35,
+   "shop_gain": 0.0244,
+   "hedge_price": -115,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0227,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 105,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -102,
+     "best": false,
+     "bettable": true
     },
     {
      "book": "fanduel",
-     "price": -136,
+     "price": -104,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -105,
      "best": false,
      "bettable": true
     }
@@ -1020,92 +852,38 @@
    "is_main": true,
    "best_price": 105,
    "best_book": "draftkings",
-   "worst_price": 102,
+   "worst_price": 100,
    "n_books": 5,
    "fair_p": 0.4675,
    "mkt_p": 0.4878,
    "ev_best": -4.16,
-   "shop_gain": 0.0072,
-   "hedge_price": -125,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0434,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 105,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 105,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 105,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 102,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 102,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Renato Moicano",
-   "opponent": "Tom Nolan",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": 106,
-   "best_book": "fanduel",
-   "worst_price": 100,
-   "n_books": 5,
-   "fair_p": 0.4675,
-   "mkt_p": 0.4854,
-   "ev_best": -3.69,
-   "shop_gain": 0.0146,
+   "shop_gain": 0.0122,
    "hedge_price": -120,
    "hedge_book": "betmgm",
-   "combined_hold": 0.0309,
+   "combined_hold": 0.0333,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 106,
+     "book": "draftkings",
+     "price": 105,
      "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 105,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 105,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
+     "price": 102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
      "price": 102,
      "best": false,
      "bettable": true
@@ -1170,12 +948,12 @@
    "is_main": false,
    "best_price": 150,
    "best_book": "williamhill_us",
-   "worst_price": 142,
+   "worst_price": 140,
    "n_books": 5,
-   "fair_p": 0.3836,
+   "fair_p": 0.3838,
    "mkt_p": 0.4,
-   "ev_best": -4.11,
-   "shop_gain": 0.0132,
+   "ev_best": -4.06,
+   "shop_gain": 0.0167,
    "hedge_price": -170,
    "hedge_book": "draftkings",
    "combined_hold": 0.0296,
@@ -1184,12 +962,6 @@
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": 150,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
      "price": 150,
      "best": true,
      "bettable": true
@@ -1211,58 +983,10 @@
      "price": 142,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Yana Santos",
-   "opponent": "Luana Santos",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": 220,
-   "best_book": "draftkings",
-   "worst_price": 180,
-   "n_books": 5,
-   "fair_p": 0.3218,
-   "mkt_p": 0.3125,
-   "ev_best": 2.99,
-   "shop_gain": 0.0446,
-   "hedge_price": -220,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 205,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 195,
-     "best": false,
-     "bettable": true
     },
     {
      "book": "betmgm",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 180,
+     "price": 140,
      "best": false,
      "bettable": true
     }
@@ -1324,41 +1048,131 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Yana Santos",
+   "opponent": "Luana Santos",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": 220,
+   "best_book": "betmgm",
+   "worst_price": 180,
+   "n_books": 5,
+   "fair_p": 0.3146,
+   "mkt_p": 0.3125,
+   "ev_best": 0.67,
+   "shop_gain": 0.0446,
+   "hedge_price": -235,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.014,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 220,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 215,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 205,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 195,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Randy Brown",
+   "opponent": "Jacobe Smith",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": 210,
+   "best_book": "betmgm",
+   "worst_price": 205,
+   "n_books": 2,
+   "fair_p": 0.3101,
+   "mkt_p": 0.3226,
+   "ev_best": -3.88,
+   "shop_gain": 0.0053,
+   "hedge_price": -250,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0369,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 210,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 205,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Farman Hasanov",
    "opponent": "Jean-Paul Lebosnoyani",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": false,
-   "best_price": 220,
-   "best_book": "draftkings",
+   "best_price": 240,
+   "best_book": "betmgm",
    "worst_price": 195,
    "n_books": 5,
-   "fair_p": 0.3147,
-   "mkt_p": 0.3125,
-   "ev_best": 0.69,
-   "shop_gain": 0.0265,
+   "fair_p": 0.3042,
+   "mkt_p": 0.2941,
+   "ev_best": 3.44,
+   "shop_gain": 0.0449,
    "hedge_price": -250,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0268,
-   "low_hold": false,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0084,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
+     "book": "betmgm",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 220,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 215,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 200,
      "best": false,
      "bettable": true
     },
@@ -1432,42 +1246,72 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Mickey Gall",
+   "opponent": "Zachary Reese",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": 220,
+   "best_book": "williamhill_us",
+   "worst_price": 220,
+   "n_books": 1,
+   "fair_p": 0.2998,
+   "mkt_p": 0.3125,
+   "ev_best": -4.05,
+   "shop_gain": 0.0,
+   "hedge_price": -270,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0422,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 220,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Nick Klein",
    "opponent": "Joseph Kropschot",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": false,
-   "best_price": 260,
-   "best_book": "betmgm",
+   "best_price": 250,
+   "best_book": "draftkings",
    "worst_price": 230,
    "n_books": 5,
-   "fair_p": 0.2742,
-   "mkt_p": 0.2778,
-   "ev_best": -1.27,
-   "shop_gain": 0.0253,
-   "hedge_price": -305,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0309,
+   "fair_p": 0.2759,
+   "mkt_p": 0.2857,
+   "ev_best": -3.45,
+   "shop_gain": 0.0173,
+   "hedge_price": -300,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 260,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 250,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 250,
-     "best": false,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 250,
+     "best": true,
      "bettable": true
     },
     {
