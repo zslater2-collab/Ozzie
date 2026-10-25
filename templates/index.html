@@ -431,7 +431,7 @@
     </div>
     <div class="exp-count" id="nhl-tablecount"></div>
     <div class="exp-wrap"><table class="exp"><thead id="nhl-thead"></thead><tbody id="nhl-tbody"></tbody></table></div>
-    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Pin a <b>book</b> and the <b>within N pp of best</b> box keeps only skaters that book prices within N implied-probability points of the best price anywhere — i.e. the players it is actually competitive on, which is the list you want when spending a boost token. <b>all book columns</b> puts every playable book in its own column, green where it holds the best price and red where it is 2+ points worse. Click a header to sort. Table shows <b>upcoming games only</b> and opens on the nearest date — use the <b>Date</b> / <b>Start</b> checkboxes for a later slate.</div>
+    <div style="font-size:.55rem;color:var(--muted);margin-top:6px">Read: <b>Mkt P</b> (from the price) is the real chance; <b>Model P</b> is a role reference (role from data × team goal total from the line). <b>PP</b> = projected power-play minutes — the single biggest driver of who scores (PP time alone separates scorers at AUC .67; even-strength time is near coin-flip at .53). <b>Best price</b> is the useful column. <b>There is NO validated selection edge in this market</b> — every price band lands within a few points of implied, and the one candidate slice (PP defensemen) flipped sign out-of-sample. <b>Edge = context, NOT a bet signal.</b> The one thing that replicated is <b>SHOPPING</b>: best-of-4 books beat worst-of-4 by ~10pp of ROI. DK is best on 46% of quotes, FD 43%, BetMGM 11%, <b>Caesars 0.2% — avoid</b>. <b>Shop</b> column = how much the best price beats the worst. Pin a <b>book</b> and the <b>within N pp of best</b> box keeps only skaters that book prices within N implied-probability points of the best price anywhere — i.e. the players it is actually competitive on, which is the list you want when spending a boost token. <b>all book columns</b> puts every playable book in its own column: the best price on the row is <b>bold bright green</b> (both of them on a tie), and the rest grade by what the worse price <i>costs you</i> at a flat stake — pale green under 2%, yellow under 5%, orange under 10%, red beyond. Hover any cell for its exact cost. That is deliberately not the <b>vs best</b> column's unit: probability points compare one book across a slate, but on a row of longshots they misrank cost (+2500 against +3000 is only 0.6pp and costs 16% of the stake). Click a header to sort. Table shows <b>upcoming games only</b> and opens on the nearest date — use the <b>Date</b> / <b>Start</b> checkboxes for a later slate.</div>
   </div>
 </div>
 </div><!--/view-hk-->
@@ -1777,34 +1777,61 @@
   // all-books toggle gives every playable book its own column, heat-coloured per ROW: green =
   // that player's best price, red = his worst. Both read r._bp, stashed by bbApply.
   function _bbMix(a,b,t){ return a.map((x,i)=>Math.round(x+(b[i]-x)*t)); }
-  // Colour on the ABSOLUTE gap from the best price, in implied-probability points -- NOT on each
-  // row's own best-to-worst range. A rank-normalised scale painted +470-against-+475 bright red
+  // Colour by the ABSOLUTE gap from the best price, in implied-probability points -- NOT by each
+  // row's own best-to-worst rank. A rank-normalised scale painted +470-against-+475 bright red
   // (worst of two, but 0.15pp of actual cost), which is backwards: it flags noise, and makes the
-  // colours mean something different on every row. Same scale as the `vs best` column:
-  // 0pp = green (this IS the best price), ~1pp amber, 2pp+ red.
-  const BB_HEAT_MAX=2.0;
+  // colours mean something different on every row.
+  // The price(s) actually AT the best get their own bright-green + bold step, decided by equality
+  // with the best price rather than by arithmetic, so exact ties both read as the price to take
+  // and no rounding can demote one of them. Everything else grades down by what the worse price
+  // COSTS, as a fraction of the stake: p x (best profit - this profit), p taken from the best
+  // price. NOT the implied-probability gap the `vs best` column uses -- pp is the right unit for
+  // comparing one book's pricing across a slate, but it badly misranks cost ACROSS a row of
+  // longshots: +2500 against a best of +3000 is 0.62pp (it would grade yellow) yet costs ~16% of
+  // the stake, while -130 against -120 is 1.98pp (red) and costs 3.5%. Flat stakes are the whole
+  // betting operation here, so the heat grades on stake cost:
+  //   = best    bright green, bold
+  //   <=2%      pale green   -- a rounding difference, take either
+  //   <=5%      yellow
+  //   <=10%     orange
+  //   worse     red          -- worth walking to the green column for
+  const BB_HEAT_BANDS=[[0.02,'#9be9a8'],[0.05,'#e8d44d'],[0.10,'#ff9f45']];
+  const BB_HEAT_BEST='#39d353', BB_HEAT_WORST='#ff6b3d';
+  // EV given up by taking `p` instead of `best`, per 1 unit staked
+  function bbHeatCost(p,best){
+    if(p==null||best==null)return null;
+    const pb=bbProfit(best),ph=bbProfit(p),q=bbImp(best);
+    if(pb==null||ph==null||q==null)return null;
+    return q*(pb-ph);
+  }
   function bbHeatCol(p,best){
     if(p==null)return 'var(--muted)';
-    const pi=bbImp(p),bi=bbImp(best);
-    if(pi==null||bi==null)return 'var(--muted)';
-    const gap=100*(pi-bi);                                // 0 when this book IS the best price
-    let t=Math.max(0,Math.min(1,1-gap/BB_HEAT_MAX));      // 1 = best, 0 = 2pp+ worse
-    const R=[255,107,61],M=[139,148,158],G=[57,211,83];
-    const c=t<0.5?_bbMix(R,M,t*2):_bbMix(M,G,(t-0.5)*2);
-    return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+    if(best!=null&&p===best)return BB_HEAT_BEST;          // ties included -- this IS the price
+    const cost=bbHeatCost(p,best);
+    if(cost==null)return 'var(--muted)';
+    for(const [edge,col] of BB_HEAT_BANDS)if(cost<=edge)return col;
+    return BB_HEAT_WORST;
+  }
+  // the best price also goes bold, so it is unmistakable in a row of six columns
+  function bbHeatStyle(p,best){
+    return 'color:'+bbHeatCol(p,best)+((best!=null&&p===best)?';font-weight:700':'');
   }
   // one sortable column per playable book, in the shape every board's col array already uses
   function bbBookCols(books,fmt){ const F=fmt||fmtOdds;
     return (books||[]).map(b=>({k:'bkall_'+b,t:bbShort(b),l:0,ab2:1,
       v:r=>((r._bp||{})[b]!=null)?r._bp[b]:-99999,
-      f:r=>F((r._bp||{})[b]),
+      f:r=>{const p=(r._bp||{})[b]; const t=F(p);
+            if(p==null)return t;
+            if(p===r._bpBest)return '<b title="best price available on this row">'+t+'</b>';
+            const c=bbHeatCost(p,r._bpBest);
+            return c==null?t:`<span title="costs ${(100*c).toFixed(1)}% of stake vs the best price">${t}</span>`;},
       c:r=>bbHeatCol((r._bp||{})[b],r._bpBest),
-      d:'price at '+bbLabel(b)+'. Green = the best price available on this row; red = 2+ implied-probability points worse than the best. Blank = this book posts nothing here.'}));
+      d:'price at '+bbLabel(b)+'. Bold bright green = the best price available on this row (ties included). The rest grade by what the worse price costs at a flat stake: pale green under 2%, yellow under 5%, orange under 10%, red beyond. Blank = this book posts nothing here.'}));
   }
   // the same cells as an HTML string, for the boards that hand-write their rows
   function bbBookCells(r,books,fmt){ const F=fmt||fmtOdds;
     return (books||[]).map(b=>{const p=(r._bp||{})[b];
-      return `<td style="color:${bbHeatCol(p,r._bpBest)}">${p==null?'—':F(p)}</td>`;}).join('');
+      return `<td style="${bbHeatStyle(p,r._bpBest)}">${p==null?'—':F(p)}</td>`;}).join('');
   }
   function bbGapInput(id,cur,onchange){
     return `<label title="keep only rows where the PINNED book is within this many implied-probability points of the best price available anywhere. 0 = the pinned book is the best price; 0.5 = within half a point. Needs a book pinned.">within `
@@ -1812,7 +1839,7 @@
       +` style="background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px;font-size:.66rem;width:54px"> pp of best</label>`;
   }
   function bbAllBooksToggle(id,cur,onchange){
-    return `<label style="cursor:pointer" title="add one column per playable book, coloured by distance from the best price available on that row: green = it IS the best, amber ~1pp worse, red 2+ implied-probability points worse"><input type="checkbox" id="${id}" ${cur?'checked':''} onchange="${onchange}"> all book columns</label>`;
+    return `<label style="cursor:pointer" title="add one column per playable book. Bold bright green = the best price available on that row (ties included); the rest grade by what the worse price costs at a flat stake -- pale green under 2%, yellow under 5%, orange under 10%, red beyond. Hover a cell for its exact cost."><input type="checkbox" id="${id}" ${cur?'checked':''} onchange="${onchange}"> all book columns</label>`;
   }
 
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
