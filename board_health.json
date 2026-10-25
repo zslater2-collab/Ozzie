@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-10-25 12:03Z",
+ "checked_at": "2026-10-25 16:50Z",
  "n_stale": 0,
  "boards": [
   {
@@ -7,23 +7,23 @@
    "file": "hr_board_latest.json",
    "workflow": "hr_board.yml",
    "max_age_h": 10,
-   "age_h": 14.0,
+   "age_h": 18.78,
    "source": "odds_at",
    "rows": 13,
    "stamp": "2026-10-24 22:04Z",
    "status": "idle",
    "note": "no upcoming events -- offseason/empty slate, not an outage",
-   "consecutive_stale": 1
+   "consecutive_stale": 2
   },
   {
    "name": "NFL TD",
    "file": "td_board_latest.json",
    "workflow": "td_board.yml",
    "max_age_h": 22,
-   "age_h": 15.06,
+   "age_h": 1.88,
    "source": "meta.generated",
-   "rows": 365,
-   "stamp": "2026-10-24 21:00Z",
+   "rows": 338,
+   "stamp": "2026-10-25 14:58Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -32,10 +32,10 @@
    "file": "nhl_board_latest.json",
    "workflow": "nhl_board.yml",
    "max_age_h": 16,
-   "age_h": 10.76,
+   "age_h": 2.4,
    "source": "meta.generated",
-   "rows": 448,
-   "stamp": "2026-10-25 01:18Z",
+   "rows": 186,
+   "stamp": "2026-10-25 14:27Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -44,12 +44,13 @@
    "file": "mma_board_latest.json",
    "workflow": "mma_board.yml",
    "max_age_h": 16,
-   "age_h": 13.5,
+   "age_h": 18.28,
    "source": "meta.generated",
    "rows": 52,
    "stamp": "2026-10-24 22:34Z",
-   "status": "ok",
-   "consecutive_stale": 0
+   "status": "idle",
+   "note": "no upcoming events -- offseason/empty slate, not an outage",
+   "consecutive_stale": 1
   }
  ]
 }
