@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-10-26 19:22Z",
+  "generated": "2026-10-26 23:56Z",
   "n_rows": 54,
   "n_fights": 27,
   "n_cards": 9,
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "81908",
+  "credits_left": "81552",
   "sports": [
    "Boxing",
    "MMA"
@@ -292,6 +292,60 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Jean-Paul Lebosnoyani",
+   "opponent": "Farman Hasanov",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": -250,
+   "best_book": "ballybet",
+   "worst_price": -300,
+   "n_books": 5,
+   "fair_p": 0.7044,
+   "mkt_p": 0.7143,
+   "ev_best": -1.38,
+   "shop_gain": 0.0357,
+   "hedge_price": 240,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0084,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -250,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -290,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -298,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -300,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Piera Rodriguez",
    "opponent": "Talita Alencar",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
@@ -339,60 +393,6 @@
     {
      "book": "fanduel",
      "price": -290,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jean-Paul Lebosnoyani",
-   "opponent": "Farman Hasanov",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": -250,
-   "best_book": "ballybet",
-   "worst_price": -298,
-   "n_books": 5,
-   "fair_p": 0.6958,
-   "mkt_p": 0.7143,
-   "ev_best": -2.59,
-   "shop_gain": 0.0345,
-   "hedge_price": 240,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0084,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -298,
      "best": false,
      "bettable": true
     }
@@ -550,48 +550,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Jeongyoung Lee",
-   "opponent": "Julian Erosa",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": -180,
-   "best_book": "draftkings",
-   "worst_price": -190,
-   "n_books": 3,
-   "fair_p": 0.6164,
-   "mkt_p": 0.6429,
-   "ev_best": -4.11,
-   "shop_gain": 0.0123,
-   "hedge_price": 160,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0275,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -190,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Rodrigo Sezinando",
    "opponent": "Theodor Berggren",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
@@ -646,30 +604,84 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Jeongyoung Lee",
+   "opponent": "Julian Erosa",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": -165,
+   "best_book": "williamhill_us",
+   "worst_price": -180,
+   "n_books": 3,
+   "fair_p": 0.6092,
+   "mkt_p": 0.6226,
+   "ev_best": -2.15,
+   "shop_gain": 0.0202,
+   "hedge_price": 145,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0308,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -165,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -175,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -180,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Ode Osbourne",
    "opponent": "Cody Durden",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
    "is_main": true,
-   "best_price": -112,
+   "best_price": -108,
    "best_book": "draftkings",
-   "worst_price": -127,
+   "worst_price": -120,
    "n_books": 5,
-   "fair_p": 0.5239,
-   "mkt_p": 0.5283,
-   "ev_best": -0.84,
-   "shop_gain": 0.0312,
-   "hedge_price": 105,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0161,
+   "fair_p": 0.5105,
+   "mkt_p": 0.5192,
+   "ev_best": -1.67,
+   "shop_gain": 0.0262,
+   "hedge_price": 100,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0192,
    "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -112,
+     "price": -108,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -110,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -117,
+     "best": false,
      "bettable": true
     },
     {
@@ -679,20 +691,8 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -125,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": -125,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -127,
+     "price": -120,
      "best": false,
      "bettable": true
     }
@@ -754,6 +754,60 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Cody Durden",
+   "opponent": "Ode Osbourne",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": true,
+   "best_price": 100,
+   "best_book": "betmgm",
+   "worst_price": -112,
+   "n_books": 5,
+   "fair_p": 0.4895,
+   "mkt_p": 0.5,
+   "ev_best": -2.11,
+   "shop_gain": 0.0283,
+   "hedge_price": -108,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0192,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -106,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -107,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -110,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -112,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Renato Moicano",
    "opponent": "Tom Nolan",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
@@ -808,53 +862,41 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Cody Durden",
-   "opponent": "Ode Osbourne",
+   "fighter": "Julian Erosa",
+   "opponent": "Jeongyoung Lee",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
    "card_date": "2026-11-01",
    "commence": "2026-11-01T00:00:00Z",
-   "is_main": true,
-   "best_price": 105,
-   "best_book": "williamhill_us",
-   "worst_price": -108,
-   "n_books": 5,
-   "fair_p": 0.4761,
-   "mkt_p": 0.4878,
-   "ev_best": -2.39,
-   "shop_gain": 0.0314,
-   "hedge_price": -112,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0161,
-   "low_hold": true,
+   "is_main": false,
+   "best_price": 145,
+   "best_book": "draftkings",
+   "worst_price": 140,
+   "n_books": 3,
+   "fair_p": 0.3908,
+   "mkt_p": 0.4082,
+   "ev_best": -4.26,
+   "shop_gain": 0.0085,
+   "hedge_price": -165,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0308,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 105,
+     "book": "draftkings",
+     "price": 145,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 102,
+     "price": 143,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -102,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -108,
+     "book": "williamhill_us",
+     "price": 140,
      "best": false,
      "bettable": true
     }
@@ -909,48 +951,6 @@
     {
      "book": "betmgm",
      "price": 140,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Julian Erosa",
-   "opponent": "Jeongyoung Lee",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": 160,
-   "best_book": "williamhill_us",
-   "worst_price": 143,
-   "n_books": 3,
-   "fair_p": 0.3836,
-   "mkt_p": 0.3846,
-   "ev_best": -0.27,
-   "shop_gain": 0.0269,
-   "hedge_price": -180,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0275,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 160,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 143,
      "best": false,
      "bettable": true
     }
@@ -1108,60 +1108,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Farman Hasanov",
-   "opponent": "Jean-Paul Lebosnoyani",
-   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
-   "card_date": "2026-11-01",
-   "commence": "2026-11-01T00:00:00Z",
-   "is_main": false,
-   "best_price": 240,
-   "best_book": "draftkings",
-   "worst_price": 195,
-   "n_books": 5,
-   "fair_p": 0.3042,
-   "mkt_p": 0.2941,
-   "ev_best": 3.44,
-   "shop_gain": 0.0449,
-   "hedge_price": -250,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0084,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 215,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 195,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Talita Alencar",
    "opponent": "Piera Rodriguez",
    "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
@@ -1209,6 +1155,60 @@
     {
      "book": "ballybet",
      "price": 215,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Farman Hasanov",
+   "opponent": "Jean-Paul Lebosnoyani",
+   "card": "2026-11-01 - Cody Durden vs Ode Osbourne",
+   "card_date": "2026-11-01",
+   "commence": "2026-11-01T00:00:00Z",
+   "is_main": false,
+   "best_price": 240,
+   "best_book": "draftkings",
+   "worst_price": 195,
+   "n_books": 5,
+   "fair_p": 0.2956,
+   "mkt_p": 0.2941,
+   "ev_best": 0.49,
+   "shop_gain": 0.0449,
+   "hedge_price": -250,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0084,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 215,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 195,
      "best": false,
      "bettable": true
     }
