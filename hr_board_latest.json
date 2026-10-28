@@ -1,14 +1,14 @@
 {
   "date": "2026-10-28",
-  "asof": "2026-10-26",
+  "asof": "2026-10-27",
   "calib": {
-    "slope": 0.5866,
-    "intercept": 4.808,
-    "n": 10653
+    "slope": 0.5865,
+    "intercept": 4.793,
+    "n": 10666
   },
   "ranked_by": "prob",
-  "generated_at": "2026-10-28 06:36Z",
-  "odds_at": "2026-10-28 06:36Z",
+  "generated_at": "2026-10-28 08:49Z",
+  "odds_at": "2026-10-28 08:49Z",
   "n_odds_players": 18,
   "rows": [
     {
@@ -29,26 +29,38 @@
       "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 5.33,
+      "hit_hr": 5.3,
       "pit_hr": 2.12,
       "park": 1.022,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 3.449,
+      "pa_hr": 3.43,
       "hr_prob": 13.3,
       "fair": "+652",
       "Batter": "Junior Caminero",
       "Pitcher": "Jacob Misiorowski",
-      "mkt_over": 450.0,
-      "mkt_book": "theScore Bet",
-      "mkt_prob": 17.1,
-      "mkt_avg": 432.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_over": 475.0,
+      "mkt_book": "Bally Bet",
+      "mkt_prob": 17.0,
+      "mkt_avg": 437.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
-          "book": "theScore Bet",
-          "price": 450,
+          "book": "BetPARX",
+          "price": 475,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 475,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 475,
           "best": true,
           "bettable": true
         },
@@ -59,14 +71,8 @@
           "bettable": false
         },
         {
-          "book": "Fanatics",
-          "price": 440,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 438,
+          "book": "theScore Bet",
+          "price": 425,
           "best": false,
           "bettable": true
         },
@@ -77,31 +83,53 @@
           "bettable": true
         },
         {
+          "book": "DraftKings",
+          "price": 415,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Fanatics",
+          "price": 410,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "Caesars",
           "price": 400,
           "best": false,
           "bettable": true
         }
       ],
-      "hr2_over": 5000.0,
+      "hr2_over": 5500.0,
       "hr2_book": "FanDuel",
-      "hr2_n_books": 6.0,
-      "hr2_worst": 4000.0,
-      "hr2_spread_x": 1.25,
+      "hr2_n_books": 9.0,
+      "hr2_worst": 3500.0,
+      "hr2_spread_x": 1.57,
       "hr2_prices": [
         {
           "book": "FanDuel",
-          "price": 5000,
+          "price": 5500,
+          "bettable": true
+        },
+        {
+          "book": "BetPARX",
+          "price": 5500,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 5500,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 5500,
           "bettable": true
         },
         {
           "book": "DraftKings",
-          "price": 5000,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
-          "price": 4500,
+          "price": 4700,
           "bettable": true
         },
         {
@@ -118,10 +146,15 @@
           "book": "Hard Rock Bet",
           "price": 4000,
           "bettable": false
+        },
+        {
+          "book": "Fanatics",
+          "price": 3500,
+          "bettable": true
         }
       ],
       "hr_prob_raw": 14.5,
-      "edge": -3.8,
+      "edge": -3.7,
       "hr_season_pctile": 68,
       "tier": "chalk"
     },
@@ -138,17 +171,17 @@
       "unverified": false,
       "pit_bf": 722,
       "slot": null,
-      "est_slot": 3.5,
+      "est_slot": 4.2,
       "pos": "RF",
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.82,
+      "hit_hr": 3.81,
       "pit_hr": 2.12,
       "park": 1.022,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 2.472,
+      "pa_hr": 2.467,
       "hr_prob": 11.0,
       "fair": "+809",
       "Batter": "Ryan Vilade",
@@ -166,7 +199,7 @@
       "hr2_worst": null,
       "hr2_spread_x": null,
       "hr2_prices": [],
-      "hr_prob_raw": 10.6,
+      "hr_prob_raw": 10.5,
       "edge": null,
       "hr_season_pctile": 37,
       "tier": "chalk"
@@ -184,19 +217,19 @@
       "unverified": false,
       "pit_bf": 722,
       "slot": null,
-      "est_slot": 6.2,
+      "est_slot": 6.3,
       "pos": "RF",
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 4.37,
+      "hit_hr": 4.34,
       "pit_hr": 2.12,
       "park": 0.902,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 2.498,
-      "hr_prob": 10.6,
-      "fair": "+843",
+      "pa_hr": 2.481,
+      "hr_prob": 10.5,
+      "fair": "+852",
       "Batter": "Victor Mesa",
       "Pitcher": "Jacob Misiorowski",
       "mkt_over": null,
@@ -212,9 +245,9 @@
       "hr2_worst": null,
       "hr2_spread_x": null,
       "hr2_prices": [],
-      "hr_prob_raw": 9.8,
+      "hr_prob_raw": 9.7,
       "edge": null,
-      "hr_season_pctile": 31,
+      "hr_season_pctile": 30,
       "tier": "chalk"
     },
     {
@@ -235,22 +268,22 @@
       "arch": "Oppo Fastball Hunter",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 3.21,
+      "hit_hr": 3.19,
       "pit_hr": 2.12,
       "park": 1.022,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 2.076,
+      "pa_hr": 2.065,
       "hr_prob": 10.3,
       "fair": "+871",
       "Batter": "Yandy D\u00edaz",
       "Pitcher": "Jacob Misiorowski",
       "mkt_over": 900.0,
       "mkt_book": "theScore Bet",
-      "mkt_prob": 9.4,
-      "mkt_avg": 775.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_prob": 10.2,
+      "mkt_avg": 781.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
           "book": "theScore Bet",
@@ -260,7 +293,19 @@
         },
         {
           "book": "FanDuel",
-          "price": 790,
+          "price": 820,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 800,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "DraftKings",
+          "price": 780,
           "best": false,
           "bettable": true
         },
@@ -277,31 +322,57 @@
           "bettable": true
         },
         {
-          "book": "Hard Rock Bet",
+          "book": "BetPARX",
           "price": 750,
           "best": false,
           "bettable": false
         },
         {
-          "book": "DraftKings",
-          "price": 730,
+          "book": "BetRivers",
+          "price": 750,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 750,
           "best": false,
           "bettable": true
         }
       ],
-      "hr2_over": 10000.0,
-      "hr2_book": "FanDuel",
-      "hr2_n_books": 4.0,
-      "hr2_worst": 9500.0,
-      "hr2_spread_x": 1.05,
+      "hr2_over": 14000.0,
+      "hr2_book": "Bally Bet",
+      "hr2_n_books": 7.0,
+      "hr2_worst": 10000.0,
+      "hr2_spread_x": 1.4,
       "hr2_prices": [
         {
+          "book": "BetPARX",
+          "price": 14000,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 14000,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 14000,
+          "bettable": true
+        },
+        {
           "book": "FanDuel",
-          "price": 10000,
+          "price": 12500,
           "bettable": true
         },
         {
           "book": "Fanatics",
+          "price": 12000,
+          "bettable": true
+        },
+        {
+          "book": "DraftKings",
           "price": 10000,
           "bettable": true
         },
@@ -309,15 +380,10 @@
           "book": "theScore Bet",
           "price": 10000,
           "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 9500,
-          "bettable": true
         }
       ],
       "hr_prob_raw": 9.4,
-      "edge": 0.9,
+      "edge": 0.1,
       "hr_season_pctile": 28,
       "tier": "chalk"
     },
@@ -339,43 +405,49 @@
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.17,
+      "hit_hr": 3.15,
       "pit_hr": 2.12,
       "park": 0.902,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 1.813,
-      "hr_prob": 9.6,
-      "fair": "+942",
+      "pa_hr": 1.803,
+      "hr_prob": 9.5,
+      "fair": "+953",
       "Batter": "Jonathan Aranda",
       "Pitcher": "Jacob Misiorowski",
-      "mkt_over": 930.0,
-      "mkt_book": "DraftKings",
+      "mkt_over": 920.0,
+      "mkt_book": "FanDuel",
       "mkt_prob": 9.4,
-      "mkt_avg": 899.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_avg": 883.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
-          "book": "DraftKings",
-          "price": 930,
+          "book": "FanDuel",
+          "price": 920,
           "best": true,
           "bettable": true
         },
         {
-          "book": "FanDuel",
-          "price": 920,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
+          "book": "theScore Bet",
           "price": 900,
           "best": false,
           "bettable": true
         },
         {
-          "book": "theScore Bet",
+          "book": "BetPARX",
+          "price": 900,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 900,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
           "price": 900,
           "best": false,
           "bettable": true
@@ -387,25 +459,47 @@
           "bettable": false
         },
         {
+          "book": "DraftKings",
+          "price": 890,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "Caesars",
           "price": 850,
           "best": false,
           "bettable": true
-        }
-      ],
-      "hr2_over": 15000.0,
-      "hr2_book": "FanDuel",
-      "hr2_n_books": 4.0,
-      "hr2_worst": 10000.0,
-      "hr2_spread_x": 1.5,
-      "hr2_prices": [
-        {
-          "book": "FanDuel",
-          "price": 15000,
-          "bettable": true
         },
         {
           "book": "Fanatics",
+          "price": 800,
+          "best": false,
+          "bettable": true
+        }
+      ],
+      "hr2_over": 20000.0,
+      "hr2_book": "Bally Bet",
+      "hr2_n_books": 7.0,
+      "hr2_worst": 9000.0,
+      "hr2_spread_x": 2.22,
+      "hr2_prices": [
+        {
+          "book": "BetPARX",
+          "price": 20000,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 20000,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 20000,
+          "bettable": true
+        },
+        {
+          "book": "FanDuel",
           "price": 10000,
           "bettable": true
         },
@@ -418,11 +512,16 @@
           "book": "theScore Bet",
           "price": 10000,
           "bettable": true
+        },
+        {
+          "book": "Fanatics",
+          "price": 9000,
+          "bettable": true
         }
       ],
-      "hr_prob_raw": 8.1,
-      "edge": 0.2,
-      "hr_season_pctile": 18,
+      "hr_prob_raw": 8.0,
+      "edge": 0.1,
+      "hr_season_pctile": 17,
       "tier": "chalk"
     },
     {
@@ -443,32 +542,32 @@
       "arch": "",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 3.17,
+      "hit_hr": 3.15,
       "pit_hr": 2.12,
       "park": 0.902,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 1.813,
+      "pa_hr": 1.801,
       "hr_prob": 9.3,
       "fair": "+975",
       "Batter": "Liam Hicks",
       "Pitcher": "Jacob Misiorowski",
-      "mkt_over": 1300.0,
+      "mkt_over": 1260.0,
       "mkt_book": "FanDuel",
-      "mkt_prob": 7.3,
-      "mkt_avg": 1172.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_prob": 7.8,
+      "mkt_avg": 1134.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
           "book": "FanDuel",
-          "price": 1300,
+          "price": 1260,
           "best": true,
           "bettable": true
         },
         {
-          "book": "Fanatics",
-          "price": 1200,
+          "book": "DraftKings",
+          "price": 1240,
           "best": false,
           "bettable": true
         },
@@ -485,43 +584,71 @@
           "bettable": false
         },
         {
+          "book": "Fanatics",
+          "price": 1100,
+          "best": false,
+          "bettable": true
+        },
+        {
           "book": "Caesars",
           "price": 1100,
           "best": false,
           "bettable": true
         },
         {
-          "book": "DraftKings",
-          "price": 1060,
+          "book": "BetPARX",
+          "price": 1050,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 1050,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 1050,
           "best": false,
           "bettable": true
         }
       ],
-      "hr2_over": 35000.0,
+      "hr2_over": 40000.0,
       "hr2_book": "FanDuel",
-      "hr2_n_books": 3.0,
-      "hr2_worst": 10000.0,
-      "hr2_spread_x": 3.5,
+      "hr2_n_books": 5.0,
+      "hr2_worst": 15000.0,
+      "hr2_spread_x": 2.67,
       "hr2_prices": [
         {
           "book": "FanDuel",
-          "price": 35000,
+          "price": 40000,
+          "bettable": true
+        },
+        {
+          "book": "BetPARX",
+          "price": 25000,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 25000,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 25000,
           "bettable": true
         },
         {
           "book": "theScore Bet",
           "price": 15000,
           "bettable": true
-        },
-        {
-          "book": "DraftKings",
-          "price": 10000,
-          "bettable": true
         }
       ],
-      "hr_prob_raw": 7.7,
-      "edge": 2.0,
-      "hr_season_pctile": 15,
+      "hr_prob_raw": 7.6,
+      "edge": 1.5,
+      "hr_season_pctile": 14,
       "tier": "chalk"
     },
     {
@@ -583,27 +710,27 @@
       "unverified": false,
       "pit_bf": 722,
       "slot": null,
-      "est_slot": 6.8,
+      "est_slot": 6.2,
       "pos": "RF",
       "arch": "",
       "bat_hand": "R",
       "pit_hand": "R",
-      "hit_hr": 2.74,
+      "hit_hr": 2.71,
       "pit_hr": 2.12,
       "park": 1.022,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 1.772,
+      "pa_hr": 1.756,
       "hr_prob": 8.9,
       "fair": "+1024",
       "Batter": "Jonny Deluca",
       "Pitcher": "Jacob Misiorowski",
       "mkt_over": 1200.0,
       "mkt_book": "FanDuel",
-      "mkt_prob": 8.6,
-      "mkt_avg": 1008.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_prob": 8.7,
+      "mkt_avg": 1062.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
           "book": "FanDuel",
@@ -613,38 +740,56 @@
         },
         {
           "book": "Fanatics",
+          "price": 1200,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "DraftKings",
+          "price": 1200,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Hard Rock Bet",
+          "price": 1200,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Caesars",
           "price": 1100,
           "best": false,
           "bettable": true
         },
         {
           "book": "theScore Bet",
-          "price": 1000,
+          "price": 1100,
           "best": false,
           "bettable": true
         },
         {
-          "book": "Hard Rock Bet",
-          "price": 1000,
+          "book": "BetPARX",
+          "price": 900,
           "best": false,
           "bettable": false
         },
         {
-          "book": "Caesars",
-          "price": 950,
+          "book": "BetRivers",
+          "price": 900,
           "best": false,
-          "bettable": true
+          "bettable": false
         },
         {
-          "book": "DraftKings",
-          "price": 860,
+          "book": "Bally Bet",
+          "price": 900,
           "best": false,
           "bettable": true
         }
       ],
       "hr2_over": 35000.0,
       "hr2_book": "FanDuel",
-      "hr2_n_books": 3.0,
+      "hr2_n_books": 5.0,
       "hr2_worst": 10000.0,
       "hr2_spread_x": 3.5,
       "hr2_prices": [
@@ -654,8 +799,18 @@
           "bettable": true
         },
         {
-          "book": "DraftKings",
-          "price": 10000,
+          "book": "BetPARX",
+          "price": 16000,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 16000,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 16000,
           "bettable": true
         },
         {
@@ -664,8 +819,8 @@
           "bettable": true
         }
       ],
-      "hr_prob_raw": 6.9,
-      "edge": 0.3,
+      "hr_prob_raw": 7.0,
+      "edge": 0.2,
       "hr_season_pctile": 10,
       "tier": "chalk"
     },
@@ -779,12 +934,12 @@
       "arch": "Oppo Fastball Hunter (LH)",
       "bat_hand": "L",
       "pit_hand": "R",
-      "hit_hr": 2.5,
+      "hit_hr": 2.48,
       "pit_hr": 2.12,
       "park": 0.902,
       "wx": 1.0,
       "supp": 0.9,
-      "pa_hr": 1.428,
+      "pa_hr": 1.418,
       "hr_prob": 8.0,
       "fair": "+1150",
       "Batter": "Richie Palacios",
@@ -792,14 +947,32 @@
       "mkt_over": 1300.0,
       "mkt_book": "FanDuel",
       "mkt_prob": 7.9,
-      "mkt_avg": 1095.0,
-      "mkt_n_books": 6.0,
-      "mkt_n_bettable": 5.0,
+      "mkt_avg": 1139.0,
+      "mkt_n_books": 9.0,
+      "mkt_n_bettable": 6.0,
       "book_prices": [
         {
           "book": "FanDuel",
           "price": 1300,
           "best": true,
+          "bettable": true
+        },
+        {
+          "book": "Fanatics",
+          "price": 1300,
+          "best": true,
+          "bettable": true
+        },
+        {
+          "book": "DraftKings",
+          "price": 1260,
+          "best": false,
+          "bettable": true
+        },
+        {
+          "book": "theScore Bet",
+          "price": 1200,
+          "best": false,
           "bettable": true
         },
         {
@@ -815,29 +988,29 @@
           "bettable": true
         },
         {
-          "book": "theScore Bet",
-          "price": 1100,
-          "best": false,
-          "bettable": true
-        },
-        {
-          "book": "Fanatics",
+          "book": "BetPARX",
           "price": 1000,
           "best": false,
-          "bettable": true
+          "bettable": false
         },
         {
-          "book": "DraftKings",
-          "price": 940,
+          "book": "BetRivers",
+          "price": 1000,
+          "best": false,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 1000,
           "best": false,
           "bettable": true
         }
       ],
       "hr2_over": 40000.0,
       "hr2_book": "FanDuel",
-      "hr2_n_books": 3.0,
-      "hr2_worst": 10000.0,
-      "hr2_spread_x": 4.0,
+      "hr2_n_books": 5.0,
+      "hr2_worst": 12500.0,
+      "hr2_spread_x": 3.2,
       "hr2_prices": [
         {
           "book": "FanDuel",
@@ -845,13 +1018,23 @@
           "bettable": true
         },
         {
-          "book": "theScore Bet",
-          "price": 12500,
+          "book": "BetPARX",
+          "price": 22500,
+          "bettable": false
+        },
+        {
+          "book": "BetRivers",
+          "price": 22500,
+          "bettable": false
+        },
+        {
+          "book": "Bally Bet",
+          "price": 22500,
           "bettable": true
         },
         {
-          "book": "DraftKings",
-          "price": 10000,
+          "book": "theScore Bet",
+          "price": 12500,
           "bettable": true
         }
       ],
