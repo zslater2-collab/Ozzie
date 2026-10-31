@@ -1,19 +1,19 @@
 {
- "checked_at": "2026-10-31 06:20Z",
- "n_stale": 0,
+ "checked_at": "2026-10-31 13:07Z",
+ "n_stale": 1,
  "boards": [
   {
    "name": "MLB HR",
    "file": "hr_board_latest.json",
    "workflow": "hr_board.yml",
    "max_age_h": 10,
-   "age_h": 58.2,
+   "age_h": 64.97,
    "source": "odds_at",
    "rows": 15,
    "stamp": "2026-10-28 20:09Z",
    "status": "idle",
    "note": "no upcoming events -- offseason/empty slate, not an outage",
-   "consecutive_stale": 9,
+   "consecutive_stale": 10,
    "escalate": true
   },
   {
@@ -21,19 +21,19 @@
    "file": "td_board_latest.json",
    "workflow": "td_board.yml",
    "max_age_h": 22,
-   "age_h": 15.25,
+   "age_h": 22.02,
    "source": "meta.generated",
    "rows": 377,
    "stamp": "2026-10-30 15:06Z",
-   "status": "ok",
-   "consecutive_stale": 0
+   "status": "stale",
+   "consecutive_stale": 1
   },
   {
    "name": "NHL goals",
    "file": "nhl_board_latest.json",
    "workflow": "nhl_board.yml",
    "max_age_h": 16,
-   "age_h": 3.83,
+   "age_h": 10.61,
    "source": "meta.generated",
    "rows": 363,
    "stamp": "2026-10-31 02:31Z",
@@ -45,7 +45,7 @@
    "file": "mma_board_latest.json",
    "workflow": "mma_board.yml",
    "max_age_h": 16,
-   "age_h": 6.45,
+   "age_h": 13.22,
    "source": "meta.generated",
    "rows": 86,
    "stamp": "2026-10-30 23:54Z",
