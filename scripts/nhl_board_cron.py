@@ -326,7 +326,12 @@ def context_layer(prev_season):
     print("[cron] context: %d prior-season goalies, %d team penalty rates" % (len(sv), len(pen)))
 
     out = {}
-    today = dt.date.today()
+    # EASTERN today, not the runner's UTC today. The scheduled runs all land 10:23-23:23Z so the
+    # two agree, but a board_kick self-heal can fire any time -- and at 01:00Z (8pm ET, mid-slate)
+    # the UTC date is already tomorrow, which would fetch tomorrow + the day after and drop the
+    # colour columns for the games actually being played. Keys here must match _etdate().
+    today = dt.date.fromisoformat(_etdate(
+        dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")))
     for day in (today, today + dt.timedelta(days=1)):
         try:
             r = requests.get("https://api-web.nhle.com/v1/score/%s" % day.isoformat(), timeout=30)
@@ -353,11 +358,34 @@ def context_layer(prev_season):
                     nm = n.get("default") if isinstance(n, dict) else n
                 # `facing` is the team on the OTHER side, so its power-play opportunity comes
                 # from THIS side's penalty rate -- i.e. `side`, not `other`.
-                out[facing] = {"opp_goalie": nm,
-                               "opp_goalie_sv": sv.get(_ikey(nm)) if nm else None,
-                               "opp_pen60": pen.get((g.get(side) or {}).get("abbrev"))}
+                # (date, team), not team: this loop walks today AND tomorrow, so a team on a
+                # back-to-back would otherwise get tomorrow's goalie colour on tonight's row.
+                out[(day.isoformat(), facing)] = {
+                    "opp_goalie": nm,
+                    "opp_goalie_sv": sv.get(_ikey(nm)) if nm else None,
+                    "opp_pen60": pen.get((g.get(side) or {}).get("abbrev"))}
     print("[cron] context: %d team-games with opposing-goalie/penalty colour" % len(out))
     return out
+
+
+def _etdate(commence):
+    """UTC commence string -> the game's EASTERN calendar date ('2026-11-02').
+
+    This is the key the app's date filter and the NHL score endpoint both use: a 2026-11-03T02:10Z
+    puck drop is a Nov 2 9:10pm ET game, not a Nov 3 game. Uses the tz database when present and
+    falls back to a flat EST offset, which is safe for DATE bucketing specifically -- EST and EDT
+    only disagree about the date for starts in the 04:00-05:00Z hour (11pm-midnight ET), and the
+    NHL schedules none.
+    """
+    try:
+        c = dt.datetime.fromisoformat(commence.replace("Z", "+00:00"))
+    except Exception:
+        return None
+    try:
+        from zoneinfo import ZoneInfo
+        return c.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+    except Exception:
+        return (c.astimezone(dt.timezone(dt.timedelta(hours=-5)))).date().isoformat()
 
 
 def slate(hours=30):
@@ -572,11 +600,20 @@ def main():
         print("[cron] context layer failed (non-fatal): %s" % e)
         ctx = {}
 
+    # KEYED BY (event_id, team) and (event_id, player) -- NOT by team or player alone.
+    # WHY: a 30-hour window holds back-to-backs, so a team appears in TWO events. Team-keyed,
+    # `imp.update()` let the later game silently overwrite the earlier one, while player-keyed
+    # `pr` kept whichever event last posted a market -- and the two disagreed. On 2026-11-02
+    # that pulled every COL/DET/VGK skater off tonight's slate (COL@CHI, DET@FLA, VGK@BOS) and
+    # restamped tonight's 4-book prices with TOMORROW's opponent, start time and implied total:
+    # the 11/2 date filter went blank and 11/3 showed prices nobody could bet.
+    # Same lesson as the MLB board -- key on (entity, event), never entity.
     imp, pr, sog, pts = {}, {}, [], []
     for e in events:
-        imp.update(game_lines(e))
+        for _ab, _ti in game_lines(e).items():
+            imp[(e["id"], _ab)] = _ti
         for k, v in props(e).items():
-            pr[k] = v
+            pr[(e["id"], k)] = v
         sog.extend(sog_props(e))
         pts.extend(points_props(e))
     print("[cron] %d teams priced, %d skaters quoted, %d SOG quotes, %d points quotes "
@@ -632,9 +669,9 @@ def main():
         denom[t] = sum(x["exp_goals"] for x in top)
 
     rows, unmatched = [], []
-    for key, m in pr.items():
+    for (eid, key), m in pr.items():
         cands = [p for p in st.values()
-                 if norm(p["name"]) == key and p["team"] in imp]
+                 if norm(p["name"]) == key and (eid, p["team"]) in imp]
         if len(cands) != 1:
             unmatched.append(m["player"])
             continue
@@ -642,7 +679,7 @@ def main():
         if (norm(p["name"]), p["team"]) in ambiguous:
             unmatched.append(m["player"] + " (ambiguous name)")
             continue
-        ti = imp[p["team"]]
+        ti = imp[(eid, p["team"])]
         dn = denom.get(p["team"])
         if not dn:
             unmatched.append(m["player"] + " (no team prior)")
@@ -684,7 +721,7 @@ def main():
             "shop_gain": round(sum(probs) / n - a2p(best_price), 4),
             "soft_best": best_book in SOFT_BOOKS,
             "thin": p["gp"] < 10,
-            **{k: (ctx.get(p["team"]) or {}).get(k)
+            **{k: (ctx.get((_etdate(ti["commence"]), p["team"])) or {}).get(k)
                for k in ("opp_goalie", "opp_goalie_sv", "opp_pen60")},
         })
     # ---- ENV: the three colour columns collapsed into one scannable 0-100 slate percentile.
@@ -728,7 +765,8 @@ def main():
         "meta": {
             "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
             "season": sid, "features_through": yday,
-            "n_rows": len(rows), "n_teams": len(imp), "n_games": len(events),
+            "n_rows": len(rows), "n_teams": len({_ab for _, _ab in imp}),
+            "n_games": len(events),
             "unmatched": unmatched[:30], "credits_left": _odds.rem,
         },
         "rows": rows,

@@ -78,6 +78,11 @@ jobs:
           # SOG write ever fails it must not take the board's commit down with it.
           git add nhl_board_latest.json
           [ -f nhl_sog_latest.json ] && git add nhl_sog_latest.json || echo "no SOG artifact this run"
+          # nhl_points_latest.json is the 1+ POINTS line capture (points_props in the cron), and
+          # it was missing from this list -- the cron wrote it every run and the workflow never
+          # staged it, so every run's quotes were discarded and the history it exists to build
+          # never accumulated. Same guard as SOG.
+          [ -f nhl_points_latest.json ] && git add nhl_points_latest.json || echo "no points artifact this run"
           if git diff --cached --quiet; then
             echo "no changes to commit"
             exit 0
