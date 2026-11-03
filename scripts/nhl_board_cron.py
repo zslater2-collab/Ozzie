@@ -27,6 +27,7 @@ RESEARCH BASIS (nhl_goals/GAMEPLAN.md) -- this is a DECISION/SHOPPING AID, not a
     below are a near-identity refit kept for consistency with calibrate_model.py.
 """
 import os, sys, json, math, time, unicodedata, datetime as dt
+from collections import defaultdict
 
 import requests
 
@@ -56,6 +57,25 @@ MIN_GP  = 3
 CAL_A, CAL_B = -0.0852, 0.9292              # near-identity; model verified already calibrated
 LG = {"ev": 0.55, "pp": 1.6}                # league goals/60 fallbacks
 LG_TOI = {"ev": 850.0, "pp": 79.0}          # league TOI/game fallbacks (seconds)
+
+# ── 1+ POINTS model ─────────────────────────────────────────────────────────────────────────
+# Same split as the goal model -- role from point-in-time data, magnitude from the market -- but
+# on POINTS, because that is the market actually being bet. A defenseman's point is mostly "my
+# team scored while I was out there", which is PP time, not his own shooting; ranking D by goal
+# expectation therefore spends its resolution on the ~25% of the outcome that is his own goal.
+#   lambda_pt = point_share x (team implied_total x points-per-goal)
+#   point_share = exp_points / sum(team's top-18 by exp_points)
+# Constants MEASURED over the 2025-26 and 2026-27 league totals, not assumed (both seasons agree
+# to <3%): points/goal 2.680 and 2.691; points/60 ev 1.533/1.495, pp 4.554/4.744.
+LG_P = {"ev": 1.51, "pp": 4.65}             # league POINTS/60 fallbacks
+PTS_PER_GOAL = 2.685                        # point-credits generated per goal (goal + assists)
+# Position lambda multipliers, fitted on 2026-10-01..10-17 and tested on 10-18..11-02:
+# forwards k=1.207 -> OOS error +0.71pp (the top-18 share denominator understates how much a
+# forward's points concentrate on his own line); defensemen k=0.935 -> OOS +3.51pp, and a
+# full-sample fit lands at 1.004, so D is left UNSCALED -- the half-to-half move (.267 -> .296)
+# is league scoring drifting, not a calibration defect. Validated leak-free: for every game date
+# the skater state is requested with gameDate <= D-1.
+PT_K = {"D": 1.00, "F": 1.22}
 
 TEAM_ABBR = {
  "Anaheim Ducks": "ANA", "Boston Bruins": "BOS", "Buffalo Sabres": "BUF",
@@ -141,10 +161,14 @@ def skater_state(season, upto):
         t = toi.get(pid, {})
         g_pp = s.get("ppGoals") or 0
         g_sh = s.get("shGoals") or 0
+        p_pp = s.get("ppPoints") or 0
+        p_sh = s.get("shPoints") or 0
         out[pid] = {
             "pid": pid, "name": s.get("skaterFullName"), "pos": s.get("positionCode"),
             "teams": (s.get("teamAbbrevs") or ""), "gp": s.get("gamesPlayed") or 0,
             "g_ev": max((s.get("goals") or 0) - g_pp - g_sh, 0), "g_pp": g_pp,
+            # evPoints is posted directly but is derived the same way for symmetry with goals
+            "p_ev": max((s.get("points") or 0) - p_pp - p_sh, 0), "p_pp": p_pp,
             "toi_ev": t.get("evTimeOnIce") or 0, "toi_pp": t.get("ppTimeOnIce") or 0,
         }
     return out
@@ -178,31 +202,37 @@ def rates(cur, anchor, team_of):
     board, carried entirely by his shrunk prior-season rate (weight_this_season = gp/(gp+K) = 0).
     Iterating only over `cur` emptied the whole board before opening night."""
     out = {}
-    blank = {"gp": 0, "g_ev": 0, "g_pp": 0, "toi_ev": 0, "toi_pp": 0}
+    blank = {"gp": 0, "g_ev": 0, "g_pp": 0, "p_ev": 0, "p_pp": 0, "toi_ev": 0, "toi_pp": 0}
     for pid in set(cur) | set(anchor):
         c = cur.get(pid)
         if c is None:
             a0 = anchor[pid]
             c = dict(blank, pid=pid, name=a0["name"], pos=a0["pos"], teams=a0["teams"])
         a = anchor.get(pid)
-        eg = {}
-        for s in ("ev", "pp"):
-            b = PRIOR_H[s] * 3600.0
-            if a and a["gp"] >= 10 and a["toi_" + s] > 0:
-                anch = (a["g_" + s] + LG[s] * b / 3600.0) / ((a["toi_" + s] + b) / 3600.0)
-                anch_toi = a["toi_" + s] / a["gp"]
-            else:
-                anch, anch_toi = LG[s], LG_TOI[s]
-            g60 = (c["g_" + s] + anch * b / 3600.0) / ((c["toi_" + s] + b) / 3600.0)
-            w = c["gp"] / float(c["gp"] + TOI_K)
-            trail = (c["toi_" + s] / c["gp"]) if c["gp"] else anch_toi
-            toi = w * trail + (1 - w) * anch_toi
-            eg[s] = g60 * toi / 3600.0
-            eg["toi_" + s] = toi
+        # Goals and POINTS run through identical machinery; only the league fallback differs.
+        # The shrunk TOI is shared (it is a property of the skater, not of the rate), so it is
+        # taken from the goal pass and reused rather than refitted.
+        eg, ep, toi_out = {}, {}, {}
+        for kind, LGK in (("g", LG), ("p", LG_P)):
+            for s in ("ev", "pp"):
+                b = PRIOR_H[s] * 3600.0
+                if a and a["gp"] >= 10 and a["toi_" + s] > 0:
+                    anch = ((a["%s_%s" % (kind, s)] + LGK[s] * b / 3600.0)
+                            / ((a["toi_" + s] + b) / 3600.0))
+                    anch_toi = a["toi_" + s] / a["gp"]
+                else:
+                    anch, anch_toi = LGK[s], LG_TOI[s]
+                r60 = ((c["%s_%s" % (kind, s)] + anch * b / 3600.0)
+                       / ((c["toi_" + s] + b) / 3600.0))
+                w = c["gp"] / float(c["gp"] + TOI_K)
+                trail = (c["toi_" + s] / c["gp"]) if c["gp"] else anch_toi
+                toi = w * trail + (1 - w) * anch_toi
+                (eg if kind == "g" else ep)[s] = r60 * toi / 3600.0
+                toi_out[s] = toi
         team = team_of.get(pid) or (c["teams"].split(",")[-1].strip()
                                     if c["teams"] else None)
-        out[pid] = dict(c, exp_goals=eg["ev"] + eg["pp"],
-                        pp_min=round(eg["toi_pp"] / 60, 1), team=team)
+        out[pid] = dict(c, exp_goals=eg["ev"] + eg["pp"], exp_points=ep["ev"] + ep["pp"],
+                        pp_min=round(toi_out["pp"] / 60, 1), team=team)
     return out
 
 
@@ -389,13 +419,28 @@ def _etdate(commence):
 
 
 def slate(hours=30):
+    """Events starting between NOW and now+`hours`.
+
+    The lower bound is not cosmetic. Without it an in-progress game stayed in the window and its
+    LIVE team total was consumed as though it were a pregame number: on 2026-11-03T02:02Z a build
+    picked up DET@FLA (started 00:08Z) at a 5.63 implied total and published Arvidsson at
+    model_p 0.532 against a +850 price. Across the first five weeks 7,129 of 64,241 snapshot-rows
+    were priced after their own puck drop. Nobody can bet a started game, the app hides them
+    anyway, and letting them through would log live prices as pregame in the tracker.
+    """
     js = _odds(OB + "/sports/" + SPORT + "/events", {"apiKey": KEY}) or []
-    cut = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=hours)
-    out = []
+    now = dt.datetime.now(dt.timezone.utc)
+    cut = now + dt.timedelta(hours=hours)
+    out, started = [], 0
     for e in js:
         c = dt.datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
+        if c <= now:
+            started += 1
+            continue
         if c <= cut:
             out.append(e)
+    if started:
+        print("[cron] skipped %d event(s) already under way" % started)
     return out
 
 
@@ -663,10 +708,26 @@ def main():
         seasoned = [p for p in v if p["gp"] >= MIN_GP]
         if len(seasoned) >= DRESSED:
             byteam[t] = seasoned
-    denom = {}
+    denom, denom_p = {}, {}
     for t, v in byteam.items():
         top = sorted(v, key=lambda z: -z["exp_goals"])[:DRESSED]
         denom[t] = sum(x["exp_goals"] for x in top)
+        # the POINTS denominator is its own top-18: the 18 skaters who soak up a team's points
+        # are not identical to the 18 who soak up its goals (PP defensemen move up).
+        topp = sorted(v, key=lambda z: -z["exp_points"])[:DRESSED]
+        denom_p[t] = sum(x["exp_points"] for x in topp)
+
+    # ---- 1+ POINTS prices, folded in from the capture above so the board carries the market
+    # that is actually bet. Only the 0.5 line, only the OVER, only MA-legal books (an unbettable
+    # best price is noise when the point of the column is where to place the leg).
+    ptq = defaultdict(list)
+    for q in pts:
+        if abs(float(q.get("line") or -1) - 0.5) > 1e-9 or q.get("side") != "over":
+            continue
+        if q.get("price") is None or not q.get("bettable"):
+            continue
+        ptq[q["pn"]].append((q["price"], q["book"]))
+    print("[cron] 1+ points: 0.5-line over quotes for %d skaters at bettable books" % len(ptq))
 
     rows, unmatched = [], []
     for (eid, key), m in pr.items():
@@ -686,6 +747,21 @@ def main():
             continue
         share = p["exp_goals"] / dn
         model_p = calibrate(1 - math.exp(-(share * ti["implied"])))
+        # ---- 1+ POINTS projection (see LG_P / PT_K for the derivation and the validation)
+        model_pt = None
+        dnp = denom_p.get(p["team"])
+        if dnp:
+            lam_pt = ((p["exp_points"] / dnp) * ti["implied"] * PTS_PER_GOAL
+                      * PT_K["D" if p["pos"] == "D" else "F"])
+            model_pt = 1.0 - math.exp(-lam_pt)
+        pq = ptq.get(key) or []
+        pt_best, pt_book, pt_mkt, pt_books = None, None, None, 0
+        if pq:
+            pt_best, pt_book = max(pq, key=lambda t: t[0])
+            _pp = sorted(a2p(x) for x, _ in pq)
+            _n = len(_pp)
+            pt_mkt = _pp[_n // 2] if _n % 2 else (_pp[_n // 2 - 1] + _pp[_n // 2]) / 2
+            pt_books = _n
         prices = [(x, bk) for x, bk in m["q"] if x is not None]
         if not prices:
             continue
@@ -709,6 +785,18 @@ def main():
             "implied_total": round(ti["implied"], 2), "tt_source": ti["src"],
             "model_p": round(model_p, 4), "mkt_p": round(mkt_p, 4),
             "edge": round(model_p - mkt_p, 4),
+            # 1+ points: the market Zach actually bets. pt_edge is shown for completeness but the
+            # points model has NO graded price history yet (the capture only starts 2026-11-02),
+            # so it is a projection-vs-price comparison, NOT a validated edge.
+            "model_pt": None if model_pt is None else round(model_pt, 4),
+            "pt_price": pt_best, "pt_book": pt_book,
+            "pt_mkt_p": None if pt_mkt is None else round(pt_mkt, 4),
+            "pt_books": pt_books,
+            "pt_edge": (None if (model_pt is None or pt_mkt is None)
+                        else round(model_pt - pt_mkt, 4)),
+            "pt_book_prices": sorted(
+                [{"book": bk, "price": x, "best": x == pt_best,
+                  "bettable": True} for x, bk in pq], key=lambda d: -d["price"]),
             "best_price": best_price, "best_book": best_book,
             "worst_price": worst, "n_books": len(prices),
             # Shop gain = best price vs the MARKET AVERAGE, not vs the worst book. The worst book

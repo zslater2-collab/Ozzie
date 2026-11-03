@@ -1865,6 +1865,21 @@
      f:r=>r.opp_pen60==null?'—':(+r.opp_pen60).toFixed(2),
      d:'Penalties the OPPONENT takes per 60 (prior season) = how often this skater should get a power play. Penalty volume tested real but unpriced-and-too-small to clear the vig, so it is colour, not a signal'},
     {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
+    // --- 1+ POINTS: the market actually bet. Goals are the board's legacy market; a defenseman
+    // scores 7.0% of the time and records a point 28.0%, and the points market charges 3.43% a
+    // side (flat across every price band) against a 21% relative tax on D anytime-goal.
+    {k:'model_pt',t:'Pts Model',l:0,v:r=>r.model_pt??-1,
+     f:r=>r.model_pt==null?'—':(r.model_pt*100).toFixed(0)+'%',
+     d:"Projected P(1+ point) = point_share x (team total x 2.685 points per goal). Validated leak-free on 2026-10-01..11-02: defensemen predicted .2789 vs actual .2799, quintiles .142 to .538, AUC .690 — which BEATS ranking by goal expectation (.649) because a D's point is mostly 'my team scored while I was out there', i.e. power-play time, not his own shooting. Forwards carry a fitted 1.22 lambda multiplier (tested out-of-sample, +0.7pp). No graded PRICE history yet, so this is a projection, not a measured edge"},
+    {k:'pt_price',t:'Pts Price',l:0,v:r=>r.pt_price??-99999,
+     f:r=>r.pt_price==null?'—':fmtOdds(r.pt_price),
+     d:'Best 1+ points (Over 0.5) price across MA-legal books. Only the over, only the 0.5 line'},
+    {k:'pt_mkt_p',t:'Pts Mkt',l:0,v:r=>r.pt_mkt_p??-1,
+     f:r=>r.pt_mkt_p==null?'—':(r.pt_mkt_p*100).toFixed(0)+'%',
+     d:'Median implied probability across the books quoting 1+ points. Includes vig (measured 3.43% a side), so it sits ABOVE the fair number'},
+    {k:'pt_edge',t:'Pts Edge',l:0,v:r=>r.pt_edge??-99,
+     f:r=>r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp'),
+     d:"Pts Model minus Pts Mkt. NOT a validated edge — the points capture only begins 2026-11-02, so no cell has a graded ROI yet. Mostly negative is the correct and expected reading: the books price role defensemen well. Watch nhl_points_perf.json as graded legs accumulate"},
     {k:'model_p',t:'Model P',l:0,v:r=>r.model_p??-1},
     {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
     {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
@@ -1983,6 +1998,10 @@
         `<td style="color:${gsvCol}">${gsv}</td>`+
         `<td style="color:${penCol}">${pen}</td>`+
         `<td>${r.implied_total!=null?r.implied_total.toFixed(2):'—'}</td>`+
+        `<td style="font-weight:600">${r.model_pt!=null?(r.model_pt*100).toFixed(0)+'%':'—'}</td>`+
+        `<td>${r.pt_price!=null?fmtOdds(r.pt_price):'—'}${r.pt_books>1?`<span style="color:var(--muted);font-size:.85em" title="${r.pt_books} books quoting"> ${bookName(r.pt_book)}</span>`:(r.pt_book?`<span style="color:var(--muted);font-size:.85em" title="only book quoting 1+ points"> ${bookName(r.pt_book)}</span>`:'')}</td>`+
+        `<td style="color:var(--muted)">${r.pt_mkt_p!=null?(r.pt_mkt_p*100).toFixed(0)+'%':'—'}</td>`+
+        `<td style="color:${r.pt_edge==null?'var(--muted)':(r.pt_edge>=0.05?'#39d353':(r.pt_edge<=-0.05?'#ff6b3d':'var(--muted)'))}">${r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp')}</td>`+
         `<td>${r.model_p!=null?(r.model_p*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+
         `<td>${fmtOdds(r.best_price)} ${bkHtml}</td>`+

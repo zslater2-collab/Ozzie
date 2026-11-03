@@ -66,6 +66,11 @@ jobs:
       - run: pip install requests
       - name: Build board
         run: python scripts/nhl_board_cron.py
+      - name: Track 1+ points prices and grade closed dates
+        # Non-fatal: this is a recorder for a market with no price history yet, and a failure here
+        # must never cost the board its commit. It reads the artifact the step above just wrote.
+        continue-on-error: true
+        run: python scripts/nhl_points_track.py
       - name: Commit artifacts
         run: |
           git config user.name  "nhl-board-bot"
@@ -83,6 +88,9 @@ jobs:
           # staged it, so every run's quotes were discarded and the history it exists to build
           # never accumulated. Same guard as SOG.
           [ -f nhl_points_latest.json ] && git add nhl_points_latest.json || echo "no points artifact this run"
+          # the 1+ points tracker's log + graded report (see scripts/nhl_points_track.py)
+          [ -f nhl_points_log.csv ] && git add nhl_points_log.csv || echo "no points log this run"
+          [ -f nhl_points_perf.json ] && git add nhl_points_perf.json || echo "no points perf this run"
           if git diff --cached --quiet; then
             echo "no changes to commit"
             exit 0
