@@ -151,7 +151,17 @@ def pull_atd(events, tmap):
     gl, atd = [], []
     for e in events:
         d = _get(f"{B}/sports/{S}/events/{e['id']}/odds",
-                 {"apiKey":KEY,"regions":"us,us2","markets":"player_anytime_td,totals,spreads",
+                 {"apiKey":KEY,"regions":"us,us2",
+                  # Anytime TD is split across TWO market keys and the books divide between them,
+                  # so pulling one drops whole books silently -- the failure that hid DK/FD/MGM/
+                  # Fanatics from the MLB board for a season (eb748e8). Measured 2026-11-04:
+                  #   player_anytime_td -> ballybet, betmgm, draftkings, fanatics, fanduel,
+                  #                        williamhill_us
+                  #   player_tds_over Over 0.5 -> espnbet (theScore)
+                  # "1+ TDs" and "anytime TD" are the same bet, so theScore belonged on this board
+                  # and was missing from it entirely until now. Only the 0.5 rung qualifies;
+                  # 1.5/2.5 are a different bet. Costs 1 extra credit per event.
+                  "markets":"player_anytime_td,player_tds_over,totals,spreads",
                   "oddsFormat":"american","bookmakers":MA_BOOKS})
         if not d: continue
         home, away = e["home_team"], e["away_team"]
@@ -164,11 +174,17 @@ def pull_atd(events, tmap):
                 elif mk["key"]=="spreads":
                     for o in mk["outcomes"]:
                         if o.get("name")==home: spread=o.get("point")
-                elif mk["key"]=="player_anytime_td":
+                elif mk["key"] in ("player_anytime_td","player_tds_over"):
                     for o in mk["outcomes"]:
-                        if o.get("name")=="Yes":
-                            atd.append({"nkey":norm(o.get("description")),"player":o.get("description"),
-                                        "book":bk["key"],"price":o.get("price")})
+                        nm = str(o.get("name") or "")
+                        if mk["key"]=="player_anytime_td":
+                            if nm!="Yes": continue
+                        else:
+                            if nm.lower()!="over" or o.get("point") is None: continue
+                            if abs(float(o["point"])-0.5)>1e-9: continue
+                        if o.get("price") is None or o.get("description") is None: continue
+                        atd.append({"nkey":norm(o["description"]),"player":o["description"],
+                                    "book":bk["key"],"price":o["price"]})
             if total is not None and spread is not None:
                 gl.append({"home":tmap.get(home),"away":tmap.get(away),
                            "commence":e.get("commence_time"),
@@ -219,6 +235,13 @@ def build_board(events, tmap):
     mkt = None
     if atd:
         a = pl.DataFrame(atd).with_columns(pl.col("price").map_elements(a2p, return_dtype=pl.Float64).alias("imp_p"))
+        # One quote per (player, book), at that book's BEST price. Anytime TD now comes from two
+        # market keys (player_anytime_td + player_tds_over Over 0.5) and a book may post the same
+        # bet under both, which would otherwise drag the mkt_p median toward whichever book
+        # duplicated and list it twice in `quotes`. n_books already used n_unique, so it was the
+        # median and the per-book quote list that needed this. Sorted ascending by implied
+        # probability, so "first" is the longest price.
+        a = a.sort("imp_p").unique(subset=["nkey", "book"], keep="first", maintain_order=True)
         mkt = a.group_by("nkey").agg(
             pl.col("price").sort_by("imp_p").first().alias("best_price"),
             pl.col("book").sort_by("imp_p").first().alias("best_book"),

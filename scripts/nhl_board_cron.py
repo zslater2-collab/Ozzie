@@ -504,24 +504,54 @@ def game_lines(ev):
     return out
 
 
+# Anytime goal is posted under TWO market keys and the books split across them, so pulling one
+# silently drops whole books -- the same failure that hid DraftKings/FanDuel/BetMGM/Fanatics from
+# the MLB board for a season (batter_home_runs vs _alternate, commit eb748e8).
+#   player_goal_scorer_anytime  -> ballybet, betmgm, draftkings, fanatics, fanduel, williamhill_us
+#   player_goals Over 0.5       -> espnbet (theScore), fanduel
+# "1+ goals" and "anytime goal" are the same bet, so theScore's price belongs on this board and was
+# absent from it entirely until 2026-11-04. FanDuel quotes both, hence the per-book de-dupe below.
+GOAL_MARKETS = "player_goal_scorer_anytime,player_goals"
+
+
 def props(ev):
     d = _odds(OB + "/sports/" + SPORT + "/events/" + ev["id"] + "/odds",
               {"apiKey": KEY, "regions": REGIONS,
-               "markets": "player_goal_scorer_anytime",
+               "markets": GOAL_MARKETS,
                "oddsFormat": "american", "bookmakers": MA_BOOKS})
     out = {}
     if not d:
         return out
+    # {norm_player: {"player": display, "best": {book: price}}} -- keyed by book so a book quoting
+    # the same bet under both keys contributes once, at the better price.
+    acc = {}
     for b in d.get("bookmakers", []):
         for mk in b.get("markets", []):
-            if mk["key"] != "player_goal_scorer_anytime":
+            key = mk["key"]
+            if key not in ("player_goal_scorer_anytime", "player_goals"):
                 continue
-            for o in mk["outcomes"]:
-                if o.get("name") != "Yes":
+            for o in mk.get("outcomes", []):
+                nm = str(o.get("name") or "")
+                if key == "player_goal_scorer_anytime":
+                    if nm != "Yes":
+                        continue
+                else:
+                    # only the 0.5 OVER rung of player_goals is "1+ goals"; 1.5/2.5 are a
+                    # different bet and must never be mixed in
+                    if nm.lower() != "over" or o.get("point") is None:
+                        continue
+                    if abs(float(o["point"]) - 0.5) > 1e-9:
+                        continue
+                if o.get("price") is None or o.get("description") is None:
                     continue
-                k = norm(o.get("description"))
-                out.setdefault(k, {"player": o.get("description"), "q": []})
-                out[k]["q"].append((o.get("price"), b["key"]))
+                k = norm(o["description"])
+                e = acc.setdefault(k, {"player": o["description"], "best": {}})
+                cur = e["best"].get(b["key"])
+                if cur is None or o["price"] > cur:
+                    e["best"][b["key"]] = o["price"]
+    for k, e in acc.items():
+        out[k] = {"player": e["player"],
+                  "q": [(px, bk) for bk, px in e["best"].items()]}
     return out
 
 
