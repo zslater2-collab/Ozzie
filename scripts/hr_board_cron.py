@@ -11,7 +11,7 @@ Signal (validated leak-free): hitter power (season HR-rate, shrunk)
   x non-suppression (pitcher xwoba allowed vs league).  DFS ranking tool.
 """
 import os, sys, json, math, glob, unicodedata
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd, numpy as np, requests
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -75,7 +75,7 @@ def refresh_pa_cache():
     pa['game_date'] = pa['game_date'].astype(str)
     last = pa['game_date'].max()
     start = (datetime.strptime(last, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')
-    end   = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')   # through yesterday
+    end   = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')  # through yesterday
     if start > end:
         print(f'PA cache current through {last}; no new days.')
         return pa
@@ -282,7 +282,6 @@ def fetch_hr_odds(game_date):
         print(f'HR odds: events fetch failed ({e}); edge layer skipped.'); return {}
     if not isinstance(evs,list):
         print('HR odds: unexpected events response; edge layer skipped.'); return {}
-    from datetime import timezone
     try:
         from zoneinfo import ZoneInfo; ET=ZoneInfo('America/New_York')
     except Exception:
@@ -560,7 +559,6 @@ def _slot_to_pa(s):
 
 def build_board(game_date, H, P, meta, slot_model=None):
     slot_model = slot_model or {}
-    from datetime import timezone
     now = datetime.now(timezone.utc)
     lg, lg_xw = meta['lg_hr_rate'], meta['lg_xwoba']
     rows=[]
@@ -828,7 +826,6 @@ def _rain_forecast(lat, lon, fp_utc):
 
 def build_rain_flags(date):
     """Write rain_flags_latest.json: open-air games with considerable rain around gametime."""
-    from datetime import timezone
     flagged = []
     try:
         lineups = get_lineups(date)
@@ -857,14 +854,14 @@ def build_rain_flags(date):
         flagged.append({'home': home, 'away': g['away'], 'game': f"{g['away']}@{home}",
                         'park': p.get('name', home), 'precip_mm': precip, 'pop_max': pop,
                         'risk': risk, 'first_pitch': g.get('start')})
-    json.dump({'date': date, 'generated_at': datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'),
+    json.dump({'date': date, 'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%MZ'),
                'games': flagged}, open(RAIN, 'w'), indent=2)
     print(f'Rain flags {date}: {len(flagged)} open-air game(s) with considerable rain around gametime'
           + (': ' + ', '.join(x['game'] for x in flagged) if flagged else ''))
 
 
 def main():
-    date = sys.argv[1] if len(sys.argv)>1 else datetime.utcnow().strftime('%Y-%m-%d')
+    date = sys.argv[1] if len(sys.argv)>1 else datetime.now(timezone.utc).strftime('%Y-%m-%d')
     pa = refresh_pa_cache()
     H,P,meta = build_stats(pa)
     slot_model = build_slot_model(pa)     # expected batting slot for pre-lineup (projected) bats
@@ -1000,7 +997,7 @@ def main():
         # generated_at / odds_at let the app show DATA FRESHNESS. A stale board is the failure
         # mode you cannot see -- the numbers still look perfectly reasonable, they are just old.
         # 'asof' is the STATS cutoff (a date); these two are wall-clock pull times.
-        _now = datetime.utcnow().strftime('%Y-%m-%d %H:%MZ')
+        _now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%MZ')
         json.dump({'date':date,'asof':meta['asof'],'calib':cal,'ranked_by':ranked_by,
                    'generated_at':_now,
                    'odds_at':(_now if hr_odds else None),
@@ -1038,7 +1035,7 @@ def main():
                   f'(no commit, no churn).')
             return
 
-        _now = datetime.utcnow().strftime('%Y-%m-%d %H:%MZ')
+        _now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%MZ')
         json.dump({'date':date,'asof':meta.get('asof'),'calib':cal,'ranked_by':'prob',
                    'generated_at':_now,'odds_at':None,'n_odds_players':0,
                    'idle':True,'idle_reason':'no games on this slate',

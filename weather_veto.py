@@ -100,8 +100,10 @@ if __name__ == "__main__":
     import datetime as dt
     parks = _load_local_parks()
     # demo: same window at every open-air park ~today, so Zach can see what it flags live
-    c = pd.Timestamp(dt.datetime.utcnow().replace(minute=0, second=0, microsecond=0),
-                     tz="UTC") + pd.Timedelta(hours=6)
+    # pandas-native: utcnow() is deprecated, and its aware replacement cannot be handed to
+    # pd.Timestamp alongside tz="UTC" (pandas rejects a tz-aware input with an explicit tz).
+    # floor("h") is exactly the minute/second/microsecond zeroing this replaced.
+    c = pd.Timestamp.now(tz="UTC").floor("h") + pd.Timedelta(hours=6)
     print(f"demo window start (UTC): {c}")
     rows = []
     for ab in sorted(parks):
