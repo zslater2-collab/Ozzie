@@ -1908,7 +1908,7 @@
      d:"Whether this skater is an eligible PARLAY LEG, by the only two things on this board that are actually validated. 🥇 = his team's TOP defenseman by Pts Model (hit 49.4% historically, both halves). ⭐ = top-2 (40.2%). ⛔ = ranked 3rd or worse among his team's D — that tier ran −41.7% and −36.3% in the two halves of the sample, the single most reliable finding here, so it is an AVOID, not a weak buy. 🔻 = the price you can get is more than 2pp of probability off the market best, i.e. you are leaking value on execution. These flags say nothing about edge: they rank and they screen out the trash. The boost is what makes a basket +EV — see the breakeven line above the table"},
     {k:'model_pt',t:'Pts Model',l:0,v:r=>r.model_pt??-1,
      d:"Projected P(1+ point) = point_share x (team total x 2.685 points per goal). Validated leak-free on 2026-10-01..11-02: defensemen predicted .2789 vs actual .2799, quintiles .142 to .538, AUC .690 — which BEATS ranking by goal expectation (.649) and by PP minutes (.683), because a D's point is mostly 'my team scored while I was out there', i.e. power-play time, not his own shooting. Forwards carry a fitted 1.22 multiplier (tested out-of-sample, +0.7pp). Use it to RANK; it has no graded price history yet"},
-    {k:'pt_fair',t:'Pts Fair',l:0,v:r=>r.pt_fair??-1,
+    {k:'pt_fair',t:'Pts Fair',l:0,v:r=>r._fair??-1,
      d:'The market with the vig taken OUT: median two-way de-vigged probability across books quoting both sides of Over 0.5 (falling back to the measured flat 3.43% a side). This, not Pts Mkt, is what Pts Model should be compared against'},
     {k:'pt_mkt_p',t:'Pts Mkt',l:0,v:r=>r.pt_mkt_p??-1,
      d:'Median implied probability across books quoting 1+ points, vig INCLUDED — i.e. the price you actually pay. Always above Pts Fair'},
@@ -1916,7 +1916,7 @@
      d:'Best Over 0.5 points price across MA-legal books'},
     {k:'pt_shop',t:'Pts Shop',l:0,v:r=>r._shop??-99,
      d:"Probability points saved by taking the BEST available price instead of the market median. This is the one effect on this board that is actually validated — on the goal market, best-of-four books ran −7.2% against −17.5% for worst-of-four, a 10.3pp swing, and it needs no model to be true. With no validated pick, shopping plus the boost IS the edge; treat this column as the point of the exercise rather than a footnote."},
-    {k:'pt_edge',t:'Pts Edge',l:0,v:r=>r.pt_edge??-99,
+    {k:'pt_edge',t:'Pts Edge',l:0,v:r=>r._ptedge??-99,
      d:"Pts Model minus Pts FAIR, so a positive number means the projection beats the de-vigged market — not merely the vigged price. Still NOT a validated edge: the points capture only begins 2026-11-02 and no cell has a graded ROI yet. Small numbers either way are the expected reading; the books price role defensemen well. Watch nhl_points_perf.json as graded legs land"},
   ];
   const NHL_COLS_GOAL=[
@@ -2016,19 +2016,28 @@
       +' +239% boost, which is why this panel does not offer it.</span>'; return; }
     // one leg per team: correlated legs break the independence the payout assumes
     const seen={}, pool=[];
-    rows.forEach(r=>{ if(r.pt_price==null||r.pt_fair==null)return;
+    rows.forEach(r=>{ if(r.pt_price==null||r._fair==null)return;
       if(PT&&r.pos==='D'&&r._dr!=null&&r._dr>2)return;          // never build on the avoid tier
       if(seen[r.team])return; seen[r.team]=1; pool.push(r); });
     const legs=pool.slice(0,n);
-    if(legs.length<1){ el.innerHTML='<span style="color:var(--muted)">No eligible legs on screen.</span>'; return; }
+    if(legs.length<1){
+      const anyPx=rows.some(r=>r.pt_price!=null);
+      el.innerHTML='<span style="color:var(--muted)">'+(anyPx
+        ? 'No leg on screen carries a two-way de-vigged price, so there is no honest breakeven to '
+          +'show. A board artifact built before the two-way de-vig looks like this; it fills in on '
+          +'the next cron refresh.'
+        : 'No 1+ points prices on screen.')+'</span>';
+      return; }
+    const short=legs.length<n;
     let D=1,P=1,shop=0;
-    legs.forEach(r=>{ D*=1+bbProfit(r.pt_price); P*=r.pt_fair; shop+=(r._shop||0); });
+    legs.forEach(r=>{ D*=1+bbProfit(r.pt_price); P*=r._fair; shop+=(r._shop||0); });
     const be=_nhlBE(P,D), b=(s.boost||0)/100;
     const ev=P*(1+(D-1)*(1+b))-1;
     const clears=be!=null&&b>be;
     const px=D>=2?('+'+Math.round((D-1)*100)):('-'+Math.round(100/(D-1)));
     el.innerHTML=
-      `<b>${legs.length}-leg from the top of this list</b> <span style="color:var(--muted)">(one per team)</span>: `
+      `<b>${legs.length}-leg from the top of this list</b> <span style="color:var(--muted)">(one per team`
+      +(short?`; only ${legs.length} of your ${n} legs have a two-way de-vigged price`:'')+`)</span>: `
       +`${px} &nbsp;·&nbsp; win prob ${(100*P).toFixed(1)}% (de-vigged, no edge assumed)<br>`
       +`needs a <b style="color:${clears?'#39d353':'#ff6b3d'}">${be==null?'—':((be>0?'+':'')+(100*be).toFixed(1)+'%')}</b> profit boost to break even`
       +(s.boost?` &nbsp;·&nbsp; yours is <b>${s.boost}%</b> → <b style="color:${clears?'#39d353':'#ff6b3d'}">${clears?'CLEARS':'does NOT clear'}</b>, EV <b style="color:${ev>0?'#39d353':'#ff6b3d'}">${(ev>0?'+':'')+(100*ev).toFixed(1)}%</b> of stake`
@@ -2056,6 +2065,14 @@
       // execution leak: the gap in PROBABILITY points between the best price you can get at the
       // book you picked and the best anywhere. Only meaningful once a book is selected.
       r._leak=(s.book&&r.bk_gap!=null&&r.bk_gap<-2)?1:0;
+      // Fair value is the two-way de-vig from the cron, or nothing. Estimating it from the
+      // vigged median and the measured 3.43%/side is tempting and wrong: that is a RELATIVE
+      // haircut, while the vig sits on a short price as a roughly fixed number of probability
+      // POINTS. On Hughes at -235 it returned .698 against a true .659, and five such legs
+      // overstated a parlay's win probability by 19% -- enough to turn a +24.9% breakeven
+      // negative. A false green light is worse than a blank, so an absent pt_fair stays absent.
+      r._fair=r.pt_fair??null;
+      r._ptedge=r.pt_edge??null;
       r._shop=(PT&&r.pt_mkt_p!=null&&r.pt_price!=null)
               ?+(100*(r.pt_mkt_p-bbImp(r.pt_price))).toFixed(1)
               :(PT?null:(r.shop_gain!=null?+(100*r.shop_gain).toFixed(1):null));
@@ -2111,9 +2128,10 @@
       // Pts Edge is measured against pt_fair (vig removed), so 0 is genuinely neutral and the
       // shading can be symmetric. Against the vigged median it would have been red almost always.
       const flagCol=r._dr==null?'' :(r._dr>2?'#ff6b3d':(r._dr===1?'#ffd700':'#39d353'));
-      const ptEdge=r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp');
-      const ptEdgeCol=r.pt_edge==null?'var(--muted)'
-                      :(r.pt_edge>=0.03?'#39d353':(r.pt_edge<=-0.03?'#ff6b3d':'var(--muted)'));
+      const _pe=r._ptedge;
+      const ptEdge=_pe==null?'—':((_pe>0?'+':'')+(_pe*100).toFixed(0)+'pp');
+      const ptEdgeCol=_pe==null?'var(--muted)'
+                      :(_pe>=0.03?'#39d353':(_pe<=-0.03?'#ff6b3d':'var(--muted)'));
       const ptBkHtml=r.pt_book?`<span style="color:var(--muted);font-size:.9em" title="${r.pt_books||1} book${(r.pt_books||1)>1?'s':''} quoting 1+ points">${bookName(r.pt_book)}</span>`:'';
       const bk=bookName(r.best_book);
       const bkHtml=r.soft_best?`<span style="color:var(--muted);font-size:.9em">${bk}</span>`
@@ -2132,7 +2150,7 @@
           // 1+ POINTS: Leg | Model | Fair | Mkt | Price | Shop | Edge (matches NHL_COLS_PTS)
           `<td class="l" style="color:${flagCol};white-space:nowrap">${r._flag||''}</td>`+
           `<td style="font-weight:600">${r.model_pt!=null?(r.model_pt*100).toFixed(0)+'%':'—'}</td>`+
-          `<td>${r.pt_fair!=null?(r.pt_fair*100).toFixed(0)+'%':'—'}</td>`+
+          `<td>${r._fair!=null?(r._fair*100).toFixed(0)+'%':'<span style="color:var(--muted)" title="no book posted both sides for this skater, so there is no honest de-vig — deliberately not estimated">—</span>'}</td>`+
           `<td style="color:var(--muted)">${r.pt_mkt_p!=null?(r.pt_mkt_p*100).toFixed(0)+'%':'—'}</td>`+
           `<td>${r.pt_price!=null?fmtOdds(r.pt_price):'—'} ${ptBkHtml}</td>`+
           `<td style="color:${r._shop==null?'var(--muted)':(r._shop>=1?'#39d353':'var(--muted)')}">${r._shop==null?'—':('+'+r._shop.toFixed(1)+'pp')}</td>`+

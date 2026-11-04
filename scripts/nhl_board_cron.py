@@ -782,9 +782,11 @@ def main():
             if _fv:
                 _m = len(_fv)
                 pt_fair = _fv[_m // 2] if _m % 2 else (_fv[_m // 2 - 1] + _fv[_m // 2]) / 2
-            else:
-                # no book posted both sides -> fall back to the measured flat per-side overround
-                pt_fair = pt_mkt / 1.0343
+            # else: no book posted both sides -> pt_fair stays None. Deliberately NOT estimated
+            # from pt_mkt: dividing the vigged median by a flat relative factor overstates fair
+            # value on short prices by 2-4pp a leg (Hughes at -235: .698 estimated vs .659 true),
+            # which compounds to ~19% on a five-leg win probability and can turn a +24.9%
+            # breakeven negative. The board shows a blank instead.
         prices = [(x, bk) for x, bk in m["q"] if x is not None]
         if not prices:
             continue
