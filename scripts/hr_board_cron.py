@@ -955,8 +955,14 @@ def main():
 
     # write display artifact: only UPCOMING games (first pitch still ahead),
     # recalibrated probability + DFS tier tags. Archive kept the full slate above.
+    # Hoisted out of the `if` below because the NO-GAMES branch stamps it into the idle artifact
+    # too. It used to be assigned only on the games path, so the offseason handler -- the one
+    # written specifically for this situation -- raised UnboundLocalError on `cal` the first day it
+    # was needed and failed every run from then on (20/20 runs, 2026-11-03 onward). A fallback
+    # branch that is never exercised until it matters is worth wiring to the same source as the
+    # main path rather than a second copy.
+    cal = perf.get('calib', {'slope': 1.0, 'intercept': 0.0})
     if not df.empty:
-        cal = perf.get('calib', {'slope':1.0,'intercept':0.0})
         d = day[day['upcoming']==True].copy() if 'upcoming' in day.columns else day.copy()
         if d.empty:
             print(f'No upcoming games left for {date} (slate already started/done).')
@@ -1003,10 +1009,35 @@ def main():
         print(f'Board {date}: {len(day)} rows -> {len(d)} upcoming shown, ranked_by={ranked_by} '
               f'({nproj} projected, recal slope {cal.get("slope")}, asof {meta["asof"]}).')
     else:
-        # NO GAMES (offseason, or an all-day-done slate). Still stamp the artifact: if we skip the
-        # write, generated_at freezes at the last in-season run, the board looks ever more stale,
-        # and the watchdog re-dispatches this cron every 2h all winter and escalates forever.
-        # Costs nothing -- the /events endpoint is free and no per-event odds calls are made.
+        # NO GAMES on this slate: the whole MLB offseason, and also any in-season run that lands
+        # before lineups post. Read what is already on disk before touching it -- the two cases
+        # below are the reason the old unconditional write was wrong.
+        try:
+            prev = json.load(open(LATEST))
+        except Exception:
+            prev = {}
+        same_day = prev.get('date') == date
+
+        # (1) Never blank a good board. In season this branch also fires on an early run, and
+        # overwriting with rows:[] emptied the app's board until the next cron. If a populated
+        # board for TODAY already exists, leave it alone.
+        if same_day and prev.get('rows'):
+            print(f'Board {date}: no slate rows this run, but a populated board for today '
+                  f'already exists ({len(prev["rows"])} rows) -- left untouched.')
+            return
+
+        # (2) Do not rewrite an idle board that is already idle for today. The original comment
+        # here worried that a frozen generated_at would make the watchdog re-dispatch this cron
+        # every 2h all winter, but the watchdog is independently season-aware -- board_health
+        # marks a sport with no upcoming events "idle" and board_kick never dispatches an idle
+        # board. So the only thing a rewrite changes is the timestamp, which committed 6 times a
+        # day for five months of offseason. One write per day is enough to show the app a current
+        # date; after that this is a no-op.
+        if same_day and prev.get('idle'):
+            print(f'Board {date}: already idle for today -- artifact left untouched '
+                  f'(no commit, no churn).')
+            return
+
         _now = datetime.utcnow().strftime('%Y-%m-%d %H:%MZ')
         json.dump({'date':date,'asof':meta.get('asof'),'calib':cal,'ranked_by':'prob',
                    'generated_at':_now,'odds_at':None,'n_odds_players':0,
