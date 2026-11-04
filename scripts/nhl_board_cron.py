@@ -537,18 +537,24 @@ SOG_MARKETS = "player_shots_on_goal,player_shots_on_goal_alternate"
 
 
 # ── 1+ POINTS capture ────────────────────────────────────────────────────────
-# WHY: Zach bets 5-leg boosted parlays of "Over 0.5 points", and we had no coverage of that
-# market at all. Measured 2026-10-16: two-way overround 6.95% median (BetMGM 7.11% = 3.56% per
-# side), and the 0.5 line is quoted by SEVEN books once the _alternate market is included
-# (betmgm, betonlineag, draftkings, betrivers, fanatics, fanduel, williamhill_us) -- all in the
-# "us" region, so us2 would be pure cost and is deliberately excluded here.
+# WHY: Zach bets boosted parlays of "Over 0.5 points", and we had no coverage of that market at
+# all. Measured 2026-10-16: two-way overround 6.95% median (BetMGM 7.11% = 3.56% per side).
 # The number that matters: a boosted parlay is +EV iff (1+boost) > (1+vig)^legs, so at a 15%
 # boost the break-even per-leg vig is 2.83% at 5 legs vs 4.77% at 3 -- i.e. LEG COUNT is the
 # lever, and that is only checkable with a price history. We have none, so this starts one.
-# Cost: 2 markets x 1 region x ~13 events = ~26 credits/run, ~156/day at the 6x cadence
-# (~4.7% of the 100k monthly quota). Set NHL_PTS=0 to switch it off.
+#
+# REGION, re-measured 2026-11-04: this used to be "us" alone, on the 2026-10-16 finding that all
+# seven books quoting the 0.5 line were in "us" so us2 "would be pure cost". That premise expired
+# -- book coverage drifts. Probing four events now, us2 adds FIVE books quoting the 0.5 line, two
+# of them MA-legal: espnbet (81 quotes) and ballybet (103), plus courtside/fliff/hardrockbet for
+# shop context. That takes the market Zach actually bets from 5 bettable books to 7, and line
+# shopping is the one validated effect on this board, so the region is worth its cost here.
+# ⚠ Do not treat this as settled either: re-probe both regions every few months rather than
+# assuming a book list, which is exactly how espnbet stayed invisible for three weeks.
+# Cost: 2 markets x 2 regions x ~13 events = ~52 credits/run, ~310/day at the 6x cadence, against
+# a measured total burn of ~1,100/day. Set NHL_PTS=0 to switch the capture off.
 PTS_MARKETS = "player_points,player_points_alternate"
-PTS_REGIONS = "us"
+PTS_REGIONS = REGIONS            # us,us2 -- see the note above before narrowing this again
 
 
 def points_props(ev):
@@ -720,14 +726,22 @@ def main():
     # ---- 1+ POINTS prices, folded in from the capture above so the board carries the market
     # that is actually bet. Only the 0.5 line, only the OVER, only MA-legal books (an unbettable
     # best price is noise when the point of the column is where to place the leg).
-    ptq = defaultdict(list)
+    # Over 0.5 and "1+ points" are the SAME bet, and books post that line under both
+    # player_points and player_points_alternate -- so one book yields two quotes for it (DK at
+    # -230 and -235 on the same skater). Keyed by (skater, book) and kept at the best price, which
+    # is the one you would actually take there. Appending to a list instead double-counted a book
+    # in pt_books and dragged the pt_mkt_p median toward whichever book happened to duplicate:
+    # 82 of 153 priced skaters were affected, one showing "8 books" against a 7-book universe.
+    ptbest = defaultdict(dict)
     ptpair = defaultdict(dict)
     for q in pts:
         if abs(float(q.get("line") or -1) - 0.5) > 1e-9 or q.get("price") is None:
             continue
         # the OVER side at MA-legal books is what gets bet and shopped
         if q.get("side") == "over" and q.get("bettable"):
-            ptq[q["pn"]].append((q["price"], q["book"]))
+            cur = ptbest[q["pn"]].get(q["book"])
+            if cur is None or q["price"] > cur:
+                ptbest[q["pn"]][q["book"]] = q["price"]
         # both sides at ANY book feed the de-vig, which is a fair-value question, not a
         # where-to-bet question -- a book we cannot use still tells us where the true line sits
         if q.get("side") in ("over", "under"):
@@ -742,8 +756,10 @@ def main():
             f = devig2(a2p(sides["over"]), a2p(sides["under"]))
             if f:
                 ptfair[pn].append(f)
-    print("[cron] 1+ points: over quotes for %d skaters at bettable books, "
-          "two-way de-vig for %d" % (len(ptq), len(ptfair)))
+    ptq = {pn: [(px, bk) for bk, px in d.items()] for pn, d in ptbest.items()}
+    print("[cron] 1+ points: over quotes for %d skaters at bettable books (%d book-quotes after "
+          "de-duplicating the main/alternate overlap), two-way de-vig for %d"
+          % (len(ptq), sum(len(v) for v in ptq.values()), len(ptfair)))
 
     rows, unmatched = [], []
     for (eid, key), m in pr.items():
