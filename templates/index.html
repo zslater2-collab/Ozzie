@@ -401,10 +401,25 @@
       </div>
     </div>
     <div style="font-size:.62rem;color:var(--muted);margin:2px 0 10px;line-height:1.5" id="nhl-note"></div>
-    <div class="exp-tabs">
-      <div class="exp-tab active" id="nhl-tab-ALL" onclick="setNhlTab('ALL')">All</div>
-      <div class="exp-tab" id="nhl-tab-F" onclick="setNhlTab('F')">Forwards</div>
-      <div class="exp-tab" id="nhl-tab-D" onclick="setNhlTab('D')">Defense</div>
+    <div class="exp-tabs" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="display:flex">
+        <div class="exp-tab active" id="nhl-tab-ALL" onclick="setNhlTab('ALL')">All</div>
+        <div class="exp-tab" id="nhl-tab-F" onclick="setNhlTab('F')">Forwards</div>
+        <div class="exp-tab" id="nhl-tab-D" onclick="setNhlTab('D')">Defense</div>
+      </div>
+      <!-- MARKET toggle. Everything price-shaped follows it: the price column, the book filter,
+           the all-book columns, the boost column and EV. Switching market re-reads a different
+           set of per-book quotes (pt_book_prices vs book_prices), so a price on screen always
+           belongs to the market named here. -->
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:.58rem;color:var(--muted);letter-spacing:.04em">MARKET</span>
+        <div style="display:flex">
+          <div class="exp-tab active" id="nhl-mkt-PTS" onclick="setNhlMkt('PTS')"
+               title="1+ points (Over 0.5). Measured vig 3.43% a side, flat across every price band.">1+ Points</div>
+          <div class="exp-tab" id="nhl-mkt-GOAL" onclick="setNhlMkt('GOAL')"
+               title="Anytime goal. Carries a 21% relative tax on defensemen -- see the column tooltips.">Anytime Goal</div>
+        </div>
+      </div>
     </div>
     <div class="td-filters" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;font-size:.62rem;color:var(--muted)">
       <input id="nhl-search" type="text" placeholder="search player…" oninput="NHL_STATE.search=this.value.toLowerCase();renderNhlTable()"
@@ -1844,8 +1859,18 @@
 
   // -- NHL Anytime Goal-Scorer Board -----------------------------------
   let NHL_ROWS=[];
-  const NHL_STATE={tab:'ALL',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_p',dir:-1,book:'',boost:0,pmin:null,pmax:null,
+  // mkt defaults to PTS: 1+ points is the market actually bet, and anytime goal is the board's
+  // legacy market. sort defaults to the points projection to match.
+  const NHL_STATE={tab:'ALL',mkt:'PTS',search:'',team:'',game:'',softOnly:false,showThin:false,sort:'model_pt',dir:-1,book:'',boost:0,pmin:null,pmax:null,
                    dates:[],times:[],hidePast:true,gapMax:null,allBooks:false};
+  // which row fields each market reads. Adding a market means adding an entry here, not threading
+  // another boolean through every filter and column.
+  const NHL_MKT={
+    PTS:  {field:'pt_book_prices', model:'model_pt', price:'pt_price', book:'pt_book',
+           mkt:'pt_mkt_p', fair:'pt_fair', edge:'pt_edge', label:'1+ points', short:'Pts'},
+    GOAL: {field:'book_prices',    model:'model_p',  price:'best_price', book:'best_book',
+           mkt:'mkt_p', fair:null, edge:'edge', label:'anytime goal', short:'Goal'}
+  };
   const NHL_COLS=[
     {k:'player',t:'Player',l:1,v:r=>(r.player||'').toLowerCase()},
     {k:'pos',t:'Pos',l:1,v:r=>r.pos||''},
@@ -1865,28 +1890,34 @@
      f:r=>r.opp_pen60==null?'—':(+r.opp_pen60).toFixed(2),
      d:'Penalties the OPPONENT takes per 60 (prior season) = how often this skater should get a power play. Penalty volume tested real but unpriced-and-too-small to clear the vig, so it is colour, not a signal'},
     {k:'implied_total',t:'Tm Tot',l:0,v:r=>r.implied_total??-1},
-    // --- 1+ POINTS: the market actually bet. Goals are the board's legacy market; a defenseman
-    // scores 7.0% of the time and records a point 28.0%, and the points market charges 3.43% a
-    // side (flat across every price band) against a 21% relative tax on D anytime-goal.
+  ];
+  // Market-specific columns. Only the ACTIVE market's price block is rendered, so a price on
+  // screen can never belong to the market you are not looking at -- the single easiest way to
+  // misread this table was having both on at once.
+  const NHL_COLS_PTS=[
     {k:'model_pt',t:'Pts Model',l:0,v:r=>r.model_pt??-1,
-     f:r=>r.model_pt==null?'—':(r.model_pt*100).toFixed(0)+'%',
-     d:"Projected P(1+ point) = point_share x (team total x 2.685 points per goal). Validated leak-free on 2026-10-01..11-02: defensemen predicted .2789 vs actual .2799, quintiles .142 to .538, AUC .690 — which BEATS ranking by goal expectation (.649) because a D's point is mostly 'my team scored while I was out there', i.e. power-play time, not his own shooting. Forwards carry a fitted 1.22 lambda multiplier (tested out-of-sample, +0.7pp). No graded PRICE history yet, so this is a projection, not a measured edge"},
-    {k:'pt_price',t:'Pts Price',l:0,v:r=>r.pt_price??-99999,
-     f:r=>r.pt_price==null?'—':fmtOdds(r.pt_price),
-     d:'Best 1+ points (Over 0.5) price across MA-legal books. Only the over, only the 0.5 line'},
+     d:"Projected P(1+ point) = point_share x (team total x 2.685 points per goal). Validated leak-free on 2026-10-01..11-02: defensemen predicted .2789 vs actual .2799, quintiles .142 to .538, AUC .690 — which BEATS ranking by goal expectation (.649) and by PP minutes (.683), because a D's point is mostly 'my team scored while I was out there', i.e. power-play time, not his own shooting. Forwards carry a fitted 1.22 multiplier (tested out-of-sample, +0.7pp). Use it to RANK; it has no graded price history yet"},
+    {k:'pt_fair',t:'Pts Fair',l:0,v:r=>r.pt_fair??-1,
+     d:'The market with the vig taken OUT: median two-way de-vigged probability across books quoting both sides of Over 0.5 (falling back to the measured flat 3.43% a side). This, not Pts Mkt, is what Pts Model should be compared against'},
     {k:'pt_mkt_p',t:'Pts Mkt',l:0,v:r=>r.pt_mkt_p??-1,
-     f:r=>r.pt_mkt_p==null?'—':(r.pt_mkt_p*100).toFixed(0)+'%',
-     d:'Median implied probability across the books quoting 1+ points. Includes vig (measured 3.43% a side), so it sits ABOVE the fair number'},
+     d:'Median implied probability across books quoting 1+ points, vig INCLUDED — i.e. the price you actually pay. Always above Pts Fair'},
+    {k:'pt_price',t:'Pts Price',l:0,v:r=>r.pt_price??-99999,
+     d:'Best Over 0.5 points price across MA-legal books'},
     {k:'pt_edge',t:'Pts Edge',l:0,v:r=>r.pt_edge??-99,
-     f:r=>r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp'),
-     d:"Pts Model minus Pts Mkt. NOT a validated edge — the points capture only begins 2026-11-02, so no cell has a graded ROI yet. Mostly negative is the correct and expected reading: the books price role defensemen well. Watch nhl_points_perf.json as graded legs accumulate"},
+     d:"Pts Model minus Pts FAIR, so a positive number means the projection beats the de-vigged market — not merely the vigged price. Still NOT a validated edge: the points capture only begins 2026-11-02 and no cell has a graded ROI yet. Small numbers either way are the expected reading; the books price role defensemen well. Watch nhl_points_perf.json as graded legs land"},
+  ];
+  const NHL_COLS_GOAL=[
     {k:'model_p',t:'Model P',l:0,v:r=>r.model_p??-1},
     {k:'mkt_p',t:'Mkt P',l:0,v:r=>r.mkt_p??-1},
     {k:'best_price',t:'Best price',l:0,v:r=>r.best_price??-99999},
     {k:'shop_gain',t:'Shop',l:0,v:r=>r.shop_gain??-1,
      d:'Probability points gained by taking the BEST price instead of the market average. An EXECUTION metric: it says how much the wrong book would cost, NOT whether the bet is good. Sorting by it and betting the top rows is the worst use of this board (tested: 5-15% hit rate, heavily negative) because book disagreement is widest on deep longshots. Pick on Model P, then use this to place it.'},
     {k:'edge',t:'Edge',l:0,v:r=>r.edge??-99},
-    // book-pinned columns -- only rendered once a book is selected
+  ];
+  // Book-pinned columns, shared by both markets: bbApply fills bk_* from whichever market's
+  // per-book quotes are active, so these need no market of their own. Rendered only once a
+  // book is selected.
+  const NHL_COLS_BK=[
     {k:'bk_price',t:'Bk',l:0,bb:1,v:r=>r.bk_price??-99999},
     {k:'bk_gap',t:'vs best',l:0,bb:1,v:r=>r.bk_gap??99},
     {k:'bk_boost',t:'Boosted',l:0,bb:1,v:r=>r.bk_boost??-99999},
@@ -1895,6 +1926,21 @@
   function setNhlTab(t){
     NHL_STATE.tab=t;
     ['ALL','F','D'].forEach(x=>{const el=document.getElementById('nhl-tab-'+x);if(el)el.classList.toggle('active',x===t);});
+    renderNhlTable();
+  }
+  function setNhlMkt(m){
+    NHL_STATE.mkt=m;
+    ['PTS','GOAL'].forEach(x=>{const el=document.getElementById('nhl-mkt-'+x);if(el)el.classList.toggle('active',x===m);});
+    // the price filter is in american odds, which do not mean the same thing across markets
+    // (a top D is +800 to score and -250 to get a point), so clear it rather than silently
+    // applying a goal-shaped range to points
+    NHL_STATE.pmin=NHL_STATE.pmax=null;
+    const lo=document.getElementById('nhl-pmin'), hi=document.getElementById('nhl-pmax');
+    if(lo)lo.value=''; if(hi)hi.value='';
+    // keep the sort meaningful: if it pointed at the other market's column, move it
+    const other=m==='PTS'?NHL_MKT.GOAL:NHL_MKT.PTS, mine=NHL_MKT[m];
+    if([other.model,other.price,other.mkt,other.edge,'shop_gain'].includes(NHL_STATE.sort))
+      NHL_STATE.sort=mine.model;
     renderNhlTable();
   }
   function setNhlSort(k){ if(NHL_STATE.sort===k)NHL_STATE.dir*=-1; else{NHL_STATE.sort=k;NHL_STATE.dir=(k==='player'||k==='pos')?1:-1;} renderNhlTable(); }
@@ -1946,24 +1992,31 @@
   }
   function renderNhlTable(){
     const s=NHL_STATE, q=s.search.trim(), _nhlNow=Date.now();
-    bbApply(NHL_ROWS,'book_prices',s.book,s.boost,'model_p',1);
-    let rows=NHL_ROWS.filter(r=>r.mkt_p!=null
+    const M=NHL_MKT[s.mkt]||NHL_MKT.PTS, PT=s.mkt==='PTS';
+    bbApply(NHL_ROWS,M.field,s.book,s.boost,M.model,1);
+    // the active market's own best price, and whether that best sits at a price-leading book
+    NHL_ROWS.forEach(r=>{ r._px=r[M.price]??null;
+      r._soft=PT?(r.pt_book?['draftkings','fanduel'].includes(r.pt_book):false):!!r.soft_best; });
+    let rows=NHL_ROWS.filter(r=>r[M.mkt]!=null && r._px!=null
       && (!s.hidePast || !r.commence || _nhlMs(r.commence)>_nhlNow)
       && (!s.dates.length || !r.commence || s.dates.includes(_nhlDateKey(r.commence)))
       && (!s.times.length || !r.commence || s.times.includes(''+_nhlMs(r.commence)))
       && (s.showThin || !r.thin)
       && (s.tab==='ALL' || (s.tab==='D' ? r.pos==='D' : r.pos!=='D'))
-      && (!s.softOnly || r.soft_best)
+      && (!s.softOnly || r._soft)
       && (!s.team || r.team===s.team)
       && (!s.game || r.game===s.game)
       && (!s.book || r.bk_price!=null)
       && (s.gapMax==null || !s.book || (r.bk_gap!=null && r.bk_gap<=s.gapMax))
-      && (s.pmin==null || (r.best_price!=null && r.best_price>=s.pmin))
-      && (s.pmax==null || (r.best_price!=null && r.best_price<=s.pmax))
+      && (s.pmin==null || r._px>=s.pmin)
+      && (s.pmax==null || r._px<=s.pmax)
       && (!q || (r.player||'').toLowerCase().includes(q)));
-    const abBooks=s.allBooks?bbBooksIn(NHL_ROWS,'book_prices'):[];
-    const NC=NHL_COLS.filter(c=>!c.bb||s.book).concat(bbBookCols(abBooks));
-    const col=NC.find(c=>c.k===s.sort)||NHL_COLS[6];
+    const abBooks=s.allBooks?bbBooksIn(NHL_ROWS,M.field):[];
+    const NC=NHL_COLS
+      .concat(PT?NHL_COLS_PTS:NHL_COLS_GOAL)
+      .concat(s.book?NHL_COLS_BK:[])
+      .concat(bbBookCols(abBooks));
+    const col=NC.find(c=>c.k===s.sort)||NC.find(c=>c.k===M.model)||NC[0];
     rows.sort((a,b)=>{const x=col.v(a),y=col.v(b); return (x<y?-1:x>y?1:0)*s.dir;});
     document.getElementById('nhl-tablecount').textContent=rows.length+' skaters';
     document.getElementById('nhl-thead').innerHTML='<tr>'+NC.map(c=>
@@ -1985,6 +2038,12 @@
       const pen=r.opp_pen60==null?'—':(+r.opp_pen60).toFixed(2);
       const penCol=r.opp_pen60==null?'var(--muted)'
                    :(r.opp_pen60>=4.0?'#39d353':(r.opp_pen60<=3.3?'#ff6b3d':'var(--muted)'));
+      // Pts Edge is measured against pt_fair (vig removed), so 0 is genuinely neutral and the
+      // shading can be symmetric. Against the vigged median it would have been red almost always.
+      const ptEdge=r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp');
+      const ptEdgeCol=r.pt_edge==null?'var(--muted)'
+                      :(r.pt_edge>=0.03?'#39d353':(r.pt_edge<=-0.03?'#ff6b3d':'var(--muted)'));
+      const ptBkHtml=r.pt_book?`<span style="color:var(--muted);font-size:.9em" title="${r.pt_books||1} book${(r.pt_books||1)>1?'s':''} quoting 1+ points">${bookName(r.pt_book)}</span>`:'';
       const bk=bookName(r.best_book);
       const bkHtml=r.soft_best?`<span style="color:var(--muted);font-size:.9em">${bk}</span>`
                               :`<span style="color:var(--muted);font-size:.9em" title="not a price leader — check DK/FD">${bk}</span>`;
@@ -1998,15 +2057,21 @@
         `<td style="color:${gsvCol}">${gsv}</td>`+
         `<td style="color:${penCol}">${pen}</td>`+
         `<td>${r.implied_total!=null?r.implied_total.toFixed(2):'—'}</td>`+
-        `<td style="font-weight:600">${r.model_pt!=null?(r.model_pt*100).toFixed(0)+'%':'—'}</td>`+
-        `<td>${r.pt_price!=null?fmtOdds(r.pt_price):'—'}${r.pt_books>1?`<span style="color:var(--muted);font-size:.85em" title="${r.pt_books} books quoting"> ${bookName(r.pt_book)}</span>`:(r.pt_book?`<span style="color:var(--muted);font-size:.85em" title="only book quoting 1+ points"> ${bookName(r.pt_book)}</span>`:'')}</td>`+
-        `<td style="color:var(--muted)">${r.pt_mkt_p!=null?(r.pt_mkt_p*100).toFixed(0)+'%':'—'}</td>`+
-        `<td style="color:${r.pt_edge==null?'var(--muted)':(r.pt_edge>=0.05?'#39d353':(r.pt_edge<=-0.05?'#ff6b3d':'var(--muted)'))}">${r.pt_edge==null?'—':((r.pt_edge>0?'+':'')+(r.pt_edge*100).toFixed(0)+'pp')}</td>`+
-        `<td>${r.model_p!=null?(r.model_p*100).toFixed(0)+'%':'—'}</td>`+
-        `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+
-        `<td>${fmtOdds(r.best_price)} ${bkHtml}</td>`+
-        `<td style="color:var(--muted)">${shop}</td>`+
-        `<td style="color:var(--muted)">${edge}</td>`+
+        (PT?(
+          // 1+ POINTS: Model | Fair | Mkt | Price | Edge  (matches NHL_COLS_PTS)
+          `<td style="font-weight:600">${r.model_pt!=null?(r.model_pt*100).toFixed(0)+'%':'—'}</td>`+
+          `<td>${r.pt_fair!=null?(r.pt_fair*100).toFixed(0)+'%':'—'}</td>`+
+          `<td style="color:var(--muted)">${r.pt_mkt_p!=null?(r.pt_mkt_p*100).toFixed(0)+'%':'—'}</td>`+
+          `<td>${r.pt_price!=null?fmtOdds(r.pt_price):'—'} ${ptBkHtml}</td>`+
+          `<td style="color:${ptEdgeCol}">${ptEdge}</td>`
+        ):(
+          // ANYTIME GOAL: Model | Mkt | Best price | Shop | Edge  (matches NHL_COLS_GOAL)
+          `<td>${r.model_p!=null?(r.model_p*100).toFixed(0)+'%':'—'}</td>`+
+          `<td>${r.mkt_p!=null?(r.mkt_p*100).toFixed(0)+'%':'—'}</td>`+
+          `<td>${fmtOdds(r.best_price)} ${bkHtml}</td>`+
+          `<td style="color:var(--muted)">${shop}</td>`+
+          `<td style="color:var(--muted)">${edge}</td>`
+        ))+
         (s.book?(
           `<td>${fmtOdds(r.bk_price)}</td>`+
           `<td style="color:${bbGapCol(r.bk_gap)}">${bbBestLabel(r)}</td>`+

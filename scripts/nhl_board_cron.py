@@ -721,13 +721,29 @@ def main():
     # that is actually bet. Only the 0.5 line, only the OVER, only MA-legal books (an unbettable
     # best price is noise when the point of the column is where to place the leg).
     ptq = defaultdict(list)
+    ptpair = defaultdict(dict)
     for q in pts:
-        if abs(float(q.get("line") or -1) - 0.5) > 1e-9 or q.get("side") != "over":
+        if abs(float(q.get("line") or -1) - 0.5) > 1e-9 or q.get("price") is None:
             continue
-        if q.get("price") is None or not q.get("bettable"):
-            continue
-        ptq[q["pn"]].append((q["price"], q["book"]))
-    print("[cron] 1+ points: 0.5-line over quotes for %d skaters at bettable books" % len(ptq))
+        # the OVER side at MA-legal books is what gets bet and shopped
+        if q.get("side") == "over" and q.get("bettable"):
+            ptq[q["pn"]].append((q["price"], q["book"]))
+        # both sides at ANY book feed the de-vig, which is a fair-value question, not a
+        # where-to-bet question -- a book we cannot use still tells us where the true line sits
+        if q.get("side") in ("over", "under"):
+            ptpair[(q["pn"], q["book"])][q["side"]] = q["price"]
+    # pt_fair = median two-way de-vigged P(1+ point) across every book quoting BOTH sides. This is
+    # the number model_pt must be compared against: pt_mkt_p is the raw median implied and so
+    # carries the vig, which made the old pt_edge negative by construction (the measured overround
+    # is 6.9% two-way = 3.43% a side, flat across every price band).
+    ptfair = defaultdict(list)
+    for (pn, _bk), sides in ptpair.items():
+        if "over" in sides and "under" in sides:
+            f = devig2(a2p(sides["over"]), a2p(sides["under"]))
+            if f:
+                ptfair[pn].append(f)
+    print("[cron] 1+ points: over quotes for %d skaters at bettable books, "
+          "two-way de-vig for %d" % (len(ptq), len(ptfair)))
 
     rows, unmatched = [], []
     for (eid, key), m in pr.items():
@@ -755,13 +771,20 @@ def main():
                       * PT_K["D" if p["pos"] == "D" else "F"])
             model_pt = 1.0 - math.exp(-lam_pt)
         pq = ptq.get(key) or []
-        pt_best, pt_book, pt_mkt, pt_books = None, None, None, 0
+        pt_best, pt_book, pt_mkt, pt_books, pt_fair = None, None, None, 0, None
         if pq:
             pt_best, pt_book = max(pq, key=lambda t: t[0])
             _pp = sorted(a2p(x) for x, _ in pq)
             _n = len(_pp)
             pt_mkt = _pp[_n // 2] if _n % 2 else (_pp[_n // 2 - 1] + _pp[_n // 2]) / 2
             pt_books = _n
+            _fv = sorted(ptfair.get(key) or [])
+            if _fv:
+                _m = len(_fv)
+                pt_fair = _fv[_m // 2] if _m % 2 else (_fv[_m // 2 - 1] + _fv[_m // 2]) / 2
+            else:
+                # no book posted both sides -> fall back to the measured flat per-side overround
+                pt_fair = pt_mkt / 1.0343
         prices = [(x, bk) for x, bk in m["q"] if x is not None]
         if not prices:
             continue
@@ -791,9 +814,12 @@ def main():
             "model_pt": None if model_pt is None else round(model_pt, 4),
             "pt_price": pt_best, "pt_book": pt_book,
             "pt_mkt_p": None if pt_mkt is None else round(pt_mkt, 4),
+            "pt_fair": None if pt_fair is None else round(pt_fair, 4),
             "pt_books": pt_books,
-            "pt_edge": (None if (model_pt is None or pt_mkt is None)
-                        else round(model_pt - pt_mkt, 4)),
+            # vs FAIR, not vs the vigged median: an edge measured against the price you pay is
+            # guaranteed negative and tells you nothing about the projection
+            "pt_edge": (None if (model_pt is None or pt_fair is None)
+                        else round(model_pt - pt_fair, 4)),
             "pt_book_prices": sorted(
                 [{"book": bk, "price": x, "best": x == pt_best,
                   "bettable": True} for x, bk in pq], key=lambda d: -d["price"]),

@@ -263,10 +263,23 @@ def report(log):
         "cells": {},
     }
 
+    # Rows are CLUSTERED BY GAME: every skater in one game shares its scoring environment, so 27
+    # rows from a single low-scoring game are nowhere near 27 independent observations. The first
+    # run of this report showed hit .111 against a .423 price and a -63.7% ROI drawn from ONE late
+    # game -- a reading that means nothing. Gate on distinct GAME-DATES, not on row count, and
+    # never print an ROI until a cell spans enough separate games to carry one.
+    MIN_ROWS, MIN_GAMES = 50, 12
+
     def cell(rows, label):
         rows = [r for r in rows if fnum(r.get("pt_price")) is not None]
-        if len(rows) < 10:
-            out["cells"][label] = {"n": len(rows), "status": "too thin to report"}
+        games = {(r.get("gameDate"), r.get("game")) for r in rows}
+        dates = {r.get("gameDate") for r in rows}
+        if len(rows) < MIN_ROWS or len(games) < MIN_GAMES:
+            out["cells"][label] = {
+                "n": len(rows), "n_games": len(games), "n_dates": len(dates),
+                "status": ("too thin to report -- needs %d+ rows across %d+ games; rows are "
+                           "clustered by game, so a row count alone overstates the sample"
+                           % (MIN_ROWS, MIN_GAMES))}
             return
         n = len(rows)
         wins = sum(int(r["y_point"]) for r in rows)
@@ -274,7 +287,8 @@ def report(log):
         m = ret / n + 1.0
         p = wins / float(n)
         out["cells"][label] = {
-            "n": n, "wins": wins, "hit": round(p, 4),
+            "n": n, "n_games": len(games), "n_dates": len(dates),
+            "wins": wins, "hit": round(p, 4),
             "projected": round(sum(fnum(r["model_pt"]) for r in rows) / n, 4),
             "priced": round(sum(a2p(fnum(r["pt_price"])) for r in rows) / n, 4),
             "roi": round(100.0 * (m - 1.0), 2),
@@ -304,13 +318,14 @@ def report(log):
 
     json.dump(out, open(PERF, "w"), indent=1)
     print("[pts] wrote %s" % PERF)
+    print("   (clustered by game: a cell needs %d+ rows across %d+ games before an ROI prints)"
+          % (MIN_ROWS, MIN_GAMES))
     for k, v in out["cells"].items():
         if v.get("status"):
-            print("   %-46s n=%4d  %s" % (k, v["n"], v["status"]))
+            print("   %-46s n=%4d games=%3d  too thin" % (k, v["n"], v.get("n_games", 0)))
         else:
-            print("   %-46s n=%4d hit %.3f proj %.3f priced %.3f  ROI %+6.1f%%  5-leg %s%%"
-                  % (k, v["n"], v["hit"], v["projected"], v["priced"], v["roi"],
-                     v["breakeven_boost_pct"]["5"]))
+            print("   %-46s n=%4d games=%3d hit %.3f proj %.3f priced %.3f  ROI %+6.1f%%"
+                  % (k, v["n"], v["n_games"], v["hit"], v["projected"], v["priced"], v["roi"]))
 
 
 def main():
