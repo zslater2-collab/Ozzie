@@ -1,8 +1,8 @@
 {
  "meta": {
-  "generated": "2026-11-05 00:56Z",
-  "n_rows": 100,
-  "n_fights": 50,
+  "generated": "2026-11-05 20:19Z",
+  "n_rows": 102,
+  "n_fights": 51,
   "n_cards": 11,
   "books": [
    "ballybet",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "95973",
+  "credits_left": "95477",
   "sports": [
    "Boxing",
    "MMA"
@@ -20,6 +20,66 @@
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
+  {
+   "sport": "MMA",
+   "fighter": "Magomed Magomedov",
+   "opponent": "Lucas Gabriel",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T02:00:00Z",
+   "is_main": false,
+   "best_price": -122,
+   "best_book": "fanduel",
+   "worst_price": -122,
+   "n_books": 1,
+   "fair_p": 0.5236,
+   "mkt_p": 0.5495,
+   "ev_best": -4.72,
+   "shop_gain": 0.0,
+   "hedge_price": 100,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0495,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -122,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Lucas Gabriel",
+   "opponent": "Magomed Magomedov",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T02:00:00Z",
+   "is_main": false,
+   "best_price": 100,
+   "best_book": "fanduel",
+   "worst_price": 100,
+   "n_books": 1,
+   "fair_p": 0.4764,
+   "mkt_p": 0.5,
+   "ev_best": -4.72,
+   "shop_gain": 0.0,
+   "hedge_price": -122,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0495,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 100,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
   {
    "sport": "Boxing",
    "fighter": "Tumi Phillips",
@@ -142,71 +202,29 @@
   },
   {
    "sport": "Boxing",
-   "fighter": "Sam Hickey",
-   "opponent": "Troy Coleman",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T16:30:00Z",
-   "is_main": false,
-   "best_price": -1200,
-   "best_book": "draftkings",
-   "worst_price": -1600,
-   "n_books": 3,
-   "fair_p": 0.8753,
-   "mkt_p": 0.9231,
-   "ev_best": -5.18,
-   "shop_gain": 0.0181,
-   "hedge_price": 750,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0407,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -1200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -1450,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -1600,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
    "fighter": "Masood Abdulah",
    "opponent": "Adan Palma",
    "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
    "card_date": "2026-11-07",
    "commence": "2026-11-07T16:30:00Z",
    "is_main": false,
-   "best_price": -250,
+   "best_price": -225,
    "best_book": "espnbet",
    "worst_price": -260,
    "n_books": 3,
    "fair_p": 0.6753,
-   "mkt_p": 0.7143,
-   "ev_best": -5.45,
-   "shop_gain": 0.0079,
+   "mkt_p": 0.6923,
+   "ev_best": -2.45,
+   "shop_gain": 0.0299,
    "hedge_price": 200,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0476,
+   "combined_hold": 0.0256,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": -250,
+     "price": -225,
      "best": true,
      "bettable": true
     },
@@ -234,15 +252,15 @@
    "is_main": false,
    "best_price": 200,
    "best_book": "draftkings",
-   "worst_price": 188,
+   "worst_price": 175,
    "n_books": 3,
    "fair_p": 0.3247,
    "mkt_p": 0.3333,
    "ev_best": -2.6,
-   "shop_gain": 0.0139,
-   "hedge_price": -250,
+   "shop_gain": 0.0303,
+   "hedge_price": -225,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0476,
+   "combined_hold": 0.0256,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -253,56 +271,14 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 188,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Troy Coleman",
-   "opponent": "Sam Hickey",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T16:30:00Z",
-   "is_main": false,
-   "best_price": 750,
-   "best_book": "espnbet",
-   "worst_price": 650,
-   "n_books": 3,
-   "fair_p": 0.1247,
-   "mkt_p": 0.1176,
-   "ev_best": 6.04,
-   "shop_gain": 0.0157,
-   "hedge_price": -1200,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0407,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
+    },
     {
      "book": "espnbet",
-     "price": 750,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 650,
+     "price": 175,
      "best": false,
      "bettable": true
     }
@@ -316,34 +292,34 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T18:00:00Z",
    "is_main": false,
-   "best_price": -330,
-   "best_book": "fanduel",
+   "best_price": -300,
+   "best_book": "espnbet",
    "worst_price": -350,
    "n_books": 3,
-   "fair_p": 0.7368,
-   "mkt_p": 0.7674,
-   "ev_best": -3.99,
-   "shop_gain": 0.0103,
+   "fair_p": 0.7169,
+   "mkt_p": 0.75,
+   "ev_best": -4.41,
+   "shop_gain": 0.0278,
    "hedge_price": 260,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0452,
+   "combined_hold": 0.0278,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -330,
+     "book": "espnbet",
+     "price": -300,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -350,
+     "book": "fanduel",
+     "price": -330,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "draftkings",
      "price": -350,
      "best": false,
      "bettable": true
@@ -360,15 +336,15 @@
    "is_main": false,
    "best_price": 260,
    "best_book": "draftkings",
-   "worst_price": 230,
+   "worst_price": 225,
    "n_books": 3,
-   "fair_p": 0.2632,
+   "fair_p": 0.2831,
    "mkt_p": 0.2778,
-   "ev_best": -5.26,
-   "shop_gain": 0.0253,
-   "hedge_price": -330,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0452,
+   "ev_best": 1.91,
+   "shop_gain": 0.0299,
+   "hedge_price": -300,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0278,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -379,14 +355,14 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 260,
-     "best": true,
+     "book": "fanduel",
+     "price": 230,
+     "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 230,
+     "book": "espnbet",
+     "price": 225,
      "best": false,
      "bettable": true
     }
@@ -402,15 +378,15 @@
    "is_main": false,
    "best_price": -2000,
    "best_book": "draftkings",
-   "worst_price": -2500,
-   "n_books": 2,
-   "fair_p": 0.9074,
+   "worst_price": -3300,
+   "n_books": 3,
+   "fair_p": 0.905,
    "mkt_p": 0.9524,
-   "ev_best": -4.72,
-   "shop_gain": 0.0092,
-   "hedge_price": 950,
+   "ev_best": -4.98,
+   "shop_gain": 0.0182,
+   "hedge_price": 1100,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0476,
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -421,8 +397,14 @@
      "bettable": true
     },
     {
+     "book": "fanduel",
+     "price": -2400,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "espnbet",
-     "price": -2500,
+     "price": -3300,
      "best": false,
      "bettable": true
     }
@@ -436,29 +418,35 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T19:05:00Z",
    "is_main": false,
-   "best_price": 950,
+   "best_price": 1100,
    "best_book": "espnbet",
-   "worst_price": 900,
-   "n_books": 2,
-   "fair_p": 0.0926,
-   "mkt_p": 0.0952,
-   "ev_best": -2.8,
-   "shop_gain": 0.0048,
+   "worst_price": 810,
+   "n_books": 3,
+   "fair_p": 0.095,
+   "mkt_p": 0.0833,
+   "ev_best": 14.03,
+   "shop_gain": 0.0266,
    "hedge_price": -2000,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0476,
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 950,
+     "price": 1100,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 810,
      "best": false,
      "bettable": true
     }
@@ -474,16 +462,16 @@
    "is_main": false,
    "best_price": -1400,
    "best_book": "draftkings",
-   "worst_price": -2500,
-   "n_books": 2,
-   "fair_p": 0.899,
+   "worst_price": -3300,
+   "n_books": 3,
+   "fair_p": 0.8881,
    "mkt_p": 0.9333,
-   "ev_best": -3.68,
-   "shop_gain": 0.0282,
-   "hedge_price": 950,
+   "ev_best": -4.85,
+   "shop_gain": 0.0373,
+   "hedge_price": 1100,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0286,
-   "low_hold": false,
+   "combined_hold": 0.0167,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -493,8 +481,14 @@
      "bettable": true
     },
     {
+     "book": "fanduel",
+     "price": -1800,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "espnbet",
-     "price": -2500,
+     "price": -3300,
      "best": false,
      "bettable": true
     }
@@ -508,29 +502,107 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T19:40:00Z",
    "is_main": false,
-   "best_price": 950,
+   "best_price": 1100,
    "best_book": "espnbet",
-   "worst_price": 750,
-   "n_books": 2,
-   "fair_p": 0.101,
-   "mkt_p": 0.0952,
-   "ev_best": 6.08,
-   "shop_gain": 0.0224,
+   "worst_price": 720,
+   "n_books": 3,
+   "fair_p": 0.1119,
+   "mkt_p": 0.0833,
+   "ev_best": 34.33,
+   "shop_gain": 0.0386,
    "hedge_price": -1400,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0286,
-   "low_hold": false,
+   "combined_hold": 0.0167,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 950,
+     "price": 1100,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 720,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Sam Hickey",
+   "opponent": "Troy Coleman",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T19:50:00Z",
+   "is_main": false,
+   "best_price": -1200,
+   "best_book": "draftkings",
+   "worst_price": -1600,
+   "n_books": 2,
+   "fair_p": 0.8813,
+   "mkt_p": 0.9231,
+   "ev_best": -4.52,
+   "shop_gain": 0.0181,
+   "hedge_price": 750,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0407,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -1600,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Troy Coleman",
+   "opponent": "Sam Hickey",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T19:50:00Z",
+   "is_main": false,
+   "best_price": 750,
+   "best_book": "espnbet",
+   "worst_price": 650,
+   "n_books": 2,
+   "fair_p": 0.1187,
+   "mkt_p": 0.1176,
+   "ev_best": 0.86,
+   "shop_gain": 0.0157,
+   "hedge_price": -1200,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0407,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
      "best": false,
      "bettable": true
     }
@@ -544,29 +616,29 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T20:00:00Z",
    "is_main": false,
-   "best_price": -176,
-   "best_book": "fanduel",
+   "best_price": -170,
+   "best_book": "espnbet",
    "worst_price": -190,
    "n_books": 3,
-   "fair_p": 0.6067,
-   "mkt_p": 0.6377,
-   "ev_best": -4.85,
-   "shop_gain": 0.0175,
+   "fair_p": 0.5967,
+   "mkt_p": 0.6296,
+   "ev_best": -5.23,
+   "shop_gain": 0.0255,
    "hedge_price": 150,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0377,
+   "combined_hold": 0.0296,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -176,
+     "book": "espnbet",
+     "price": -170,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -180,
+     "book": "fanduel",
+     "price": -176,
      "best": false,
      "bettable": true
     },
@@ -590,13 +662,13 @@
    "best_book": "draftkings",
    "worst_price": 130,
    "n_books": 3,
-   "fair_p": 0.3933,
+   "fair_p": 0.4033,
    "mkt_p": 0.4,
-   "ev_best": -1.69,
+   "ev_best": 0.82,
    "shop_gain": 0.0348,
-   "hedge_price": -176,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0377,
+   "hedge_price": -170,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0296,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -608,7 +680,7 @@
     },
     {
      "book": "espnbet",
-     "price": 140,
+     "price": 135,
      "best": false,
      "bettable": true
     },
@@ -628,23 +700,23 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T20:45:00Z",
    "is_main": false,
-   "best_price": -8000,
+   "best_price": -6000,
    "best_book": "fanduel",
    "worst_price": -10000,
    "n_books": 2,
-   "fair_p": 0.9479,
-   "mkt_p": 0.9877,
-   "ev_best": -4.03,
-   "shop_gain": 0.0024,
+   "fair_p": 0.9469,
+   "mkt_p": 0.9836,
+   "ev_best": -3.73,
+   "shop_gain": 0.0065,
    "hedge_price": 1900,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0377,
+   "combined_hold": 0.0336,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -8000,
+     "price": -6000,
      "best": true,
      "bettable": true
     },
@@ -666,15 +738,15 @@
    "is_main": false,
    "best_price": 1900,
    "best_book": "draftkings",
-   "worst_price": 1600,
+   "worst_price": 1550,
    "n_books": 2,
-   "fair_p": 0.0521,
+   "fair_p": 0.0531,
    "mkt_p": 0.05,
-   "ev_best": 4.28,
-   "shop_gain": 0.0088,
-   "hedge_price": -8000,
+   "ev_best": 6.11,
+   "shop_gain": 0.0106,
+   "hedge_price": -6000,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0377,
+   "combined_hold": 0.0336,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -686,7 +758,7 @@
     },
     {
      "book": "fanduel",
-     "price": 1600,
+     "price": 1550,
      "best": false,
      "bettable": true
     }
@@ -702,15 +774,15 @@
    "is_main": false,
    "best_price": -1200,
    "best_book": "draftkings",
-   "worst_price": -1200,
+   "worst_price": -1600,
    "n_books": 2,
-   "fair_p": 0.8738,
+   "fair_p": 0.8813,
    "mkt_p": 0.9231,
-   "ev_best": -5.34,
-   "shop_gain": 0.0,
-   "hedge_price": 650,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0564,
+   "ev_best": -4.52,
+   "shop_gain": 0.0181,
+   "hedge_price": 750,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0407,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -722,8 +794,8 @@
     },
     {
      "book": "espnbet",
-     "price": -1200,
-     "best": true,
+     "price": -1600,
+     "best": false,
      "bettable": true
     }
    ]
@@ -736,35 +808,35 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T21:00:00Z",
    "is_main": false,
-   "best_price": -150,
-   "best_book": "espnbet",
-   "worst_price": -156,
+   "best_price": -155,
+   "best_book": "draftkings",
+   "worst_price": -165,
    "n_books": 3,
-   "fair_p": 0.5772,
-   "mkt_p": 0.6,
-   "ev_best": -3.81,
-   "shop_gain": 0.0094,
-   "hedge_price": 125,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0444,
+   "fair_p": 0.5776,
+   "mkt_p": 0.6078,
+   "ev_best": -4.97,
+   "shop_gain": 0.0148,
+   "hedge_price": 130,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0426,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": -150,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": -155,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": -156,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -165,
      "best": false,
      "bettable": true
     }
@@ -862,35 +934,35 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T21:00:00Z",
    "is_main": false,
-   "best_price": 125,
-   "best_book": "draftkings",
-   "worst_price": 120,
+   "best_price": 130,
+   "best_book": "espnbet",
+   "worst_price": 124,
    "n_books": 3,
-   "fair_p": 0.4228,
-   "mkt_p": 0.4444,
-   "ev_best": -4.86,
-   "shop_gain": 0.0101,
-   "hedge_price": -150,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0444,
+   "fair_p": 0.4224,
+   "mkt_p": 0.4348,
+   "ev_best": -2.86,
+   "shop_gain": 0.0116,
+   "hedge_price": -155,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0426,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "espnbet",
+     "price": 130,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 125,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 124,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 120,
      "best": false,
      "bettable": true
     }
@@ -904,30 +976,1074 @@
    "card_date": "2026-11-07",
    "commence": "2026-11-07T21:00:00Z",
    "is_main": false,
-   "best_price": 650,
-   "best_book": "draftkings",
+   "best_price": 750,
+   "best_book": "espnbet",
    "worst_price": 650,
    "n_books": 2,
-   "fair_p": 0.1262,
-   "mkt_p": 0.1333,
-   "ev_best": -5.34,
-   "shop_gain": 0.0,
+   "fair_p": 0.1187,
+   "mkt_p": 0.1176,
+   "ev_best": 0.86,
+   "shop_gain": 0.0157,
    "hedge_price": -1200,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0564,
+   "combined_hold": 0.0407,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "espnbet",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 650,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Seok Hyun Ko",
+   "opponent": "Wellington Turman",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": -715,
+   "best_book": "ballybet",
+   "worst_price": -800,
+   "n_books": 5,
+   "fair_p": 0.8465,
+   "mkt_p": 0.8773,
+   "ev_best": -3.51,
+   "shop_gain": 0.0116,
+   "hedge_price": 550,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0311,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -715,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -800,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Chris Billam-Smith",
+   "opponent": "Cheavon Clarke",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": true,
+   "best_price": -400,
+   "best_book": "fanduel",
+   "worst_price": -475,
+   "n_books": 3,
+   "fair_p": 0.7746,
+   "mkt_p": 0.8,
+   "ev_best": -3.18,
+   "shop_gain": 0.0261,
+   "hedge_price": 340,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0273,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -400,
      "best": true,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": 650,
+     "price": -450,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -475,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Keiichiro Nakamura",
+   "opponent": "Ollie Schmid",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": -335,
+   "best_book": "ballybet",
+   "worst_price": -390,
+   "n_books": 5,
+   "fair_p": 0.7484,
+   "mkt_p": 0.7701,
+   "ev_best": -2.83,
+   "shop_gain": 0.0258,
+   "hedge_price": 285,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0299,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -335,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -350,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -360,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -360,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -390,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Karine Silva",
+   "opponent": "Gabriella Fernandes",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": -220,
+   "best_book": "ballybet",
+   "worst_price": -250,
+   "n_books": 5,
+   "fair_p": 0.669,
+   "mkt_p": 0.6875,
+   "ev_best": -2.69,
+   "shop_gain": 0.0268,
+   "hedge_price": 200,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0208,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -220,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Willy Hutchinson",
+   "opponent": "Joshua Buatsi",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": -120,
+   "best_book": "draftkings",
+   "worst_price": -150,
+   "n_books": 3,
+   "fair_p": 0.5412,
+   "mkt_p": 0.5455,
+   "ev_best": -0.78,
+   "shop_gain": 0.0545,
+   "hedge_price": 120,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -120,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -134,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -150,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jose Delano",
+   "opponent": "Murtazali Magomedov",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": -112,
+   "best_book": "ballybet",
+   "worst_price": -125,
+   "n_books": 5,
+   "fair_p": 0.5217,
+   "mkt_p": 0.5283,
+   "ev_best": -1.24,
+   "shop_gain": 0.0273,
+   "hedge_price": 105,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0161,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -112,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -118,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -125,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Murtazali Magomedov",
+   "opponent": "Jose Delano",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": 105,
+   "best_book": "williamhill_us",
+   "worst_price": -112,
+   "n_books": 5,
+   "fair_p": 0.4783,
+   "mkt_p": 0.4878,
+   "ev_best": -1.96,
+   "shop_gain": 0.0405,
+   "hedge_price": -112,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0161,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 105,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -112,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Joshua Buatsi",
+   "opponent": "Willy Hutchinson",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": 120,
+   "best_book": "espnbet",
+   "worst_price": -105,
+   "n_books": 3,
+   "fair_p": 0.4588,
+   "mkt_p": 0.4545,
+   "ev_best": 0.93,
+   "shop_gain": 0.0576,
+   "hedge_price": -120,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0,
+   "low_hold": true,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 120,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 106,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -105,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Gabriella Fernandes",
+   "opponent": "Karine Silva",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": 200,
+   "best_book": "betmgm",
+   "worst_price": 170,
+   "n_books": 5,
+   "fair_p": 0.331,
+   "mkt_p": 0.3333,
+   "ev_best": -0.7,
+   "shop_gain": 0.037,
+   "hedge_price": -220,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0208,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 172,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Ollie Schmid",
+   "opponent": "Keiichiro Nakamura",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": 285,
+   "best_book": "draftkings",
+   "worst_price": 250,
+   "n_books": 5,
+   "fair_p": 0.2516,
+   "mkt_p": 0.2597,
+   "ev_best": -3.12,
+   "shop_gain": 0.026,
+   "hedge_price": -335,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0299,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 285,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 280,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 280,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Cheavon Clarke",
+   "opponent": "Chris Billam-Smith",
+   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": true,
+   "best_price": 340,
+   "best_book": "draftkings",
+   "worst_price": 280,
+   "n_books": 3,
+   "fair_p": 0.2254,
+   "mkt_p": 0.2273,
+   "ev_best": -0.82,
+   "shop_gain": 0.0359,
+   "hedge_price": -400,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0273,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 280,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Wellington Turman",
+   "opponent": "Seok Hyun Ko",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:00:00Z",
+   "is_main": false,
+   "best_price": 550,
+   "best_book": "williamhill_us",
+   "worst_price": 475,
+   "n_books": 5,
+   "fair_p": 0.1535,
+   "mkt_p": 0.1538,
+   "ev_best": -0.23,
+   "shop_gain": 0.0201,
+   "hedge_price": -715,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0311,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 480,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jos\u00e9 Souza",
+   "opponent": "Jonny Parsons",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:05:00Z",
+   "is_main": false,
+   "best_price": -245,
+   "best_book": "fanduel",
+   "worst_price": -250,
+   "n_books": 2,
+   "fair_p": 0.6759,
+   "mkt_p": 0.7101,
+   "ev_best": -4.82,
+   "shop_gain": 0.0041,
+   "hedge_price": 200,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0435,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -245,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jonny Parsons",
+   "opponent": "Jos\u00e9 Souza",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:05:00Z",
+   "is_main": false,
+   "best_price": 200,
+   "best_book": "williamhill_us",
+   "worst_price": 186,
+   "n_books": 2,
+   "fair_p": 0.3241,
+   "mkt_p": 0.3333,
+   "ev_best": -2.78,
+   "shop_gain": 0.0163,
+   "hedge_price": -245,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0435,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 186,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jos\u00e9 Henrique",
+   "opponent": "Jonny Parsons",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:15:00Z",
+   "is_main": false,
+   "best_price": -225,
+   "best_book": "draftkings",
+   "worst_price": -240,
+   "n_books": 2,
+   "fair_p": 0.667,
+   "mkt_p": 0.6923,
+   "ev_best": -3.66,
+   "shop_gain": 0.0136,
+   "hedge_price": 188,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0395,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -225,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -240,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jonny Parsons",
+   "opponent": "Jos\u00e9 Henrique",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:15:00Z",
+   "is_main": false,
+   "best_price": 188,
+   "best_book": "ballybet",
+   "worst_price": 185,
+   "n_books": 2,
+   "fair_p": 0.333,
+   "mkt_p": 0.3472,
+   "ev_best": -4.09,
+   "shop_gain": 0.0037,
+   "hedge_price": -225,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0395,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 188,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 185,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Mantas Kondratavicius",
+   "opponent": "Andre Petroski",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:55:00Z",
+   "is_main": false,
+   "best_price": -295,
+   "best_book": "fanduel",
+   "worst_price": -315,
+   "n_books": 5,
+   "fair_p": 0.7183,
+   "mkt_p": 0.7468,
+   "ev_best": -3.82,
+   "shop_gain": 0.0122,
+   "hedge_price": 240,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.041,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -295,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -298,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -315,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Andre Petroski",
+   "opponent": "Mantas Kondratavicius",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T22:55:00Z",
+   "is_main": false,
+   "best_price": 240,
+   "best_book": "ballybet",
+   "worst_price": 220,
+   "n_books": 5,
+   "fair_p": 0.2817,
+   "mkt_p": 0.2941,
+   "ev_best": -4.23,
+   "shop_gain": 0.0184,
+   "hedge_price": -295,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.041,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Austin Bashi",
+   "opponent": "Carlos Calderon",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T23:00:00Z",
+   "is_main": true,
+   "best_price": -480,
+   "best_book": "ballybet",
+   "worst_price": -550,
+   "n_books": 3,
+   "fair_p": 0.7857,
+   "mkt_p": 0.8276,
+   "ev_best": -5.06,
+   "shop_gain": 0.0186,
+   "hedge_price": 400,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0276,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": -480,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -550,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Carlos Calderon",
+   "opponent": "Austin Bashi",
+   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
+   "card_date": "2026-11-07",
+   "commence": "2026-11-07T23:00:00Z",
+   "is_main": true,
+   "best_price": 400,
+   "best_book": "betmgm",
+   "worst_price": 335,
+   "n_books": 3,
+   "fair_p": 0.2143,
+   "mkt_p": 0.2,
+   "ev_best": 7.14,
+   "shop_gain": 0.0299,
+   "hedge_price": -480,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0276,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 400,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 340,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 335,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Thomas Petersen",
+   "opponent": "Gabriel Lourenco",
+   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
+   "card_date": "2026-11-08",
+   "commence": "2026-11-08T00:20:00Z",
+   "is_main": false,
+   "best_price": -170,
+   "best_book": "williamhill_us",
+   "worst_price": -180,
+   "n_books": 5,
+   "fair_p": 0.6067,
+   "mkt_p": 0.6296,
+   "ev_best": -3.64,
+   "shop_gain": 0.0132,
+   "hedge_price": 150,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0296,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -170,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -170,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -177,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -180,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Gabriel Lourenco",
+   "opponent": "Thomas Petersen",
+   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
+   "card_date": "2026-11-08",
+   "commence": "2026-11-08T00:20:00Z",
+   "is_main": false,
+   "best_price": 150,
+   "best_book": "draftkings",
+   "worst_price": 140,
+   "n_books": 5,
+   "fair_p": 0.3933,
+   "mkt_p": 0.4,
+   "ev_best": -1.68,
+   "shop_gain": 0.0167,
+   "hedge_price": -170,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0296,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 150,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 145,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 140,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 140,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 140,
+     "best": false,
      "bettable": true
     }
    ]
@@ -936,9 +2052,9 @@
    "sport": "MMA",
    "fighter": "Nina Milo\u0161evi\u0107",
    "opponent": "Priscila Cachoeira",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
+   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
+   "card_date": "2026-11-08",
+   "commence": "2026-11-08T01:00:00Z",
    "is_main": false,
    "best_price": -480,
    "best_book": "ballybet",
@@ -981,1128 +2097,6 @@
    ]
   },
   {
-   "sport": "Boxing",
-   "fighter": "Chris Billam-Smith",
-   "opponent": "Cheavon Clarke",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": true,
-   "best_price": -400,
-   "best_book": "fanduel",
-   "worst_price": -475,
-   "n_books": 3,
-   "fair_p": 0.7573,
-   "mkt_p": 0.8,
-   "ev_best": -5.34,
-   "shop_gain": 0.0261,
-   "hedge_price": 340,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0273,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -400,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -400,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -475,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Keiichiro Nakamura",
-   "opponent": "Ollie Schmid",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -335,
-   "best_book": "ballybet",
-   "worst_price": -390,
-   "n_books": 5,
-   "fair_p": 0.7447,
-   "mkt_p": 0.7701,
-   "ev_best": -3.3,
-   "shop_gain": 0.0258,
-   "hedge_price": 285,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0299,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -335,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -360,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -390,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Mantas Kondratavicius",
-   "opponent": "Andre Petroski",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -285,
-   "best_book": "draftkings",
-   "worst_price": -315,
-   "n_books": 5,
-   "fair_p": 0.7183,
-   "mkt_p": 0.7403,
-   "ev_best": -2.97,
-   "shop_gain": 0.0188,
-   "hedge_price": 245,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0301,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -285,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -295,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -315,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Marcos Degli",
-   "opponent": "Mitch Raposo",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -230,
-   "best_book": "draftkings",
-   "worst_price": -245,
-   "n_books": 5,
-   "fair_p": 0.6704,
-   "mkt_p": 0.697,
-   "ev_best": -3.81,
-   "shop_gain": 0.0132,
-   "hedge_price": 200,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -230,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -235,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jos\u00e9 Souza",
-   "opponent": "Jonny Parsons",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -230,
-   "best_book": "williamhill_us",
-   "worst_price": -245,
-   "n_books": 2,
-   "fair_p": 0.6695,
-   "mkt_p": 0.697,
-   "ev_best": -3.94,
-   "shop_gain": 0.0132,
-   "hedge_price": 190,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0418,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -230,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Karine Silva",
-   "opponent": "Gabriella Fernandes",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -220,
-   "best_book": "ballybet",
-   "worst_price": -235,
-   "n_books": 5,
-   "fair_p": 0.669,
-   "mkt_p": 0.6875,
-   "ev_best": -2.69,
-   "shop_gain": 0.014,
-   "hedge_price": 190,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0323,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -230,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -230,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -235,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Thomas Petersen",
-   "opponent": "Gabriel Lourenco",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -170,
-   "best_book": "williamhill_us",
-   "worst_price": -178,
-   "n_books": 5,
-   "fair_p": 0.6053,
-   "mkt_p": 0.6296,
-   "ev_best": -3.86,
-   "shop_gain": 0.0107,
-   "hedge_price": 145,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0378,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -177,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -178,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Willy Hutchinson",
-   "opponent": "Joshua Buatsi",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -120,
-   "best_book": "draftkings",
-   "worst_price": -135,
-   "n_books": 3,
-   "fair_p": 0.5412,
-   "mkt_p": 0.5455,
-   "ev_best": -0.78,
-   "shop_gain": 0.029,
-   "hedge_price": 110,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0216,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -120,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -134,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -135,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jose Delano",
-   "opponent": "Murtazali Magomedov",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": -112,
-   "best_book": "ballybet",
-   "worst_price": -125,
-   "n_books": 5,
-   "fair_p": 0.5146,
-   "mkt_p": 0.5283,
-   "ev_best": -2.6,
-   "shop_gain": 0.0273,
-   "hedge_price": 105,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0161,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -112,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -122,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -125,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Murtazali Magomedov",
-   "opponent": "Jose Delano",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 105,
-   "best_book": "williamhill_us",
-   "worst_price": -112,
-   "n_books": 5,
-   "fair_p": 0.4854,
-   "mkt_p": 0.4878,
-   "ev_best": -0.49,
-   "shop_gain": 0.0405,
-   "hedge_price": -112,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0161,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 105,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 102,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -105,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -106,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -112,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Joshua Buatsi",
-   "opponent": "Willy Hutchinson",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 110,
-   "best_book": "espnbet",
-   "worst_price": -105,
-   "n_books": 3,
-   "fair_p": 0.4588,
-   "mkt_p": 0.4762,
-   "ev_best": -3.65,
-   "shop_gain": 0.036,
-   "hedge_price": -120,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0216,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 106,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -105,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Gabriel Lourenco",
-   "opponent": "Thomas Petersen",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 145,
-   "best_book": "draftkings",
-   "worst_price": 138,
-   "n_books": 5,
-   "fair_p": 0.3947,
-   "mkt_p": 0.4082,
-   "ev_best": -3.3,
-   "shop_gain": 0.012,
-   "hedge_price": -170,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0378,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 145,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 145,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 138,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Gabriella Fernandes",
-   "opponent": "Karine Silva",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 190,
-   "best_book": "draftkings",
-   "worst_price": 170,
-   "n_books": 5,
-   "fair_p": 0.331,
-   "mkt_p": 0.3448,
-   "ev_best": -4.01,
-   "shop_gain": 0.0255,
-   "hedge_price": -220,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0323,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 172,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jonny Parsons",
-   "opponent": "Jos\u00e9 Souza",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 190,
-   "best_book": "williamhill_us",
-   "worst_price": 186,
-   "n_books": 2,
-   "fair_p": 0.3305,
-   "mkt_p": 0.3448,
-   "ev_best": -4.17,
-   "shop_gain": 0.0048,
-   "hedge_price": -230,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0418,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 186,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Mitch Raposo",
-   "opponent": "Marcos Degli",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 200,
-   "best_book": "williamhill_us",
-   "worst_price": 186,
-   "n_books": 5,
-   "fair_p": 0.3296,
-   "mkt_p": 0.3333,
-   "ev_best": -1.13,
-   "shop_gain": 0.0163,
-   "hedge_price": -230,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 186,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Andre Petroski",
-   "opponent": "Mantas Kondratavicius",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 245,
-   "best_book": "williamhill_us",
-   "worst_price": 220,
-   "n_books": 5,
-   "fair_p": 0.2817,
-   "mkt_p": 0.2899,
-   "ev_best": -2.82,
-   "shop_gain": 0.0226,
-   "hedge_price": -285,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0301,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 245,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 230,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 220,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ollie Schmid",
-   "opponent": "Keiichiro Nakamura",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 285,
-   "best_book": "draftkings",
-   "worst_price": 250,
-   "n_books": 5,
-   "fair_p": 0.2553,
-   "mkt_p": 0.2597,
-   "ev_best": -1.7,
-   "shop_gain": 0.026,
-   "hedge_price": -335,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0299,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 285,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Cheavon Clarke",
-   "opponent": "Chris Billam-Smith",
-   "card": "2026-11-07 - Cheavon Clarke vs Chris Billam-Smith",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": true,
-   "best_price": 340,
-   "best_book": "draftkings",
-   "worst_price": 280,
-   "n_books": 3,
-   "fair_p": 0.2427,
-   "mkt_p": 0.2273,
-   "ev_best": 6.8,
-   "shop_gain": 0.0359,
-   "hedge_price": -400,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0273,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 340,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 290,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Priscila Cachoeira",
-   "opponent": "Nina Milo\u0161evi\u0107",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:00:00Z",
-   "is_main": false,
-   "best_price": 390,
-   "best_book": "draftkings",
-   "worst_price": 335,
-   "n_books": 4,
-   "fair_p": 0.2047,
-   "mkt_p": 0.2041,
-   "ev_best": 0.32,
-   "shop_gain": 0.0258,
-   "hedge_price": -480,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0317,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 390,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 380,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 335,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jos\u00e9 Henrique",
-   "opponent": "Jonny Parsons",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:15:00Z",
-   "is_main": false,
-   "best_price": -240,
-   "best_book": "ballybet",
-   "worst_price": -245,
-   "n_books": 2,
-   "fair_p": 0.6754,
-   "mkt_p": 0.7059,
-   "ev_best": -4.32,
-   "shop_gain": 0.0043,
-   "hedge_price": 200,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jonny Parsons",
-   "opponent": "Jos\u00e9 Henrique",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T22:15:00Z",
-   "is_main": false,
-   "best_price": 200,
-   "best_book": "draftkings",
-   "worst_price": 188,
-   "n_books": 2,
-   "fair_p": 0.3246,
-   "mkt_p": 0.3333,
-   "ev_best": -2.63,
-   "shop_gain": 0.0139,
-   "hedge_price": -240,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 188,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Austin Bashi",
-   "opponent": "Carlos Calderon",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T23:00:00Z",
-   "is_main": true,
-   "best_price": -480,
-   "best_book": "ballybet",
-   "worst_price": -480,
-   "n_books": 1,
-   "fair_p": 0.7826,
-   "mkt_p": 0.8276,
-   "ev_best": -5.43,
-   "shop_gain": 0.0,
-   "hedge_price": 335,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0575,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -480,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Carlos Calderon",
-   "opponent": "Austin Bashi",
-   "card": "2026-11-07 - Carlos Calderon vs Austin Bashi",
-   "card_date": "2026-11-07",
-   "commence": "2026-11-07T23:00:00Z",
-   "is_main": true,
-   "best_price": 335,
-   "best_book": "ballybet",
-   "worst_price": 335,
-   "n_books": 1,
-   "fair_p": 0.2174,
-   "mkt_p": 0.2299,
-   "ev_best": -5.43,
-   "shop_gain": 0.0,
-   "hedge_price": -480,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0575,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 335,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Seok Hyun Ko",
-   "opponent": "Wellington Turman",
-   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
-   "card_date": "2026-11-08",
-   "commence": "2026-11-08T01:00:00Z",
-   "is_main": false,
-   "best_price": -715,
-   "best_book": "ballybet",
-   "worst_price": -800,
-   "n_books": 5,
-   "fair_p": 0.8465,
-   "mkt_p": 0.8773,
-   "ev_best": -3.51,
-   "shop_gain": 0.0116,
-   "hedge_price": 550,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0311,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -715,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -800,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "sport": "MMA",
    "fighter": "Lucas Fernando",
    "opponent": "Billy Elekana",
@@ -2110,30 +2104,24 @@
    "card_date": "2026-11-08",
    "commence": "2026-11-08T01:00:00Z",
    "is_main": false,
-   "best_price": -300,
-   "best_book": "williamhill_us",
+   "best_price": -315,
+   "best_book": "ballybet",
    "worst_price": -350,
    "n_books": 5,
    "fair_p": 0.7335,
-   "mkt_p": 0.75,
-   "ev_best": -2.19,
-   "shop_gain": 0.0278,
+   "mkt_p": 0.759,
+   "ev_best": -3.36,
+   "shop_gain": 0.0187,
    "hedge_price": 260,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0278,
+   "combined_hold": 0.0368,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": -300,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": -315,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -2145,6 +2133,12 @@
     {
      "book": "betmgm",
      "price": -325,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -330,
      "best": false,
      "bettable": true
     },
@@ -2168,12 +2162,12 @@
    "best_book": "ballybet",
    "worst_price": -340,
    "n_books": 5,
-   "fair_p": 0.7301,
+   "fair_p": 0.7273,
    "mkt_p": 0.7531,
-   "ev_best": -3.06,
+   "ev_best": -3.43,
    "shop_gain": 0.0196,
    "hedge_price": 260,
-   "hedge_book": "draftkings",
+   "hedge_book": "betmgm",
    "combined_hold": 0.0309,
    "low_hold": false,
    "arb": false,
@@ -2185,14 +2179,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -320,
+     "book": "draftkings",
+     "price": -310,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -325,
+     "book": "williamhill_us",
+     "price": -320,
      "best": false,
      "bettable": true
     },
@@ -2205,6 +2199,60 @@
     {
      "book": "fanduel",
      "price": -340,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Marcos Degli",
+   "opponent": "Mitch Raposo",
+   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
+   "card_date": "2026-11-08",
+   "commence": "2026-11-08T01:00:00Z",
+   "is_main": false,
+   "best_price": -240,
+   "best_book": "williamhill_us",
+   "worst_price": -250,
+   "n_books": 5,
+   "fair_p": 0.6792,
+   "mkt_p": 0.7059,
+   "ev_best": -3.77,
+   "shop_gain": 0.0084,
+   "hedge_price": 200,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0392,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -245,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -245,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -245,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -250,
      "best": false,
      "bettable": true
     }
@@ -2320,6 +2368,60 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Mitch Raposo",
+   "opponent": "Marcos Degli",
+   "card": "2026-11-08 - Jesse Butler vs Justice Torres",
+   "card_date": "2026-11-08",
+   "commence": "2026-11-08T01:00:00Z",
+   "is_main": false,
+   "best_price": 200,
+   "best_book": "draftkings",
+   "worst_price": 186,
+   "n_books": 5,
+   "fair_p": 0.3208,
+   "mkt_p": 0.3333,
+   "ev_best": -3.77,
+   "shop_gain": 0.0163,
+   "hedge_price": -240,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0392,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 186,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Davey Grant",
    "opponent": "Elijah Smith",
    "card": "2026-11-08 - Jesse Butler vs Justice Torres",
@@ -2327,12 +2429,12 @@
    "commence": "2026-11-08T01:00:00Z",
    "is_main": false,
    "best_price": 260,
-   "best_book": "draftkings",
+   "best_book": "betmgm",
    "worst_price": 235,
    "n_books": 5,
-   "fair_p": 0.2699,
+   "fair_p": 0.2727,
    "mkt_p": 0.2778,
-   "ev_best": -2.82,
+   "ev_best": -1.82,
    "shop_gain": 0.0207,
    "hedge_price": -305,
    "hedge_book": "ballybet",
@@ -2341,15 +2443,15 @@
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
+     "book": "betmgm",
      "price": 260,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 260,
-     "best": true,
+     "book": "draftkings",
+     "price": 250,
+     "best": false,
      "bettable": true
     },
     {
@@ -2388,14 +2490,20 @@
    "mkt_p": 0.2778,
    "ev_best": -4.08,
    "shop_gain": 0.0207,
-   "hedge_price": -300,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0278,
+   "hedge_price": -315,
+   "hedge_book": "ballybet",
+   "combined_hold": 0.0368,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
+     "price": 260,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 260,
      "best": true,
      "bettable": true
@@ -2413,12 +2521,6 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 240,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 235,
      "best": false,
@@ -2428,53 +2530,47 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Wellington Turman",
-   "opponent": "Seok Hyun Ko",
+   "fighter": "Priscila Cachoeira",
+   "opponent": "Nina Milo\u0161evi\u0107",
    "card": "2026-11-08 - Jesse Butler vs Justice Torres",
    "card_date": "2026-11-08",
    "commence": "2026-11-08T01:00:00Z",
    "is_main": false,
-   "best_price": 550,
-   "best_book": "williamhill_us",
-   "worst_price": 475,
-   "n_books": 5,
-   "fair_p": 0.1535,
-   "mkt_p": 0.1538,
-   "ev_best": -0.23,
-   "shop_gain": 0.0201,
-   "hedge_price": -715,
+   "best_price": 390,
+   "best_book": "draftkings",
+   "worst_price": 335,
+   "n_books": 4,
+   "fair_p": 0.2047,
+   "mkt_p": 0.2041,
+   "ev_best": 0.32,
+   "shop_gain": 0.0258,
+   "hedge_price": -480,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0311,
+   "combined_hold": 0.0317,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 550,
+     "book": "draftkings",
+     "price": 390,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 525,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 525,
+     "book": "williamhill_us",
+     "price": 380,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 480,
+     "price": 350,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 475,
+     "price": 335,
      "best": false,
      "bettable": true
     }
@@ -2542,24 +2638,30 @@
    "card_date": "2026-11-08",
    "commence": "2026-11-08T03:45:00Z",
    "is_main": true,
-   "best_price": -200,
-   "best_book": "espnbet",
-   "worst_price": -200,
-   "n_books": 1,
-   "fair_p": 0.625,
-   "mkt_p": 0.6667,
-   "ev_best": -6.25,
-   "shop_gain": 0.0,
-   "hedge_price": 150,
+   "best_price": -215,
+   "best_book": "fanduel",
+   "worst_price": -250,
+   "n_books": 2,
+   "fair_p": 0.6529,
+   "mkt_p": 0.6825,
+   "ev_best": -4.35,
+   "shop_gain": 0.0317,
+   "hedge_price": 175,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0667,
+   "combined_hold": 0.0462,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": -200,
+     "book": "fanduel",
+     "price": -215,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -250,
+     "best": false,
      "bettable": true
     }
    ]
@@ -2572,24 +2674,30 @@
    "card_date": "2026-11-08",
    "commence": "2026-11-08T03:45:00Z",
    "is_main": true,
-   "best_price": 150,
+   "best_price": 175,
    "best_book": "espnbet",
-   "worst_price": 150,
-   "n_books": 1,
-   "fair_p": 0.375,
-   "mkt_p": 0.4,
-   "ev_best": -6.25,
-   "shop_gain": 0.0,
-   "hedge_price": -200,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0667,
+   "worst_price": 164,
+   "n_books": 2,
+   "fair_p": 0.3471,
+   "mkt_p": 0.3636,
+   "ev_best": -4.54,
+   "shop_gain": 0.0152,
+   "hedge_price": -215,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0462,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 150,
+     "price": 175,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 164,
+     "best": false,
      "bettable": true
     }
    ]
@@ -2824,23 +2932,23 @@
    "card_date": "2026-11-09",
    "commence": "2026-11-09T02:05:00Z",
    "is_main": false,
-   "best_price": -120,
+   "best_price": -115,
    "best_book": "espnbet",
    "worst_price": -140,
    "n_books": 3,
    "fair_p": 0.5404,
-   "mkt_p": 0.5455,
-   "ev_best": -0.93,
-   "shop_gain": 0.0379,
+   "mkt_p": 0.5349,
+   "ev_best": 1.02,
+   "shop_gain": 0.0484,
    "hedge_price": 110,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0216,
-   "low_hold": false,
+   "combined_hold": 0.0111,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": -120,
+     "price": -115,
      "best": true,
      "bettable": true
     },
@@ -2868,16 +2976,16 @@
    "is_main": false,
    "best_price": 110,
    "best_book": "draftkings",
-   "worst_price": -105,
+   "worst_price": -110,
    "n_books": 3,
    "fair_p": 0.4596,
    "mkt_p": 0.4762,
    "ev_best": -3.47,
-   "shop_gain": 0.036,
-   "hedge_price": -120,
+   "shop_gain": 0.0476,
+   "hedge_price": -115,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0216,
-   "low_hold": false,
+   "combined_hold": 0.0111,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -2894,7 +3002,7 @@
     },
     {
      "book": "espnbet",
-     "price": -105,
+     "price": -110,
      "best": false,
      "bettable": true
     }
@@ -2996,14 +3104,14 @@
    "best_book": "draftkings",
    "worst_price": -950,
    "n_books": 3,
-   "fair_p": 0.8421,
+   "fair_p": 0.8444,
    "mkt_p": 0.8571,
-   "ev_best": -1.75,
+   "ev_best": -1.48,
    "shop_gain": 0.0476,
-   "hedge_price": 500,
+   "hedge_price": 550,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0238,
-   "low_hold": false,
+   "combined_hold": 0.011,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -3014,7 +3122,7 @@
     },
     {
      "book": "espnbet",
-     "price": -800,
+     "price": -900,
      "best": false,
      "bettable": true
     },
@@ -3034,30 +3142,30 @@
    "card_date": "2026-11-13",
    "commence": "2026-11-13T03:00:00Z",
    "is_main": true,
-   "best_price": 500,
+   "best_price": 550,
    "best_book": "espnbet",
    "worst_price": 400,
    "n_books": 3,
-   "fair_p": 0.1579,
-   "mkt_p": 0.1667,
-   "ev_best": -5.26,
-   "shop_gain": 0.0333,
+   "fair_p": 0.1556,
+   "mkt_p": 0.1538,
+   "ev_best": 1.11,
+   "shop_gain": 0.0462,
    "hedge_price": -600,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0238,
-   "low_hold": false,
+   "combined_hold": 0.011,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 500,
+     "price": 550,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 500,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -3509,19 +3617,25 @@
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
    "best_price": -900,
-   "best_book": "fanduel",
-   "worst_price": -1000,
+   "best_book": "williamhill_us",
+   "worst_price": -950,
    "n_books": 4,
-   "fair_p": 0.8633,
+   "fair_p": 0.8609,
    "mkt_p": 0.9,
-   "ev_best": -4.08,
-   "shop_gain": 0.0091,
-   "hedge_price": 650,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0333,
+   "ev_best": -4.34,
+   "shop_gain": 0.0048,
+   "hedge_price": 625,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0379,
    "low_hold": false,
    "arb": false,
    "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -900,
+     "best": true,
+     "bettable": true
+    },
     {
      "book": "fanduel",
      "price": -900,
@@ -3539,12 +3653,6 @@
      "price": -950,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -1000,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -3558,15 +3666,15 @@
    "is_main": false,
    "best_price": -370,
    "best_book": "fanduel",
-   "worst_price": -400,
+   "worst_price": -450,
    "n_books": 3,
    "fair_p": 0.754,
    "mkt_p": 0.7872,
    "ev_best": -4.23,
-   "shop_gain": 0.0128,
-   "hedge_price": 300,
+   "shop_gain": 0.0309,
+   "hedge_price": 320,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0372,
+   "combined_hold": 0.0253,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -3584,7 +3692,7 @@
     },
     {
      "book": "espnbet",
-     "price": -400,
+     "price": -450,
      "best": false,
      "bettable": true
     }
@@ -3598,23 +3706,23 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
-   "best_price": -160,
+   "best_price": -170,
    "best_book": "williamhill_us",
-   "worst_price": -175,
+   "worst_price": -180,
    "n_books": 3,
-   "fair_p": 0.5998,
-   "mkt_p": 0.6154,
-   "ev_best": -2.53,
-   "shop_gain": 0.021,
-   "hedge_price": 145,
+   "fair_p": 0.6047,
+   "mkt_p": 0.6296,
+   "ev_best": -3.95,
+   "shop_gain": 0.0132,
+   "hedge_price": 150,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0235,
+   "combined_hold": 0.0296,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": -160,
+     "price": -170,
      "best": true,
      "bettable": true
     },
@@ -3626,7 +3734,7 @@
     },
     {
      "book": "draftkings",
-     "price": -175,
+     "price": -180,
      "best": false,
      "bettable": true
     }
@@ -3736,35 +3844,35 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
-   "best_price": 145,
+   "best_price": 150,
    "best_book": "draftkings",
-   "worst_price": 135,
+   "worst_price": 136,
    "n_books": 3,
-   "fair_p": 0.4002,
-   "mkt_p": 0.4082,
-   "ev_best": -1.95,
-   "shop_gain": 0.0174,
-   "hedge_price": -160,
+   "fair_p": 0.3953,
+   "mkt_p": 0.4,
+   "ev_best": -1.19,
+   "shop_gain": 0.0237,
+   "hedge_price": -170,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0235,
+   "combined_hold": 0.0296,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 145,
+     "price": 150,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 143,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 136,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 135,
      "best": false,
      "bettable": true
     }
@@ -3778,23 +3886,23 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
-   "best_price": 300,
+   "best_price": 320,
    "best_book": "espnbet",
    "worst_price": 250,
    "n_books": 3,
    "fair_p": 0.246,
-   "mkt_p": 0.25,
-   "ev_best": -1.58,
-   "shop_gain": 0.0357,
+   "mkt_p": 0.2381,
+   "ev_best": 3.34,
+   "shop_gain": 0.0476,
    "hedge_price": -370,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0372,
+   "combined_hold": 0.0253,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 300,
+     "price": 320,
      "best": true,
      "bettable": true
     },
@@ -3820,29 +3928,29 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
-   "best_price": 650,
-   "best_book": "williamhill_us",
+   "best_price": 625,
+   "best_book": "draftkings",
    "worst_price": 520,
    "n_books": 4,
-   "fair_p": 0.1367,
-   "mkt_p": 0.1333,
-   "ev_best": 2.56,
-   "shop_gain": 0.028,
+   "fair_p": 0.1391,
+   "mkt_p": 0.1379,
+   "ev_best": 0.85,
+   "shop_gain": 0.0234,
    "hedge_price": -900,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0333,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0379,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 650,
+     "book": "draftkings",
+     "price": 625,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 625,
+     "book": "williamhill_us",
+     "price": 600,
      "best": false,
      "bettable": true
     },
