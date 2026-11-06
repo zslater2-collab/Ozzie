@@ -66,7 +66,19 @@ A password that lets the app tell GitHub "rebuild the board now."
    ```
    https://YOUR-APP.onrender.com/api/kick_boards?secret=YOUR-NOTIFY-SECRET
    ```
-5. **Schedule:** **Every 20 minutes** (preset, or Custom with minutes `*/20`).
+5. **Schedule:** **Every 10 minutes** (preset, or Custom with minutes `*/10`).
+
+   > **Not 20.** A Render free web service spins down after ~15 minutes with no traffic, and a
+   > cold start was measured at **32.5 seconds** (0.09s once warm). A 20-minute interval is
+   > therefore *longer than the sleep timer*, so every single call arrives at a sleeping instance
+   > and waits on a full boot — past cron-job.org's 30s request timeout, which it reports as
+   > **503 Service Unavailable** and emails you about. 10 minutes keeps the instance warm, so this
+   > job and the `/api/notify` one both land on a live service. The ping is free: `/api/kick_boards`
+   > only reads artifacts and calls the Odds API's `/events`, which costs zero credits.
+   >
+   > The trade-off: an always-warm service uses roughly 730 of Render free's 750 instance-hours a
+   > month. That is fine for one service and will NOT fit two, so if you add another free web
+   > service, move this back out and accept the cold starts instead.
 6. **Create.**
 7. Click into the job → **Test run**. You want **200**. A **401** means the secret in the URL
    doesn't match `NOTIFY_SECRET` — recheck step 4.
@@ -106,3 +118,22 @@ slightly worse if the token ever leaks, but it can only rebuild a board on one r
 **Open question, not yet decided:** MLB HR's `max_age_h` is 10h, which is loose for an
 afternoon first pitch — a 5:25am stamp only trips at 3:25pm ET. Enough to have rescued
 2026-10-05, but tightening it buys more margin at the cost of more rebuilds.
+
+## Part 5 — Seasonal: which cron jobs to pause
+
+`/api/notify` is **MLB only** — it reads lineups and starters and flags K-props. Through the MLB
+offseason it has nothing to do, so leaving it scheduled just wakes the service to no purpose and
+turns every cold start into a "Failed (503)" email. Observed 2026-11-06 18:51 GMT.
+
+| cron-job.org job | endpoint | season | offseason action |
+|---|---|---|---|
+| Ozzie board refresh | `/api/kick_boards` | all year — NHL, NFL and MMA run now | leave running, every 10 min |
+| K-prop notify | `/api/notify` | MLB only (~late Mar to Oct) | **pause until spring** |
+
+While it is paused the board refresh keeps the service warm on its own, so nothing else changes.
+
+A 503 from these jobs is a cold start, not an app fault: the instance was asleep and the caller
+gave up before boot finished. Confirm by requesting the URL twice — a slow first response followed
+by a fast second one is a cold start, whereas a persistent 5xx is a real outage, and a 401 is a
+secret mismatch. Raising the job's timeout to 30s and enabling its retry setting helps at the
+margin but cannot cover a 32s boot; keeping the service warm is what actually fixes it.
