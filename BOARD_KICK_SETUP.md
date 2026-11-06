@@ -67,21 +67,14 @@ A password that lets the app tell GitHub "rebuild the board now."
    https://YOUR-APP.onrender.com/api/kick_boards?secret=YOUR-NOTIFY-SECRET
    ```
 5. **Schedule:** **Every 10 minutes** (preset, or Custom with minutes `*/10`).
-
-   > **Not 20.** A Render free web service spins down after ~15 minutes with no traffic, and a
-   > cold start was measured at **32.5 seconds** (0.09s once warm). A 20-minute interval is
-   > therefore *longer than the sleep timer*, so every single call arrives at a sleeping instance
-   > and waits on a full boot — past cron-job.org's 30s request timeout, which it reports as
-   > **503 Service Unavailable** and emails you about. 10 minutes keeps the instance warm, so this
-   > job and the `/api/notify` one both land on a live service. The ping is free: `/api/kick_boards`
-   > only reads artifacts and calls the Odds API's `/events`, which costs zero credits.
-   >
-   > The trade-off: an always-warm service uses roughly 730 of Render free's 750 instance-hours a
-   > month. That is fine for one service and will NOT fit two, so if you add another free web
-   > service, move this back out and accept the cold starts instead.
-6. **Create.**
-7. Click into the job → **Test run**. You want **200**. A **401** means the secret in the URL
-   doesn't match `NOTIFY_SECRET` — recheck step 4.
+6. **Timeout:** set it to the maximum the plan allows (30s or more). A Render free instance that
+   has been stopped needs ~25-30s to boot, and a caller that gives up sooner records a 503 while
+   the boot is still running.
+7. **Create.**
+8. Click into the job → **Test run**. You want **200** *and* a JSON body mentioning `checked` /
+   `configured`. A **401** means the secret in the URL doesn't match `NOTIFY_SECRET` — recheck
+   step 4. A **200 that returns an HTML login page** means the URL is wrong: it is hitting the
+   site root instead of `/api/kick_boards`. See Part 5.
 
 ## Part 4 — Confirm it actually dispatches
 
@@ -119,7 +112,51 @@ slightly worse if the token ever leaks, but it can only rebuild a board on one r
 afternoon first pitch — a 5:25am stamp only trips at 3:25pm ET. Enough to have rescued
 2026-10-05, but tightening it buys more margin at the cost of more rebuilds.
 
-## Part 5 — Seasonal: which cron jobs to pause
+## Part 5 — Verify the job is hitting the RIGHT url
+
+**Do this once; it is the failure that hid for weeks.** A cron pointed at the site root looks
+perfectly healthy — cron-job.org records `200 OK` because `/` redirects to the login page — while
+doing nothing at all. Checked 2026-11-06: an hour of Render logs contained no request to
+`/api/kick_boards`, only this, so board self-healing had never once fired:
+
+```
+:00/:10/:20…  "GET /login"      200   Mozilla/4.0 (compatible; cron-job.org; …)
+:01/:11/:21…  "GET /api/notify" 200   Mozilla/4.0 (compatible; cron-job.org; …)
+```
+
+In Render → Logs, a working board cron appears as `"GET /api/kick_boards?secret=…" 200`.
+**If you see `GET /login` from the cron-job.org user agent, the job's URL is wrong.** Its own
+history cannot tell you this — 200 from the login page is indistinguishable from success.
+
+## Part 6 — Reading a 503 from these jobs
+
+A 503 is almost always the service being stopped, not an app fault. Confirmed 2026-11-06: six
+consecutive 503s across both jobs, 18:20–19:10 UTC, sat exactly inside a 65-minute window in which
+the service was down —
+
+```
+18:11:03  /api/notify 200        <- last good request
+18:12:49  Handling signal: term  <- Render stopped it; NO "Deploying..." line
+   …65 minutes with no instance…
+19:17:30  Starting gunicorn
+19:20:09  /login 200             <- jobs healthy again
+```
+
+— and the successes on either side bracket it precisely. During that hour roughly a dozen cron
+requests arrived and none brought the service back, so a short caller timeout cannot heal this.
+
+When it happens: **Render → the service → Events** for that minute names the cause (spun down,
+suspended, failed deploy). If it mentions instance hours, check Billing — free tier allows 750 a
+month and an always-on service uses ~730.
+
+Also worth knowing: **every push to `main` redeploys this app**, and the board bots push 16–27
+times a day (`[skip ci]` skips GitHub Actions, not Render). That is load-bearing, not waste — the
+app serves `*_board_latest.json` from its own filesystem, so a redeploy is how fresh boards reach
+it. The cost is ~20 brief unavailable windows a day, which is what these crons keep landing in.
+Removing that churn would mean serving the artifacts from outside the deploy; it is a design
+change, not a setting, so do not switch auto-deploy off.
+
+## Part 7 — Seasonal: which cron jobs to pause
 
 `/api/notify` is **MLB only** — it reads lineups and starters and flags K-props. Through the MLB
 offseason it has nothing to do, so leaving it scheduled just wakes the service to no purpose and
