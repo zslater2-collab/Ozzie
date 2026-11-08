@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-11-08 18:23Z",
+  "generated": "2026-11-08 23:49Z",
   "n_rows": 62,
   "n_fights": 31,
-  "n_cards": 11,
+  "n_cards": 9,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "92626",
+  "credits_left": "92315",
   "sports": [
    "Boxing",
    "MMA"
@@ -24,39 +24,39 @@
    "sport": "Boxing",
    "fighter": "Brittany Sims",
    "opponent": "Shera Mae Patricio",
-   "card": "2026-11-08 - Shera Mae Patricio vs Brittany Sims",
-   "card_date": "2026-11-08",
-   "commence": "2026-11-08T23:00:00Z",
-   "is_main": true,
-   "best_price": -150,
+   "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
+   "card_date": "2026-11-09",
+   "commence": "2026-11-09T00:30:00Z",
+   "is_main": false,
+   "best_price": -125,
    "best_book": "espnbet",
-   "worst_price": -192,
+   "worst_price": -180,
    "n_books": 3,
-   "fair_p": 0.6067,
-   "mkt_p": 0.6,
-   "ev_best": 1.12,
-   "shop_gain": 0.0575,
-   "hedge_price": 142,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0132,
+   "fair_p": 0.5635,
+   "mkt_p": 0.5556,
+   "ev_best": 1.42,
+   "shop_gain": 0.0873,
+   "hedge_price": 140,
+   "hedge_book": "draftkings",
+   "combined_hold": -0.0278,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": -150,
+     "price": -125,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -152,
+     "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": -180,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -192,
      "best": false,
      "bettable": true
     }
@@ -66,39 +66,39 @@
    "sport": "Boxing",
    "fighter": "Shera Mae Patricio",
    "opponent": "Brittany Sims",
-   "card": "2026-11-08 - Shera Mae Patricio vs Brittany Sims",
-   "card_date": "2026-11-08",
-   "commence": "2026-11-08T23:00:00Z",
-   "is_main": true,
-   "best_price": 142,
-   "best_book": "fanduel",
-   "worst_price": 120,
+   "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
+   "card_date": "2026-11-09",
+   "commence": "2026-11-09T00:30:00Z",
+   "is_main": false,
+   "best_price": 140,
+   "best_book": "draftkings",
+   "worst_price": 100,
    "n_books": 3,
-   "fair_p": 0.3933,
-   "mkt_p": 0.4132,
-   "ev_best": -4.83,
-   "shop_gain": 0.0413,
-   "hedge_price": -150,
+   "fair_p": 0.4365,
+   "mkt_p": 0.4167,
+   "ev_best": 4.77,
+   "shop_gain": 0.0833,
+   "hedge_price": -125,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0132,
+   "combined_hold": -0.0278,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 142,
+     "book": "draftkings",
+     "price": 140,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 140,
+     "book": "fanduel",
+     "price": 114,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": 120,
+     "price": 100,
      "best": false,
      "bettable": true
     }
@@ -184,23 +184,23 @@
    "card_date": "2026-11-09",
    "commence": "2026-11-09T02:05:00Z",
    "is_main": false,
-   "best_price": -105,
+   "best_price": 100,
    "best_book": "espnbet",
    "worst_price": -135,
    "n_books": 3,
    "fair_p": 0.512,
-   "mkt_p": 0.5122,
-   "ev_best": -0.04,
-   "shop_gain": 0.0623,
+   "mkt_p": 0.5,
+   "ev_best": 2.4,
+   "shop_gain": 0.0745,
    "hedge_price": 105,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0,
+   "combined_hold": -0.0122,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": -105,
+     "price": 100,
      "best": true,
      "bettable": true
     },
@@ -228,17 +228,17 @@
    "is_main": false,
    "best_price": 105,
    "best_book": "draftkings",
-   "worst_price": -120,
+   "worst_price": -125,
    "n_books": 3,
    "fair_p": 0.488,
    "mkt_p": 0.4878,
    "ev_best": 0.04,
-   "shop_gain": 0.0576,
-   "hedge_price": -105,
+   "shop_gain": 0.0678,
+   "hedge_price": 100,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0,
+   "combined_hold": -0.0122,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
      "book": "draftkings",
@@ -254,7 +254,7 @@
     },
     {
      "book": "espnbet",
-     "price": -120,
+     "price": -125,
      "best": false,
      "bettable": true
     }
@@ -266,7 +266,7 @@
    "opponent": "Miyo Yoshida",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T02:45:00Z",
+   "commence": "2026-11-09T03:00:00Z",
    "is_main": false,
    "best_price": -2000,
    "best_book": "fanduel",
@@ -308,7 +308,7 @@
    "opponent": "Skye Nicolson",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T02:45:00Z",
+   "commence": "2026-11-09T03:00:00Z",
    "is_main": false,
    "best_price": 1400,
    "best_book": "espnbet",
@@ -350,37 +350,37 @@
    "opponent": "Ramla Ali",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T03:30:00Z",
+   "commence": "2026-11-09T04:00:00Z",
    "is_main": false,
-   "best_price": -275,
-   "best_book": "draftkings",
-   "worst_price": -300,
+   "best_price": -250,
+   "best_book": "espnbet",
+   "worst_price": -280,
    "n_books": 3,
-   "fair_p": 0.6945,
-   "mkt_p": 0.7333,
-   "ev_best": -5.3,
-   "shop_gain": 0.0167,
-   "hedge_price": 225,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.041,
+   "fair_p": 0.6871,
+   "mkt_p": 0.7143,
+   "ev_best": -3.81,
+   "shop_gain": 0.0226,
+   "hedge_price": 210,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0369,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "espnbet",
+     "price": -250,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": -275,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": -280,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -300,
      "best": false,
      "bettable": true
     }
@@ -392,37 +392,37 @@
    "opponent": "Mikiah Kreps",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T03:30:00Z",
+   "commence": "2026-11-09T04:00:00Z",
    "is_main": false,
-   "best_price": 225,
-   "best_book": "espnbet",
-   "worst_price": 198,
+   "best_price": 210,
+   "best_book": "draftkings",
+   "worst_price": 190,
    "n_books": 3,
-   "fair_p": 0.3055,
-   "mkt_p": 0.3077,
-   "ev_best": -0.71,
-   "shop_gain": 0.0279,
-   "hedge_price": -275,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.041,
+   "fair_p": 0.3129,
+   "mkt_p": 0.3226,
+   "ev_best": -3.0,
+   "shop_gain": 0.0222,
+   "hedge_price": -250,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0369,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": 225,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 210,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 198,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 190,
      "best": false,
      "bettable": true
     }
@@ -434,7 +434,7 @@
    "opponent": "Elif Nur Turhan",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T04:30:00Z",
+   "commence": "2026-11-09T05:00:00Z",
    "is_main": true,
    "best_price": -600,
    "best_book": "espnbet",
@@ -476,7 +476,7 @@
    "opponent": "Alycia Baumgardner",
    "card": "2026-11-09 - Alycia Baumgardner vs Elif Nur Turhan",
    "card_date": "2026-11-09",
-   "commence": "2026-11-09T04:30:00Z",
+   "commence": "2026-11-09T05:00:00Z",
    "is_main": true,
    "best_price": 450,
    "best_book": "fanduel",
@@ -522,15 +522,15 @@
    "is_main": false,
    "best_price": -250,
    "best_book": "espnbet",
-   "worst_price": -280,
+   "worst_price": -250,
    "n_books": 2,
-   "fair_p": 0.6815,
+   "fair_p": 0.6697,
    "mkt_p": 0.7143,
-   "ev_best": -4.59,
-   "shop_gain": 0.0226,
-   "hedge_price": 200,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0476,
+   "ev_best": -6.24,
+   "shop_gain": 0.0,
+   "hedge_price": 190,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0591,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -542,8 +542,8 @@
     },
     {
      "book": "fanduel",
-     "price": -280,
-     "best": false,
+     "price": -250,
+     "best": true,
      "bettable": true
     }
    ]
@@ -556,29 +556,29 @@
    "card_date": "2026-11-13",
    "commence": "2026-11-13T01:40:00Z",
    "is_main": false,
-   "best_price": 200,
-   "best_book": "fanduel",
-   "worst_price": 190,
+   "best_price": 190,
+   "best_book": "espnbet",
+   "worst_price": 178,
    "n_books": 2,
-   "fair_p": 0.3185,
-   "mkt_p": 0.3333,
-   "ev_best": -4.44,
-   "shop_gain": 0.0115,
+   "fair_p": 0.3303,
+   "mkt_p": 0.3448,
+   "ev_best": -4.23,
+   "shop_gain": 0.0149,
    "hedge_price": -250,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0476,
+   "combined_hold": 0.0591,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 200,
+     "book": "espnbet",
+     "price": 190,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 190,
+     "book": "fanduel",
+     "price": 178,
      "best": false,
      "bettable": true
     }
@@ -910,29 +910,65 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Beatriz Mesquita",
+   "opponent": "Macy Chiasson",
+   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
+   "card_date": "2026-11-15",
+   "commence": "2026-11-15T01:00:00Z",
+   "is_main": false,
+   "best_price": -220,
+   "best_book": "williamhill_us",
+   "worst_price": -230,
+   "n_books": 2,
+   "fair_p": 0.6636,
+   "mkt_p": 0.6875,
+   "ev_best": -3.48,
+   "shop_gain": 0.0095,
+   "hedge_price": 190,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0323,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -220,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Terrance Mckinney",
    "opponent": "Jim Miller",
    "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
    "card_date": "2026-11-15",
    "commence": "2026-11-15T01:00:00Z",
    "is_main": false,
-   "best_price": -218,
+   "best_price": -205,
    "best_book": "draftkings",
    "worst_price": -230,
    "n_books": 4,
    "fair_p": 0.6581,
-   "mkt_p": 0.6855,
-   "ev_best": -4.0,
-   "shop_gain": 0.0114,
+   "mkt_p": 0.6721,
+   "ev_best": -2.08,
+   "shop_gain": 0.0248,
    "hedge_price": 180,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0427,
+   "combined_hold": 0.0293,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -218,
+     "price": -205,
      "best": true,
      "bettable": true
     },
@@ -958,42 +994,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Beatriz Mesquita",
-   "opponent": "Macy Chiasson",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:00:00Z",
-   "is_main": false,
-   "best_price": -218,
-   "best_book": "draftkings",
-   "worst_price": -220,
-   "n_books": 2,
-   "fair_p": 0.6578,
-   "mkt_p": 0.6855,
-   "ev_best": -4.05,
-   "shop_gain": 0.002,
-   "hedge_price": 180,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0427,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -218,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -220,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Donte Johnson",
    "opponent": "Cesar Almeida",
    "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
@@ -1002,26 +1002,20 @@
    "is_main": false,
    "best_price": -170,
    "best_book": "betmgm",
-   "worst_price": -180,
+   "worst_price": -192,
    "n_books": 4,
-   "fair_p": 0.6067,
+   "fair_p": 0.6131,
    "mkt_p": 0.6296,
-   "ev_best": -3.64,
-   "shop_gain": 0.0132,
-   "hedge_price": 150,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0296,
-   "low_hold": false,
+   "ev_best": -2.63,
+   "shop_gain": 0.0279,
+   "hedge_price": 160,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0142,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "betmgm",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": -170,
      "best": true,
      "bettable": true
@@ -1035,6 +1029,12 @@
     {
      "book": "ballybet",
      "price": -180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -192,
      "best": false,
      "bettable": true
     }
@@ -1100,13 +1100,13 @@
    "best_book": "ballybet",
    "worst_price": -158,
    "n_books": 4,
-   "fair_p": 0.5616,
+   "fair_p": 0.569,
    "mkt_p": 0.5781,
-   "ev_best": -2.84,
+   "ev_best": -1.57,
    "shop_gain": 0.0343,
-   "hedge_price": 124,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0245,
+   "hedge_price": 125,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0225,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1117,14 +1117,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -140,
+     "book": "draftkings",
+     "price": -142,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -142,
+     "book": "williamhill_us",
+     "price": -150,
      "best": false,
      "bettable": true
     },
@@ -1144,41 +1144,41 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T01:00:00Z",
    "is_main": false,
-   "best_price": -115,
-   "best_book": "betmgm",
-   "worst_price": -130,
+   "best_price": -105,
+   "best_book": "williamhill_us",
+   "worst_price": -118,
    "n_books": 4,
-   "fair_p": 0.5204,
-   "mkt_p": 0.5349,
-   "ev_best": -2.71,
-   "shop_gain": 0.0303,
-   "hedge_price": 110,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0111,
+   "fair_p": 0.5107,
+   "mkt_p": 0.5122,
+   "ev_best": -0.29,
+   "shop_gain": 0.0291,
+   "hedge_price": -102,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0171,
    "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": -115,
+     "book": "williamhill_us",
+     "price": -105,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -120,
+     "book": "betmgm",
+     "price": -115,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": -121,
+     "price": -117,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -130,
+     "book": "draftkings",
+     "price": -118,
      "best": false,
      "bettable": true
     }
@@ -1192,41 +1192,41 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T01:00:00Z",
    "is_main": false,
-   "best_price": 110,
-   "best_book": "williamhill_us",
-   "worst_price": -105,
+   "best_price": -102,
+   "best_book": "draftkings",
+   "worst_price": -115,
    "n_books": 4,
-   "fair_p": 0.4796,
-   "mkt_p": 0.4762,
-   "ev_best": 0.72,
-   "shop_gain": 0.036,
-   "hedge_price": -115,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0111,
+   "fair_p": 0.4893,
+   "mkt_p": 0.505,
+   "ev_best": -3.1,
+   "shop_gain": 0.0299,
+   "hedge_price": -105,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0171,
    "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 110,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": 100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -103,
-     "best": false,
+     "price": -102,
+     "best": true,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": -105,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -107,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -115,
      "best": false,
      "bettable": true
     }
@@ -1240,35 +1240,35 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T01:00:00Z",
    "is_main": false,
-   "best_price": 124,
-   "best_book": "fanduel",
+   "best_price": 125,
+   "best_book": "williamhill_us",
    "worst_price": 112,
    "n_books": 4,
-   "fair_p": 0.4384,
-   "mkt_p": 0.4464,
-   "ev_best": -1.81,
-   "shop_gain": 0.0253,
+   "fair_p": 0.431,
+   "mkt_p": 0.4444,
+   "ev_best": -3.02,
+   "shop_gain": 0.0273,
    "hedge_price": -137,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0245,
+   "combined_hold": 0.0225,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "williamhill_us",
+     "price": 125,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": 124,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
      "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 118,
      "best": false,
      "bettable": true
     },
@@ -1336,24 +1336,30 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T01:00:00Z",
    "is_main": false,
-   "best_price": 150,
-   "best_book": "williamhill_us",
+   "best_price": 160,
+   "best_book": "draftkings",
    "worst_price": 140,
    "n_books": 4,
-   "fair_p": 0.3933,
-   "mkt_p": 0.4,
-   "ev_best": -1.68,
-   "shop_gain": 0.0167,
+   "fair_p": 0.3869,
+   "mkt_p": 0.3846,
+   "ev_best": 0.6,
+   "shop_gain": 0.0321,
    "hedge_price": -170,
    "hedge_book": "betmgm",
-   "combined_hold": 0.0296,
-   "low_hold": false,
+   "combined_hold": 0.0142,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
+     "book": "draftkings",
+     "price": 160,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
      "price": 150,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -1363,51 +1369,9 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 142,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
      "price": 140,
      "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Macy Chiasson",
-   "opponent": "Beatriz Mesquita",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:00:00Z",
-   "is_main": false,
-   "best_price": 180,
-   "best_book": "williamhill_us",
-   "worst_price": 180,
-   "n_books": 2,
-   "fair_p": 0.3422,
-   "mkt_p": 0.3571,
-   "ev_best": -4.18,
-   "shop_gain": 0.0,
-   "hedge_price": -218,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0427,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 180,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 180,
-     "best": true,
      "bettable": true
     }
    ]
@@ -1422,15 +1386,15 @@
    "is_main": false,
    "best_price": 180,
    "best_book": "williamhill_us",
-   "worst_price": 180,
+   "worst_price": 170,
    "n_books": 4,
    "fair_p": 0.3419,
    "mkt_p": 0.3571,
    "ev_best": -4.27,
-   "shop_gain": 0.0,
-   "hedge_price": -218,
+   "shop_gain": 0.0132,
+   "hedge_price": -205,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0427,
+   "combined_hold": 0.0293,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1454,8 +1418,44 @@
     },
     {
      "book": "draftkings",
-     "price": 180,
+     "price": 170,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Macy Chiasson",
+   "opponent": "Beatriz Mesquita",
+   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
+   "card_date": "2026-11-15",
+   "commence": "2026-11-15T01:00:00Z",
+   "is_main": false,
+   "best_price": 190,
+   "best_book": "draftkings",
+   "worst_price": 180,
+   "n_books": 2,
+   "fair_p": 0.3364,
+   "mkt_p": 0.3448,
+   "ev_best": -2.43,
+   "shop_gain": 0.0123,
+   "hedge_price": -220,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0323,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 190,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 180,
+     "best": false,
      "bettable": true
     }
    ]
@@ -1606,54 +1606,6 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Uros Medic",
-   "opponent": "Kevin Holland",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T02:00:00Z",
-   "is_main": false,
-   "best_price": -170,
-   "best_book": "draftkings",
-   "worst_price": -185,
-   "n_books": 4,
-   "fair_p": 0.6065,
-   "mkt_p": 0.6296,
-   "ev_best": -3.67,
-   "shop_gain": 0.0195,
-   "hedge_price": 150,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0296,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -174,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -185,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Caio Borralho",
    "opponent": "Yousri Belgaroui",
    "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
@@ -1701,6 +1653,54 @@
     {
      "book": "betmgm",
      "price": -165,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Uros Medic",
+   "opponent": "Kevin Holland",
+   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
+   "card_date": "2026-11-15",
+   "commence": "2026-11-15T02:00:00Z",
+   "is_main": false,
+   "best_price": -155,
+   "best_book": "draftkings",
+   "worst_price": -174,
+   "n_books": 4,
+   "fair_p": 0.5912,
+   "mkt_p": 0.6078,
+   "ev_best": -2.74,
+   "shop_gain": 0.0272,
+   "hedge_price": 136,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0316,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -155,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -174,
      "best": false,
      "bettable": true
     }
@@ -1768,41 +1768,41 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T02:00:00Z",
    "is_main": false,
-   "best_price": 150,
-   "best_book": "betmgm",
-   "worst_price": 136,
+   "best_price": 136,
+   "best_book": "fanduel",
+   "worst_price": 130,
    "n_books": 4,
-   "fair_p": 0.3935,
-   "mkt_p": 0.4,
-   "ev_best": -1.62,
-   "shop_gain": 0.0237,
-   "hedge_price": -170,
+   "fair_p": 0.4088,
+   "mkt_p": 0.4237,
+   "ev_best": -3.52,
+   "shop_gain": 0.0111,
+   "hedge_price": -155,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0296,
+   "combined_hold": 0.0316,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 150,
+     "book": "fanduel",
+     "price": 136,
      "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 145,
+     "price": 135,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 135,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 142,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 136,
+     "price": 130,
      "best": false,
      "bettable": true
     }
@@ -2104,23 +2104,23 @@
    "card_date": "2026-11-15",
    "commence": "2026-11-15T05:30:00Z",
    "is_main": true,
-   "best_price": -200,
+   "best_price": -210,
    "best_book": "williamhill_us",
    "worst_price": -245,
    "n_books": 4,
    "fair_p": 0.6664,
-   "mkt_p": 0.6667,
-   "ev_best": -0.05,
-   "shop_gain": 0.0435,
+   "mkt_p": 0.6774,
+   "ev_best": -1.63,
+   "shop_gain": 0.0327,
    "hedge_price": 195,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0056,
+   "combined_hold": 0.0164,
    "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "williamhill_us",
-     "price": -200,
+     "price": -210,
      "best": true,
      "bettable": true
     },
@@ -2154,15 +2154,15 @@
    "is_main": true,
    "best_price": 195,
    "best_book": "draftkings",
-   "worst_price": 165,
+   "worst_price": 175,
    "n_books": 4,
    "fair_p": 0.3336,
    "mkt_p": 0.339,
    "ev_best": -1.58,
-   "shop_gain": 0.0384,
-   "hedge_price": -200,
+   "shop_gain": 0.0247,
+   "hedge_price": -210,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0056,
+   "combined_hold": 0.0164,
    "low_hold": true,
    "arb": false,
    "book_prices": [
@@ -2186,7 +2186,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 165,
+     "price": 175,
      "best": false,
      "bettable": true
     }
