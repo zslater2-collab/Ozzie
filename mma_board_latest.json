@@ -1,1125 +1,54 @@
 {
  "meta": {
-  "generated": "2026-11-14 00:55Z",
-  "n_rows": 112,
-  "n_fights": 56,
-  "n_cards": 11,
+  "generated": "2026-11-14 17:00Z",
+  "n_rows": 40,
+  "n_fights": 20,
+  "n_cards": 8,
   "books": [
-   "ballybet",
    "betmgm",
    "draftkings",
    "espnbet",
-   "fanduel",
-   "williamhill_us"
+   "fanduel"
   ],
-  "credits_left": "88339",
+  "credits_left": "87674",
   "sports": [
-   "Boxing",
-   "MMA"
+   "Boxing"
   ],
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
   {
    "sport": "Boxing",
-   "fighter": "Ruben Eduardo Aguilar",
-   "opponent": "Guido Emmanuel Schramm",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T01:30:00Z",
-   "is_main": false,
-   "best_price": -1800,
-   "best_book": "draftkings",
-   "worst_price": -2500,
-   "n_books": 2,
-   "fair_p": 0.9049,
-   "mkt_p": 0.9474,
-   "ev_best": -4.48,
-   "shop_gain": 0.0142,
-   "hedge_price": 950,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0426,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -1800,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -2500,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Guido Emmanuel Schramm",
-   "opponent": "Ruben Eduardo Aguilar",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T01:30:00Z",
-   "is_main": false,
-   "best_price": 950,
-   "best_book": "espnbet",
-   "worst_price": 850,
-   "n_books": 2,
-   "fair_p": 0.0951,
-   "mkt_p": 0.0952,
-   "ev_best": -0.19,
-   "shop_gain": 0.01,
-   "hedge_price": -1800,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0426,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 950,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Tsendbaatar Erdenbat",
-   "opponent": "Muhammadkhuja Yaqubov",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T02:00:00Z",
-   "is_main": false,
-   "best_price": -275,
-   "best_book": "espnbet",
-   "worst_price": -290,
-   "n_books": 2,
-   "fair_p": 0.6993,
-   "mkt_p": 0.7333,
-   "ev_best": -4.64,
-   "shop_gain": 0.0103,
-   "hedge_price": 220,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0458,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": -275,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -290,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Muhammadkhuja Yaqubov",
-   "opponent": "Tsendbaatar Erdenbat",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T02:00:00Z",
-   "is_main": false,
-   "best_price": 220,
-   "best_book": "draftkings",
-   "worst_price": 210,
-   "n_books": 2,
-   "fair_p": 0.3007,
-   "mkt_p": 0.3125,
-   "ev_best": -3.78,
-   "shop_gain": 0.0101,
-   "hedge_price": -275,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0458,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 210,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Bryan Flores",
-   "opponent": "Jose Nunez",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T03:00:00Z",
-   "is_main": false,
-   "best_price": -168,
-   "best_book": "fanduel",
-   "worst_price": -190,
-   "n_books": 3,
-   "fair_p": 0.6067,
-   "mkt_p": 0.6269,
-   "ev_best": -3.21,
-   "shop_gain": 0.0283,
-   "hedge_price": 150,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0269,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -168,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -180,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -190,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Jose Nunez",
-   "opponent": "Bryan Flores",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T03:00:00Z",
-   "is_main": false,
-   "best_price": 150,
-   "best_book": "draftkings",
-   "worst_price": 124,
-   "n_books": 3,
-   "fair_p": 0.3933,
-   "mkt_p": 0.4,
-   "ev_best": -1.69,
-   "shop_gain": 0.0464,
-   "hedge_price": -168,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0269,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 150,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 124,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Khabib Nabiev",
-   "opponent": "Styve Ngono",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -620,
-   "best_book": "fanduel",
-   "worst_price": -625,
-   "n_books": 2,
-   "fair_p": 0.82,
-   "mkt_p": 0.8611,
-   "ev_best": -4.78,
-   "shop_gain": 0.001,
-   "hedge_price": 460,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0397,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -620,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -625,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Patrick Habirora",
-   "opponent": "Omar El Dafrawy",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -550,
-   "best_book": "fanduel",
-   "worst_price": -670,
-   "n_books": 2,
-   "fair_p": 0.8161,
-   "mkt_p": 0.8462,
-   "ev_best": -3.55,
-   "shop_gain": 0.024,
-   "hedge_price": 425,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0366,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -550,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -670,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Lewis McGrillen",
-   "opponent": "Nawras Abzakh",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -375,
-   "best_book": "fanduel",
-   "worst_price": -480,
-   "n_books": 2,
-   "fair_p": 0.768,
-   "mkt_p": 0.7895,
-   "ev_best": -2.72,
-   "shop_gain": 0.0381,
-   "hedge_price": 320,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0276,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -375,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -480,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Denis Goltsov",
-   "opponent": "Maxwell Djantou Nana",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -320,
-   "best_book": "fanduel",
-   "worst_price": -435,
-   "n_books": 2,
-   "fair_p": 0.7477,
-   "mkt_p": 0.7619,
-   "ev_best": -1.87,
-   "shop_gain": 0.0512,
-   "hedge_price": 295,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0151,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -320,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -435,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Vadim Nemkov",
-   "opponent": "Sergey Bilostenniy",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -375,
-   "best_book": "ballybet",
-   "worst_price": -375,
-   "n_books": 1,
-   "fair_p": 0.7424,
-   "mkt_p": 0.7895,
-   "ev_best": -5.97,
-   "shop_gain": 0.0,
-   "hedge_price": 265,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0634,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -375,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Khasan Magomedsharipov",
-   "opponent": "Adam Borics",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -270,
-   "best_book": "fanduel",
-   "worst_price": -275,
-   "n_books": 2,
-   "fair_p": 0.6902,
-   "mkt_p": 0.7297,
-   "ev_best": -5.42,
-   "shop_gain": 0.0036,
-   "hedge_price": 220,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0422,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -270,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -275,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jacinta Austin",
-   "opponent": "Aleksandra Savicheva",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -240,
-   "best_book": "fanduel",
-   "worst_price": -275,
-   "n_books": 2,
-   "fair_p": 0.679,
-   "mkt_p": 0.7059,
-   "ev_best": -3.81,
-   "shop_gain": 0.0275,
-   "hedge_price": 198,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0415,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -275,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Pouya Rahmani",
-   "opponent": "Oleg Popov",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -240,
-   "best_book": "ballybet",
-   "worst_price": -260,
-   "n_books": 2,
-   "fair_p": 0.6753,
-   "mkt_p": 0.7059,
-   "ev_best": -4.34,
-   "shop_gain": 0.0163,
-   "hedge_price": 215,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0233,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -260,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Saygid Izagakhmaev",
-   "opponent": "David Martinez",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -235,
-   "best_book": "ballybet",
-   "worst_price": -235,
-   "n_books": 1,
-   "fair_p": 0.6502,
-   "mkt_p": 0.7015,
-   "ev_best": -7.31,
-   "shop_gain": 0.0,
-   "hedge_price": 165,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0789,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -235,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Connor Hughes",
-   "opponent": "Shem Rock",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -190,
-   "best_book": "ballybet",
-   "worst_price": -196,
-   "n_books": 2,
-   "fair_p": 0.6227,
-   "mkt_p": 0.6552,
-   "ev_best": -4.96,
-   "shop_gain": 0.007,
-   "hedge_price": 164,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.034,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -196,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Alexei Pergande",
-   "opponent": "Akhmed Magomedov",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -165,
-   "best_book": "ballybet",
-   "worst_price": -200,
-   "n_books": 2,
-   "fair_p": 0.6096,
-   "mkt_p": 0.6226,
-   "ev_best": -2.1,
-   "shop_gain": 0.044,
-   "hedge_price": 168,
-   "hedge_book": "fanduel",
-   "combined_hold": -0.0042,
-   "low_hold": true,
-   "arb": true,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -165,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -200,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ernesto Rodriguez",
-   "opponent": "Rhys McKee",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": -120,
-   "best_book": "fanduel",
-   "worst_price": -132,
-   "n_books": 2,
-   "fair_p": 0.5264,
-   "mkt_p": 0.5455,
-   "ev_best": -3.49,
-   "shop_gain": 0.0235,
-   "hedge_price": 102,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0405,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -120,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -132,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Rhys McKee",
-   "opponent": "Ernesto Rodriguez",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 102,
-   "best_book": "fanduel",
-   "worst_price": -103,
-   "n_books": 2,
-   "fair_p": 0.4736,
-   "mkt_p": 0.495,
-   "ev_best": -4.34,
-   "shop_gain": 0.0123,
-   "hedge_price": -120,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0405,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 102,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -103,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Akhmed Magomedov",
-   "opponent": "Alexei Pergande",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 168,
-   "best_book": "fanduel",
-   "worst_price": 120,
-   "n_books": 2,
-   "fair_p": 0.3904,
-   "mkt_p": 0.3731,
-   "ev_best": 4.63,
-   "shop_gain": 0.0814,
-   "hedge_price": -165,
-   "hedge_book": "ballybet",
-   "combined_hold": -0.0042,
-   "low_hold": true,
-   "arb": true,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 168,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Shem Rock",
-   "opponent": "Connor Hughes",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 164,
-   "best_book": "fanduel",
-   "worst_price": 138,
-   "n_books": 2,
-   "fair_p": 0.3773,
-   "mkt_p": 0.3788,
-   "ev_best": -0.39,
-   "shop_gain": 0.0414,
-   "hedge_price": -190,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.034,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 164,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 138,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "David Martinez",
-   "opponent": "Saygid Izagakhmaev",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 165,
-   "best_book": "ballybet",
-   "worst_price": 165,
-   "n_books": 1,
-   "fair_p": 0.3498,
-   "mkt_p": 0.3774,
-   "ev_best": -7.31,
-   "shop_gain": 0.0,
-   "hedge_price": -235,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0789,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 165,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Oleg Popov",
-   "opponent": "Pouya Rahmani",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 215,
-   "best_book": "fanduel",
-   "worst_price": 170,
-   "n_books": 2,
-   "fair_p": 0.3247,
-   "mkt_p": 0.3175,
-   "ev_best": 2.29,
-   "shop_gain": 0.0529,
-   "hedge_price": -240,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0233,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 215,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Aleksandra Savicheva",
-   "opponent": "Jacinta Austin",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 198,
-   "best_book": "fanduel",
-   "worst_price": 190,
-   "n_books": 2,
-   "fair_p": 0.321,
-   "mkt_p": 0.3356,
-   "ev_best": -4.34,
-   "shop_gain": 0.0093,
-   "hedge_price": -240,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0415,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 198,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Adam Borics",
-   "opponent": "Khasan Magomedsharipov",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 220,
-   "best_book": "fanduel",
-   "worst_price": 190,
-   "n_books": 2,
-   "fair_p": 0.3098,
-   "mkt_p": 0.3125,
-   "ev_best": -0.85,
-   "shop_gain": 0.0323,
-   "hedge_price": -270,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0422,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 190,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Sergey Bilostenniy",
-   "opponent": "Vadim Nemkov",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 265,
-   "best_book": "ballybet",
-   "worst_price": 265,
-   "n_books": 1,
-   "fair_p": 0.2576,
-   "mkt_p": 0.274,
-   "ev_best": -5.97,
-   "shop_gain": 0.0,
-   "hedge_price": -375,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0634,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 265,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Maxwell Djantou Nana",
-   "opponent": "Denis Goltsov",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 295,
-   "best_book": "ballybet",
-   "worst_price": 260,
-   "n_books": 2,
-   "fair_p": 0.2523,
-   "mkt_p": 0.2532,
-   "ev_best": -0.34,
-   "shop_gain": 0.0246,
-   "hedge_price": -320,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0151,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 295,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Nawras Abzakh",
-   "opponent": "Lewis McGrillen",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 320,
-   "best_book": "ballybet",
-   "worst_price": 300,
-   "n_books": 2,
-   "fair_p": 0.232,
-   "mkt_p": 0.2381,
-   "ev_best": -2.58,
-   "shop_gain": 0.0119,
-   "hedge_price": -375,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0276,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 320,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 300,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Omar El Dafrawy",
-   "opponent": "Patrick Habirora",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 425,
-   "best_book": "ballybet",
-   "worst_price": 410,
-   "n_books": 2,
-   "fair_p": 0.1839,
-   "mkt_p": 0.1905,
-   "ev_best": -3.47,
-   "shop_gain": 0.0056,
-   "hedge_price": -550,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0366,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 425,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 410,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Styve Ngono",
-   "opponent": "Khabib Nabiev",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T14:00:00Z",
-   "is_main": false,
-   "best_price": 460,
-   "best_book": "fanduel",
-   "worst_price": 400,
-   "n_books": 2,
-   "fair_p": 0.18,
-   "mkt_p": 0.1786,
-   "ev_best": 0.82,
-   "shop_gain": 0.0214,
-   "hedge_price": -620,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0397,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 460,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
    "fighter": "Yaser Al Ghena",
    "opponent": "Ben Marksby",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T17:00:00Z",
+   "commence": "2026-11-14T18:00:00Z",
    "is_main": false,
-   "best_price": -150,
-   "best_book": "draftkings",
+   "best_price": -135,
+   "best_book": "espnbet",
    "worst_price": -190,
    "n_books": 4,
    "fair_p": 0.5721,
-   "mkt_p": 0.6,
-   "ev_best": -4.66,
-   "shop_gain": 0.0552,
+   "mkt_p": 0.5745,
+   "ev_best": -0.42,
+   "shop_gain": 0.0807,
    "hedge_price": 140,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0167,
+   "combined_hold": -0.0089,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": -150,
+     "book": "espnbet",
+     "price": -135,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "draftkings",
      "price": -150,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -1142,21 +71,21 @@
    "opponent": "Yaser Al Ghena",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T17:00:00Z",
+   "commence": "2026-11-14T18:00:00Z",
    "is_main": false,
    "best_price": 140,
    "best_book": "fanduel",
-   "worst_price": 120,
+   "worst_price": 110,
    "n_books": 4,
    "fair_p": 0.4279,
    "mkt_p": 0.4167,
    "ev_best": 2.7,
-   "shop_gain": 0.0379,
-   "hedge_price": -150,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0167,
+   "shop_gain": 0.0595,
+   "hedge_price": -135,
+   "hedge_book": "espnbet",
+   "combined_hold": -0.0089,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
      "book": "fanduel",
@@ -1171,14 +100,86 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "betmgm",
      "price": 120,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 120,
+     "book": "espnbet",
+     "price": 110,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Bakary Samake",
+   "opponent": "Uisma Lima",
+   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
+   "card_date": "2026-11-14",
+   "commence": "2026-11-14T19:00:00Z",
+   "is_main": false,
+   "best_price": -215,
+   "best_book": "fanduel",
+   "worst_price": -250,
+   "n_books": 2,
+   "fair_p": 0.6502,
+   "mkt_p": 0.6825,
+   "ev_best": -4.73,
+   "shop_gain": 0.0317,
+   "hedge_price": 175,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0462,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -215,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Uisma Lima",
+   "opponent": "Bakary Samake",
+   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
+   "card_date": "2026-11-14",
+   "commence": "2026-11-14T19:00:00Z",
+   "is_main": false,
+   "best_price": 175,
+   "best_book": "espnbet",
+   "worst_price": 158,
+   "n_books": 2,
+   "fair_p": 0.3498,
+   "mkt_p": 0.3636,
+   "ev_best": -3.81,
+   "shop_gain": 0.024,
+   "hedge_price": -215,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0462,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 158,
      "best": false,
      "bettable": true
     }
@@ -1190,32 +191,32 @@
    "opponent": "Jack Dillingham",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T18:10:00Z",
+   "commence": "2026-11-14T19:10:00Z",
    "is_main": false,
-   "best_price": -320,
+   "best_price": -370,
    "best_book": "fanduel",
    "worst_price": -425,
    "n_books": 3,
-   "fair_p": 0.7505,
-   "mkt_p": 0.7619,
-   "ev_best": -1.49,
-   "shop_gain": 0.0476,
+   "fair_p": 0.747,
+   "mkt_p": 0.7872,
+   "ev_best": -5.11,
+   "shop_gain": 0.0223,
    "hedge_price": 300,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0119,
-   "low_hold": true,
+   "combined_hold": 0.0372,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -320,
+     "price": -370,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -380,
-     "best": false,
+     "price": -370,
+     "best": true,
      "bettable": true
     },
     {
@@ -1232,20 +233,20 @@
    "opponent": "Tom Welland",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T18:10:00Z",
+   "commence": "2026-11-14T19:10:00Z",
    "is_main": false,
    "best_price": 300,
    "best_book": "espnbet",
-   "worst_price": 225,
+   "worst_price": 250,
    "n_books": 3,
-   "fair_p": 0.2495,
+   "fair_p": 0.253,
    "mkt_p": 0.25,
-   "ev_best": -0.21,
-   "shop_gain": 0.0577,
-   "hedge_price": -320,
+   "ev_best": 1.21,
+   "shop_gain": 0.0357,
+   "hedge_price": -370,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0119,
-   "low_hold": true,
+   "combined_hold": 0.0372,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
@@ -1256,85 +257,13 @@
     },
     {
      "book": "draftkings",
-     "price": 280,
+     "price": 275,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
-     "price": 225,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Bakary Samake",
-   "opponent": "Uisma Lima",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T19:00:00Z",
-   "is_main": false,
-   "best_price": -140,
-   "best_book": "fanduel",
-   "worst_price": -150,
-   "n_books": 2,
-   "fair_p": 0.5517,
-   "mkt_p": 0.5833,
-   "ev_best": -5.43,
-   "shop_gain": 0.0167,
-   "hedge_price": 110,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0595,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -140,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "Boxing",
-   "fighter": "Uisma Lima",
-   "opponent": "Bakary Samake",
-   "card": "2026-11-14 - Sona Akale vs Nishant Dev",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T19:00:00Z",
-   "is_main": false,
-   "best_price": 110,
-   "best_book": "espnbet",
-   "worst_price": 106,
-   "n_books": 2,
-   "fair_p": 0.4483,
-   "mkt_p": 0.4762,
-   "ev_best": -5.85,
-   "shop_gain": 0.0092,
-   "hedge_price": -140,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0595,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 106,
+     "price": 250,
      "best": false,
      "bettable": true
     }
@@ -1346,7 +275,7 @@
    "opponent": "Jak Corrie",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T19:10:00Z",
+   "commence": "2026-11-14T19:55:00Z",
    "is_main": false,
    "best_price": -215,
    "best_book": "draftkings",
@@ -1394,7 +323,7 @@
    "opponent": "Dan Toward",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T19:10:00Z",
+   "commence": "2026-11-14T19:55:00Z",
    "is_main": false,
    "best_price": 182,
    "best_book": "fanduel",
@@ -1446,17 +375,17 @@
    "is_main": false,
    "best_price": -196,
    "best_book": "fanduel",
-   "worst_price": -250,
+   "worst_price": -260,
    "n_books": 4,
-   "fair_p": 0.6465,
+   "fair_p": 0.6497,
    "mkt_p": 0.6622,
-   "ev_best": -2.37,
-   "shop_gain": 0.0521,
-   "hedge_price": 190,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.007,
+   "ev_best": -1.88,
+   "shop_gain": 0.0601,
+   "hedge_price": 200,
+   "hedge_book": "draftkings",
+   "combined_hold": -0.0045,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
      "book": "fanduel",
@@ -1471,14 +400,14 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -240,
+     "book": "espnbet",
+     "price": -250,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -250,
+     "book": "draftkings",
+     "price": -260,
      "best": false,
      "bettable": true
     }
@@ -1492,29 +421,29 @@
    "card_date": "2026-11-14",
    "commence": "2026-11-14T21:00:00Z",
    "is_main": false,
-   "best_price": 190,
-   "best_book": "espnbet",
+   "best_price": 200,
+   "best_book": "draftkings",
    "worst_price": 144,
    "n_books": 4,
-   "fair_p": 0.3535,
-   "mkt_p": 0.3448,
-   "ev_best": 2.52,
-   "shop_gain": 0.065,
+   "fair_p": 0.3503,
+   "mkt_p": 0.3333,
+   "ev_best": 5.09,
+   "shop_gain": 0.0765,
    "hedge_price": -196,
    "hedge_book": "fanduel",
-   "combined_hold": 0.007,
+   "combined_hold": -0.0045,
    "low_hold": true,
-   "arb": false,
+   "arb": true,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": 190,
+     "book": "draftkings",
+     "price": 200,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 185,
+     "book": "espnbet",
+     "price": 190,
      "best": false,
      "bettable": true
     },
@@ -1542,15 +471,15 @@
    "is_main": false,
    "best_price": -1600,
    "best_book": "draftkings",
-   "worst_price": -2500,
+   "worst_price": -3300,
    "n_books": 4,
-   "fair_p": 0.8908,
+   "fair_p": 0.8943,
    "mkt_p": 0.9412,
-   "ev_best": -5.35,
-   "shop_gain": 0.0204,
-   "hedge_price": 950,
+   "ev_best": -4.98,
+   "shop_gain": 0.0294,
+   "hedge_price": 1100,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0364,
+   "combined_hold": 0.0245,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -1568,109 +497,13 @@
     },
     {
      "book": "fanduel",
-     "price": -1800,
+     "price": -2400,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": -2500,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Juan Diaz",
-   "opponent": "Heili Alateng",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T22:00:00Z",
-   "is_main": false,
-   "best_price": -390,
-   "best_book": "fanduel",
-   "worst_price": -440,
-   "n_books": 4,
-   "fair_p": 0.7698,
-   "mkt_p": 0.7959,
-   "ev_best": -3.28,
-   "shop_gain": 0.0189,
-   "hedge_price": 340,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0232,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -390,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -410,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -420,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -440,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Heili Alateng",
-   "opponent": "Juan Diaz",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T22:00:00Z",
-   "is_main": false,
-   "best_price": 340,
-   "best_book": "williamhill_us",
-   "worst_price": 310,
-   "n_books": 4,
-   "fair_p": 0.2302,
-   "mkt_p": 0.2273,
-   "ev_best": 1.29,
-   "shop_gain": 0.0166,
-   "hedge_price": -390,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0232,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 340,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 320,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 310,
+     "price": -3300,
      "best": false,
      "bettable": true
     }
@@ -1684,23 +517,23 @@
    "card_date": "2026-11-14",
    "commence": "2026-11-14T22:00:00Z",
    "is_main": false,
-   "best_price": 950,
+   "best_price": 1100,
    "best_book": "espnbet",
    "worst_price": 700,
    "n_books": 4,
-   "fair_p": 0.1092,
-   "mkt_p": 0.0952,
-   "ev_best": 14.67,
-   "shop_gain": 0.0298,
+   "fair_p": 0.1057,
+   "mkt_p": 0.0833,
+   "ev_best": 26.86,
+   "shop_gain": 0.0417,
    "hedge_price": -1600,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0364,
+   "combined_hold": 0.0245,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 950,
+     "price": 1100,
      "best": true,
      "bettable": true
     },
@@ -1712,7 +545,7 @@
     },
     {
      "book": "fanduel",
-     "price": 730,
+     "price": 780,
      "best": false,
      "bettable": true
     },
@@ -1725,342 +558,42 @@
    ]
   },
   {
-   "sport": "MMA",
-   "fighter": "Samuel Sanches",
-   "opponent": "Evan Elder",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T22:15:00Z",
-   "is_main": false,
-   "best_price": -118,
-   "best_book": "draftkings",
-   "worst_price": -120,
-   "n_books": 5,
-   "fair_p": 0.5198,
-   "mkt_p": 0.5413,
-   "ev_best": -3.96,
-   "shop_gain": 0.0042,
-   "hedge_price": 100,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0413,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -118,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -118,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Evan Elder",
-   "opponent": "Samuel Sanches",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T22:15:00Z",
-   "is_main": false,
-   "best_price": 100,
-   "best_book": "williamhill_us",
-   "worst_price": -104,
-   "n_books": 5,
-   "fair_p": 0.4802,
-   "mkt_p": 0.5,
-   "ev_best": -3.96,
-   "shop_gain": 0.0098,
-   "hedge_price": -118,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0413,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -102,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -104,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Beatriz Mesquita",
-   "opponent": "Macy Chiasson",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:15:00Z",
-   "is_main": false,
-   "best_price": -250,
-   "best_book": "williamhill_us",
-   "worst_price": -270,
-   "n_books": 3,
-   "fair_p": 0.6958,
-   "mkt_p": 0.7143,
-   "ev_best": -2.59,
-   "shop_gain": 0.0154,
-   "hedge_price": 220,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0268,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -270,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Macy Chiasson",
-   "opponent": "Beatriz Mesquita",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:15:00Z",
-   "is_main": false,
-   "best_price": 220,
-   "best_book": "fanduel",
-   "worst_price": 205,
-   "n_books": 3,
-   "fair_p": 0.3042,
-   "mkt_p": 0.3125,
-   "ev_best": -2.65,
-   "shop_gain": 0.0154,
-   "hedge_price": -250,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0268,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 220,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 215,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 205,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Melquizael Costa",
-   "opponent": "Jared Gordon",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:45:00Z",
-   "is_main": true,
-   "best_price": -370,
-   "best_book": "fanduel",
-   "worst_price": -420,
-   "n_books": 5,
-   "fair_p": 0.7664,
-   "mkt_p": 0.7872,
-   "ev_best": -2.65,
-   "shop_gain": 0.0205,
-   "hedge_price": 320,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0253,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -370,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -410,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -420,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jared Gordon",
-   "opponent": "Melquizael Costa",
-   "card": "2026-11-14 - Melquizael Costa vs Jared Gordon",
-   "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:45:00Z",
-   "is_main": true,
-   "best_price": 320,
-   "best_book": "draftkings",
-   "worst_price": 295,
-   "n_books": 5,
-   "fair_p": 0.2336,
-   "mkt_p": 0.2381,
-   "ev_best": -1.87,
-   "shop_gain": 0.0151,
-   "hedge_price": -370,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0253,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 320,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 295,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "sport": "Boxing",
    "fighter": "Nishant Dev",
    "opponent": "Sona Akale",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:55:00Z",
+   "commence": "2026-11-14T23:15:00Z",
    "is_main": true,
-   "best_price": -1450,
-   "best_book": "fanduel",
-   "worst_price": -2500,
+   "best_price": -2500,
+   "best_book": "betmgm",
+   "worst_price": -3500,
    "n_books": 3,
-   "fair_p": 0.8964,
-   "mkt_p": 0.9355,
-   "ev_best": -4.18,
-   "shop_gain": 0.0261,
-   "hedge_price": 900,
+   "fair_p": 0.9019,
+   "mkt_p": 0.9615,
+   "ev_best": -6.2,
+   "shop_gain": 0.0107,
+   "hedge_price": 1100,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0355,
+   "combined_hold": 0.0449,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -1450,
+     "book": "betmgm",
+     "price": -2500,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -2000,
+     "book": "fanduel",
+     "price": -3000,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -2500,
+     "book": "draftkings",
+     "price": -3500,
      "best": false,
      "bettable": true
     }
@@ -2072,145 +605,37 @@
    "opponent": "Nishant Dev",
    "card": "2026-11-14 - Sona Akale vs Nishant Dev",
    "card_date": "2026-11-14",
-   "commence": "2026-11-14T23:55:00Z",
+   "commence": "2026-11-14T23:15:00Z",
    "is_main": true,
-   "best_price": 900,
+   "best_price": 1100,
    "best_book": "draftkings",
-   "worst_price": 650,
+   "worst_price": 800,
    "n_books": 3,
-   "fair_p": 0.1036,
-   "mkt_p": 0.1,
-   "ev_best": 3.59,
-   "shop_gain": 0.0333,
-   "hedge_price": -1450,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0355,
+   "fair_p": 0.0981,
+   "mkt_p": 0.0833,
+   "ev_best": 17.72,
+   "shop_gain": 0.0278,
+   "hedge_price": -2500,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0449,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 900,
+     "price": 1100,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Donte Johnson",
-   "opponent": "Cesar Almeida",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:15:00Z",
-   "is_main": false,
-   "best_price": -184,
-   "best_book": "fanduel",
-   "worst_price": -195,
-   "n_books": 5,
-   "fair_p": 0.622,
-   "mkt_p": 0.6479,
-   "ev_best": -3.99,
-   "shop_gain": 0.0131,
-   "hedge_price": 165,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0252,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -184,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -186,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -195,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Cesar Almeida",
-   "opponent": "Donte Johnson",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:15:00Z",
-   "is_main": false,
-   "best_price": 165,
-   "best_book": "williamhill_us",
-   "worst_price": 150,
-   "n_books": 5,
-   "fair_p": 0.378,
-   "mkt_p": 0.3774,
-   "ev_best": 0.17,
-   "shop_gain": 0.0226,
-   "hedge_price": -184,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0252,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 165,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 154,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 154,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 150,
      "best": false,
      "bettable": true
     }
@@ -2222,7 +647,7 @@
    "opponent": "Manuel Lerma",
    "card": "2026-11-15 - Darius Fulghum vs Diego Pacheco",
    "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:20:00Z",
+   "commence": "2026-11-15T00:00:00Z",
    "is_main": false,
    "best_price": -3000,
    "best_book": "fanduel",
@@ -2264,7 +689,7 @@
    "opponent": "Zaquin Moses",
    "card": "2026-11-15 - Darius Fulghum vs Diego Pacheco",
    "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:20:00Z",
+   "commence": "2026-11-15T00:00:00Z",
    "is_main": false,
    "best_price": 1100,
    "best_book": "draftkings",
@@ -2301,114 +726,6 @@
    ]
   },
   {
-   "sport": "MMA",
-   "fighter": "Terrance Mckinney",
-   "opponent": "Jim Miller",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:45:00Z",
-   "is_main": false,
-   "best_price": -200,
-   "best_book": "betmgm",
-   "worst_price": -225,
-   "n_books": 5,
-   "fair_p": 0.6507,
-   "mkt_p": 0.6667,
-   "ev_best": -2.39,
-   "shop_gain": 0.0256,
-   "hedge_price": 184,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0188,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": -200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -205,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -220,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -225,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jim Miller",
-   "opponent": "Terrance Mckinney",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T00:45:00Z",
-   "is_main": false,
-   "best_price": 184,
-   "best_book": "fanduel",
-   "worst_price": 165,
-   "n_books": 5,
-   "fair_p": 0.3493,
-   "mkt_p": 0.3521,
-   "ev_best": -0.8,
-   "shop_gain": 0.0252,
-   "hedge_price": -200,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0188,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 184,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "sport": "Boxing",
    "fighter": "David Adeleye",
    "opponent": "Alexander Flores",
@@ -2420,9 +737,9 @@
    "best_book": "betmgm",
    "worst_price": -2000,
    "n_books": 4,
-   "fair_p": 0.8856,
+   "fair_p": 0.8892,
    "mkt_p": 0.9333,
-   "ev_best": -5.12,
+   "ev_best": -4.73,
    "shop_gain": 0.019,
    "hedge_price": 850,
    "hedge_book": "espnbet",
@@ -2437,13 +754,13 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -1450,
+     "book": "draftkings",
+     "price": -1600,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "fanduel",
      "price": -1600,
      "best": false,
      "bettable": true
@@ -2468,9 +785,9 @@
    "best_book": "espnbet",
    "worst_price": 650,
    "n_books": 4,
-   "fair_p": 0.1144,
+   "fair_p": 0.1108,
    "mkt_p": 0.1053,
-   "ev_best": 8.73,
+   "ev_best": 5.24,
    "shop_gain": 0.0281,
    "hedge_price": -1400,
    "hedge_book": "betmgm",
@@ -2492,421 +809,13 @@
     },
     {
      "book": "fanduel",
-     "price": 660,
+     "price": 710,
      "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 650,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Chris Duncan",
-   "opponent": "Drew Dober",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:15:00Z",
-   "is_main": false,
-   "best_price": -185,
-   "best_book": "draftkings",
-   "worst_price": -200,
-   "n_books": 5,
-   "fair_p": 0.6225,
-   "mkt_p": 0.6491,
-   "ev_best": -4.11,
-   "shop_gain": 0.0175,
-   "hedge_price": 165,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0265,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -185,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -188,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -190,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -190,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -200,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Drew Dober",
-   "opponent": "Chris Duncan",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:15:00Z",
-   "is_main": false,
-   "best_price": 165,
-   "best_book": "betmgm",
-   "worst_price": 150,
-   "n_books": 5,
-   "fair_p": 0.3775,
-   "mkt_p": 0.3774,
-   "ev_best": 0.05,
-   "shop_gain": 0.0226,
-   "hedge_price": -185,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0265,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 165,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 154,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 152,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Stephen Thompson",
-   "opponent": "Charlie Radtke",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:45:00Z",
-   "is_main": false,
-   "best_price": -141,
-   "best_book": "ballybet",
-   "worst_price": -155,
-   "n_books": 4,
-   "fair_p": 0.5631,
-   "mkt_p": 0.5851,
-   "ev_best": -3.76,
-   "shop_gain": 0.0228,
-   "hedge_price": 130,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0198,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -141,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -142,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -144,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -155,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Charlie Radtke",
-   "opponent": "Stephen Thompson",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T01:45:00Z",
-   "is_main": false,
-   "best_price": 130,
-   "best_book": "williamhill_us",
-   "worst_price": 114,
-   "n_books": 4,
-   "fair_p": 0.4369,
-   "mkt_p": 0.4348,
-   "ev_best": 0.49,
-   "shop_gain": 0.0325,
-   "hedge_price": -141,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0198,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 130,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 118,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 114,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Bilal Hasan",
-   "opponent": "Luis Gurule",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T02:15:00Z",
-   "is_main": false,
-   "best_price": -1000,
-   "best_book": "ballybet",
-   "worst_price": -1250,
-   "n_books": 5,
-   "fair_p": 0.88,
-   "mkt_p": 0.9091,
-   "ev_best": -3.2,
-   "shop_gain": 0.0168,
-   "hedge_price": 725,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -1000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -1050,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -1200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -1250,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Luis Gurule",
-   "opponent": "Bilal Hasan",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T02:15:00Z",
-   "is_main": false,
-   "best_price": 725,
-   "best_book": "betmgm",
-   "worst_price": 600,
-   "n_books": 5,
-   "fair_p": 0.12,
-   "mkt_p": 0.1212,
-   "ev_best": -1.0,
-   "shop_gain": 0.0216,
-   "hedge_price": -1000,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0303,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 725,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 710,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 675,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Uros Medic",
-   "opponent": "Kevin Holland",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T02:45:00Z",
-   "is_main": false,
-   "best_price": -155,
-   "best_book": "draftkings",
-   "worst_price": -170,
-   "n_books": 4,
-   "fair_p": 0.5925,
-   "mkt_p": 0.6078,
-   "ev_best": -2.52,
-   "shop_gain": 0.0218,
-   "hedge_price": 140,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0245,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -155,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -170,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kevin Holland",
-   "opponent": "Uros Medic",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T02:45:00Z",
-   "is_main": false,
-   "best_price": 140,
-   "best_book": "williamhill_us",
-   "worst_price": 130,
-   "n_books": 4,
-   "fair_p": 0.4075,
-   "mkt_p": 0.4167,
-   "ev_best": -2.21,
-   "shop_gain": 0.0181,
-   "hedge_price": -155,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0245,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 140,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 140,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 130,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 130,
      "best": false,
      "bettable": true
     }
@@ -2921,7 +830,7 @@
    "commence": "2026-11-15T02:50:00Z",
    "is_main": false,
    "best_price": -650,
-   "best_book": "fanduel",
+   "best_book": "espnbet",
    "worst_price": -700,
    "n_books": 3,
    "fair_p": 0.828,
@@ -2935,15 +844,15 @@
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
+     "book": "espnbet",
      "price": -650,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -700,
-     "best": false,
+     "book": "fanduel",
+     "price": -650,
+     "best": true,
      "bettable": true
     },
     {
@@ -2964,14 +873,14 @@
    "is_main": false,
    "best_price": 490,
    "best_book": "fanduel",
-   "worst_price": 450,
+   "worst_price": 425,
    "n_books": 3,
    "fair_p": 0.172,
    "mkt_p": 0.1695,
    "ev_best": 1.51,
-   "shop_gain": 0.0123,
+   "shop_gain": 0.021,
    "hedge_price": -650,
-   "hedge_book": "fanduel",
+   "hedge_book": "espnbet",
    "combined_hold": 0.0362,
    "low_hold": false,
    "arb": false,
@@ -2983,230 +892,14 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "espnbet",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Caio Borralho",
-   "opponent": "Yousri Belgaroui",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T03:15:00Z",
-   "is_main": false,
-   "best_price": -150,
-   "best_book": "williamhill_us",
-   "worst_price": -165,
-   "n_books": 5,
-   "fair_p": 0.5909,
-   "mkt_p": 0.6,
-   "ev_best": -1.51,
-   "shop_gain": 0.0226,
-   "hedge_price": 136,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0237,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -150,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -158,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -162,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -165,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Yousri Belgaroui",
-   "opponent": "Caio Borralho",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T03:15:00Z",
-   "is_main": false,
-   "best_price": 136,
-   "best_book": "draftkings",
-   "worst_price": 125,
-   "n_books": 5,
-   "fair_p": 0.4091,
-   "mkt_p": 0.4237,
-   "ev_best": -3.46,
-   "shop_gain": 0.0207,
-   "hedge_price": -150,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0237,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 136,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 135,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 132,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 128,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 125,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kayla Harrison",
-   "opponent": "Amanda Nunes",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T03:45:00Z",
-   "is_main": false,
-   "best_price": -166,
-   "best_book": "draftkings",
-   "worst_price": -180,
-   "n_books": 5,
-   "fair_p": 0.6023,
-   "mkt_p": 0.6241,
-   "ev_best": -3.48,
-   "shop_gain": 0.0188,
-   "hedge_price": 146,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0306,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -166,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -170,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -180,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Amanda Nunes",
-   "opponent": "Kayla Harrison",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T03:45:00Z",
-   "is_main": false,
-   "best_price": 146,
-   "best_book": "fanduel",
-   "worst_price": 138,
-   "n_books": 5,
-   "fair_p": 0.3977,
-   "mkt_p": 0.4065,
-   "ev_best": -2.17,
-   "shop_gain": 0.0137,
-   "hedge_price": -166,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0306,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 146,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 145,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 140,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 138,
+     "price": 425,
      "best": false,
      "bettable": true
     }
@@ -3224,9 +917,9 @@
    "best_book": "fanduel",
    "worst_price": -1200,
    "n_books": 4,
-   "fair_p": 0.8719,
+   "fair_p": 0.8679,
    "mkt_p": 0.9048,
-   "ev_best": -3.63,
+   "ev_best": -4.08,
    "shop_gain": 0.0183,
    "hedge_price": 650,
    "hedge_book": "draftkings",
@@ -3241,6 +934,12 @@
      "bettable": true
     },
     {
+     "book": "espnbet",
+     "price": -1000,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "betmgm",
      "price": -1000,
      "best": false,
@@ -3248,12 +947,6 @@
     },
     {
      "book": "draftkings",
-     "price": -1200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
      "price": -1200,
      "best": false,
      "bettable": true
@@ -3272,9 +965,9 @@
    "best_book": "draftkings",
    "worst_price": 550,
    "n_books": 4,
-   "fair_p": 0.1281,
+   "fair_p": 0.1321,
    "mkt_p": 0.1333,
-   "ev_best": -3.94,
+   "ev_best": -0.91,
    "shop_gain": 0.0205,
    "hedge_price": -950,
    "hedge_book": "fanduel",
@@ -3289,128 +982,20 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "fanduel",
      "price": 650,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 640,
+     "book": "espnbet",
+     "price": 600,
      "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 550,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Ciryl Gane",
-   "opponent": "Josh Hokit",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T04:30:00Z",
-   "is_main": true,
-   "best_price": -190,
-   "best_book": "betmgm",
-   "worst_price": -230,
-   "n_books": 5,
-   "fair_p": 0.6396,
-   "mkt_p": 0.6552,
-   "ev_best": -2.38,
-   "shop_gain": 0.0418,
-   "hedge_price": 190,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": -190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -195,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -205,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -230,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Josh Hokit",
-   "opponent": "Ciryl Gane",
-   "card": "2026-11-15 - Josh Hokit vs Ciryl Gane",
-   "card_date": "2026-11-15",
-   "commence": "2026-11-15T04:30:00Z",
-   "is_main": true,
-   "best_price": 190,
-   "best_book": "draftkings",
-   "worst_price": 155,
-   "n_books": 5,
-   "fair_p": 0.3604,
-   "mkt_p": 0.3448,
-   "ev_best": 4.53,
-   "shop_gain": 0.0473,
-   "hedge_price": -190,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 164,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 155,
      "best": false,
      "bettable": true
     }
@@ -3424,23 +1009,23 @@
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
    "is_main": true,
-   "best_price": -2000,
+   "best_price": -2400,
    "best_book": "fanduel",
    "worst_price": -3300,
    "n_books": 3,
-   "fair_p": 0.9136,
-   "mkt_p": 0.9524,
+   "fair_p": 0.9209,
+   "mkt_p": 0.96,
    "ev_best": -4.07,
-   "shop_gain": 0.0182,
-   "hedge_price": 1100,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0357,
+   "shop_gain": 0.0106,
+   "hedge_price": 1140,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0406,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -2000,
+     "price": -2400,
      "best": true,
      "bettable": true
     },
@@ -3460,40 +1045,112 @@
   },
   {
    "sport": "Boxing",
+   "fighter": "Rhys Edwards",
+   "opponent": "Lee McGregor",
+   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card_date": "2026-11-20",
+   "commence": "2026-11-20T21:00:00Z",
+   "is_main": false,
+   "best_price": -450,
+   "best_book": "fanduel",
+   "worst_price": -500,
+   "n_books": 2,
+   "fair_p": 0.7736,
+   "mkt_p": 0.8182,
+   "ev_best": -5.45,
+   "shop_gain": 0.0152,
+   "hedge_price": 340,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0455,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": -450,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Lee McGregor",
+   "opponent": "Rhys Edwards",
+   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card_date": "2026-11-20",
+   "commence": "2026-11-20T21:00:00Z",
+   "is_main": false,
+   "best_price": 340,
+   "best_book": "espnbet",
+   "worst_price": 290,
+   "n_books": 2,
+   "fair_p": 0.2264,
+   "mkt_p": 0.2273,
+   "ev_best": -0.36,
+   "shop_gain": 0.0291,
+   "hedge_price": -450,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0455,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 290,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
    "fighter": "Michaela Kotaskova",
    "opponent": "Lauren Price",
    "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
    "is_main": true,
-   "best_price": 1100,
-   "best_book": "espnbet",
+   "best_price": 1140,
+   "best_book": "fanduel",
    "worst_price": 1000,
    "n_books": 3,
-   "fair_p": 0.0864,
-   "mkt_p": 0.0833,
-   "ev_best": 3.65,
-   "shop_gain": 0.0076,
-   "hedge_price": -2000,
+   "fair_p": 0.0791,
+   "mkt_p": 0.0806,
+   "ev_best": -1.95,
+   "shop_gain": 0.0103,
+   "hedge_price": -2400,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0357,
+   "combined_hold": 0.0406,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": 1100,
+     "book": "fanduel",
+     "price": 1140,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 1000,
+     "book": "espnbet",
+     "price": 1100,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "draftkings",
      "price": 1000,
      "best": false,
      "bettable": true
@@ -3508,29 +1165,29 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T03:00:00Z",
    "is_main": false,
-   "best_price": -1800,
-   "best_book": "fanduel",
+   "best_price": -2000,
+   "best_book": "draftkings",
    "worst_price": -3300,
    "n_books": 3,
    "fair_p": 0.905,
-   "mkt_p": 0.9474,
-   "ev_best": -4.47,
-   "shop_gain": 0.0232,
+   "mkt_p": 0.9524,
+   "ev_best": -4.98,
+   "shop_gain": 0.0182,
    "hedge_price": 1100,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0307,
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -1800,
+     "book": "draftkings",
+     "price": -2000,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -2000,
+     "book": "fanduel",
+     "price": -2400,
      "best": false,
      "bettable": true
     },
@@ -3552,15 +1209,15 @@
    "is_main": false,
    "best_price": 1100,
    "best_book": "espnbet",
-   "worst_price": 720,
+   "worst_price": 810,
    "n_books": 3,
    "fair_p": 0.095,
    "mkt_p": 0.0833,
    "ev_best": 14.03,
-   "shop_gain": 0.0386,
-   "hedge_price": -1800,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0307,
+   "shop_gain": 0.0266,
+   "hedge_price": -2000,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0357,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -3578,7 +1235,7 @@
     },
     {
      "book": "fanduel",
-     "price": 720,
+     "price": 810,
      "best": false,
      "bettable": true
     }
@@ -3592,29 +1249,29 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T04:00:00Z",
    "is_main": true,
-   "best_price": -4500,
-   "best_book": "fanduel",
-   "worst_price": -5000,
+   "best_price": -5000,
+   "best_book": "draftkings",
+   "worst_price": -8000,
    "n_books": 2,
-   "fair_p": 0.9377,
-   "mkt_p": 0.9783,
-   "ev_best": -4.15,
-   "shop_gain": 0.0021,
+   "fair_p": 0.9379,
+   "mkt_p": 0.9804,
+   "ev_best": -4.33,
+   "shop_gain": 0.0073,
    "hedge_price": 1600,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0371,
+   "combined_hold": 0.0392,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -4500,
+     "book": "draftkings",
+     "price": -5000,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -5000,
+     "book": "fanduel",
+     "price": -8000,
      "best": false,
      "bettable": true
     }
@@ -3632,13 +1289,13 @@
    "best_book": "fanduel",
    "worst_price": 1300,
    "n_books": 2,
-   "fair_p": 0.0623,
+   "fair_p": 0.0621,
    "mkt_p": 0.0588,
-   "ev_best": 5.94,
+   "ev_best": 5.5,
    "shop_gain": 0.0126,
-   "hedge_price": -4500,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0371,
+   "hedge_price": -5000,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0392,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -3657,666 +1314,6 @@
    ]
   },
   {
-   "sport": "MMA",
-   "fighter": "Ikram Aliskerov",
-   "opponent": "Jared Cannonier",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -355,
-   "best_book": "draftkings",
-   "worst_price": -370,
-   "n_books": 2,
-   "fair_p": 0.751,
-   "mkt_p": 0.7802,
-   "ev_best": -3.74,
-   "shop_gain": 0.007,
-   "hedge_price": 290,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0366,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -355,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -370,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Aleksandre Topuria",
-   "opponent": "Santiago Luna",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": true,
-   "best_price": -240,
-   "best_book": "williamhill_us",
-   "worst_price": -240,
-   "n_books": 1,
-   "fair_p": 0.6792,
-   "mkt_p": 0.7059,
-   "ev_best": -3.77,
-   "shop_gain": 0.0,
-   "hedge_price": 200,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -240,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Shamil Gaziev",
-   "opponent": "Tallison Teixeira",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -225,
-   "best_book": "draftkings",
-   "worst_price": -225,
-   "n_books": 2,
-   "fair_p": 0.6636,
-   "mkt_p": 0.6923,
-   "ev_best": -4.14,
-   "shop_gain": 0.0,
-   "hedge_price": 185,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0432,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -225,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -225,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kyoji Horiguchi",
-   "opponent": "Asu Almabaev",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -205,
-   "best_book": "draftkings",
-   "worst_price": -205,
-   "n_books": 2,
-   "fair_p": 0.6447,
-   "mkt_p": 0.6721,
-   "ev_best": -4.08,
-   "shop_gain": 0.0,
-   "hedge_price": 170,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0425,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -205,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -205,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jake Matthews",
-   "opponent": "Tahir Abdullayev",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -170,
-   "best_book": "draftkings",
-   "worst_price": -170,
-   "n_books": 2,
-   "fair_p": 0.6043,
-   "mkt_p": 0.6296,
-   "ev_best": -4.03,
-   "shop_gain": 0.0,
-   "hedge_price": 143,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0412,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -170,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Daniel Hooker",
-   "opponent": "Brian Ortega",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -160,
-   "best_book": "williamhill_us",
-   "worst_price": -162,
-   "n_books": 2,
-   "fair_p": 0.5923,
-   "mkt_p": 0.6154,
-   "ev_best": -3.75,
-   "shop_gain": 0.0029,
-   "hedge_price": 136,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0391,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -160,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -162,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Navajo Stirling",
-   "opponent": "Jiri Prochazka",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -140,
-   "best_book": "williamhill_us",
-   "worst_price": -148,
-   "n_books": 3,
-   "fair_p": 0.5598,
-   "mkt_p": 0.5833,
-   "ev_best": -4.04,
-   "shop_gain": 0.0134,
-   "hedge_price": 124,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0298,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": -140,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -141,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -148,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Alessandro Costa",
-   "opponent": "Amir Albazi",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -135,
-   "best_book": "draftkings",
-   "worst_price": -135,
-   "n_books": 2,
-   "fair_p": 0.552,
-   "mkt_p": 0.5745,
-   "ev_best": -3.91,
-   "shop_gain": 0.0,
-   "hedge_price": 115,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0396,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -135,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -135,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Kevin Vallejos",
-   "opponent": "Aljamain Sterling",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -117,
-   "best_book": "ballybet",
-   "worst_price": -130,
-   "n_books": 3,
-   "fair_p": 0.5325,
-   "mkt_p": 0.5392,
-   "ev_best": -1.24,
-   "shop_gain": 0.026,
-   "hedge_price": 110,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0154,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -117,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -125,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -130,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Aljamain Sterling",
-   "opponent": "Kevin Vallejos",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 110,
-   "best_book": "draftkings",
-   "worst_price": -107,
-   "n_books": 3,
-   "fair_p": 0.4675,
-   "mkt_p": 0.4762,
-   "ev_best": -1.82,
-   "shop_gain": 0.0407,
-   "hedge_price": -117,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0154,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 105,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -107,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Amir Albazi",
-   "opponent": "Alessandro Costa",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 115,
-   "best_book": "williamhill_us",
-   "worst_price": 114,
-   "n_books": 2,
-   "fair_p": 0.448,
-   "mkt_p": 0.4651,
-   "ev_best": -3.68,
-   "shop_gain": 0.0022,
-   "hedge_price": -135,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0396,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 115,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 114,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jiri Prochazka",
-   "opponent": "Navajo Stirling",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 124,
-   "best_book": "draftkings",
-   "worst_price": 114,
-   "n_books": 3,
-   "fair_p": 0.4402,
-   "mkt_p": 0.4464,
-   "ev_best": -1.39,
-   "shop_gain": 0.0209,
-   "hedge_price": -140,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0298,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 124,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 118,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 114,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Brian Ortega",
-   "opponent": "Daniel Hooker",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 136,
-   "best_book": "draftkings",
-   "worst_price": 135,
-   "n_books": 2,
-   "fair_p": 0.4077,
-   "mkt_p": 0.4237,
-   "ev_best": -3.78,
-   "shop_gain": 0.0018,
-   "hedge_price": -160,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0391,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 136,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 135,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Tahir Abdullayev",
-   "opponent": "Jake Matthews",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 143,
-   "best_book": "williamhill_us",
-   "worst_price": 142,
-   "n_books": 2,
-   "fair_p": 0.3957,
-   "mkt_p": 0.4115,
-   "ev_best": -3.83,
-   "shop_gain": 0.0017,
-   "hedge_price": -170,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0412,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 143,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 142,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Asu Almabaev",
-   "opponent": "Kyoji Horiguchi",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 170,
-   "best_book": "draftkings",
-   "worst_price": 170,
-   "n_books": 2,
-   "fair_p": 0.3553,
-   "mkt_p": 0.3704,
-   "ev_best": -4.08,
-   "shop_gain": 0.0,
-   "hedge_price": -205,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0425,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 170,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Tallison Teixeira",
-   "opponent": "Shamil Gaziev",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 185,
-   "best_book": "draftkings",
-   "worst_price": 185,
-   "n_books": 2,
-   "fair_p": 0.3364,
-   "mkt_p": 0.3509,
-   "ev_best": -4.14,
-   "shop_gain": 0.0,
-   "hedge_price": -225,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0432,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 185,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 185,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Santiago Luna",
-   "opponent": "Aleksandre Topuria",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": true,
-   "best_price": 200,
-   "best_book": "williamhill_us",
-   "worst_price": 200,
-   "n_books": 1,
-   "fair_p": 0.3208,
-   "mkt_p": 0.3333,
-   "ev_best": -3.77,
-   "shop_gain": 0.0,
-   "hedge_price": -240,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0392,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jared Cannonier",
-   "opponent": "Ikram Aliskerov",
-   "card": "2026-11-21 - Santiago Luna vs Aleksandre Topuria",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 290,
-   "best_book": "williamhill_us",
-   "worst_price": 280,
-   "n_books": 2,
-   "fair_p": 0.249,
-   "mkt_p": 0.2564,
-   "ev_best": -2.91,
-   "shop_gain": 0.0067,
-   "hedge_price": -355,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0366,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "williamhill_us",
-     "price": 290,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 280,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "sport": "Boxing",
    "fighter": "Agit Kabayel",
    "opponent": "Nelson Hysa",
@@ -4326,15 +1323,15 @@
    "is_main": true,
    "best_price": -1800,
    "best_book": "fanduel",
-   "worst_price": -2000,
+   "worst_price": -2500,
    "n_books": 3,
-   "fair_p": 0.9045,
+   "fair_p": 0.905,
    "mkt_p": 0.9474,
-   "ev_best": -4.52,
-   "shop_gain": 0.005,
-   "hedge_price": 900,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0474,
+   "ev_best": -4.47,
+   "shop_gain": 0.0142,
+   "hedge_price": 950,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0426,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -4352,7 +1349,7 @@
     },
     {
      "book": "espnbet",
-     "price": -2000,
+     "price": -2500,
      "best": false,
      "bettable": true
     }
@@ -4366,35 +1363,35 @@
    "card_date": "2026-11-28",
    "commence": "2026-11-28T21:00:00Z",
    "is_main": true,
-   "best_price": 900,
-   "best_book": "draftkings",
-   "worst_price": 850,
+   "best_price": 950,
+   "best_book": "espnbet",
+   "worst_price": 900,
    "n_books": 3,
-   "fair_p": 0.0955,
-   "mkt_p": 0.1,
-   "ev_best": -4.52,
-   "shop_gain": 0.0053,
+   "fair_p": 0.095,
+   "mkt_p": 0.0952,
+   "ev_best": -0.23,
+   "shop_gain": 0.0048,
    "hedge_price": -1800,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0474,
+   "combined_hold": 0.0426,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "espnbet",
+     "price": 950,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
      "price": 900,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 900,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 850,
      "best": false,
      "bettable": true
     }
