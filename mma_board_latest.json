@@ -1,18 +1,17 @@
 {
  "meta": {
-  "generated": "2026-11-17 02:59Z",
-  "n_rows": 58,
-  "n_fights": 29,
+  "generated": "2026-11-17 21:48Z",
+  "n_rows": 60,
+  "n_fights": 30,
   "n_cards": 10,
   "books": [
    "ballybet",
-   "betmgm",
    "draftkings",
    "espnbet",
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "85603",
+  "credits_left": "85151",
   "sports": [
    "Boxing",
    "MMA"
@@ -28,24 +27,36 @@
    "card_date": "2026-11-18",
    "commence": "2026-11-18T11:00:00Z",
    "is_main": true,
-   "best_price": -2000,
+   "best_price": -3000,
    "best_book": "fanduel",
-   "worst_price": -2000,
-   "n_books": 1,
-   "fair_p": 0.88,
-   "mkt_p": 0.9524,
-   "ev_best": -7.6,
-   "shop_gain": 0.0,
-   "hedge_price": 670,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0823,
+   "worst_price": -5000,
+   "n_books": 3,
+   "fair_p": 0.9207,
+   "mkt_p": 0.9677,
+   "ev_best": -4.86,
+   "shop_gain": 0.0127,
+   "hedge_price": 1400,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0344,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": -2000,
+     "price": -3000,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -3000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -5000,
+     "best": false,
      "bettable": true
     }
    ]
@@ -58,24 +69,36 @@
    "card_date": "2026-11-18",
    "commence": "2026-11-18T11:00:00Z",
    "is_main": true,
-   "best_price": 670,
-   "best_book": "fanduel",
-   "worst_price": 670,
-   "n_books": 1,
-   "fair_p": 0.12,
-   "mkt_p": 0.1299,
-   "ev_best": -7.6,
-   "shop_gain": 0.0,
-   "hedge_price": -2000,
+   "best_price": 1400,
+   "best_book": "espnbet",
+   "worst_price": 790,
+   "n_books": 3,
+   "fair_p": 0.0793,
+   "mkt_p": 0.0667,
+   "ev_best": 18.93,
+   "shop_gain": 0.0457,
+   "hedge_price": -3000,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0823,
+   "combined_hold": 0.0344,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 670,
+     "book": "espnbet",
+     "price": 1400,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 790,
+     "best": false,
      "bettable": true
     }
    ]
@@ -84,33 +107,39 @@
    "sport": "Boxing",
    "fighter": "Willy Gilheaney",
    "opponent": "Alberto Ignacio Palmetta",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T19:00:00Z",
    "is_main": false,
-   "best_price": -230,
-   "best_book": "fanduel",
-   "worst_price": -265,
-   "n_books": 2,
-   "fair_p": 0.6683,
-   "mkt_p": 0.697,
-   "ev_best": -4.11,
-   "shop_gain": 0.0291,
-   "hedge_price": 200,
-   "hedge_book": "espnbet",
-   "combined_hold": 0.0303,
+   "best_price": -225,
+   "best_book": "espnbet",
+   "worst_price": -240,
+   "n_books": 3,
+   "fair_p": 0.6556,
+   "mkt_p": 0.6923,
+   "ev_best": -5.3,
+   "shop_gain": 0.0136,
+   "hedge_price": 185,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0432,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -230,
+     "book": "espnbet",
+     "price": -225,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -265,
+     "book": "fanduel",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -240,
      "best": false,
      "bettable": true
     }
@@ -120,28 +149,34 @@
    "sport": "Boxing",
    "fighter": "Alberto Ignacio Palmetta",
    "opponent": "Willy Gilheaney",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T19:00:00Z",
    "is_main": false,
-   "best_price": 200,
-   "best_book": "espnbet",
+   "best_price": 185,
+   "best_book": "draftkings",
    "worst_price": 168,
-   "n_books": 2,
-   "fair_p": 0.3317,
-   "mkt_p": 0.3333,
-   "ev_best": -0.5,
-   "shop_gain": 0.0398,
-   "hedge_price": -230,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0303,
+   "n_books": 3,
+   "fair_p": 0.3444,
+   "mkt_p": 0.3509,
+   "ev_best": -1.85,
+   "shop_gain": 0.0223,
+   "hedge_price": -225,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0432,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": 200,
+     "book": "draftkings",
+     "price": 185,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 175,
+     "best": false,
      "bettable": true
     },
     {
@@ -156,10 +191,10 @@
    "sport": "Boxing",
    "fighter": "Lauren Price",
    "opponent": "Michaela Kotaskova",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
-   "is_main": true,
+   "is_main": false,
    "best_price": -2400,
    "best_book": "fanduel",
    "worst_price": -3300,
@@ -198,26 +233,32 @@
    "sport": "Boxing",
    "fighter": "Rhys Edwards",
    "opponent": "Lee McGregor",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
    "is_main": false,
    "best_price": -450,
    "best_book": "fanduel",
    "worst_price": -500,
-   "n_books": 2,
-   "fair_p": 0.7736,
+   "n_books": 3,
+   "fair_p": 0.7787,
    "mkt_p": 0.8182,
-   "ev_best": -5.45,
+   "ev_best": -4.83,
    "shop_gain": 0.0152,
-   "hedge_price": 340,
+   "hedge_price": 350,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0455,
+   "combined_hold": 0.0404,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "fanduel",
+     "price": -450,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
      "price": -450,
      "best": true,
      "bettable": true
@@ -234,28 +275,34 @@
    "sport": "Boxing",
    "fighter": "Lee McGregor",
    "opponent": "Rhys Edwards",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
    "is_main": false,
-   "best_price": 340,
+   "best_price": 350,
    "best_book": "espnbet",
    "worst_price": 290,
-   "n_books": 2,
-   "fair_p": 0.2264,
-   "mkt_p": 0.2273,
-   "ev_best": -0.36,
-   "shop_gain": 0.0291,
+   "n_books": 3,
+   "fair_p": 0.2213,
+   "mkt_p": 0.2222,
+   "ev_best": -0.4,
+   "shop_gain": 0.0342,
    "hedge_price": -450,
    "hedge_book": "fanduel",
-   "combined_hold": 0.0455,
+   "combined_hold": 0.0404,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 340,
+     "price": 350,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 330,
+     "best": false,
      "bettable": true
     },
     {
@@ -270,10 +317,10 @@
    "sport": "Boxing",
    "fighter": "Michaela Kotaskova",
    "opponent": "Lauren Price",
-   "card": "2026-11-20 - Michaela Kotaskova vs Lauren Price",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
    "card_date": "2026-11-20",
    "commence": "2026-11-20T21:00:00Z",
-   "is_main": true,
+   "is_main": false,
    "best_price": 1140,
    "best_book": "fanduel",
    "worst_price": 1000,
@@ -310,6 +357,66 @@
   },
   {
    "sport": "Boxing",
+   "fighter": "Leonardo Sanchez",
+   "opponent": "Victor Morales Jr",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
+   "card_date": "2026-11-20",
+   "commence": "2026-11-20T22:00:00Z",
+   "is_main": true,
+   "best_price": -350,
+   "best_book": "draftkings",
+   "worst_price": -350,
+   "n_books": 1,
+   "fair_p": 0.7368,
+   "mkt_p": 0.7778,
+   "ev_best": -5.26,
+   "shop_gain": 0.0,
+   "hedge_price": 260,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -350,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Victor Morales Jr",
+   "opponent": "Leonardo Sanchez",
+   "card": "2026-11-20 - Victor Morales Jr vs Leonardo Sanchez",
+   "card_date": "2026-11-20",
+   "commence": "2026-11-20T22:00:00Z",
+   "is_main": true,
+   "best_price": 260,
+   "best_book": "draftkings",
+   "worst_price": 260,
+   "n_books": 1,
+   "fair_p": 0.2632,
+   "mkt_p": 0.2778,
+   "ev_best": -5.26,
+   "shop_gain": 0.0,
+   "hedge_price": -350,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0556,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 260,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
    "fighter": "Gabriela Fundora",
    "opponent": "Jasmina Zapotoczna",
    "card": "2026-11-21 - Deaundre Pettus vs Amari Jones",
@@ -318,16 +425,16 @@
    "is_main": false,
    "best_price": -2000,
    "best_book": "draftkings",
-   "worst_price": -3300,
+   "worst_price": -5000,
    "n_books": 3,
    "fair_p": 0.905,
    "mkt_p": 0.9524,
    "ev_best": -4.98,
-   "shop_gain": 0.0182,
-   "hedge_price": 1100,
+   "shop_gain": 0.028,
+   "hedge_price": 1400,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0357,
-   "low_hold": false,
+   "combined_hold": 0.019,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
@@ -344,7 +451,7 @@
     },
     {
      "book": "espnbet",
-     "price": -3300,
+     "price": -5000,
      "best": false,
      "bettable": true
     }
@@ -358,23 +465,23 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T03:00:00Z",
    "is_main": false,
-   "best_price": 1100,
+   "best_price": 1400,
    "best_book": "espnbet",
    "worst_price": 810,
    "n_books": 3,
    "fair_p": 0.095,
-   "mkt_p": 0.0833,
-   "ev_best": 14.03,
-   "shop_gain": 0.0266,
+   "mkt_p": 0.0667,
+   "ev_best": 42.53,
+   "shop_gain": 0.0432,
    "hedge_price": -2000,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0357,
-   "low_hold": false,
+   "combined_hold": 0.019,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
      "book": "espnbet",
-     "price": 1100,
+     "price": 1400,
      "best": true,
      "bettable": true
     },
@@ -476,13 +583,13 @@
    "best_book": "williamhill_us",
    "worst_price": -310,
    "n_books": 4,
-   "fair_p": 0.7137,
+   "fair_p": 0.7136,
    "mkt_p": 0.7436,
-   "ev_best": -4.02,
+   "ev_best": -4.04,
    "shop_gain": 0.0125,
-   "hedge_price": 240,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0377,
+   "hedge_price": 235,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0421,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -493,14 +600,14 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -300,
-     "best": false,
+     "book": "draftkings",
+     "price": -290,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": -305,
+     "price": -295,
      "best": false,
      "bettable": true
     },
@@ -521,7 +628,7 @@
    "commence": "2026-11-21T15:00:00Z",
    "is_main": false,
    "best_price": -250,
-   "best_book": "betmgm",
+   "best_book": "draftkings",
    "worst_price": -270,
    "n_books": 4,
    "fair_p": 0.6871,
@@ -535,7 +642,7 @@
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
+     "book": "draftkings",
      "price": -250,
      "best": true,
      "bettable": true
@@ -568,41 +675,41 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T15:00:00Z",
    "is_main": false,
-   "best_price": -152,
-   "best_book": "ballybet",
-   "worst_price": -160,
+   "best_price": -155,
+   "best_book": "williamhill_us",
+   "worst_price": -175,
    "n_books": 4,
-   "fair_p": 0.5786,
-   "mkt_p": 0.6032,
-   "ev_best": -4.07,
-   "shop_gain": 0.0122,
-   "hedge_price": 130,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.038,
-   "low_hold": false,
+   "fair_p": 0.5813,
+   "mkt_p": 0.6078,
+   "ev_best": -4.37,
+   "shop_gain": 0.0285,
+   "hedge_price": 145,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.016,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": -152,
+     "book": "williamhill_us",
+     "price": -155,
      "best": true,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": -155,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -155,
+     "book": "ballybet",
+     "price": -157,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": -160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -175,
      "best": false,
      "bettable": true
     }
@@ -616,28 +723,34 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T15:00:00Z",
    "is_main": false,
-   "best_price": 130,
-   "best_book": "williamhill_us",
-   "worst_price": 123,
+   "best_price": 145,
+   "best_book": "draftkings",
+   "worst_price": 124,
    "n_books": 4,
-   "fair_p": 0.4214,
-   "mkt_p": 0.4348,
-   "ev_best": -3.08,
-   "shop_gain": 0.0136,
-   "hedge_price": -152,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.038,
-   "low_hold": false,
+   "fair_p": 0.4187,
+   "mkt_p": 0.4082,
+   "ev_best": 2.59,
+   "shop_gain": 0.0383,
+   "hedge_price": -155,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.016,
+   "low_hold": true,
    "arb": false,
    "book_prices": [
     {
-     "book": "williamhill_us",
-     "price": 130,
+     "book": "draftkings",
+     "price": 145,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "williamhill_us",
+     "price": 130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
      "price": 125,
      "best": false,
      "bettable": true
@@ -645,12 +758,6 @@
     {
      "book": "fanduel",
      "price": 124,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 123,
      "best": false,
      "bettable": true
     }
@@ -670,10 +777,10 @@
    "n_books": 4,
    "fair_p": 0.3129,
    "mkt_p": 0.3125,
-   "ev_best": 0.12,
+   "ev_best": 0.11,
    "shop_gain": 0.0208,
    "hedge_price": -250,
-   "hedge_book": "betmgm",
+   "hedge_book": "draftkings",
    "combined_hold": 0.0268,
    "low_hold": false,
    "arb": false,
@@ -691,8 +798,8 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 200,
+     "book": "draftkings",
+     "price": 205,
      "best": false,
      "bettable": true
     },
@@ -712,41 +819,41 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T15:00:00Z",
    "is_main": false,
-   "best_price": 240,
-   "best_book": "betmgm",
-   "worst_price": 230,
+   "best_price": 235,
+   "best_book": "williamhill_us",
+   "worst_price": 225,
    "n_books": 4,
-   "fair_p": 0.2863,
-   "mkt_p": 0.2941,
-   "ev_best": -2.66,
-   "shop_gain": 0.0089,
+   "fair_p": 0.2864,
+   "mkt_p": 0.2985,
+   "ev_best": -4.04,
+   "shop_gain": 0.0092,
    "hedge_price": -290,
    "hedge_book": "williamhill_us",
-   "combined_hold": 0.0377,
+   "combined_hold": 0.0421,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 240,
+     "book": "williamhill_us",
+     "price": 235,
      "best": true,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "draftkings",
      "price": 235,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 230,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 225,
      "best": false,
      "bettable": true
     }
@@ -760,30 +867,24 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T15:15:00Z",
    "is_main": false,
-   "best_price": -230,
-   "best_book": "ballybet",
-   "worst_price": -250,
-   "n_books": 5,
-   "fair_p": 0.6792,
-   "mkt_p": 0.697,
-   "ev_best": -2.54,
-   "shop_gain": 0.0173,
+   "best_price": -240,
+   "best_book": "williamhill_us",
+   "worst_price": -265,
+   "n_books": 4,
+   "fair_p": 0.6799,
+   "mkt_p": 0.7059,
+   "ev_best": -3.68,
+   "shop_gain": 0.0201,
    "hedge_price": 200,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0303,
+   "combined_hold": 0.0392,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": -230,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": -240,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -793,14 +894,14 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -245,
+     "book": "ballybet",
+     "price": -250,
      "best": false,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -250,
+     "book": "fanduel",
+     "price": -265,
      "best": false,
      "bettable": true
     }
@@ -816,15 +917,15 @@
    "is_main": false,
    "best_price": 200,
    "best_book": "draftkings",
-   "worst_price": 180,
-   "n_books": 5,
-   "fair_p": 0.3208,
+   "worst_price": 195,
+   "n_books": 4,
+   "fair_p": 0.3201,
    "mkt_p": 0.3333,
-   "ev_best": -3.77,
-   "shop_gain": 0.0238,
-   "hedge_price": -230,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0303,
+   "ev_best": -3.97,
+   "shop_gain": 0.0056,
+   "hedge_price": -240,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0392,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -841,20 +942,62 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
+     "book": "fanduel",
      "price": 200,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 186,
+     "book": "ballybet",
+     "price": 195,
      "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Amir Albazi",
+   "opponent": "Alessandro Costa",
+   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
+   "card_date": "2026-11-21",
+   "commence": "2026-11-21T15:45:00Z",
+   "is_main": false,
+   "best_price": -115,
+   "best_book": "draftkings",
+   "worst_price": -120,
+   "n_books": 4,
+   "fair_p": 0.5127,
+   "mkt_p": 0.5349,
+   "ev_best": -4.15,
+   "shop_gain": 0.0106,
+   "hedge_price": 100,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0349,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -115,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 180,
+     "price": -115,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -120,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -120,
      "best": false,
      "bettable": true
     }
@@ -870,16 +1013,16 @@
    "is_main": false,
    "best_price": 100,
    "best_book": "williamhill_us",
-   "worst_price": -117,
-   "n_books": 5,
-   "fair_p": 0.5,
+   "worst_price": -107,
+   "n_books": 4,
+   "fair_p": 0.4873,
    "mkt_p": 0.5,
-   "ev_best": 0.0,
-   "shop_gain": 0.0392,
-   "hedge_price": -107,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0169,
-   "low_hold": true,
+   "ev_best": -2.54,
+   "shop_gain": 0.0169,
+   "hedge_price": -115,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0349,
+   "low_hold": false,
    "arb": false,
    "book_prices": [
     {
@@ -895,74 +1038,14 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": -110,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": -113,
+     "price": -106,
      "best": false,
      "bettable": true
     },
-    {
-     "book": "ballybet",
-     "price": -117,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Amir Albazi",
-   "opponent": "Alessandro Costa",
-   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T15:45:00Z",
-   "is_main": false,
-   "best_price": -107,
-   "best_book": "ballybet",
-   "worst_price": -120,
-   "n_books": 5,
-   "fair_p": 0.5,
-   "mkt_p": 0.5169,
-   "ev_best": -3.27,
-   "shop_gain": 0.0285,
-   "hedge_price": 100,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0169,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
     {
      "book": "ballybet",
      "price": -107,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -110,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -113,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -120,
      "best": false,
      "bettable": true
     }
@@ -974,18 +1057,18 @@
    "opponent": "Tallison Teixeira",
    "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
    "card_date": "2026-11-21",
-   "commence": "2026-11-21T16:15:00Z",
+   "commence": "2026-11-21T17:15:00Z",
    "is_main": false,
    "best_price": -190,
    "best_book": "williamhill_us",
-   "worst_price": -215,
-   "n_books": 5,
-   "fair_p": 0.6369,
+   "worst_price": -205,
+   "n_books": 4,
+   "fair_p": 0.6365,
    "mkt_p": 0.6552,
-   "ev_best": -2.79,
-   "shop_gain": 0.0274,
+   "ev_best": -2.85,
+   "shop_gain": 0.017,
    "hedge_price": 170,
-   "hedge_book": "ballybet",
+   "hedge_book": "draftkings",
    "combined_hold": 0.0255,
    "low_hold": false,
    "arb": false,
@@ -998,13 +1081,7 @@
     },
     {
      "book": "draftkings",
-     "price": -198,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -200,
+     "price": -205,
      "best": false,
      "bettable": true
     },
@@ -1016,7 +1093,7 @@
     },
     {
      "book": "ballybet",
-     "price": -215,
+     "price": -205,
      "best": false,
      "bettable": true
     }
@@ -1028,15 +1105,15 @@
    "opponent": "Shamil Gaziev",
    "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
    "card_date": "2026-11-21",
-   "commence": "2026-11-21T16:15:00Z",
+   "commence": "2026-11-21T17:15:00Z",
    "is_main": false,
    "best_price": 170,
-   "best_book": "ballybet",
+   "best_book": "draftkings",
    "worst_price": 158,
-   "n_books": 5,
-   "fair_p": 0.3631,
+   "n_books": 4,
+   "fair_p": 0.3635,
    "mkt_p": 0.3704,
-   "ev_best": -1.96,
+   "ev_best": -1.85,
    "shop_gain": 0.0172,
    "hedge_price": -190,
    "hedge_book": "williamhill_us",
@@ -1045,20 +1122,14 @@
    "arb": false,
    "book_prices": [
     {
-     "book": "ballybet",
+     "book": "draftkings",
      "price": 170,
      "best": true,
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 164,
+     "book": "ballybet",
+     "price": 163,
      "best": false,
      "bettable": true
     },
@@ -1078,73 +1149,19 @@
   },
   {
    "sport": "MMA",
-   "fighter": "Navajo Stirling",
-   "opponent": "Jiri Prochazka",
-   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": -158,
-   "best_book": "fanduel",
-   "worst_price": -170,
-   "n_books": 5,
-   "fair_p": 0.5912,
-   "mkt_p": 0.6124,
-   "ev_best": -3.46,
-   "shop_gain": 0.0172,
-   "hedge_price": 142,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0256,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": -158,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -160,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -162,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -170,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
    "fighter": "Kevin Vallejos",
    "opponent": "Aljamain Sterling",
    "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
    "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
+   "commence": "2026-11-21T18:00:00Z",
    "is_main": false,
    "best_price": -130,
    "best_book": "draftkings",
    "worst_price": -150,
-   "n_books": 5,
-   "fair_p": 0.5507,
+   "n_books": 4,
+   "fair_p": 0.5447,
    "mkt_p": 0.5652,
-   "ev_best": -2.58,
+   "ev_best": -3.63,
    "shop_gain": 0.0348,
    "hedge_price": 125,
    "hedge_book": "williamhill_us",
@@ -1160,19 +1177,13 @@
     },
     {
      "book": "ballybet",
-     "price": -137,
+     "price": -132,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": -138,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -145,
      "best": false,
      "bettable": true
     },
@@ -1190,16 +1201,16 @@
    "opponent": "Kevin Vallejos",
    "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
    "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
+   "commence": "2026-11-21T18:00:00Z",
    "is_main": false,
    "best_price": 125,
    "best_book": "williamhill_us",
-   "worst_price": 108,
-   "n_books": 5,
-   "fair_p": 0.4493,
+   "worst_price": 107,
+   "n_books": 4,
+   "fair_p": 0.4553,
    "mkt_p": 0.4444,
-   "ev_best": 1.1,
-   "shop_gain": 0.0363,
+   "ev_best": 2.44,
+   "shop_gain": 0.0386,
    "hedge_price": -130,
    "hedge_book": "draftkings",
    "combined_hold": 0.0097,
@@ -1213,18 +1224,6 @@
      "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 112,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 110,
      "best": false,
@@ -1235,58 +1234,10 @@
      "price": 108,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jiri Prochazka",
-   "opponent": "Navajo Stirling",
-   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T17:00:00Z",
-   "is_main": false,
-   "best_price": 142,
-   "best_book": "draftkings",
-   "worst_price": 124,
-   "n_books": 5,
-   "fair_p": 0.4088,
-   "mkt_p": 0.4132,
-   "ev_best": -1.07,
-   "shop_gain": 0.0332,
-   "hedge_price": -158,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0256,
-   "low_hold": false,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 142,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 135,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 135,
-     "best": false,
-     "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 130,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 124,
+     "price": 107,
      "best": false,
      "bettable": true
     }
@@ -1300,36 +1251,30 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T18:15:00Z",
    "is_main": false,
-   "best_price": -300,
-   "best_book": "betmgm",
-   "worst_price": -340,
-   "n_books": 5,
-   "fair_p": 0.7258,
-   "mkt_p": 0.75,
-   "ev_best": -3.23,
-   "shop_gain": 0.0227,
-   "hedge_price": 250,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0357,
+   "best_price": -305,
+   "best_book": "draftkings",
+   "worst_price": -350,
+   "n_books": 4,
+   "fair_p": 0.7239,
+   "mkt_p": 0.7531,
+   "ev_best": -3.87,
+   "shop_gain": 0.0247,
+   "hedge_price": 255,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0348,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": -300,
+     "book": "draftkings",
+     "price": -305,
      "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": -305,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -310,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1340,7 +1285,7 @@
     },
     {
      "book": "fanduel",
-     "price": -340,
+     "price": -350,
      "best": false,
      "bettable": true
     }
@@ -1354,47 +1299,41 @@
    "card_date": "2026-11-21",
    "commence": "2026-11-21T18:15:00Z",
    "is_main": false,
-   "best_price": 250,
-   "best_book": "draftkings",
-   "worst_price": 230,
-   "n_books": 5,
-   "fair_p": 0.2742,
-   "mkt_p": 0.2857,
-   "ev_best": -4.01,
-   "shop_gain": 0.0173,
-   "hedge_price": -300,
-   "hedge_book": "betmgm",
-   "combined_hold": 0.0357,
+   "best_price": 255,
+   "best_book": "fanduel",
+   "worst_price": 235,
+   "n_books": 4,
+   "fair_p": 0.2761,
+   "mkt_p": 0.2817,
+   "ev_best": -1.99,
+   "shop_gain": 0.0168,
+   "hedge_price": -305,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0348,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 250,
+     "book": "fanduel",
+     "price": 255,
      "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 250,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 240,
+     "book": "draftkings",
+     "price": 245,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 230,
+     "price": 235,
      "best": false,
      "bettable": true
     }
@@ -1479,6 +1418,102 @@
     {
      "book": "fanduel",
      "price": 154,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Navajo Stirling",
+   "opponent": "Jiri Prochazka",
+   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
+   "card_date": "2026-11-21",
+   "commence": "2026-11-21T19:00:00Z",
+   "is_main": false,
+   "best_price": -148,
+   "best_book": "draftkings",
+   "worst_price": -166,
+   "n_books": 4,
+   "fair_p": 0.5883,
+   "mkt_p": 0.5968,
+   "ev_best": -1.43,
+   "shop_gain": 0.0273,
+   "hedge_price": 135,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.0223,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -148,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -162,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -166,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jiri Prochazka",
+   "opponent": "Navajo Stirling",
+   "card": "2026-11-21 - Brian Ortega vs Daniel Hooker",
+   "card_date": "2026-11-21",
+   "commence": "2026-11-21T19:00:00Z",
+   "is_main": false,
+   "best_price": 135,
+   "best_book": "williamhill_us",
+   "worst_price": 124,
+   "n_books": 4,
+   "fair_p": 0.4117,
+   "mkt_p": 0.4255,
+   "ev_best": -3.24,
+   "shop_gain": 0.0209,
+   "hedge_price": -148,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0223,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": 135,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 124,
      "best": false,
      "bettable": true
     }
@@ -1984,35 +2019,35 @@
    "card_date": "2026-12-05",
    "commence": "2026-12-05T17:00:00Z",
    "is_main": true,
-   "best_price": -175,
-   "best_book": "williamhill_us",
+   "best_price": -170,
+   "best_book": "draftkings",
    "worst_price": -192,
    "n_books": 4,
-   "fair_p": 0.6128,
-   "mkt_p": 0.6364,
-   "ev_best": -3.7,
-   "shop_gain": 0.0212,
-   "hedge_price": 150,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0364,
+   "fair_p": 0.6073,
+   "mkt_p": 0.6296,
+   "ev_best": -3.55,
+   "shop_gain": 0.0279,
+   "hedge_price": 148,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0329,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
+     "book": "draftkings",
+     "price": -170,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "williamhill_us",
      "price": -175,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": -177,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -180,
      "best": false,
      "bettable": true
     },
@@ -2128,35 +2163,35 @@
    "card_date": "2026-12-05",
    "commence": "2026-12-05T17:00:00Z",
    "is_main": true,
-   "best_price": 150,
-   "best_book": "draftkings",
+   "best_price": 148,
+   "best_book": "fanduel",
    "worst_price": 140,
    "n_books": 4,
-   "fair_p": 0.3872,
-   "mkt_p": 0.4,
-   "ev_best": -3.21,
-   "shop_gain": 0.0167,
-   "hedge_price": -175,
-   "hedge_book": "williamhill_us",
-   "combined_hold": 0.0364,
+   "fair_p": 0.3927,
+   "mkt_p": 0.4032,
+   "ev_best": -2.6,
+   "shop_gain": 0.0134,
+   "hedge_price": -170,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0329,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 150,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 148,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 145,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 142,
      "best": false,
      "bettable": true
     },
@@ -2416,34 +2451,34 @@
    "card_date": "2026-12-06",
    "commence": "2026-12-06T03:00:00Z",
    "is_main": false,
-   "best_price": -1000,
+   "best_price": -1100,
    "best_book": "draftkings",
    "worst_price": -1200,
    "n_books": 3,
-   "fair_p": 0.8684,
-   "mkt_p": 0.9091,
-   "ev_best": -4.47,
-   "shop_gain": 0.014,
+   "fair_p": 0.8738,
+   "mkt_p": 0.9167,
+   "ev_best": -4.68,
+   "shop_gain": 0.0064,
    "hedge_price": 650,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0424,
+   "combined_hold": 0.05,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -1000,
+     "price": -1100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -1100,
+     "book": "espnbet",
+     "price": -1200,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "fanduel",
      "price": -1200,
      "best": false,
      "bettable": true
@@ -2462,13 +2497,13 @@
    "best_book": "espnbet",
    "worst_price": 600,
    "n_books": 3,
-   "fair_p": 0.1316,
+   "fair_p": 0.1262,
    "mkt_p": 0.1333,
-   "ev_best": -1.32,
+   "ev_best": -5.34,
    "shop_gain": 0.0095,
-   "hedge_price": -1000,
+   "hedge_price": -1100,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0424,
+   "combined_hold": 0.05,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -2480,8 +2515,8 @@
     },
     {
      "book": "fanduel",
-     "price": 620,
-     "best": false,
+     "price": 650,
+     "best": true,
      "bettable": true
     },
     {
