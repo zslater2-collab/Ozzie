@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-11-21 20:08Z",
-  "n_rows": 30,
-  "n_fights": 15,
-  "n_cards": 9,
+  "generated": "2026-11-22 00:27Z",
+  "n_rows": 28,
+  "n_fights": 14,
+  "n_cards": 8,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "81567",
+  "credits_left": "80955",
   "sports": [
    "Boxing",
    "MMA"
@@ -20,114 +20,6 @@
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
-  {
-   "sport": "MMA",
-   "fighter": "Navajo Stirling",
-   "opponent": "Jiri Prochazka",
-   "card": "2026-11-21 - Navajo Stirling vs Jiri Prochazka",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T20:30:00Z",
-   "is_main": true,
-   "best_price": -195,
-   "best_book": "ballybet",
-   "worst_price": -230,
-   "n_books": 5,
-   "fair_p": 0.6565,
-   "mkt_p": 0.661,
-   "ev_best": -0.69,
-   "shop_gain": 0.036,
-   "hedge_price": 190,
-   "hedge_book": "draftkings",
-   "combined_hold": 0.0058,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": -195,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -205,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -215,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -225,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -230,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "sport": "MMA",
-   "fighter": "Jiri Prochazka",
-   "opponent": "Navajo Stirling",
-   "card": "2026-11-21 - Navajo Stirling vs Jiri Prochazka",
-   "card_date": "2026-11-21",
-   "commence": "2026-11-21T20:30:00Z",
-   "is_main": true,
-   "best_price": 190,
-   "best_book": "draftkings",
-   "worst_price": 155,
-   "n_books": 5,
-   "fair_p": 0.3435,
-   "mkt_p": 0.3448,
-   "ev_best": -0.38,
-   "shop_gain": 0.0473,
-   "hedge_price": -195,
-   "hedge_book": "ballybet",
-   "combined_hold": 0.0058,
-   "low_hold": true,
-   "arb": false,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 190,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 180,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 170,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 155,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
   {
    "sport": "Boxing",
    "fighter": "Masamichi Yabuki",
@@ -616,23 +508,23 @@
    "card_date": "2026-12-05",
    "commence": "2026-12-05T20:15:00Z",
    "is_main": false,
-   "best_price": -175,
+   "best_price": -170,
    "best_book": "draftkings",
    "worst_price": -200,
    "n_books": 5,
    "fair_p": 0.6234,
-   "mkt_p": 0.6364,
-   "ev_best": -2.04,
-   "shop_gain": 0.0303,
+   "mkt_p": 0.6296,
+   "ev_best": -0.99,
+   "shop_gain": 0.037,
    "hedge_price": 155,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0285,
+   "combined_hold": 0.0218,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -175,
+     "price": -170,
      "best": true,
      "bettable": true
     },
@@ -672,15 +564,15 @@
    "is_main": false,
    "best_price": 155,
    "best_book": "ballybet",
-   "worst_price": 145,
+   "worst_price": 142,
    "n_books": 5,
    "fair_p": 0.3766,
    "mkt_p": 0.3922,
    "ev_best": -3.96,
-   "shop_gain": 0.016,
-   "hedge_price": -175,
+   "shop_gain": 0.0211,
+   "hedge_price": -170,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0285,
+   "combined_hold": 0.0218,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -710,7 +602,7 @@
     },
     {
      "book": "draftkings",
-     "price": 145,
+     "price": 142,
      "best": false,
      "bettable": true
     }
@@ -732,9 +624,9 @@
    "mkt_p": 0.6109,
    "ev_best": -4.05,
    "shop_gain": 0.0187,
-   "hedge_price": 142,
+   "hedge_price": 136,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0241,
+   "combined_hold": 0.0346,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -751,14 +643,14 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -164,
+     "book": "draftkings",
+     "price": -162,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -170,
+     "book": "fanduel",
+     "price": -164,
      "best": false,
      "bettable": true
     },
@@ -778,23 +670,23 @@
    "card_date": "2026-12-05",
    "commence": "2026-12-05T20:45:00Z",
    "is_main": true,
-   "best_price": 142,
+   "best_price": 136,
    "best_book": "draftkings",
    "worst_price": 125,
    "n_books": 5,
    "fair_p": 0.4138,
-   "mkt_p": 0.4132,
-   "ev_best": 0.15,
-   "shop_gain": 0.0312,
+   "mkt_p": 0.4237,
+   "ev_best": -2.33,
+   "shop_gain": 0.0207,
    "hedge_price": -157,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0241,
+   "combined_hold": 0.0346,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 142,
+     "price": 136,
      "best": true,
      "bettable": true
     },
