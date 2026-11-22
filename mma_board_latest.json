@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated": "2026-11-22 00:27Z",
-  "n_rows": 28,
-  "n_fights": 14,
-  "n_cards": 8,
+  "generated": "2026-11-22 20:23Z",
+  "n_rows": 46,
+  "n_fights": 23,
+  "n_cards": 10,
   "books": [
    "ballybet",
    "betmgm",
@@ -12,7 +12,7 @@
    "fanduel",
    "williamhill_us"
   ],
-  "credits_left": "80955",
+  "credits_left": "80687",
   "sports": [
    "Boxing",
    "MMA"
@@ -20,6 +20,78 @@
   "note": "moneyline line-shopping board; no fight model and no claimed edge. ev_best = best book's price vs the books' own no-vig consensus, i.e. the SHOPPING gain, not an independent edge."
  },
  "rows": [
+  {
+   "sport": "Boxing",
+   "fighter": "Takeshi Ishii",
+   "opponent": "Zyvyr John Medecilo",
+   "card": "2026-11-26 - Miel Fajardo vs Masamichi Yabuki",
+   "card_date": "2026-11-26",
+   "commence": "2026-11-26T11:00:00Z",
+   "is_main": false,
+   "best_price": -500,
+   "best_book": "espnbet",
+   "worst_price": -750,
+   "n_books": 2,
+   "fair_p": 0.8048,
+   "mkt_p": 0.8333,
+   "ev_best": -3.43,
+   "shop_gain": 0.049,
+   "hedge_price": 430,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.022,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -750,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Zyvyr John Medecilo",
+   "opponent": "Takeshi Ishii",
+   "card": "2026-11-26 - Miel Fajardo vs Masamichi Yabuki",
+   "card_date": "2026-11-26",
+   "commence": "2026-11-26T11:00:00Z",
+   "is_main": false,
+   "best_price": 430,
+   "best_book": "fanduel",
+   "worst_price": 340,
+   "n_books": 2,
+   "fair_p": 0.1952,
+   "mkt_p": 0.1887,
+   "ev_best": 3.47,
+   "shop_gain": 0.0386,
+   "hedge_price": -500,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.022,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 430,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 340,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
   {
    "sport": "Boxing",
    "fighter": "Masamichi Yabuki",
@@ -100,30 +172,24 @@
    "card_date": "2026-11-28",
    "commence": "2026-11-28T21:00:00Z",
    "is_main": true,
-   "best_price": -1800,
-   "best_book": "fanduel",
+   "best_price": -2000,
+   "best_book": "draftkings",
    "worst_price": -2500,
-   "n_books": 3,
-   "fair_p": 0.9079,
-   "mkt_p": 0.9474,
-   "ev_best": -4.17,
-   "shop_gain": 0.0142,
+   "n_books": 2,
+   "fair_p": 0.9074,
+   "mkt_p": 0.9524,
+   "ev_best": -4.72,
+   "shop_gain": 0.0092,
    "hedge_price": 950,
    "hedge_book": "espnbet",
-   "combined_hold": 0.0426,
+   "combined_hold": 0.0476,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": -1800,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": -2000,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -145,14 +211,14 @@
    "best_price": 950,
    "best_book": "espnbet",
    "worst_price": 900,
-   "n_books": 3,
-   "fair_p": 0.0921,
+   "n_books": 2,
+   "fair_p": 0.0926,
    "mkt_p": 0.0952,
-   "ev_best": -3.25,
+   "ev_best": -2.8,
    "shop_gain": 0.0048,
-   "hedge_price": -1800,
-   "hedge_book": "fanduel",
-   "combined_hold": 0.0426,
+   "hedge_price": -2000,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0476,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -160,12 +226,6 @@
      "book": "espnbet",
      "price": 950,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 940,
-     "best": false,
      "bettable": true
     },
     {
@@ -502,29 +562,329 @@
   },
   {
    "sport": "MMA",
+   "fighter": "Islam Dulatov",
+   "opponent": "Levan Chokheli",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": -275,
+   "best_book": "betmgm",
+   "worst_price": -275,
+   "n_books": 1,
+   "fair_p": 0.6875,
+   "mkt_p": 0.7333,
+   "ev_best": -6.25,
+   "shop_gain": 0.0,
+   "hedge_price": 200,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0667,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -275,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Akbar Abdullaev",
+   "opponent": "Mairon Santos",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": -250,
+   "best_book": "betmgm",
+   "worst_price": -250,
+   "n_books": 1,
+   "fair_p": 0.6744,
+   "mkt_p": 0.7143,
+   "ev_best": -5.58,
+   "shop_gain": 0.0,
+   "hedge_price": 190,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0591,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -250,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Magomed Tuchalov",
+   "opponent": "Ion Cutelaba",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": -210,
+   "best_book": "betmgm",
+   "worst_price": -210,
+   "n_books": 1,
+   "fair_p": 0.6422,
+   "mkt_p": 0.6774,
+   "ev_best": -5.19,
+   "shop_gain": 0.0,
+   "hedge_price": 165,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0548,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -210,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Jafel Filho",
+   "opponent": "Bruno Silva",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": -140,
+   "best_book": "betmgm",
+   "worst_price": -140,
+   "n_books": 1,
+   "fair_p": 0.5506,
+   "mkt_p": 0.5833,
+   "ev_best": -5.62,
+   "shop_gain": 0.0,
+   "hedge_price": 110,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0595,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -140,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Luke Riley",
+   "opponent": "Gabriel Santos",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": -130,
+   "best_book": "betmgm",
+   "worst_price": -130,
+   "n_books": 1,
+   "fair_p": 0.5368,
+   "mkt_p": 0.5652,
+   "ev_best": -5.04,
+   "shop_gain": 0.0,
+   "hedge_price": 105,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.053,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": -130,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Gabriel Santos",
+   "opponent": "Luke Riley",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": 105,
+   "best_book": "betmgm",
+   "worst_price": 105,
+   "n_books": 1,
+   "fair_p": 0.4632,
+   "mkt_p": 0.4878,
+   "ev_best": -5.04,
+   "shop_gain": 0.0,
+   "hedge_price": -130,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.053,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 105,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Bruno Silva",
+   "opponent": "Jafel Filho",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": 110,
+   "best_book": "betmgm",
+   "worst_price": 110,
+   "n_books": 1,
+   "fair_p": 0.4494,
+   "mkt_p": 0.4762,
+   "ev_best": -5.62,
+   "shop_gain": 0.0,
+   "hedge_price": -140,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0595,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 110,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Ion Cutelaba",
+   "opponent": "Magomed Tuchalov",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": 165,
+   "best_book": "betmgm",
+   "worst_price": 165,
+   "n_books": 1,
+   "fair_p": 0.3578,
+   "mkt_p": 0.3774,
+   "ev_best": -5.19,
+   "shop_gain": 0.0,
+   "hedge_price": -210,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0548,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 165,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Mairon Santos",
+   "opponent": "Akbar Abdullaev",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": 190,
+   "best_book": "betmgm",
+   "worst_price": 190,
+   "n_books": 1,
+   "fair_p": 0.3256,
+   "mkt_p": 0.3448,
+   "ev_best": -5.58,
+   "shop_gain": 0.0,
+   "hedge_price": -250,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0591,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 190,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Levan Chokheli",
+   "opponent": "Islam Dulatov",
+   "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
+   "card_date": "2026-12-05",
+   "commence": "2026-12-05T15:00:00Z",
+   "is_main": false,
+   "best_price": 200,
+   "best_book": "betmgm",
+   "worst_price": 200,
+   "n_books": 1,
+   "fair_p": 0.3125,
+   "mkt_p": 0.3333,
+   "ev_best": -6.25,
+   "shop_gain": 0.0,
+   "hedge_price": -275,
+   "hedge_book": "betmgm",
+   "combined_hold": 0.0667,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 200,
+     "best": true,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
    "fighter": "Ian Garry",
    "opponent": "Yaroslav Amosov",
    "card": "2026-12-05 - Shara Magomedov vs Israel Adesanya",
    "card_date": "2026-12-05",
    "commence": "2026-12-05T20:15:00Z",
    "is_main": false,
-   "best_price": -170,
+   "best_price": -175,
    "best_book": "draftkings",
    "worst_price": -200,
    "n_books": 5,
    "fair_p": 0.6234,
-   "mkt_p": 0.6296,
-   "ev_best": -0.99,
-   "shop_gain": 0.037,
+   "mkt_p": 0.6364,
+   "ev_best": -2.04,
+   "shop_gain": 0.0303,
    "hedge_price": 155,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0218,
+   "combined_hold": 0.0285,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": -170,
+     "price": -175,
      "best": true,
      "bettable": true
     },
@@ -564,15 +924,15 @@
    "is_main": false,
    "best_price": 155,
    "best_book": "ballybet",
-   "worst_price": 142,
+   "worst_price": 145,
    "n_books": 5,
    "fair_p": 0.3766,
    "mkt_p": 0.3922,
    "ev_best": -3.96,
-   "shop_gain": 0.0211,
-   "hedge_price": -170,
+   "shop_gain": 0.016,
+   "hedge_price": -175,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0218,
+   "combined_hold": 0.0285,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -602,7 +962,7 @@
     },
     {
      "book": "draftkings",
-     "price": 142,
+     "price": 145,
      "best": false,
      "bettable": true
     }
@@ -624,9 +984,9 @@
    "mkt_p": 0.6109,
    "ev_best": -4.05,
    "shop_gain": 0.0187,
-   "hedge_price": 136,
+   "hedge_price": 140,
    "hedge_book": "draftkings",
-   "combined_hold": 0.0346,
+   "combined_hold": 0.0276,
    "low_hold": false,
    "arb": false,
    "book_prices": [
@@ -643,14 +1003,14 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -162,
+     "book": "fanduel",
+     "price": -164,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": -164,
+     "book": "draftkings",
+     "price": -166,
      "best": false,
      "bettable": true
     },
@@ -670,23 +1030,23 @@
    "card_date": "2026-12-05",
    "commence": "2026-12-05T20:45:00Z",
    "is_main": true,
-   "best_price": 136,
+   "best_price": 140,
    "best_book": "draftkings",
    "worst_price": 125,
    "n_books": 5,
    "fair_p": 0.4138,
-   "mkt_p": 0.4237,
-   "ev_best": -2.33,
-   "shop_gain": 0.0207,
+   "mkt_p": 0.4167,
+   "ev_best": -0.68,
+   "shop_gain": 0.0278,
    "hedge_price": -157,
    "hedge_book": "ballybet",
-   "combined_hold": 0.0346,
+   "combined_hold": 0.0276,
    "low_hold": false,
    "arb": false,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 136,
+     "price": 140,
      "best": true,
      "bettable": true
     },
@@ -1179,6 +1539,282 @@
     {
      "book": "fanduel",
      "price": 142,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Sergey Pavlovich",
+   "opponent": "Alex Pereira",
+   "card": "2026-12-13 - Diego Lopes vs Charles Oliveira",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T03:30:00Z",
+   "is_main": false,
+   "best_price": -190,
+   "best_book": "williamhill_us",
+   "worst_price": -205,
+   "n_books": 4,
+   "fair_p": 0.6342,
+   "mkt_p": 0.6552,
+   "ev_best": -3.2,
+   "shop_gain": 0.017,
+   "hedge_price": 164,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.034,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "williamhill_us",
+     "price": -190,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -198,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -205,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Alex Pereira",
+   "opponent": "Sergey Pavlovich",
+   "card": "2026-12-13 - Diego Lopes vs Charles Oliveira",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T03:30:00Z",
+   "is_main": false,
+   "best_price": 164,
+   "best_book": "draftkings",
+   "worst_price": 158,
+   "n_books": 4,
+   "fair_p": 0.3658,
+   "mkt_p": 0.3788,
+   "ev_best": -3.43,
+   "shop_gain": 0.0088,
+   "hedge_price": -190,
+   "hedge_book": "williamhill_us",
+   "combined_hold": 0.034,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 164,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 158,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Charles Oliveira",
+   "opponent": "Diego Lopes",
+   "card": "2026-12-13 - Diego Lopes vs Charles Oliveira",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T04:00:00Z",
+   "is_main": true,
+   "best_price": -148,
+   "best_book": "draftkings",
+   "worst_price": -162,
+   "n_books": 4,
+   "fair_p": 0.575,
+   "mkt_p": 0.5968,
+   "ev_best": -3.65,
+   "shop_gain": 0.0215,
+   "hedge_price": 126,
+   "hedge_book": "fanduel",
+   "combined_hold": 0.0393,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -148,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -155,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -162,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "MMA",
+   "fighter": "Diego Lopes",
+   "opponent": "Charles Oliveira",
+   "card": "2026-12-13 - Diego Lopes vs Charles Oliveira",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T04:00:00Z",
+   "is_main": true,
+   "best_price": 126,
+   "best_book": "fanduel",
+   "worst_price": 123,
+   "n_books": 4,
+   "fair_p": 0.425,
+   "mkt_p": 0.4425,
+   "ev_best": -3.94,
+   "shop_gain": 0.006,
+   "hedge_price": -148,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0393,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 126,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 124,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 123,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Erislandy Lara",
+   "opponent": "Tim Tszyu",
+   "card": "2026-12-13 - Tim Tszyu vs Erislandy Lara",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T05:00:00Z",
+   "is_main": true,
+   "best_price": -115,
+   "best_book": "espnbet",
+   "worst_price": -130,
+   "n_books": 3,
+   "fair_p": 0.5314,
+   "mkt_p": 0.5349,
+   "ev_best": -0.65,
+   "shop_gain": 0.0303,
+   "hedge_price": 105,
+   "hedge_book": "draftkings",
+   "combined_hold": 0.0227,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": -115,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -128,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -130,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "sport": "Boxing",
+   "fighter": "Tim Tszyu",
+   "opponent": "Erislandy Lara",
+   "card": "2026-12-13 - Tim Tszyu vs Erislandy Lara",
+   "card_date": "2026-12-13",
+   "commence": "2026-12-13T05:00:00Z",
+   "is_main": true,
+   "best_price": 105,
+   "best_book": "draftkings",
+   "worst_price": -105,
+   "n_books": 3,
+   "fair_p": 0.4686,
+   "mkt_p": 0.4878,
+   "ev_best": -3.94,
+   "shop_gain": 0.0244,
+   "hedge_price": -115,
+   "hedge_book": "espnbet",
+   "combined_hold": 0.0227,
+   "low_hold": false,
+   "arb": false,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 105,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 102,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -105,
      "best": false,
      "bettable": true
     }
