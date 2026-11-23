@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-23 03:10Z",
+ "checked_at": "2026-11-23 15:25Z",
  "n_stale": 0,
  "boards": [
   {
@@ -7,22 +7,23 @@
    "file": "hr_board_latest.json",
    "workflow": "hr_board.yml",
    "max_age_h": 10,
-   "age_h": 2.66,
+   "age_h": 14.91,
    "source": "generated_at",
    "rows": 0,
    "stamp": "2026-11-23 00:31Z",
-   "status": "ok",
-   "consecutive_stale": 0
+   "status": "idle",
+   "note": "no upcoming events -- offseason/empty slate, not an outage",
+   "consecutive_stale": 1
   },
   {
    "name": "NFL TD",
    "file": "td_board_latest.json",
    "workflow": "td_board.yml",
    "max_age_h": 22,
-   "age_h": 2.79,
+   "age_h": 11.64,
    "source": "meta.generated",
-   "rows": 232,
-   "stamp": "2026-11-23 00:23Z",
+   "rows": 202,
+   "stamp": "2026-11-23 03:47Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -31,10 +32,10 @@
    "file": "nhl_board_latest.json",
    "workflow": "nhl_board.yml",
    "max_age_h": 16,
-   "age_h": 1.36,
+   "age_h": 11.61,
    "source": "meta.generated",
-   "rows": 245,
-   "stamp": "2026-11-23 01:49Z",
+   "rows": 247,
+   "stamp": "2026-11-23 03:49Z",
    "status": "ok",
    "consecutive_stale": 0
   },
@@ -43,7 +44,7 @@
    "file": "mma_board_latest.json",
    "workflow": "mma_board.yml",
    "max_age_h": 16,
-   "age_h": 2.23,
+   "age_h": 14.47,
    "source": "meta.generated",
    "rows": 54,
    "stamp": "2026-11-23 00:57Z",
