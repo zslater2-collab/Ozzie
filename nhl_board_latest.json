@@ -1,32 +1,15 @@
 {
  "meta": {
-  "generated": "2026-11-24 05:21Z",
+  "generated": "2026-11-24 06:59Z",
   "season": "20262027",
   "features_through": "2026-11-23",
-  "n_rows": 20,
+  "n_rows": 37,
   "n_teams": 2,
   "n_games": 1,
   "unmatched": [
-   "Mitch Marner",
-   "Jack Eichel",
-   "Nic Dowd",
-   "Marc Gatcomb",
-   "Mark Stone",
-   "Dylan Coghlan",
-   "Victor Olofsson",
-   "Parker Wotherspoon",
-   "Tomas Hertl",
-   "Trevor Connelly",
-   "Jeremy Lauzon",
-   "Brett Howden",
-   "Brayden McNabb",
-   "William Karlsson",
-   "Shea Theodore",
-   "Braeden Bowman",
-   "Ivan Barbashev",
-   "Rasmus Andersson"
+   "Owen Michaels"
   ],
-  "credits_left": "79801"
+  "credits_left": "79738"
  },
  "rows": [
   {
@@ -56,14 +39,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 100,
+     "book": "draftkings",
+     "price": 110,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 100,
+     "book": "fanatics",
+     "price": 105,
      "best": false,
      "bettable": true
     }
@@ -78,32 +61,32 @@
    "pp_min": 3.9,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.4272,
+   "model_p": 0.439,
    "mkt_p": 0.4739,
-   "edge": -0.0467,
-   "model_pt": 0.8011,
-   "pt_price": -380,
-   "pt_book": "draftkings",
-   "pt_mkt_p": 0.8,
+   "edge": -0.035,
+   "model_pt": 0.8073,
+   "pt_price": -385,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.8333,
    "pt_fair": 0.7381,
    "pt_books": 5,
-   "pt_edge": 0.063,
+   "pt_edge": 0.0692,
    "pt_book_prices": [
     {
-     "book": "draftkings",
-     "price": -380,
+     "book": "ballybet",
+     "price": -385,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": -385,
+     "book": "fanatics",
+     "price": -475,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -400,
+     "book": "draftkings",
+     "price": -500,
      "best": false,
      "bettable": true
     },
@@ -122,15 +105,15 @@
    ],
    "best_price": 120,
    "best_book": "espnbet",
-   "worst_price": 100,
+   "worst_price": 105,
    "n_books": 6,
-   "shop_gain": 0.0223,
+   "shop_gain": 0.0163,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 89
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 44
   },
   {
    "book_prices": [
@@ -142,12 +125,6 @@
     },
     {
      "book": "ballybet",
-     "price": 130,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
      "price": 130,
      "best": false,
      "bettable": true
@@ -169,6 +146,12 @@
      "price": 120,
      "best": false,
      "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 115,
+     "best": false,
+     "bettable": true
     }
    ],
    "player": "Connor McDavid",
@@ -181,26 +164,26 @@
    "pp_min": 3.9,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.3184,
-   "mkt_p": 0.4396,
-   "edge": -0.1212,
-   "model_pt": 0.8567,
-   "pt_price": -475,
+   "model_p": 0.3279,
+   "mkt_p": 0.4444,
+   "edge": -0.1165,
+   "model_pt": 0.862,
+   "pt_price": -500,
    "pt_book": "fanatics",
    "pt_mkt_p": 0.8485,
    "pt_fair": 0.7887,
    "pt_books": 5,
-   "pt_edge": 0.068,
+   "pt_edge": 0.0733,
    "pt_book_prices": [
     {
      "book": "fanatics",
-     "price": -475,
+     "price": -500,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -500,
+     "price": -525,
      "best": false,
      "bettable": true
     },
@@ -225,15 +208,124 @@
    ],
    "best_price": 150,
    "best_book": "espnbet",
-   "worst_price": 120,
+   "worst_price": 115,
    "n_books": 6,
-   "shop_gain": 0.0355,
+   "shop_gain": 0.0406,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 89
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 44
+  },
+  {
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 184,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mark Stone",
+   "pos": "R",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 3.6,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2977,
+   "mkt_p": 0.3546,
+   "edge": -0.0569,
+   "model_pt": 0.6541,
+   "pt_price": -155,
+   "pt_book": "espnbet",
+   "pt_mkt_p": 0.6429,
+   "pt_fair": 0.5926,
+   "pt_books": 6,
+   "pt_edge": 0.0615,
+   "pt_book_prices": [
+    {
+     "book": "espnbet",
+     "price": -155,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -167,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": -180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -182,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -184,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 230,
+   "best_book": "espnbet",
+   "worst_price": 180,
+   "n_books": 6,
+   "shop_gain": 0.0422,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 92
   },
   {
    "book_prices": [
@@ -256,20 +348,20 @@
      "bettable": true
     },
     {
+     "book": "fanatics",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "draftkings",
-     "price": 280,
+     "price": 275,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 260,
      "best": false,
      "bettable": true
     }
@@ -284,44 +376,44 @@
    "pp_min": 4.0,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.2772,
-   "mkt_p": 0.2632,
-   "edge": 0.014,
-   "model_pt": 0.6785,
-   "pt_price": -210,
-   "pt_book": "ballybet",
-   "pt_mkt_p": 0.7122,
-   "pt_fair": 0.6472,
+   "model_p": 0.2857,
+   "mkt_p": 0.2649,
+   "edge": 0.0208,
+   "model_pt": 0.6856,
+   "pt_price": -220,
+   "pt_book": "espnbet",
+   "pt_mkt_p": 0.7163,
+   "pt_fair": 0.6456,
    "pt_books": 6,
-   "pt_edge": 0.0313,
+   "pt_edge": 0.0399,
    "pt_book_prices": [
     {
-     "book": "ballybet",
-     "price": -210,
+     "book": "espnbet",
+     "price": -220,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": -220,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -245,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -250,
+     "book": "ballybet",
+     "price": -230,
      "best": false,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": -260,
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -255,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -290,
      "best": false,
      "bettable": true
     },
@@ -334,15 +426,233 @@
    ],
    "best_price": 360,
    "best_book": "espnbet",
-   "worst_price": 260,
+   "worst_price": 270,
    "n_books": 6,
-   "shop_gain": 0.0406,
+   "shop_gain": 0.0394,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 100
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 50
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 240,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 230,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 195,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Tomas Hertl",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 3.7,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2769,
+   "mkt_p": 0.3008,
+   "edge": -0.0238,
+   "model_pt": 0.5677,
+   "pt_price": -110,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.5604,
+   "pt_fair": 0.5172,
+   "pt_books": 6,
+   "pt_edge": 0.0505,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": -110,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": -125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -132,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -134,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 240,
+   "best_book": "fanduel",
+   "worst_price": 195,
+   "n_books": 6,
+   "shop_gain": 0.0119,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 94
+  },
+  {
+   "book_prices": [
+    {
+     "book": "espnbet",
+     "price": 290,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 235,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 225,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 220,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Victor Olofsson",
+   "pos": "L",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 12,
+   "pp_min": 2.9,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2712,
+   "mkt_p": 0.3077,
+   "edge": -0.0365,
+   "model_pt": 0.5102,
+   "pt_price": -108,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.5238,
+   "pt_fair": 0.4875,
+   "pt_books": 6,
+   "pt_edge": 0.0227,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": -108,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": -110,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -110,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -110,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -113,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -113,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 290,
+   "best_book": "espnbet",
+   "worst_price": 220,
+   "n_books": 6,
+   "shop_gain": 0.042,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 89
   },
   {
    "book_prices": [
@@ -354,7 +664,7 @@
     },
     {
      "book": "draftkings",
-     "price": 265,
+     "price": 255,
      "best": false,
      "bettable": true
     },
@@ -393,21 +703,39 @@
    "pp_min": 2.0,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.2622,
+   "model_p": 0.2704,
    "mkt_p": 0.303,
-   "edge": -0.0408,
-   "model_pt": 0.506,
+   "edge": -0.0326,
+   "model_pt": 0.5127,
    "pt_price": 115,
    "pt_book": "espnbet",
-   "pt_mkt_p": 0.4967,
-   "pt_fair": 0.4425,
-   "pt_books": 2,
-   "pt_edge": 0.0635,
+   "pt_mkt_p": 0.5,
+   "pt_fair": 0.4643,
+   "pt_books": 5,
+   "pt_edge": 0.0484,
    "pt_book_prices": [
     {
      "book": "espnbet",
      "price": 115,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 107,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 100,
+     "best": false,
      "bettable": true
     },
     {
@@ -421,13 +749,122 @@
    "best_book": "espnbet",
    "worst_price": 225,
    "n_books": 6,
-   "shop_gain": 0.0262,
+   "shop_gain": 0.0275,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 74
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 36
+  },
+  {
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 185,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 180,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 179,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jack Eichel",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 3.8,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2639,
+   "mkt_p": 0.3578,
+   "edge": -0.0939,
+   "model_pt": 0.7205,
+   "pt_price": -230,
+   "pt_book": "espnbet",
+   "pt_mkt_p": 0.7183,
+   "pt_fair": 0.653,
+   "pt_books": 6,
+   "pt_edge": 0.0675,
+   "pt_book_prices": [
+    {
+     "book": "espnbet",
+     "price": -230,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -240,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": -260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -270,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -280,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 185,
+   "best_book": "ballybet",
+   "worst_price": 170,
+   "n_books": 6,
+   "shop_gain": 0.0098,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 97
   },
   {
    "book_prices": [
@@ -444,14 +881,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
+     "book": "fanduel",
      "price": 300,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 300,
+     "book": "fanatics",
+     "price": 285,
      "best": false,
      "bettable": true
     },
@@ -472,20 +909,20 @@
    "pp_min": 3.5,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.2191,
+   "model_p": 0.2262,
    "mkt_p": 0.25,
-   "edge": -0.0309,
-   "model_pt": 0.5608,
-   "pt_price": 110,
+   "edge": -0.0238,
+   "model_pt": 0.5678,
+   "pt_price": 112,
    "pt_book": "ballybet",
-   "pt_mkt_p": 0.4762,
-   "pt_fair": 0.4412,
+   "pt_mkt_p": 0.4717,
+   "pt_fair": 0.4357,
    "pt_books": 1,
-   "pt_edge": 0.1196,
+   "pt_edge": 0.1321,
    "pt_book_prices": [
     {
      "book": "ballybet",
-     "price": 110,
+     "price": 112,
      "best": true,
      "bettable": true
     }
@@ -494,24 +931,521 @@
    "best_book": "draftkings",
    "worst_price": 285,
    "n_books": 5,
-   "shop_gain": 0.0103,
+   "shop_gain": 0.0122,
    "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 84
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 42
   },
   {
    "book_prices": [
     {
      "book": "ballybet",
+     "price": 420,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 420,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 390,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 360,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 340,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 325,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Brett Howden",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 0.2,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2237,
+   "mkt_p": 0.2107,
+   "edge": 0.013,
+   "model_pt": 0.3873,
+   "pt_price": 165,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.3774,
+   "pt_fair": 0.3484,
+   "pt_books": 1,
+   "pt_edge": 0.039,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": 165,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "best_price": 420,
+   "best_book": "ballybet",
+   "worst_price": 325,
+   "n_books": 6,
+   "shop_gain": 0.0191,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 64
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 330,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 325,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 290,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 290,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Trevor Connelly",
+   "pos": "L",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 2.0,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.2005,
+   "mkt_p": 0.2381,
+   "edge": -0.0376,
+   "model_pt": 0.4751,
+   "pt_price": 130,
+   "pt_book": "draftkings",
+   "pt_mkt_p": 0.4546,
+   "pt_fair": 0.4166,
+   "pt_books": 6,
+   "pt_edge": 0.0585,
+   "pt_book_prices": [
+    {
+     "book": "draftkings",
+     "price": 130,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 123,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 117,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 112,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 110,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 330,
+   "best_book": "draftkings",
+   "worst_price": 290,
+   "n_books": 6,
+   "shop_gain": 0.0103,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 86
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 475,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 425,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 400,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Ivan Barbashev",
+   "pos": "L",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 0.7,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.1995,
+   "mkt_p": 0.1739,
+   "edge": 0.0256,
+   "model_pt": 0.5219,
+   "pt_price": 165,
+   "pt_book": "espnbet",
+   "pt_mkt_p": 0.3846,
+   "pt_fair": 0.3603,
+   "pt_books": 5,
+   "pt_edge": 0.1616,
+   "pt_book_prices": [
+    {
+     "book": "espnbet",
+     "price": 165,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 138,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 500,
+   "best_book": "fanduel",
+   "worst_price": 400,
+   "n_books": 6,
+   "shop_gain": 0.0131,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 72
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 340,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 325,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 320,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 305,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "William Karlsson",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 1.2,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.1938,
+   "mkt_p": 0.2367,
+   "edge": -0.0429,
+   "model_pt": 0.4054,
+   "pt_price": 140,
+   "pt_book": "fanatics",
+   "pt_mkt_p": 0.4292,
+   "pt_fair": 0.3968,
+   "pt_books": 5,
+   "pt_edge": 0.0086,
+   "pt_book_prices": [
+    {
+     "book": "fanatics",
+     "price": 140,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
+     "price": 135,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 133,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 131,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 120,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 340,
+   "best_book": "draftkings",
+   "worst_price": 305,
+   "n_books": 6,
+   "shop_gain": 0.0091,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 75
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 270,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 270,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 200,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mitch Marner",
+   "pos": "R",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 23,
+   "pp_min": 3.9,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.1808,
+   "mkt_p": 0.2817,
+   "edge": -0.1009,
+   "model_pt": 0.6931,
+   "pt_price": -188,
+   "pt_book": "fanduel",
+   "pt_mkt_p": 0.6694,
+   "pt_fair": 0.6341,
+   "pt_books": 6,
+   "pt_edge": 0.059,
+   "pt_book_prices": [
+    {
+     "book": "fanduel",
+     "price": -188,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": -190,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": -200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -205,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": -220,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -230,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 270,
+   "best_book": "fanduel",
+   "worst_price": 200,
+   "n_books": 6,
+   "shop_gain": 0.0169,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 100
+  },
+  {
+   "book_prices": [
+    {
+     "book": "ballybet",
      "price": 400,
      "best": true,
      "bettable": true
@@ -524,6 +1458,12 @@
     },
     {
      "book": "fanduel",
+     "price": 380,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
      "price": 380,
      "best": false,
      "bettable": true
@@ -551,21 +1491,39 @@
    "pp_min": 2.1,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.1689,
-   "mkt_p": 0.2062,
-   "edge": -0.0373,
-   "model_pt": 0.4058,
-   "pt_price": 123,
-   "pt_book": "ballybet",
-   "pt_mkt_p": 0.4681,
-   "pt_fair": 0.4554,
-   "pt_books": 2,
-   "pt_edge": -0.0496,
+   "model_p": 0.1745,
+   "mkt_p": 0.2083,
+   "edge": -0.0338,
+   "model_pt": 0.4118,
+   "pt_price": 135,
+   "pt_book": "fanatics",
+   "pt_mkt_p": 0.4444,
+   "pt_fair": 0.4138,
+   "pt_books": 5,
+   "pt_edge": -0.002,
    "pt_book_prices": [
     {
-     "book": "ballybet",
-     "price": 123,
+     "book": "fanatics",
+     "price": 135,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 130,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 125,
+     "best": false,
      "bettable": true
     },
     {
@@ -579,19 +1537,98 @@
    "best_book": "ballybet",
    "worst_price": 260,
    "n_books": 6,
-   "shop_gain": 0.0205,
+   "shop_gain": 0.0218,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 79
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 39
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 575,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 510,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Braeden Bowman",
+   "pos": "R",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 1.3,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.1484,
+   "mkt_p": 0.151,
+   "edge": -0.0026,
+   "model_pt": 0.3506,
+   "pt_price": 230,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.303,
+   "pt_fair": 0.281,
+   "pt_books": 1,
+   "pt_edge": 0.0696,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": 230,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "best_price": 600,
+   "best_book": "fanduel",
+   "worst_price": 450,
+   "n_books": 6,
+   "shop_gain": 0.0127,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 78
   },
   {
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 650,
+     "price": 700,
      "best": true,
      "bettable": true
     },
@@ -636,16 +1673,16 @@
    "pp_min": 0.9,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.1433,
+   "model_p": 0.1481,
    "mkt_p": 0.1484,
-   "edge": -0.0051,
-   "model_pt": 0.2776,
+   "edge": -0.0003,
+   "model_pt": 0.2822,
    "pt_price": 240,
    "pt_book": "ballybet",
    "pt_mkt_p": 0.2941,
    "pt_fair": 0.2732,
    "pt_books": 1,
-   "pt_edge": 0.0044,
+   "pt_edge": 0.009,
    "pt_book_prices": [
     {
      "book": "ballybet",
@@ -654,83 +1691,205 @@
      "bettable": true
     }
    ],
-   "best_price": 650,
+   "best_price": 700,
    "best_book": "draftkings",
    "worst_price": 425,
    "n_books": 6,
-   "shop_gain": 0.0242,
+   "shop_gain": 0.0311,
    "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 58
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 33
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 1000,
+     "book": "fanduel",
+     "price": 850,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 1000,
+     "price": 850,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 600,
+     "book": "fanatics",
+     "price": 800,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": 500,
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 575,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Owen Michaels",
-   "pos": "R",
-   "team": "EDM",
-   "opp": "VGK",
+   "player": "Rasmus Andersson",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
    "game": "VGK@EDM",
    "commence": "2026-11-25T01:00:00Z",
-   "gp": 26,
-   "pp_min": 0.4,
-   "implied_total": 3.34,
+   "gp": 25,
+   "pp_min": 1.3,
+   "implied_total": 3.3,
    "tt_source": "posted",
-   "model_p": 0.1029,
-   "mkt_p": 0.1,
-   "edge": 0.0029,
-   "model_pt": 0.2404,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 1000,
-   "best_book": "fanatics",
-   "worst_price": 500,
-   "n_books": 5,
-   "shop_gain": 0.0274,
-   "soft_best": false,
+   "model_p": 0.1439,
+   "mkt_p": 0.1181,
+   "edge": 0.0259,
+   "model_pt": 0.3142,
+   "pt_price": 190,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.3448,
+   "pt_fair": 0.3192,
+   "pt_books": 1,
+   "pt_edge": -0.005,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": 190,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "best_price": 850,
+   "best_book": "fanduel",
+   "worst_price": 575,
+   "n_books": 6,
+   "shop_gain": 0.0177,
+   "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 37
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 78
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Shea Theodore",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 1.6,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.1151,
+   "mkt_p": 0.1333,
+   "edge": -0.0182,
+   "model_pt": 0.3083,
+   "pt_price": 165,
+   "pt_book": "espnbet",
+   "pt_mkt_p": 0.4,
+   "pt_fair": 0.3659,
+   "pt_books": 6,
+   "pt_edge": -0.0576,
+   "pt_book_prices": [
+    {
+     "book": "espnbet",
+     "price": 165,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 160,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 150,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 145,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 144,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "best_price": 800,
+   "best_book": "fanduel",
+   "worst_price": 550,
+   "n_books": 6,
+   "shop_gain": 0.024,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 83
   },
   {
    "book_prices": [
@@ -781,21 +1940,39 @@
    "pp_min": 0.4,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.1004,
+   "model_p": 0.1038,
    "mkt_p": 0.101,
-   "edge": -0.0006,
-   "model_pt": 0.3223,
+   "edge": 0.0028,
+   "model_pt": 0.3274,
    "pt_price": 210,
    "pt_book": "espnbet",
-   "pt_mkt_p": 0.3514,
-   "pt_fair": 0.3008,
-   "pt_books": 2,
-   "pt_edge": 0.0215,
+   "pt_mkt_p": 0.3584,
+   "pt_fair": 0.3398,
+   "pt_books": 5,
+   "pt_edge": -0.0124,
    "pt_book_prices": [
     {
      "book": "espnbet",
      "price": 210,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 185,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 179,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 175,
+     "best": false,
      "bettable": true
     },
     {
@@ -812,10 +1989,629 @@
    "shop_gain": 0.0191,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 37
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 19
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 2000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Shakir Mukhamadullin",
+   "pos": "D",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 0,
+   "pp_min": 0.1,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.1015,
+   "mkt_p": 0.05,
+   "edge": 0.0515,
+   "model_pt": 0.218,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 2000,
+   "best_book": "fanatics",
+   "worst_price": 900,
+   "n_books": 5,
+   "shop_gain": 0.0196,
+   "soft_best": false,
+   "thin": true,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 3
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 900,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 575,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jason Dickinson",
+   "pos": "C",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 17,
+   "pp_min": 0.1,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0939,
+   "mkt_p": 0.127,
+   "edge": -0.0331,
+   "model_pt": 0.2602,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 900,
+   "best_book": "fanduel",
+   "worst_price": 550,
+   "n_books": 6,
+   "shop_gain": 0.026,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 3
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 950,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Alex Formenton",
+   "pos": "L",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 26,
+   "pp_min": 0.3,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0906,
+   "mkt_p": 0.1325,
+   "edge": -0.0419,
+   "model_pt": 0.2422,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 950,
+   "best_book": "draftkings",
+   "worst_price": 450,
+   "n_books": 6,
+   "shop_gain": 0.0383,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 17
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 2200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 2000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jeremy Lauzon",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 0.3,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.0902,
+   "mkt_p": 0.0714,
+   "edge": 0.0187,
+   "model_pt": 0.2118,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 2200,
+   "best_book": "draftkings",
+   "worst_price": 750,
+   "n_books": 6,
+   "shop_gain": 0.0318,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 67
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 430,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 375,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 370,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Filip Hallander",
+   "pos": "C",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 16,
+   "pp_min": 0.5,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0889,
+   "mkt_p": 0.2,
+   "edge": -0.1111,
+   "model_pt": 0.2363,
+   "pt_price": 255,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.2817,
+   "pt_fair": 0.2604,
+   "pt_books": 1,
+   "pt_edge": -0.0241,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": 255,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "best_price": 550,
+   "best_book": "draftkings",
+   "worst_price": 370,
+   "n_books": 6,
+   "shop_gain": 0.0405,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 22
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 2000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Dylan Coghlan",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 17,
+   "pp_min": 0.4,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.0821,
+   "mkt_p": 0.0726,
+   "edge": 0.0095,
+   "model_pt": 0.2278,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 2000,
+   "best_book": "fanduel",
+   "worst_price": 750,
+   "n_books": 6,
+   "shop_gain": 0.0291,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 69
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 750,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Mathieu Joseph",
+   "pos": "R",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 26,
+   "pp_min": 0.1,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0762,
+   "mkt_p": 0.1381,
+   "edge": -0.0619,
+   "model_pt": 0.259,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 750,
+   "best_book": "draftkings",
+   "worst_price": 450,
+   "n_books": 6,
+   "shop_gain": 0.0258,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 3
+  },
+  {
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Max Jones",
+   "pos": "L",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 11,
+   "pp_min": 0.1,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0743,
+   "mkt_p": 0.1484,
+   "edge": -0.074,
+   "model_pt": 0.1677,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 600,
+   "best_book": "ballybet",
+   "worst_price": 550,
+   "n_books": 2,
+   "shop_gain": 0.0055,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 3
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 1800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1600,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Jake Walman",
+   "pos": "D",
+   "team": "EDM",
+   "opp": "VGK",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 12,
+   "pp_min": 0.8,
+   "implied_total": 3.34,
+   "tt_source": "posted",
+   "model_p": 0.0732,
+   "mkt_p": 0.1111,
+   "edge": -0.0379,
+   "model_pt": 0.2006,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 1800,
+   "best_book": "fanatics",
+   "worst_price": 700,
+   "n_books": 5,
+   "shop_gain": 0.0404,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 25
   },
   {
    "book_prices": [
@@ -857,19 +2653,19 @@
    "game": "VGK@EDM",
    "commence": "2026-11-25T01:00:00Z",
    "gp": 26,
-   "pp_min": 1.1,
+   "pp_min": 0.8,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.0925,
+   "model_p": 0.0704,
    "mkt_p": 0.0952,
-   "edge": -0.0028,
-   "model_pt": 0.2803,
+   "edge": -0.0249,
+   "model_pt": 0.2826,
    "pt_price": 215,
    "pt_book": "ballybet",
    "pt_mkt_p": 0.3175,
    "pt_fair": 0.2919,
    "pt_books": 1,
-   "pt_edge": -0.0116,
+   "pt_edge": -0.0093,
    "pt_book_prices": [
     {
      "book": "ballybet",
@@ -885,22 +2681,22 @@
    "shop_gain": 0.0311,
    "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 68
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 25
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 1000,
+     "book": "draftkings",
+     "price": 1100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 950,
+     "book": "fanatics",
+     "price": 900,
      "best": false,
      "bettable": true
     },
@@ -911,375 +2707,38 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 575,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "espnbet",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Jason Dickinson",
-   "pos": "C",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 17,
-   "pp_min": 0.1,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0907,
-   "mkt_p": 0.1214,
-   "edge": -0.0307,
-   "model_pt": 0.2559,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 1000,
-   "best_book": "fanatics",
-   "worst_price": 550,
-   "n_books": 6,
-   "shop_gain": 0.0309,
-   "soft_best": false,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 5
-  },
-  {
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 1600,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1600,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
      "price": 750,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Jake Walman",
-   "pos": "D",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 12,
-   "pp_min": 1.0,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0899,
-   "mkt_p": 0.1111,
-   "edge": -0.0212,
-   "model_pt": 0.2326,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 1600,
-   "best_book": "fanatics",
-   "worst_price": 700,
-   "n_books": 5,
-   "shop_gain": 0.0355,
-   "soft_best": false,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 63
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 900,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Alex Formenton",
-   "pos": "L",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 26,
-   "pp_min": 0.3,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0875,
-   "mkt_p": 0.1296,
-   "edge": -0.042,
-   "model_pt": 0.2381,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 900,
-   "best_book": "draftkings",
-   "worst_price": 450,
-   "n_books": 6,
-   "shop_gain": 0.0333,
-   "soft_best": true,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 32
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 550,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 375,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 370,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Filip Hallander",
-   "pos": "C",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 16,
-   "pp_min": 0.5,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0859,
-   "mkt_p": 0.2,
-   "edge": -0.1141,
-   "model_pt": 0.2324,
-   "pt_price": 255,
-   "pt_book": "ballybet",
-   "pt_mkt_p": 0.2817,
-   "pt_fair": 0.2604,
-   "pt_books": 1,
-   "pt_edge": -0.028,
-   "pt_book_prices": [
-    {
-     "book": "ballybet",
-     "price": 255,
-     "best": true,
-     "bettable": true
-    }
-   ],
-   "best_price": 550,
-   "best_book": "draftkings",
-   "worst_price": 370,
-   "n_books": 6,
-   "shop_gain": 0.0393,
-   "soft_best": true,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 47
-  },
-  {
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 700,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 700,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
      "price": 650,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 525,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Mathieu Joseph",
-   "pos": "R",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 26,
-   "pp_min": 0.1,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0736,
-   "mkt_p": 0.1381,
-   "edge": -0.0645,
-   "model_pt": 0.2547,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 700,
-   "best_book": "fanatics",
-   "worst_price": 450,
-   "n_books": 6,
-   "shop_gain": 0.0197,
-   "soft_best": false,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 5
-  },
-  {
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 600,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
      "price": 550,
      "best": false,
      "bettable": true
     }
    ],
-   "player": "Max Jones",
-   "pos": "L",
-   "team": "EDM",
-   "opp": "VGK",
+   "player": "Marc Gatcomb",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
    "game": "VGK@EDM",
    "commence": "2026-11-25T01:00:00Z",
-   "gp": 11,
-   "pp_min": 0.1,
-   "implied_total": 3.34,
+   "gp": 23,
+   "pp_min": 0.0,
+   "implied_total": 3.3,
    "tt_source": "posted",
-   "model_p": 0.0718,
-   "mkt_p": 0.1484,
-   "edge": -0.0765,
-   "model_pt": 0.1647,
+   "model_p": 0.0634,
+   "mkt_p": 0.1088,
+   "edge": -0.0454,
+   "model_pt": 0.1515,
    "pt_price": null,
    "pt_book": null,
    "pt_mkt_p": null,
@@ -1287,95 +2746,29 @@
    "pt_books": 0,
    "pt_edge": null,
    "pt_book_prices": [],
-   "best_price": 600,
-   "best_book": "ballybet",
+   "best_price": 1100,
+   "best_book": "draftkings",
    "worst_price": 550,
-   "n_books": 2,
-   "shop_gain": 0.0055,
-   "soft_best": false,
+   "n_books": 6,
+   "shop_gain": 0.0314,
+   "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 5
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 53
   },
   {
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 2000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 2000,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": 2000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
      "price": 900,
-     "best": false,
-     "bettable": true
-    }
-   ],
-   "player": "Shakir Mukhamadullin",
-   "pos": "D",
-   "team": "EDM",
-   "opp": "VGK",
-   "game": "VGK@EDM",
-   "commence": "2026-11-25T01:00:00Z",
-   "gp": 21,
-   "pp_min": 0.1,
-   "implied_total": 3.34,
-   "tt_source": "posted",
-   "model_p": 0.0695,
-   "mkt_p": 0.0476,
-   "edge": 0.0219,
-   "model_pt": 0.142,
-   "pt_price": null,
-   "pt_book": null,
-   "pt_mkt_p": null,
-   "pt_fair": null,
-   "pt_books": 0,
-   "pt_edge": null,
-   "pt_book_prices": [],
-   "best_price": 2000,
-   "best_book": "fanatics",
-   "worst_price": 900,
-   "n_books": 5,
-   "shop_gain": 0.0191,
-   "soft_best": false,
-   "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 5
-  },
-  {
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 800,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanatics",
-     "price": 700,
+     "price": 800,
      "best": false,
      "bettable": true
     },
@@ -1408,10 +2801,10 @@
    "pp_min": 0.8,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.0602,
+   "model_p": 0.0624,
    "mkt_p": 0.1333,
-   "edge": -0.0731,
-   "model_pt": 0.1255,
+   "edge": -0.071,
+   "model_pt": 0.1277,
    "pt_price": null,
    "pt_book": null,
    "pt_mkt_p": null,
@@ -1419,24 +2812,30 @@
    "pt_books": 0,
    "pt_edge": null,
    "pt_book_prices": [],
-   "best_price": 800,
+   "best_price": 900,
    "best_book": "draftkings",
    "worst_price": 550,
    "n_books": 5,
-   "shop_gain": 0.0232,
+   "shop_gain": 0.0293,
    "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 53
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 25
   },
   {
    "book_prices": [
     {
+     "book": "fanatics",
+     "price": 2200,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "fanduel",
      "price": 2100,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -1446,8 +2845,153 @@
      "bettable": true
     },
     {
+     "book": "espnbet",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Brayden McNabb",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 0.0,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.0432,
+   "mkt_p": 0.0714,
+   "edge": -0.0282,
+   "model_pt": 0.2552,
+   "pt_price": 260,
+   "pt_book": "ballybet",
+   "pt_mkt_p": 0.2778,
+   "pt_fair": 0.2577,
+   "pt_books": 1,
+   "pt_edge": -0.0025,
+   "pt_book_prices": [
+    {
+     "book": "ballybet",
+     "price": 260,
+     "best": true,
+     "bettable": true
+    }
+   ],
+   "best_price": 2200,
+   "best_book": "fanatics",
+   "worst_price": 800,
+   "n_books": 6,
+   "shop_gain": 0.0303,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 53
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 2600,
+     "best": true,
+     "bettable": true
+    },
+    {
      "book": "fanatics",
-     "price": 1800,
+     "price": 2500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 2200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 950,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Parker Wotherspoon",
+   "pos": "D",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 12,
+   "pp_min": 0.1,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.039,
+   "mkt_p": 0.0634,
+   "edge": -0.0244,
+   "model_pt": 0.2071,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 2600,
+   "best_book": "fanduel",
+   "worst_price": 700,
+   "n_books": 6,
+   "shop_gain": 0.0334,
+   "soft_best": true,
+   "thin": false,
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 61
+  },
+  {
+   "book_prices": [
+    {
+     "book": "fanatics",
+     "price": 2500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 2000,
      "best": false,
      "bettable": true
     },
@@ -1480,10 +3024,10 @@
    "pp_min": 0.1,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.0357,
-   "mkt_p": 0.0739,
-   "edge": -0.0383,
-   "model_pt": 0.1233,
+   "model_p": 0.037,
+   "mkt_p": 0.0714,
+   "edge": -0.0345,
+   "model_pt": 0.1256,
    "pt_price": null,
    "pt_book": null,
    "pt_mkt_p": null,
@@ -1491,17 +3035,89 @@
    "pt_books": 0,
    "pt_edge": null,
    "pt_book_prices": [],
-   "best_price": 2100,
-   "best_book": "fanduel",
+   "best_price": 2500,
+   "best_book": "fanatics",
    "worst_price": 850,
    "n_books": 6,
-   "shop_gain": 0.0289,
+   "shop_gain": 0.0335,
+   "soft_best": false,
+   "thin": false,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
+   "env": 3
+  },
+  {
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanatics",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 675,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    }
+   ],
+   "player": "Nic Dowd",
+   "pos": "C",
+   "team": "VGK",
+   "opp": "EDM",
+   "game": "VGK@EDM",
+   "commence": "2026-11-25T01:00:00Z",
+   "gp": 25,
+   "pp_min": 0.0,
+   "implied_total": 3.3,
+   "tt_source": "posted",
+   "model_p": 0.0357,
+   "mkt_p": 0.1043,
+   "edge": -0.0686,
+   "model_pt": 0.1925,
+   "pt_price": null,
+   "pt_book": null,
+   "pt_mkt_p": null,
+   "pt_fair": null,
+   "pt_books": 0,
+   "pt_edge": null,
+   "pt_book_prices": [],
+   "best_price": 1200,
+   "best_book": "draftkings",
+   "worst_price": 650,
+   "n_books": 6,
+   "shop_gain": 0.0295,
    "soft_best": true,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
-   "env": 5
+   "opp_goalie": "T. Jarry",
+   "opp_goalie_sv": 0.8822,
+   "opp_pen60": 3.44,
+   "env": 53
   },
   {
    "book_prices": [
@@ -1522,10 +3138,10 @@
    "pp_min": 0.0,
    "implied_total": 3.34,
    "tt_source": "posted",
-   "model_p": 0.0249,
+   "model_p": 0.0258,
    "mkt_p": 0.1176,
-   "edge": -0.0928,
-   "model_pt": 0.1164,
+   "edge": -0.0919,
+   "model_pt": 0.1185,
    "pt_price": null,
    "pt_book": null,
    "pt_mkt_p": null,
@@ -1540,9 +3156,9 @@
    "shop_gain": 0.0,
    "soft_best": false,
    "thin": false,
-   "opp_goalie": null,
-   "opp_goalie_sv": null,
-   "opp_pen60": null,
+   "opp_goalie": "C. Hart",
+   "opp_goalie_sv": 0.891,
+   "opp_pen60": 3.06,
    "env": 0
   }
  ]
