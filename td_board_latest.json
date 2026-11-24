@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-11-24 03:22Z",
+  "generated": "2026-11-24 05:24Z",
   "season": 2026,
   "best_book_rule": "shop DK+FD; Caesars runs rich",
   "note": "role x market implied total, Platt-calibrated. Efficient market -> decision aid, not edge."
@@ -14,32 +14,26 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.162,
-   "model_p_cal": 0.305,
+   "model_p_cal": 0.306,
    "thin": false,
    "snap_share": 0.36,
    "best_price": 2400,
    "best_book": "ballybet",
-   "mkt_p": 0.06066176470588235,
-   "n_books": 6,
-   "mkt_p_consensus": 0.06066176470588235,
-   "edge": 0.24433823529411763,
+   "mkt_p": 0.0625,
+   "n_books": 5,
+   "mkt_p_consensus": 0.0625,
+   "edge": 0.2435,
    "flag": "H1-longshot-watch",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
      "price": 2400,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1700,
-     "best": false,
      "bettable": true
     },
     {
@@ -83,10 +77,10 @@
    "snap_share": 0.12,
    "best_price": 1500,
    "best_book": "draftkings",
-   "mkt_p": 0.06458333333333333,
-   "n_books": 6,
-   "mkt_p_consensus": 0.06458333333333333,
-   "edge": 0.24241666666666667,
+   "mkt_p": 0.06666666666666667,
+   "n_books": 5,
+   "mkt_p_consensus": 0.06666666666666667,
+   "edge": 0.24033333333333334,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -100,12 +94,6 @@
     },
     {
      "book": "fanduel",
-     "price": 1500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 1500,
      "best": true,
      "bettable": true
@@ -138,55 +126,105 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.147,
-   "model_p_cal": 0.277,
+   "model_p_cal": 0.279,
    "thin": false,
    "snap_share": 0.32,
-   "best_price": 650,
+   "best_price": 600,
    "best_book": "draftkings",
-   "mkt_p": 0.14285714285714285,
-   "n_books": 6,
-   "mkt_p_consensus": 0.14285714285714285,
-   "edge": 0.13414285714285717,
+   "mkt_p": 0.15384615384615385,
+   "n_books": 5,
+   "mkt_p_consensus": 0.15384615384615385,
+   "edge": 0.12515384615384617,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 650,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
      "price": 600,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 575,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Troy Franklin",
+   "nkey": "troy franklin",
+   "pos": "WR/TE",
+   "team": "DEN",
+   "opp": "PIT",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 20.5,
+   "td_share": 0.072,
+   "model_p_cal": 0.199,
+   "thin": false,
+   "snap_share": 0.44,
+   "best_price": 1300,
+   "best_book": "draftkings",
+   "mkt_p": 0.07692307692307693,
+   "n_books": 5,
+   "mkt_p_consensus": 0.07692307692307693,
+   "edge": 0.12207692307692308,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 1300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1200,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 900,
      "best": false,
      "bettable": true
     }
@@ -207,25 +245,19 @@
    "snap_share": 0.04,
    "best_price": 3000,
    "best_book": "draftkings",
-   "mkt_p": 0.04380952380952381,
-   "n_books": 6,
-   "mkt_p_consensus": 0.04380952380952381,
-   "edge": 0.1241904761904762,
+   "mkt_p": 0.047619047619047616,
+   "n_books": 5,
+   "mkt_p_consensus": 0.047619047619047616,
+   "edge": 0.1203809523809524,
    "flag": "H1-longshot-watch",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
      "price": 3000,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 2500,
-     "best": false,
      "bettable": true
     },
     {
@@ -255,62 +287,50 @@
    ]
   },
   {
-   "player": "Troy Franklin",
-   "nkey": "troy franklin",
+   "player": "Zach Ertz",
+   "nkey": "zach ertz",
    "pos": "WR/TE",
-   "team": "DEN",
-   "opp": "PIT",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
-   "td_share": 0.072,
-   "model_p_cal": 0.198,
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.06,
+   "model_p_cal": 0.18,
    "thin": false,
-   "snap_share": 0.44,
-   "best_price": 1300,
+   "snap_share": 0.2,
+   "best_price": 1500,
    "best_book": "draftkings",
-   "mkt_p": 0.07692307692307693,
-   "n_books": 6,
-   "mkt_p_consensus": 0.07692307692307693,
-   "edge": 0.12107692307692308,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "mkt_p": 0.06458333333333333,
+   "n_books": 4,
+   "mkt_p_consensus": 0.06458333333333333,
+   "edge": 0.11541666666666667,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 1300,
+     "price": 1500,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 1200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 1200,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1200,
-     "best": false,
+     "book": "ballybet",
+     "price": 1500,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 1100,
+     "price": 1400,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 900,
+     "book": "fanduel",
+     "price": 1400,
      "best": false,
      "bettable": true
     }
@@ -329,150 +349,26 @@
    "model_p_cal": 0.203,
    "thin": false,
    "snap_share": 0.12,
-   "best_price": 1200,
-   "best_book": "fanatics",
-   "mkt_p": 0.08695652173913043,
-   "n_books": 3,
-   "mkt_p_consensus": 0.08695652173913043,
-   "edge": 0.11604347826086958,
+   "best_price": 1050,
+   "best_book": "ballybet",
+   "mkt_p": 0.08893280632411067,
+   "n_books": 2,
+   "mkt_p_consensus": 0.08893280632411067,
+   "edge": 0.11406719367588934,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 1200,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 1050,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 1000,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Zach Ertz",
-   "nkey": "zach ertz",
-   "pos": "WR/TE",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.06,
-   "model_p_cal": 0.18,
-   "thin": false,
-   "snap_share": 0.2,
-   "best_price": 1600,
-   "best_book": "draftkings",
-   "mkt_p": 0.06666666666666667,
-   "n_books": 5,
-   "mkt_p_consensus": 0.06666666666666667,
-   "edge": 0.11333333333333333,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 1600,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 1500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1300,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Adam Trautman",
-   "nkey": "adam trautman",
-   "pos": "WR/TE",
-   "team": "DEN",
-   "opp": "PIT",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
-   "td_share": 0.05,
-   "model_p_cal": 0.167,
-   "thin": false,
-   "snap_share": 0.52,
-   "best_price": 2000,
-   "best_book": "draftkings",
-   "mkt_p": 0.05718954248366013,
-   "n_books": 6,
-   "mkt_p_consensus": 0.05718954248366013,
-   "edge": 0.10981045751633989,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 2000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 1800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 1050,
      "best": false,
      "bettable": true
     }
@@ -486,30 +382,30 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.049,
-   "model_p_cal": 0.166,
+   "model_p_cal": 0.167,
    "thin": false,
    "snap_share": 0.2,
-   "best_price": 1900,
-   "best_book": "fanatics",
-   "mkt_p": 0.058823529411764705,
-   "n_books": 5,
-   "mkt_p_consensus": 0.058823529411764705,
-   "edge": 0.1071764705882353,
+   "best_price": 2200,
+   "best_book": "draftkings",
+   "mkt_p": 0.05572755417956656,
+   "n_books": 4,
+   "mkt_p_consensus": 0.05572755417956656,
+   "edge": 0.11127244582043344,
    "flag": "H1-longshot-watch",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 1900,
+     "book": "draftkings",
+     "price": 2200,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "espnbet",
      "price": 1800,
      "best": false,
      "bettable": true
@@ -521,14 +417,120 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "williamhill_us",
+     "price": 1500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Adam Trautman",
+   "nkey": "adam trautman",
+   "pos": "WR/TE",
+   "team": "DEN",
+   "opp": "PIT",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 20.5,
+   "td_share": 0.05,
+   "model_p_cal": 0.168,
+   "thin": false,
+   "snap_share": 0.52,
+   "best_price": 1600,
+   "best_book": "fanduel",
+   "mkt_p": 0.0625,
+   "n_books": 5,
+   "mkt_p_consensus": 0.0625,
+   "edge": 0.10550000000000001,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
      "price": 1600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1500,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 1600,
+     "price": 1400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 1050,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Grant Calcaterra",
+   "nkey": "grant calcaterra",
+   "pos": "WR/TE",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.036,
+   "model_p_cal": 0.141,
+   "thin": false,
+   "snap_share": 0.1,
+   "best_price": 3000,
+   "best_book": "draftkings",
+   "mkt_p": 0.03571428571428571,
+   "n_books": 5,
+   "mkt_p_consensus": 0.03571428571428571,
+   "edge": 0.10528571428571427,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 3000,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 2700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 2500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 2500,
      "best": false,
      "bettable": true
     }
@@ -549,23 +551,17 @@
    "snap_share": 0.14,
    "best_price": 3000,
    "best_book": "draftkings",
-   "mkt_p": 0.036375661375661374,
-   "n_books": 6,
-   "mkt_p_consensus": 0.036375661375661374,
-   "edge": 0.10562433862433862,
+   "mkt_p": 0.037037037037037035,
+   "n_books": 5,
+   "mkt_p_consensus": 0.037037037037037035,
+   "edge": 0.10496296296296295,
    "flag": "H1-longshot-watch",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 3000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 3000,
      "best": true,
      "bettable": true
@@ -597,68 +593,6 @@
    ]
   },
   {
-   "player": "Grant Calcaterra",
-   "nkey": "grant calcaterra",
-   "pos": "WR/TE",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.036,
-   "model_p_cal": 0.141,
-   "thin": false,
-   "snap_share": 0.1,
-   "best_price": 3000,
-   "best_book": "fanatics",
-   "mkt_p": 0.03571428571428571,
-   "n_books": 6,
-   "mkt_p_consensus": 0.03571428571428571,
-   "edge": 0.10528571428571427,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 3000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 2800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 2700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 2700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 2500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 2500,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Andrew Armstrong",
    "nkey": "andrew armstrong",
    "pos": "WR/TE",
@@ -666,30 +600,24 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.037,
    "model_p_cal": 0.152,
    "thin": false,
    "snap_share": 0.41,
    "best_price": 2200,
    "best_book": "ballybet",
-   "mkt_p": 0.05012531328320802,
-   "n_books": 6,
-   "mkt_p_consensus": 0.05012531328320802,
-   "edge": 0.10187468671679198,
+   "mkt_p": 0.05263157894736842,
+   "n_books": 5,
+   "mkt_p_consensus": 0.05263157894736842,
+   "edge": 0.09936842105263158,
    "flag": "H1-longshot-watch",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 2200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 2200,
      "best": true,
      "bettable": true
@@ -733,33 +661,27 @@
    "model_p_cal": 0.141,
    "thin": false,
    "snap_share": 0.04,
-   "best_price": 2800,
-   "best_book": "fanatics",
-   "mkt_p": 0.043478260869565216,
-   "n_books": 7,
-   "mkt_p_consensus": 0.043478260869565216,
-   "edge": 0.09752173913043477,
+   "best_price": 2500,
+   "best_book": "draftkings",
+   "mkt_p": 0.045548654244306416,
+   "n_books": 6,
+   "mkt_p_consensus": 0.045548654244306416,
+   "edge": 0.09545134575569357,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 2800,
+     "book": "draftkings",
+     "price": 2500,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 2500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 2200,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -802,9 +724,9 @@
    "thin": false,
    "snap_share": 0.28,
    "best_price": 1900,
-   "best_book": "fanatics",
+   "best_book": "draftkings",
    "mkt_p": 0.058823529411764705,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.058823529411764705,
    "edge": 0.09317647058823529,
    "flag": "H1-longshot-watch",
@@ -813,15 +735,9 @@
    "wx_wind": null,
    "book_prices": [
     {
-     "book": "fanatics",
+     "book": "draftkings",
      "price": 1900,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1800,
-     "best": false,
      "bettable": true
     },
     {
@@ -872,7 +788,7 @@
    "best_price": 1700,
    "best_book": "betmgm",
    "mkt_p": 0.07142857142857142,
-   "n_books": 5,
+   "n_books": 4,
    "mkt_p_consensus": 0.07142857142857142,
    "edge": 0.08857142857142858,
    "flag": "",
@@ -888,12 +804,6 @@
     },
     {
      "book": "draftkings",
-     "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
      "price": 1300,
      "best": false,
      "bettable": true
@@ -905,8 +815,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1300,
+     "book": "williamhill_us",
+     "price": 1200,
      "best": false,
      "bettable": true
     }
@@ -920,21 +830,21 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.057,
-   "model_p_cal": 0.178,
+   "model_p_cal": 0.179,
    "thin": false,
    "snap_share": 0.32,
    "best_price": 1100,
    "best_book": "draftkings",
    "mkt_p": 0.09090909090909091,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.09090909090909091,
-   "edge": 0.08709090909090908,
+   "edge": 0.08809090909090908,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -965,12 +875,6 @@
      "price": 950,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 950,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -987,27 +891,21 @@
    "model_p_cal": 0.152,
    "thin": false,
    "snap_share": 0.13,
-   "best_price": 1700,
-   "best_book": "fanatics",
+   "best_price": 1500,
+   "best_book": "fanduel",
    "mkt_p": 0.06666666666666667,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.06666666666666667,
    "edge": 0.08533333333333333,
    "flag": "H1-longshot-watch",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 1700,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "fanduel",
      "price": 1500,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1049,12 +947,12 @@
    "model_p_cal": 0.271,
    "thin": false,
    "snap_share": 0.55,
-   "best_price": 475,
+   "best_price": 450,
    "best_book": "draftkings",
-   "mkt_p": 0.19047619047619047,
-   "n_books": 7,
-   "mkt_p_consensus": 0.19047619047619047,
-   "edge": 0.08052380952380955,
+   "mkt_p": 0.18957771787960467,
+   "n_books": 6,
+   "mkt_p_consensus": 0.18957771787960467,
+   "edge": 0.08142228212039535,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -1062,14 +960,14 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 475,
+     "price": 450,
      "best": true,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 450,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1091,12 +989,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 380,
      "best": false,
@@ -1112,21 +1004,21 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.058,
-   "model_p_cal": 0.179,
+   "model_p_cal": 0.18,
    "thin": false,
    "snap_share": 0.24,
    "best_price": 1100,
    "best_book": "fanduel",
    "mkt_p": 0.1,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.1,
-   "edge": 0.07899999999999999,
+   "edge": 0.07999999999999999,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
@@ -1135,13 +1027,19 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 950,
+     "book": "espnbet",
+     "price": 1000,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "draftkings",
+     "price": 900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 900,
      "best": false,
      "bettable": true
@@ -1149,18 +1047,6 @@
     {
      "book": "ballybet",
      "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 850,
      "best": false,
      "bettable": true
     }
@@ -1182,7 +1068,7 @@
    "best_price": 1800,
    "best_book": "ballybet",
    "mkt_p": 0.07142857142857142,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.07142857142857142,
    "edge": 0.07857142857142857,
    "flag": "",
@@ -1215,14 +1101,108 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1300,
+     "book": "draftkings",
+     "price": 1200,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Tyrell Shavers",
+   "nkey": "tyrell shavers",
+   "pos": "WR/TE",
+   "team": "BUF",
+   "opp": "KC",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 25.5,
+   "td_share": 0.037,
+   "model_p_cal": 0.16,
+   "thin": false,
+   "snap_share": 0.37,
+   "best_price": 1200,
+   "best_book": "fanduel",
+   "mkt_p": 0.08391608391608392,
+   "n_books": 4,
+   "mkt_p_consensus": 0.08391608391608392,
+   "edge": 0.07608391608391608,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1000,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Lew Nichols III",
+   "nkey": "lew nichols",
+   "pos": "RB",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.024,
+   "model_p_cal": 0.109,
+   "thin": false,
+   "snap_share": 0.05,
+   "best_price": 4500,
+   "best_book": "fanduel",
+   "mkt_p": 0.03337041156840934,
+   "n_books": 4,
+   "mkt_p_consensus": 0.03337041156840934,
+   "edge": 0.07562958843159065,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 4500,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 3000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 2800,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 1200,
+     "price": 2500,
      "best": false,
      "bettable": true
     }
@@ -1243,23 +1223,17 @@
    "snap_share": 0.4,
    "best_price": 1500,
    "best_book": "fanduel",
-   "mkt_p": 0.06904761904761905,
-   "n_books": 6,
-   "mkt_p_consensus": 0.06904761904761905,
-   "edge": 0.07795238095238094,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "mkt_p": 0.07142857142857142,
+   "n_books": 5,
+   "mkt_p_consensus": 0.07142857142857142,
+   "edge": 0.07557142857142857,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 1500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 1500,
      "best": true,
      "bettable": true
@@ -1291,118 +1265,6 @@
    ]
   },
   {
-   "player": "Lew Nichols III",
-   "nkey": "lew nichols",
-   "pos": "RB",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.024,
-   "model_p_cal": 0.109,
-   "thin": false,
-   "snap_share": 0.05,
-   "best_price": 4500,
-   "best_book": "fanduel",
-   "mkt_p": 0.03225806451612903,
-   "n_books": 5,
-   "mkt_p_consensus": 0.03225806451612903,
-   "edge": 0.07674193548387097,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 4500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 3500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 3000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 2800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 2500,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Tyrell Shavers",
-   "nkey": "tyrell shavers",
-   "pos": "WR/TE",
-   "team": "BUF",
-   "opp": "KC",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 25.5,
-   "td_share": 0.037,
-   "model_p_cal": 0.16,
-   "thin": false,
-   "snap_share": 0.37,
-   "best_price": 1200,
-   "best_book": "fanduel",
-   "mkt_p": 0.08333333333333333,
-   "n_books": 5,
-   "mkt_p_consensus": 0.08333333333333333,
-   "edge": 0.07666666666666667,
-   "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 1200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 1200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Matthew Stafford",
    "nkey": "matthew stafford",
    "pos": "QB",
@@ -1418,7 +1280,7 @@
    "best_price": 2500,
    "best_book": "ballybet",
    "mkt_p": 0.05263157894736842,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.05263157894736842,
    "edge": 0.07536842105263158,
    "flag": "",
@@ -1439,18 +1301,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1800,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": 1800,
      "best": false,
@@ -1467,72 +1317,10 @@
      "price": 1750,
      "best": false,
      "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Davis Allen",
-   "nkey": "davis allen",
-   "pos": "WR/TE",
-   "team": "LA",
-   "opp": "GB",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 23.25,
-   "td_share": 0.06,
-   "model_p_cal": 0.194,
-   "thin": false,
-   "snap_share": 0.52,
-   "best_price": 775,
-   "best_book": "betmgm",
-   "mkt_p": 0.125,
-   "n_books": 7,
-   "mkt_p_consensus": 0.125,
-   "edge": 0.069,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "betmgm",
-     "price": 775,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 700,
-     "best": false,
-     "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 650,
+     "price": 1700,
      "best": false,
      "bettable": true
     }
@@ -1551,27 +1339,21 @@
    "model_p_cal": 0.268,
    "thin": false,
    "snap_share": 0.68,
-   "best_price": 420,
-   "best_book": "fanatics",
+   "best_price": 410,
+   "best_book": "fanduel",
    "mkt_p": 0.2,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.2,
    "edge": 0.068,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 420,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "fanduel",
      "price": 410,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1601,6 +1383,68 @@
    ]
   },
   {
+   "player": "Davis Allen",
+   "nkey": "davis allen",
+   "pos": "WR/TE",
+   "team": "LA",
+   "opp": "GB",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 23.25,
+   "td_share": 0.06,
+   "model_p_cal": 0.194,
+   "thin": false,
+   "snap_share": 0.52,
+   "best_price": 775,
+   "best_book": "betmgm",
+   "mkt_p": 0.12916666666666665,
+   "n_books": 6,
+   "mkt_p_consensus": 0.12916666666666665,
+   "edge": 0.06483333333333335,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "betmgm",
+     "price": 775,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
    "player": "Dawson Knox",
    "nkey": "dawson knox",
    "pos": "WR/TE",
@@ -1613,39 +1457,33 @@
    "model_p_cal": 0.231,
    "thin": false,
    "snap_share": 0.69,
-   "best_price": 525,
-   "best_book": "fanatics",
+   "best_price": 500,
+   "best_book": "draftkings",
    "mkt_p": 0.16666666666666666,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.16666666666666666,
    "edge": 0.06433333333333335,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 525,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "draftkings",
      "price": 500,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 500,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "espnbet",
      "price": 500,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -1670,7 +1508,7 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.109,
    "model_p_cal": 0.254,
    "thin": false,
@@ -1678,22 +1516,16 @@
    "best_price": 450,
    "best_book": "draftkings",
    "mkt_p": 0.19047619047619047,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.19047619047619047,
    "edge": 0.06352380952380954,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 450,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 450,
      "best": true,
      "bettable": true
@@ -1740,7 +1572,7 @@
    "best_price": 1200,
    "best_book": "betmgm",
    "mkt_p": 0.09090909090909091,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.09090909090909091,
    "edge": 0.061090909090909085,
    "flag": "",
@@ -1767,12 +1599,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 950,
      "best": false,
@@ -1780,69 +1606,7 @@
     },
     {
      "book": "ballybet",
-     "price": 540,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "DK Metcalf",
-   "nkey": "dk metcalf",
-   "pos": "WR/TE",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.206,
-   "model_p_cal": 0.306,
-   "thin": false,
-   "snap_share": 0.9,
-   "best_price": 340,
-   "best_book": "ballybet",
-   "mkt_p": 0.24845679012345678,
-   "n_books": 6,
-   "mkt_p_consensus": 0.24845679012345678,
-   "edge": 0.05754320987654321,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 340,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 330,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 305,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 300,
+     "price": 525,
      "best": false,
      "bettable": true
     }
@@ -1863,14 +1627,14 @@
    "snap_share": 0.14,
    "best_price": 1200,
    "best_book": "draftkings",
-   "mkt_p": 0.09307359307359307,
-   "n_books": 6,
-   "mkt_p_consensus": 0.09307359307359307,
-   "edge": 0.05692640692640692,
+   "mkt_p": 0.09090909090909091,
+   "n_books": 5,
+   "mkt_p_consensus": 0.09090909090909091,
+   "edge": 0.05909090909090908,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -1897,12 +1661,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 850,
      "best": false,
@@ -1911,124 +1669,168 @@
    ]
   },
   {
-   "player": "Travis Homer",
-   "nkey": "travis homer",
-   "pos": "RB",
+   "player": "DK Metcalf",
+   "nkey": "dk metcalf",
+   "pos": "WR/TE",
    "team": "PIT",
    "opp": "DEN",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
    "implied_total": 17.75,
-   "td_share": 0.013,
-   "model_p_cal": 0.079,
+   "td_share": 0.206,
+   "model_p_cal": 0.306,
    "thin": false,
-   "snap_share": 0.02,
-   "best_price": 7000,
-   "best_book": "fanduel",
-   "mkt_p": 0.023064687168610817,
-   "n_books": 6,
-   "mkt_p_consensus": 0.023064687168610817,
-   "edge": 0.05593531283138918,
+   "snap_share": 0.9,
+   "best_price": 340,
+   "best_book": "ballybet",
+   "mkt_p": 0.24691358024691357,
+   "n_books": 5,
+   "mkt_p_consensus": 0.24691358024691357,
+   "edge": 0.05908641975308643,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 7000,
+     "book": "ballybet",
+     "price": 340,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 5000,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": 4500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 4000,
+     "price": 320,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 4000,
+     "price": 305,
      "best": false,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 3000,
+     "book": "fanduel",
+     "price": 300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 300,
      "best": false,
      "bettable": true
     }
    ]
   },
   {
-   "player": "Patrick Mahomes",
-   "nkey": "patrick mahomes",
-   "pos": "QB",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.052,
-   "model_p_cal": 0.179,
+   "player": "Roman Wilson",
+   "nkey": "roman wilson",
+   "pos": "WR/TE",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.087,
+   "model_p_cal": 0.204,
    "thin": false,
-   "snap_share": 0.97,
-   "best_price": 750,
-   "best_book": "fanduel",
-   "mkt_p": 0.125,
-   "n_books": 6,
-   "mkt_p_consensus": 0.125,
-   "edge": 0.05399999999999999,
+   "snap_share": 0.51,
+   "best_price": 600,
+   "best_book": "draftkings",
+   "mkt_p": 0.14835164835164835,
+   "n_books": 4,
+   "mkt_p_consensus": 0.14835164835164835,
+   "edge": 0.055648351648351635,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
-     "book": "fanduel",
-     "price": 750,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 750,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": 700,
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
+     "book": "ballybet",
+     "price": 500,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Dak Prescott",
+   "nkey": "dak prescott",
+   "pos": "QB",
+   "team": "DAL",
+   "opp": "PHI",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 28.25,
+   "td_share": 0.048,
+   "model_p_cal": 0.191,
+   "thin": false,
+   "snap_share": 1.0,
+   "best_price": 700,
+   "best_book": "draftkings",
+   "mkt_p": 0.135632183908046,
+   "n_books": 6,
+   "mkt_p_consensus": 0.135632183908046,
+   "edge": 0.055367816091954014,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
      "price": 700,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 650,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 700,
+     "price": 625,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 500,
      "best": false,
      "bettable": true
     }
@@ -2042,32 +1844,26 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.09,
-   "model_p_cal": 0.22,
+   "model_p_cal": 0.222,
    "thin": false,
    "snap_share": 1.0,
    "best_price": 540,
    "best_book": "ballybet",
    "mkt_p": 0.16666666666666666,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.16666666666666666,
-   "edge": 0.053333333333333344,
+   "edge": 0.055333333333333345,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
      "price": 540,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 525,
-     "best": false,
      "bettable": true
     },
     {
@@ -2097,56 +1893,50 @@
    ]
   },
   {
-   "player": "Dak Prescott",
-   "nkey": "dak prescott",
+   "player": "Patrick Mahomes",
+   "nkey": "patrick mahomes",
    "pos": "QB",
-   "team": "DAL",
-   "opp": "PHI",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 28.25,
-   "td_share": 0.048,
-   "model_p_cal": 0.191,
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.052,
+   "model_p_cal": 0.18,
    "thin": false,
-   "snap_share": 1.0,
-   "best_price": 700,
-   "best_book": "draftkings",
-   "mkt_p": 0.13793103448275862,
-   "n_books": 7,
-   "mkt_p_consensus": 0.13793103448275862,
-   "edge": 0.053068965517241384,
+   "snap_share": 0.97,
+   "best_price": 750,
+   "best_book": "fanduel",
+   "mkt_p": 0.125,
+   "n_books": 5,
+   "mkt_p_consensus": 0.125,
+   "edge": 0.05499999999999999,
    "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
-     "book": "draftkings",
-     "price": 700,
+     "book": "fanduel",
+     "price": 750,
      "best": true,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 650,
+     "book": "draftkings",
+     "price": 700,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 650,
+     "book": "espnbet",
+     "price": 700,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 625,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 575,
+     "price": 700,
      "best": false,
      "bettable": true
     },
@@ -2155,10 +1945,60 @@
      "price": 550,
      "best": false,
      "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Travis Homer",
+   "nkey": "travis homer",
+   "pos": "RB",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.013,
+   "model_p_cal": 0.079,
+   "thin": false,
+   "snap_share": 0.02,
+   "best_price": 7000,
+   "best_book": "fanduel",
+   "mkt_p": 0.024390243902439025,
+   "n_books": 5,
+   "mkt_p_consensus": 0.024390243902439025,
+   "edge": 0.054609756097560976,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 7000,
+     "best": true,
+     "bettable": true
     },
     {
-     "book": "betmgm",
-     "price": 500,
+     "book": "draftkings",
+     "price": 4500,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 4000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 4000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 3000,
      "best": false,
      "bettable": true
     }
@@ -2172,25 +2012,25 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.015,
-   "model_p_cal": 0.091,
+   "model_p_cal": 0.092,
    "thin": false,
    "snap_share": 0.14,
-   "best_price": 2700,
+   "best_price": 3000,
    "best_book": "fanduel",
    "mkt_p": 0.038461538461538464,
    "n_books": 5,
    "mkt_p_consensus": 0.038461538461538464,
-   "edge": 0.052538461538461534,
+   "edge": 0.053538461538461535,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 2700,
+     "price": 3000,
      "best": true,
      "bettable": true
     },
@@ -2215,6 +2055,68 @@
     {
      "book": "williamhill_us",
      "price": 2200,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Darius Cooper",
+   "nkey": "darius cooper",
+   "pos": "WR/TE",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.076,
+   "model_p_cal": 0.201,
+   "thin": false,
+   "snap_share": 0.68,
+   "best_price": 600,
+   "best_book": "draftkings",
+   "mkt_p": 0.14835164835164835,
+   "n_books": 6,
+   "mkt_p_consensus": 0.14835164835164835,
+   "edge": 0.05264835164835166,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 600,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 390,
      "best": false,
      "bettable": true
     }
@@ -2233,27 +2135,21 @@
    "model_p_cal": 0.243,
    "thin": false,
    "snap_share": 0.63,
-   "best_price": 500,
-   "best_book": "fanatics",
+   "best_price": 460,
+   "best_book": "fanduel",
    "mkt_p": 0.19047619047619047,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.19047619047619047,
    "edge": 0.05252380952380953,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 500,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "fanduel",
      "price": 460,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -2283,118 +2179,56 @@
    ]
   },
   {
-   "player": "Will Shipley",
-   "nkey": "will shipley",
-   "pos": "RB",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.086,
-   "model_p_cal": 0.214,
-   "thin": false,
-   "snap_share": 0.33,
-   "best_price": 800,
-   "best_book": "fanduel",
-   "mkt_p": 0.1625,
-   "n_books": 6,
-   "mkt_p_consensus": 0.1625,
-   "edge": 0.05149999999999999,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 800,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 143,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 125,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Roman Wilson",
-   "nkey": "roman wilson",
+   "player": "Robert Tonyan",
+   "nkey": "robert tonyan",
    "pos": "WR/TE",
    "team": "PIT",
    "opp": "DEN",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
    "implied_total": 17.75,
-   "td_share": 0.087,
-   "model_p_cal": 0.204,
+   "td_share": 0.014,
+   "model_p_cal": 0.083,
    "thin": false,
-   "snap_share": 0.51,
-   "best_price": 650,
+   "snap_share": 0.07,
+   "best_price": 3500,
    "best_book": "draftkings",
-   "mkt_p": 0.15384615384615385,
+   "mkt_p": 0.03333333333333333,
    "n_books": 5,
-   "mkt_p_consensus": 0.15384615384615385,
-   "edge": 0.05015384615384613,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "mkt_p_consensus": 0.03333333333333333,
+   "edge": 0.04966666666666667,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 650,
+     "price": 3500,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 550,
+     "price": 2900,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 500,
+     "price": 2900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 2700,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 2500,
      "best": false,
      "bettable": true
     }
@@ -2415,10 +2249,10 @@
    "snap_share": 0.09,
    "best_price": 2200,
    "best_book": "draftkings",
-   "mkt_p": 0.05012531328320802,
-   "n_books": 6,
-   "mkt_p_consensus": 0.05012531328320802,
-   "edge": 0.04987468671679199,
+   "mkt_p": 0.05263157894736842,
+   "n_books": 5,
+   "mkt_p_consensus": 0.05263157894736842,
+   "edge": 0.04736842105263159,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -2426,12 +2260,6 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 2200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 2200,
      "best": true,
      "bettable": true
@@ -2456,93 +2284,131 @@
     },
     {
      "book": "ballybet",
-     "price": 1150,
+     "price": 1200,
      "best": false,
      "bettable": true
     }
    ]
   },
   {
-   "player": "Robert Tonyan",
-   "nkey": "robert tonyan",
+   "player": "Michael Pittman",
+   "nkey": "michael pittman",
    "pos": "WR/TE",
    "team": "PIT",
    "opp": "DEN",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
    "implied_total": 17.75,
-   "td_share": 0.014,
-   "model_p_cal": 0.083,
+   "td_share": 0.067,
+   "model_p_cal": 0.18,
    "thin": false,
-   "snap_share": 0.07,
-   "best_price": 3500,
+   "snap_share": 0.78,
+   "best_price": 650,
    "best_book": "draftkings",
-   "mkt_p": 0.03333333333333333,
-   "n_books": 6,
-   "mkt_p_consensus": 0.03333333333333333,
-   "edge": 0.04966666666666667,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "mkt_p": 0.13333333333333333,
+   "n_books": 3,
+   "mkt_p_consensus": 0.13333333333333333,
+   "edge": 0.04666666666666666,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 3500,
+     "price": 650,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 3000,
-     "best": false,
+     "book": "fanduel",
+     "price": 650,
+     "best": true,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 2900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 2900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 2700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 2500,
+     "price": 625,
      "best": false,
      "bettable": true
     }
    ]
   },
   {
-   "player": "Darius Cooper",
-   "nkey": "darius cooper",
+   "player": "Elijah Moore",
+   "nkey": "elijah moore",
    "pos": "WR/TE",
    "team": "PHI",
    "opp": "DAL",
    "game": "PHI@DAL",
    "commence": "2026-11-26T21:30:00Z",
    "implied_total": 19.75,
-   "td_share": 0.076,
-   "model_p_cal": 0.201,
+   "td_share": 0.017,
+   "model_p_cal": 0.096,
    "thin": false,
-   "snap_share": 0.68,
-   "best_price": 600,
+   "snap_share": 0.22,
+   "best_price": 2200,
+   "best_book": "ballybet",
+   "mkt_p": 0.05,
+   "n_books": 5,
+   "mkt_p_consensus": 0.05,
+   "edge": 0.046,
+   "flag": "H1-longshot-watch",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 2200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1900,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1800,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Brock Wright",
+   "nkey": "brock wright",
+   "pos": "WR/TE",
+   "team": "DET",
+   "opp": "CHI",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 26.5,
+   "td_share": 0.027,
+   "model_p_cal": 0.141,
+   "thin": false,
+   "snap_share": 0.56,
+   "best_price": 1100,
    "best_book": "fanduel",
-   "mkt_p": 0.15384615384615385,
-   "n_books": 7,
-   "mkt_p_consensus": 0.15384615384615385,
-   "edge": 0.04715384615384616,
+   "mkt_p": 0.09523809523809523,
+   "n_books": 5,
+   "mkt_p_consensus": 0.09523809523809523,
+   "edge": 0.045761904761904754,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -2550,43 +2416,31 @@
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 600,
+     "price": 1100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 575,
+     "book": "espnbet",
+     "price": 1000,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 550,
+     "price": 950,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 550,
+     "price": 900,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 390,
+     "price": 800,
      "best": false,
      "bettable": true
     }
@@ -2608,13 +2462,13 @@
    "best_price": 650,
    "best_book": "fanduel",
    "mkt_p": 0.14285714285714285,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.14285714285714285,
    "edge": 0.04514285714285715,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
@@ -2635,12 +2489,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 600,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 550,
      "best": false,
@@ -2649,118 +2497,6 @@
     {
      "book": "williamhill_us",
      "price": 550,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Elijah Moore",
-   "nkey": "elijah moore",
-   "pos": "WR/TE",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.017,
-   "model_p_cal": 0.096,
-   "thin": false,
-   "snap_share": 0.22,
-   "best_price": 2200,
-   "best_book": "ballybet",
-   "mkt_p": 0.05131578947368421,
-   "n_books": 6,
-   "mkt_p_consensus": 0.05131578947368421,
-   "edge": 0.04468421052631579,
-   "flag": "H1-longshot-watch",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 2200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 2200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 1800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1700,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Michael Pittman",
-   "nkey": "michael pittman",
-   "pos": "WR/TE",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.067,
-   "model_p_cal": 0.18,
-   "thin": false,
-   "snap_share": 0.78,
-   "best_price": 650,
-   "best_book": "draftkings",
-   "mkt_p": 0.135632183908046,
-   "n_books": 4,
-   "mkt_p_consensus": 0.135632183908046,
-   "edge": 0.044367816091954004,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 650,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 650,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 625,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 600,
      "best": false,
      "bettable": true
     }
@@ -2782,13 +2518,13 @@
    "best_price": 1200,
    "best_book": "draftkings",
    "mkt_p": 0.07692307692307693,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.07692307692307693,
    "edge": 0.04407692307692307,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -2817,74 +2553,6 @@
     {
      "book": "williamhill_us",
      "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1100,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Brock Wright",
-   "nkey": "brock wright",
-   "pos": "WR/TE",
-   "team": "DET",
-   "opp": "CHI",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 26.5,
-   "td_share": 0.027,
-   "model_p_cal": 0.141,
-   "thin": false,
-   "snap_share": 0.56,
-   "best_price": 1100,
-   "best_book": "fanduel",
-   "mkt_p": 0.1,
-   "n_books": 6,
-   "mkt_p_consensus": 0.1,
-   "edge": 0.04099999999999998,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 800,
      "best": false,
      "bettable": true
     }
@@ -2898,30 +2566,24 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.146,
-   "model_p_cal": 0.277,
+   "model_p_cal": 0.278,
    "thin": false,
    "snap_share": 0.77,
    "best_price": 340,
    "best_book": "fanduel",
-   "mkt_p": 0.23669467787114845,
-   "n_books": 6,
-   "mkt_p_consensus": 0.23669467787114845,
-   "edge": 0.04030532212885157,
+   "mkt_p": 0.23809523809523808,
+   "n_books": 5,
+   "mkt_p_consensus": 0.23809523809523808,
+   "edge": 0.03990476190476194,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 340,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 340,
      "best": true,
      "bettable": true
@@ -2953,38 +2615,6 @@
    ]
   },
   {
-   "player": "Jake Ferguson",
-   "nkey": "jake ferguson",
-   "pos": "WR/TE",
-   "team": "DAL",
-   "opp": "PHI",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 28.25,
-   "td_share": 0.123,
-   "model_p_cal": 0.298,
-   "thin": false,
-   "snap_share": 0.56,
-   "best_price": 285,
-   "best_book": "fanatics",
-   "mkt_p": 0.2597402597402597,
-   "n_books": 1,
-   "mkt_p_consensus": 0.2597402597402597,
-   "edge": 0.03825974025974027,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 285,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Evan Engram",
    "nkey": "evan engram",
    "pos": "WR/TE",
@@ -2992,21 +2622,21 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.082,
-   "model_p_cal": 0.211,
+   "model_p_cal": 0.213,
    "thin": false,
    "snap_share": 0.53,
    "best_price": 500,
    "best_book": "fanduel",
    "mkt_p": 0.17391304347826086,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.17391304347826086,
-   "edge": 0.03708695652173913,
+   "edge": 0.03908695652173913,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
@@ -3028,12 +2658,6 @@
     },
     {
      "book": "williamhill_us",
-     "price": 475,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 475,
      "best": false,
      "bettable": true
@@ -3061,10 +2685,10 @@
    "snap_share": 0.31,
    "best_price": 850,
    "best_book": "draftkings",
-   "mkt_p": 0.1111111111111111,
-   "n_books": 7,
-   "mkt_p_consensus": 0.1111111111111111,
-   "edge": 0.033888888888888885,
+   "mkt_p": 0.10977443609022555,
+   "n_books": 6,
+   "mkt_p_consensus": 0.10977443609022555,
+   "edge": 0.03522556390977444,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -3089,20 +2713,14 @@
      "bettable": true
     },
     {
-     "book": "williamhill_us",
-     "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
      "price": 775,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
      "best": false,
      "bettable": true
     },
@@ -3130,7 +2748,7 @@
    "best_price": 1200,
    "best_book": "fanduel",
    "mkt_p": 0.08333333333333333,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.08333333333333333,
    "edge": 0.026666666666666672,
    "flag": "",
@@ -3151,20 +2769,14 @@
      "bettable": true
     },
     {
+     "book": "draftkings",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
      "book": "espnbet",
      "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1000,
      "best": false,
      "bettable": true
     },
@@ -3195,25 +2807,31 @@
    "model_p_cal": 0.058,
    "thin": false,
    "snap_share": 0.36,
-   "best_price": 3500,
-   "best_book": "fanatics",
-   "mkt_p": 0.03279569892473118,
-   "n_books": 6,
-   "mkt_p_consensus": 0.03279569892473118,
-   "edge": 0.025204301075268824,
+   "best_price": 4000,
+   "best_book": "draftkings",
+   "mkt_p": 0.03225806451612903,
+   "n_books": 5,
+   "mkt_p_consensus": 0.03225806451612903,
+   "edge": 0.02574193548387097,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 3500,
+     "book": "draftkings",
+     "price": 4000,
      "best": true,
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "espnbet",
+     "price": 3000,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 3000,
      "best": false,
      "bettable": true
@@ -3221,18 +2839,6 @@
     {
      "book": "fanduel",
      "price": 3000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 2900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 2500,
      "best": false,
      "bettable": true
     },
@@ -3252,7 +2858,7 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.04,
    "model_p_cal": 0.158,
    "thin": false,
@@ -3260,13 +2866,13 @@
    "best_price": 700,
    "best_book": "draftkings",
    "mkt_p": 0.13333333333333333,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.13333333333333333,
    "edge": 0.02466666666666667,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -3297,12 +2903,6 @@
      "price": 650,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 650,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -3321,25 +2921,19 @@
    "snap_share": 0.7,
    "best_price": 500,
    "best_book": "draftkings",
-   "mkt_p": 0.18019480519480519,
-   "n_books": 6,
-   "mkt_p_consensus": 0.18019480519480519,
-   "edge": 0.02280519480519483,
+   "mkt_p": 0.18181818181818182,
+   "n_books": 5,
+   "mkt_p_consensus": 0.18181818181818182,
+   "edge": 0.02118181818181819,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
      "price": 500,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 475,
-     "best": false,
      "bettable": true
     },
     {
@@ -3369,74 +2963,6 @@
    ]
   },
   {
-   "player": "Jordan Love",
-   "nkey": "jordan love",
-   "pos": "QB",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.02,
-   "model_p_cal": 0.106,
-   "thin": false,
-   "snap_share": 0.98,
-   "best_price": 1100,
-   "best_book": "draftkings",
-   "mkt_p": 0.08333333333333333,
-   "n_books": 7,
-   "mkt_p_consensus": 0.08333333333333333,
-   "edge": 0.02266666666666667,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1100,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 1000,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 950,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 950,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "KaVontae Turpin",
    "nkey": "kavontae turpin",
    "pos": "WR/TE",
@@ -3449,10 +2975,10 @@
    "model_p_cal": 0.154,
    "thin": false,
    "snap_share": 0.15,
-   "best_price": 950,
+   "best_price": 700,
    "best_book": "betmgm",
    "mkt_p": 0.13333333333333333,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.13333333333333333,
    "edge": 0.020666666666666667,
    "flag": "",
@@ -3462,7 +2988,7 @@
    "book_prices": [
     {
      "book": "betmgm",
-     "price": 950,
+     "price": 700,
      "best": true,
      "bettable": true
     },
@@ -3486,12 +3012,6 @@
     },
     {
      "book": "ballybet",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 650,
      "best": false,
      "bettable": true
@@ -3520,13 +3040,13 @@
    "best_price": 425,
    "best_book": "draftkings",
    "mkt_p": 0.2,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.2,
    "edge": 0.01899999999999999,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -3536,7 +3056,7 @@
     },
     {
      "book": "fanduel",
-     "price": 400,
+     "price": 410,
      "best": false,
      "bettable": true
     },
@@ -3553,12 +3073,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 335,
      "best": false,
@@ -3567,50 +3081,62 @@
    ]
   },
   {
-   "player": "J. Michael Sturdivant",
-   "nkey": "j michael sturdivant",
-   "pos": "WR/TE",
+   "player": "Jordan Love",
+   "nkey": "jordan love",
+   "pos": "QB",
    "team": "GB",
    "opp": "LA",
    "game": "GB@LA",
    "commence": "2026-11-26T01:00:00Z",
    "implied_total": 20.75,
-   "td_share": 0.013,
-   "model_p_cal": 0.085,
+   "td_share": 0.02,
+   "model_p_cal": 0.106,
    "thin": false,
-   "snap_share": 0.17,
-   "best_price": 2200,
+   "snap_share": 0.98,
+   "best_price": 1100,
    "best_book": "draftkings",
-   "mkt_p": 0.06696428571428571,
-   "n_books": 4,
-   "mkt_p_consensus": 0.06696428571428571,
-   "edge": 0.018035714285714294,
-   "flag": "H1-longshot-watch",
+   "mkt_p": 0.08712121212121213,
+   "n_books": 6,
+   "mkt_p_consensus": 0.08712121212121213,
+   "edge": 0.01887878787878787,
+   "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
    "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 2200,
+     "price": 1100,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1500,
+     "book": "fanduel",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 1100,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 1000,
      "best": false,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 1300,
+     "book": "betmgm",
+     "price": 950,
      "best": false,
      "bettable": true
     },
     {
      "book": "ballybet",
-     "price": 750,
+     "price": 950,
      "best": false,
      "bettable": true
     }
@@ -3631,10 +3157,10 @@
    "snap_share": 0.98,
    "best_price": 1300,
    "best_book": "draftkings",
-   "mkt_p": 0.08,
-   "n_books": 7,
-   "mkt_p_consensus": 0.08,
-   "edge": 0.016,
+   "mkt_p": 0.07846153846153847,
+   "n_books": 6,
+   "mkt_p_consensus": 0.07846153846153847,
+   "edge": 0.01753846153846153,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -3675,12 +3201,6 @@
      "price": 1050,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1000,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -3692,30 +3212,24 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.071,
-   "model_p_cal": 0.197,
+   "model_p_cal": 0.198,
    "thin": false,
    "snap_share": 0.59,
    "best_price": 500,
    "best_book": "fanduel",
    "mkt_p": 0.18181818181818182,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.18181818181818182,
-   "edge": 0.015181818181818185,
+   "edge": 0.016181818181818186,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 500,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 500,
      "best": true,
      "bettable": true
@@ -3747,44 +3261,100 @@
    ]
   },
   {
-   "player": "Noah Gray",
-   "nkey": "noah gray",
-   "pos": "WR/TE",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.035,
-   "model_p_cal": 0.148,
+   "player": "Will Shipley",
+   "nkey": "will shipley",
+   "pos": "RB",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.086,
+   "model_p_cal": 0.214,
    "thin": false,
-   "snap_share": 0.62,
-   "best_price": 650,
-   "best_book": "ballybet",
-   "mkt_p": 0.13333333333333333,
-   "n_books": 3,
-   "mkt_p_consensus": 0.13333333333333333,
-   "edge": 0.014666666666666661,
+   "snap_share": 0.33,
+   "best_price": 800,
+   "best_book": "fanduel",
+   "mkt_p": 0.2,
+   "n_books": 5,
+   "mkt_p_consensus": 0.2,
+   "edge": 0.013999999999999985,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": 650,
+     "book": "fanduel",
+     "price": 800,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 650,
-     "best": true,
+     "book": "draftkings",
+     "price": 700,
+     "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 600,
+     "price": 400,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 143,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 125,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "J. Michael Sturdivant",
+   "nkey": "j michael sturdivant",
+   "pos": "WR/TE",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.013,
+   "model_p_cal": 0.085,
+   "thin": false,
+   "snap_share": 0.17,
+   "best_price": 2200,
+   "best_book": "draftkings",
+   "mkt_p": 0.07142857142857142,
+   "n_books": 3,
+   "mkt_p_consensus": 0.07142857142857142,
+   "edge": 0.013571428571428581,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 2200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 1300,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 750,
      "best": false,
      "bettable": true
     }
@@ -3803,27 +3373,21 @@
    "model_p_cal": 0.062,
    "thin": false,
    "snap_share": 0.97,
-   "best_price": 2500,
-   "best_book": "fanatics",
+   "best_price": 2200,
+   "best_book": "fanduel",
    "mkt_p": 0.05,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.05,
    "edge": 0.011999999999999997,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 2500,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "fanduel",
      "price": 2200,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -3868,7 +3432,7 @@
    "best_price": 475,
    "best_book": "betmgm",
    "mkt_p": 0.19047619047619047,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.19047619047619047,
    "edge": 0.010523809523809546,
    "flag": "",
@@ -3889,12 +3453,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 425,
      "best": false,
@@ -3914,7 +3472,45 @@
     },
     {
      "book": "ballybet",
-     "price": 325,
+     "price": 320,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Noah Gray",
+   "nkey": "noah gray",
+   "pos": "WR/TE",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.035,
+   "model_p_cal": 0.148,
+   "thin": false,
+   "snap_share": 0.62,
+   "best_price": 650,
+   "best_book": "ballybet",
+   "mkt_p": 0.1380952380952381,
+   "n_books": 2,
+   "mkt_p_consensus": 0.1380952380952381,
+   "edge": 0.009904761904761888,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 650,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 600,
      "best": false,
      "bettable": true
     }
@@ -3933,12 +3529,12 @@
    "model_p_cal": 0.28,
    "thin": false,
    "snap_share": 0.66,
-   "best_price": 280,
+   "best_price": 285,
    "best_book": "ballybet",
-   "mkt_p": 0.273972602739726,
-   "n_books": 7,
-   "mkt_p_consensus": 0.273972602739726,
-   "edge": 0.0060273972602740145,
+   "mkt_p": 0.27402402402402404,
+   "n_books": 6,
+   "mkt_p_consensus": 0.27402402402402404,
+   "edge": 0.005975975975975989,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -3946,25 +3542,19 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 280,
+     "price": 285,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 280,
+     "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 265,
      "best": false,
      "bettable": true
     },
@@ -3982,7 +3572,69 @@
     },
     {
      "book": "espnbet",
-     "price": 250,
+     "price": 260,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Zavion Thomas",
+   "nkey": "zavion thomas",
+   "pos": "WR/TE",
+   "team": "CHI",
+   "opp": "DET",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 29.0,
+   "td_share": 0.019,
+   "model_p_cal": 0.123,
+   "thin": false,
+   "snap_share": 0.12,
+   "best_price": 800,
+   "best_book": "fanduel",
+   "mkt_p": 0.11764705882352941,
+   "n_books": 6,
+   "mkt_p_consensus": 0.11764705882352941,
+   "edge": 0.005352941176470588,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 800,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 750,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 650,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 550,
      "best": false,
      "bettable": true
     }
@@ -4004,7 +3656,7 @@
    "best_price": 1000,
    "best_book": "draftkings",
    "mkt_p": 0.10526315789473684,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.10526315789473684,
    "edge": 0.004736842105263164,
    "flag": "",
@@ -4037,12 +3689,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 750,
      "best": false,
@@ -4071,10 +3717,10 @@
    "snap_share": 0.02,
    "best_price": 3500,
    "best_book": "draftkings",
-   "mkt_p": 0.045454545454545456,
-   "n_books": 7,
-   "mkt_p_consensus": 0.045454545454545456,
-   "edge": 0.003545454545454546,
+   "mkt_p": 0.046536796536796536,
+   "n_books": 6,
+   "mkt_p_consensus": 0.046536796536796536,
+   "edge": 0.0024632034632034658,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -4089,12 +3735,6 @@
     {
      "book": "ballybet",
      "price": 2900,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 2500,
      "best": false,
      "bettable": true
     },
@@ -4140,7 +3780,7 @@
    "best_price": 500,
    "best_book": "fanduel",
    "mkt_p": 0.17391304347826086,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.17391304347826086,
    "edge": -0.0019130434782608785,
    "flag": "",
@@ -4161,9 +3801,9 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 500,
-     "best": true,
+     "book": "draftkings",
+     "price": 475,
+     "best": false,
      "bettable": true
     },
     {
@@ -4173,7 +3813,7 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
+     "book": "williamhill_us",
      "price": 450,
      "best": false,
      "bettable": true
@@ -4181,80 +3821,6 @@
     {
      "book": "espnbet",
      "price": 450,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 425,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Zavion Thomas",
-   "nkey": "zavion thomas",
-   "pos": "WR/TE",
-   "team": "CHI",
-   "opp": "DET",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 29.0,
-   "td_share": 0.019,
-   "model_p_cal": 0.123,
-   "thin": false,
-   "snap_share": 0.12,
-   "best_price": 800,
-   "best_book": "fanduel",
-   "mkt_p": 0.125,
-   "n_books": 7,
-   "mkt_p_consensus": 0.125,
-   "edge": -0.0020000000000000018,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 800,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 650,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 550,
      "best": false,
      "bettable": true
     }
@@ -4275,10 +3841,10 @@
    "snap_share": 0.03,
    "best_price": 4000,
    "best_book": "draftkings",
-   "mkt_p": 0.03333333333333333,
-   "n_books": 7,
-   "mkt_p_consensus": 0.03333333333333333,
-   "edge": -0.003333333333333334,
+   "mkt_p": 0.034523809523809526,
+   "n_books": 6,
+   "mkt_p_consensus": 0.034523809523809526,
+   "edge": -0.004523809523809527,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -4286,12 +3852,6 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 4000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 4000,
      "best": true,
      "bettable": true
@@ -4343,23 +3903,17 @@
    "snap_share": 0.4,
    "best_price": 330,
    "best_book": "fanduel",
-   "mkt_p": 0.23669467787114845,
-   "n_books": 6,
-   "mkt_p_consensus": 0.23669467787114845,
-   "edge": -0.0036946778711484385,
+   "mkt_p": 0.23809523809523808,
+   "n_books": 5,
+   "mkt_p_consensus": 0.23809523809523808,
+   "edge": -0.005095238095238069,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
-     "price": 330,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 330,
      "best": true,
      "bettable": true
@@ -4405,14 +3959,14 @@
    "snap_share": 0.06,
    "best_price": 6000,
    "best_book": "draftkings",
-   "mkt_p": 0.018000642880102863,
-   "n_books": 6,
-   "mkt_p_consensus": 0.018000642880102863,
-   "edge": -0.0040006428801028626,
+   "mkt_p": 0.0196078431372549,
+   "n_books": 5,
+   "mkt_p_consensus": 0.0196078431372549,
+   "edge": -0.005607843137254901,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -4422,12 +3976,6 @@
     },
     {
      "book": "fanduel",
-     "price": 6000,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 6000,
      "best": true,
      "bettable": true
@@ -4453,6 +4001,118 @@
    ]
   },
   {
+   "player": "Jaylen Waddle",
+   "nkey": "jaylen waddle",
+   "pos": "WR/TE",
+   "team": "DEN",
+   "opp": "PIT",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 20.5,
+   "td_share": 0.126,
+   "model_p_cal": 0.26,
+   "thin": false,
+   "snap_share": 0.58,
+   "best_price": 300,
+   "best_book": "fanduel",
+   "mkt_p": 0.26666666666666666,
+   "n_books": 5,
+   "mkt_p_consensus": 0.26666666666666666,
+   "edge": -0.006666666666666654,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 300,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 275,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 270,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 215,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Jake Briningstool",
+   "nkey": "jake briningstool",
+   "pos": "WR/TE",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.015,
+   "model_p_cal": 0.097,
+   "thin": false,
+   "snap_share": 0.17,
+   "best_price": 1200,
+   "best_book": "ballybet",
+   "mkt_p": 0.10526315789473684,
+   "n_books": 5,
+   "mkt_p_consensus": 0.10526315789473684,
+   "edge": -0.008263157894736833,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "ballybet",
+     "price": 1200,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 1100,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 850,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 800,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 700,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
    "player": "Ryan Flournoy",
    "nkey": "ryan flournoy",
    "pos": "WR/TE",
@@ -4466,32 +4126,26 @@
    "thin": false,
    "snap_share": 0.75,
    "best_price": 290,
-   "best_book": "fanduel",
-   "mkt_p": 0.26666666666666666,
-   "n_books": 7,
-   "mkt_p_consensus": 0.26666666666666666,
-   "edge": -0.006666666666666654,
+   "best_book": "draftkings",
+   "mkt_p": 0.2703196347031963,
+   "n_books": 6,
+   "mkt_p_consensus": 0.2703196347031963,
+   "edge": -0.010319634703196301,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanduel",
+     "book": "draftkings",
      "price": 290,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 285,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 280,
-     "best": false,
+     "book": "fanduel",
+     "price": 290,
+     "best": true,
      "bettable": true
     },
     {
@@ -4521,68 +4175,6 @@
    ]
   },
   {
-   "player": "Jake Briningstool",
-   "nkey": "jake briningstool",
-   "pos": "WR/TE",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.015,
-   "model_p_cal": 0.097,
-   "thin": false,
-   "snap_share": 0.17,
-   "best_price": 1200,
-   "best_book": "ballybet",
-   "mkt_p": 0.10818713450292397,
-   "n_books": 6,
-   "mkt_p_consensus": 0.10818713450292397,
-   "edge": -0.011187134502923968,
-   "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": [
-    {
-     "book": "ballybet",
-     "price": 1200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 850,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 800,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Luke Schoonmaker",
    "nkey": "luke schoonmaker",
    "pos": "WR/TE",
@@ -4598,7 +4190,7 @@
    "best_price": 850,
    "best_book": "betmgm",
    "mkt_p": 0.125,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.125,
    "edge": -0.011999999999999997,
    "flag": "",
@@ -4631,12 +4223,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 700,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": 675,
      "best": false,
@@ -4645,68 +4231,6 @@
     {
      "book": "ballybet",
      "price": 600,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Jaylen Waddle",
-   "nkey": "jaylen waddle",
-   "pos": "WR/TE",
-   "team": "DEN",
-   "opp": "PIT",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
-   "td_share": 0.126,
-   "model_p_cal": 0.259,
-   "thin": false,
-   "snap_share": 0.58,
-   "best_price": 300,
-   "best_book": "fanduel",
-   "mkt_p": 0.27212143650499815,
-   "n_books": 6,
-   "mkt_p_consensus": 0.27212143650499815,
-   "edge": -0.01312143650499814,
-   "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 300,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 215,
      "best": false,
      "bettable": true
     }
@@ -4728,7 +4252,7 @@
    "best_price": 600,
    "best_book": "betmgm",
    "mkt_p": 0.16666666666666666,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.16666666666666666,
    "edge": -0.016666666666666663,
    "flag": "",
@@ -4744,6 +4268,12 @@
     },
     {
      "book": "draftkings",
+     "price": 550,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 500,
      "best": false,
      "bettable": true
@@ -4761,20 +4291,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 475,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
-     "price": 440,
+     "price": 425,
      "best": false,
      "bettable": true
     }
@@ -4845,14 +4363,14 @@
    "snap_share": 0.58,
    "best_price": 225,
    "best_book": "draftkings",
-   "mkt_p": 0.3149801587301587,
-   "n_books": 6,
-   "mkt_p_consensus": 0.3149801587301587,
-   "edge": -0.019980158730158737,
+   "mkt_p": 0.31746031746031744,
+   "n_books": 5,
+   "mkt_p_consensus": 0.31746031746031744,
+   "edge": -0.022460317460317458,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -4862,12 +4380,6 @@
     },
     {
      "book": "fanduel",
-     "price": 220,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 220,
      "best": false,
      "bettable": true
@@ -4907,10 +4419,10 @@
    "snap_share": 0.12,
    "best_price": 2700,
    "best_book": "fanduel",
-   "mkt_p": 0.04257246376811594,
-   "n_books": 6,
-   "mkt_p_consensus": 0.04257246376811594,
-   "edge": -0.020572463768115938,
+   "mkt_p": 0.045454545454545456,
+   "n_books": 5,
+   "mkt_p_consensus": 0.045454545454545456,
+   "edge": -0.023454545454545457,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -4923,20 +4435,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 2500,
+     "book": "draftkings",
+     "price": 2200,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 2300,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 2200,
+     "price": 2100,
      "best": false,
      "bettable": true
     },
@@ -4970,7 +4476,7 @@
    "best_price": 330,
    "best_book": "fanduel",
    "mkt_p": 0.24390243902439024,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.24390243902439024,
    "edge": -0.023902439024390237,
    "flag": "",
@@ -4998,12 +4504,6 @@
     },
     {
      "book": "betmgm",
-     "price": 310,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 310,
      "best": false,
      "bettable": true
@@ -5038,7 +4538,7 @@
    "best_price": 225,
    "best_book": "ballybet",
    "mkt_p": 0.3333333333333333,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.3333333333333333,
    "edge": -0.024333333333333318,
    "flag": "",
@@ -5053,8 +4553,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 220,
+     "book": "draftkings",
+     "price": 205,
      "best": false,
      "bettable": true
     },
@@ -5081,140 +4581,66 @@
      "price": 200,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 195,
-     "best": false,
-     "bettable": true
     }
    ]
   },
   {
-   "player": "Joe Milton III",
-   "nkey": "joe milton",
-   "pos": "QB",
+   "player": "Dallas Goedert",
+   "nkey": "dallas goedert",
+   "pos": "WR/TE",
    "team": "PHI",
    "opp": "DAL",
    "game": "PHI@DAL",
    "commence": "2026-11-26T21:30:00Z",
    "implied_total": 19.75,
-   "td_share": 0.115,
-   "model_p_cal": 0.244,
+   "td_share": 0.093,
+   "model_p_cal": 0.222,
    "thin": false,
-   "snap_share": 1.0,
-   "best_price": 320,
-   "best_book": "betmgm",
-   "mkt_p": 0.2702702702702703,
-   "n_books": 7,
-   "mkt_p_consensus": 0.2702702702702703,
-   "edge": -0.02627027027027029,
+   "snap_share": 0.74,
+   "best_price": 335,
+   "best_book": "ballybet",
+   "mkt_p": 0.25,
+   "n_books": 6,
+   "mkt_p_consensus": 0.25,
+   "edge": -0.027999999999999997,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "betmgm",
-     "price": 320,
+     "book": "ballybet",
+     "price": 335,
      "best": true,
      "bettable": true
     },
     {
-     "book": "ballybet",
-     "price": 275,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 270,
+     "price": 310,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 260,
+     "price": 300,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": 250,
+     "price": 300,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Khalil Shakir",
-   "nkey": "khalil shakir",
-   "pos": "WR/TE",
-   "team": "BUF",
-   "opp": "KC",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 25.5,
-   "td_share": 0.089,
-   "model_p_cal": 0.245,
-   "thin": false,
-   "snap_share": 0.64,
-   "best_price": 285,
-   "best_book": "fanatics",
-   "mkt_p": 0.27212143650499815,
-   "n_books": 6,
-   "mkt_p_consensus": 0.27212143650499815,
-   "edge": -0.027121436504998153,
-   "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": [
-    {
-     "book": "fanatics",
      "price": 285,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 280,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 270,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 265,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 260,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 215,
+     "book": "betmgm",
+     "price": 240,
      "best": false,
      "bettable": true
     }
@@ -5233,10 +4659,10 @@
    "model_p_cal": 0.305,
    "thin": false,
    "snap_share": 0.86,
-   "best_price": 220,
-   "best_book": "fanatics",
+   "best_price": 210,
+   "best_book": "draftkings",
    "mkt_p": 0.3333333333333333,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.3333333333333333,
    "edge": -0.02833333333333332,
    "flag": "",
@@ -5245,15 +4671,9 @@
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 220,
-     "best": true,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
      "price": 210,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -5289,6 +4709,62 @@
    ]
   },
   {
+   "player": "Khalil Shakir",
+   "nkey": "khalil shakir",
+   "pos": "WR/TE",
+   "team": "BUF",
+   "opp": "KC",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 25.5,
+   "td_share": 0.089,
+   "model_p_cal": 0.245,
+   "thin": false,
+   "snap_share": 0.64,
+   "best_price": 280,
+   "best_book": "fanduel",
+   "mkt_p": 0.273972602739726,
+   "n_books": 5,
+   "mkt_p_consensus": 0.273972602739726,
+   "edge": -0.028972602739726017,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "fanduel",
+     "price": 280,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 270,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 265,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 260,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 215,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
    "player": "Sam Roush",
    "nkey": "sam roush",
    "pos": "WR/TE",
@@ -5301,10 +4777,10 @@
    "model_p_cal": 0.087,
    "thin": false,
    "snap_share": 0.3,
-   "best_price": 800,
+   "best_price": 850,
    "best_book": "draftkings",
    "mkt_p": 0.11764705882352941,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.11764705882352941,
    "edge": -0.030647058823529416,
    "flag": "",
@@ -5314,8 +4790,14 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 800,
+     "price": 850,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 800,
+     "best": false,
      "bettable": true
     },
     {
@@ -5331,19 +4813,7 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
-     "price": 750,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 750,
      "best": false,
      "bettable": true
@@ -5372,7 +4842,7 @@
    "best_price": 1700,
    "best_book": "draftkings",
    "mkt_p": 0.06666666666666667,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.06666666666666667,
    "edge": -0.03066666666666667,
    "flag": "",
@@ -5384,12 +4854,6 @@
      "book": "draftkings",
      "price": 1700,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 1500,
-     "best": false,
      "bettable": true
     },
     {
@@ -5419,68 +4883,62 @@
    ]
   },
   {
-   "player": "Dallas Goedert",
-   "nkey": "dallas goedert",
-   "pos": "WR/TE",
+   "player": "Joe Milton III",
+   "nkey": "joe milton",
+   "pos": "QB",
    "team": "PHI",
    "opp": "DAL",
    "game": "PHI@DAL",
    "commence": "2026-11-26T21:30:00Z",
    "implied_total": 19.75,
-   "td_share": 0.093,
-   "model_p_cal": 0.222,
+   "td_share": 0.115,
+   "model_p_cal": 0.244,
    "thin": false,
-   "snap_share": 0.74,
-   "best_price": 335,
-   "best_book": "ballybet",
-   "mkt_p": 0.2564102564102564,
-   "n_books": 7,
-   "mkt_p_consensus": 0.2564102564102564,
-   "edge": -0.034410256410256385,
+   "snap_share": 1.0,
+   "best_price": 320,
+   "best_book": "betmgm",
+   "mkt_p": 0.277992277992278,
+   "n_books": 6,
+   "mkt_p_consensus": 0.277992277992278,
+   "edge": -0.033992277992278,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "ballybet",
-     "price": 335,
+     "book": "betmgm",
+     "price": 320,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
-     "price": 310,
+     "book": "ballybet",
+     "price": 275,
      "best": false,
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 300,
+     "book": "fanduel",
+     "price": 270,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 290,
+     "price": 250,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 250,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 285,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 285,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 240,
+     "price": 250,
      "best": false,
      "bettable": true
     }
@@ -5501,10 +4959,10 @@
    "snap_share": 0.21,
    "best_price": 1850,
    "best_book": "betmgm",
-   "mkt_p": 0.06458333333333333,
-   "n_books": 6,
-   "mkt_p_consensus": 0.06458333333333333,
-   "edge": -0.03458333333333333,
+   "mkt_p": 0.06666666666666667,
+   "n_books": 5,
+   "mkt_p_consensus": 0.06666666666666667,
+   "edge": -0.03666666666666667,
    "flag": "H1-longshot-watch",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -5523,20 +4981,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1500,
+     "book": "draftkings",
+     "price": 1400,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
      "price": 1400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 1300,
      "best": false,
      "bettable": true
     },
@@ -5549,38 +5001,6 @@
    ]
   },
   {
-   "player": "Josh Jacobs",
-   "nkey": "josh jacobs",
-   "pos": "RB",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.315,
-   "model_p_cal": 0.399,
-   "thin": false,
-   "snap_share": 0.46,
-   "best_price": 130,
-   "best_book": "fanatics",
-   "mkt_p": 0.43478260869565216,
-   "n_books": 1,
-   "mkt_p_consensus": 0.43478260869565216,
-   "edge": -0.03578260869565214,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 130,
-     "best": true,
-     "bettable": true
-    }
-   ]
-  },
-  {
    "player": "Cody Schrader",
    "nkey": "cody schrader",
    "pos": "RB",
@@ -5588,7 +5008,7 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.0,
    "model_p_cal": 0.014,
    "thin": true,
@@ -5600,9 +5020,9 @@
    "mkt_p_consensus": 0.05263157894736842,
    "edge": -0.03863157894736842,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
@@ -5628,7 +5048,7 @@
    "best_price": 270,
    "best_book": "betmgm",
    "mkt_p": 0.29850746268656714,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.29850746268656714,
    "edge": -0.04250746268656713,
    "flag": "",
@@ -5643,26 +5063,20 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 250,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 240,
      "best": false,
      "bettable": true
     },
     {
-     "book": "williamhill_us",
+     "book": "draftkings",
      "price": 235,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 230,
+     "book": "williamhill_us",
+     "price": 235,
      "best": false,
      "bettable": true
     },
@@ -5674,7 +5088,7 @@
     },
     {
      "book": "ballybet",
-     "price": 220,
+     "price": 215,
      "best": false,
      "bettable": true
     }
@@ -5696,7 +5110,7 @@
    "best_price": 525,
    "best_book": "betmgm",
    "mkt_p": 0.16666666666666666,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.16666666666666666,
    "edge": -0.04266666666666666,
    "flag": "",
@@ -5708,6 +5122,12 @@
      "book": "betmgm",
      "price": 525,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 500,
+     "best": false,
      "bettable": true
     },
     {
@@ -5723,26 +5143,200 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 500,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 490,
      "best": false,
      "bettable": true
     },
     {
+     "book": "williamhill_us",
+     "price": 450,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Matthew Golden",
+   "nkey": "matthew golden",
+   "pos": "WR/TE",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.179,
+   "model_p_cal": 0.308,
+   "thin": false,
+   "snap_share": 0.83,
+   "best_price": 190,
+   "best_book": "draftkings",
+   "mkt_p": 0.3508771929824561,
+   "n_books": 6,
+   "mkt_p_consensus": 0.3508771929824561,
+   "edge": -0.042877192982456125,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
      "book": "draftkings",
-     "price": 475,
+     "price": 190,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 186,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 185,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 185,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 170,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 145,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Christian Watson",
+   "nkey": "christian watson",
+   "pos": "WR/TE",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.205,
+   "model_p_cal": 0.327,
+   "thin": false,
+   "snap_share": 0.77,
+   "best_price": 175,
+   "best_book": "draftkings",
+   "mkt_p": 0.3717523493642897,
+   "n_books": 6,
+   "mkt_p_consensus": 0.3717523493642897,
+   "edge": -0.04475234936428968,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 175,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 170,
      "best": false,
      "bettable": true
     },
     {
      "book": "williamhill_us",
-     "price": 450,
+     "price": 168,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 163,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 145,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Kalif Raymond",
+   "nkey": "kalif raymond",
+   "pos": "WR/TE",
+   "team": "CHI",
+   "opp": "DET",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 29.0,
+   "td_share": 0.04,
+   "model_p_cal": 0.177,
+   "thin": false,
+   "snap_share": 0.64,
+   "best_price": 360,
+   "best_book": "draftkings",
+   "mkt_p": 0.2222222222222222,
+   "n_books": 6,
+   "mkt_p_consensus": 0.2222222222222222,
+   "edge": -0.04522222222222222,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 360,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": 360,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 350,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 350,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 330,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 320,
      "best": false,
      "bettable": true
     }
@@ -5756,21 +5350,21 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.103,
-   "model_p_cal": 0.247,
+   "model_p_cal": 0.248,
    "thin": false,
    "snap_share": 0.7,
    "best_price": 250,
    "best_book": "fanduel",
-   "mkt_p": 0.2899159663865546,
-   "n_books": 6,
-   "mkt_p_consensus": 0.2899159663865546,
-   "edge": -0.042915966386554594,
+   "mkt_p": 0.29411764705882354,
+   "n_books": 5,
+   "mkt_p_consensus": 0.29411764705882354,
+   "edge": -0.04611764705882354,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
@@ -5780,12 +5374,6 @@
     },
     {
      "book": "ballybet",
-     "price": 250,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 250,
      "best": true,
      "bettable": true
@@ -5826,7 +5414,7 @@
    "best_price": 175,
    "best_book": "betmgm",
    "mkt_p": 0.38461538461538464,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.38461538461538464,
    "edge": -0.046615384615384614,
    "flag": "",
@@ -5869,216 +5457,6 @@
      "price": 160,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 155,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Matthew Golden",
-   "nkey": "matthew golden",
-   "pos": "WR/TE",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.179,
-   "model_p_cal": 0.308,
-   "thin": false,
-   "snap_share": 0.83,
-   "best_price": 200,
-   "best_book": "fanatics",
-   "mkt_p": 0.35587188612099646,
-   "n_books": 7,
-   "mkt_p_consensus": 0.35587188612099646,
-   "edge": -0.047871886120996465,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 200,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 181,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 180,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 175,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 145,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Sione Vaki",
-   "nkey": "sione vaki",
-   "pos": "RB",
-   "team": "DET",
-   "opp": "CHI",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 26.5,
-   "td_share": 0.015,
-   "model_p_cal": 0.105,
-   "thin": false,
-   "snap_share": 0.25,
-   "best_price": 575,
-   "best_book": "fanatics",
-   "mkt_p": 0.15384615384615385,
-   "n_books": 7,
-   "mkt_p_consensus": 0.15384615384615385,
-   "edge": -0.04884615384615386,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 575,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 550,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 525,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 525,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 410,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Christian Watson",
-   "nkey": "christian watson",
-   "pos": "WR/TE",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.205,
-   "model_p_cal": 0.327,
-   "thin": false,
-   "snap_share": 0.77,
-   "best_price": 170,
-   "best_book": "fanduel",
-   "mkt_p": 0.37735849056603776,
-   "n_books": 7,
-   "mkt_p_consensus": 0.37735849056603776,
-   "edge": -0.05035849056603775,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "fanduel",
-     "price": 170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 170,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 168,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 165,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 163,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 145,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -6095,10 +5473,10 @@
    "model_p_cal": 0.199,
    "thin": false,
    "snap_share": 0.64,
-   "best_price": 330,
+   "best_price": 335,
    "best_book": "ballybet",
    "mkt_p": 0.25,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.25,
    "edge": -0.05099999999999999,
    "flag": "",
@@ -6108,7 +5486,7 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 330,
+     "price": 335,
      "best": true,
      "bettable": true
     },
@@ -6137,14 +5515,70 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 285,
+     "book": "betmgm",
+     "price": 280,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Sione Vaki",
+   "nkey": "sione vaki",
+   "pos": "RB",
+   "team": "DET",
+   "opp": "CHI",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 26.5,
+   "td_share": 0.015,
+   "model_p_cal": 0.105,
+   "thin": false,
+   "snap_share": 0.25,
+   "best_price": 550,
+   "best_book": "draftkings",
+   "mkt_p": 0.15692307692307694,
+   "n_books": 6,
+   "mkt_p_consensus": 0.15692307692307694,
+   "edge": -0.05192307692307695,
+   "flag": "",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 550,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 525,
      "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
-     "price": 280,
+     "price": 525,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 410,
      "best": false,
      "bettable": true
     }
@@ -6163,32 +5597,38 @@
    "model_p_cal": 0.163,
    "thin": false,
    "snap_share": 0.45,
-   "best_price": 380,
-   "best_book": "fanatics",
-   "mkt_p": 0.21739130434782608,
-   "n_books": 7,
-   "mkt_p_consensus": 0.21739130434782608,
-   "edge": -0.054391304347826075,
+   "best_price": 370,
+   "best_book": "draftkings",
+   "mkt_p": 0.2150786308973173,
+   "n_books": 6,
+   "mkt_p_consensus": 0.2150786308973173,
+   "edge": -0.05207863089731729,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
    "wx_wind": null,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 380,
+     "book": "draftkings",
+     "price": 370,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": 375,
-     "best": false,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 370,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": 370,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 360,
      "best": false,
      "bettable": true
     },
@@ -6199,87 +5639,7 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "betmgm",
-     "price": 320,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Kalif Raymond",
-   "nkey": "kalif raymond",
-   "pos": "WR/TE",
-   "team": "CHI",
-   "opp": "DET",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 29.0,
-   "td_share": 0.04,
-   "model_p_cal": 0.177,
-   "thin": false,
-   "snap_share": 0.64,
-   "best_price": 370,
-   "best_book": "fanatics",
-   "mkt_p": 0.23255813953488372,
-   "n_books": 7,
-   "mkt_p_consensus": 0.23255813953488372,
-   "edge": -0.05555813953488373,
-   "flag": "",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 370,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": 360,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 330,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 325,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": 325,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
      "price": 320,
      "best": false,
      "bettable": true
@@ -6302,7 +5662,7 @@
    "best_price": 420,
    "best_book": "fanduel",
    "mkt_p": 0.2,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.2,
    "edge": -0.05700000000000002,
    "flag": "",
@@ -6336,13 +5696,7 @@
     },
     {
      "book": "williamhill_us",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 400,
+     "price": 390,
      "best": false,
      "bettable": true
     },
@@ -6370,7 +5724,7 @@
    "best_price": 220,
    "best_book": "betmgm",
    "mkt_p": 0.3508771929824561,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.3508771929824561,
    "edge": -0.06287719298245614,
    "flag": "",
@@ -6403,12 +5757,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": 182,
      "best": false,
@@ -6435,10 +5783,10 @@
    "model_p_cal": 0.013,
    "thin": false,
    "snap_share": 0.33,
-   "best_price": 1200,
+   "best_price": 1300,
    "best_book": "draftkings",
    "mkt_p": 0.07692307692307693,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.07692307692307693,
    "edge": -0.06392307692307693,
    "flag": "",
@@ -6448,26 +5796,26 @@
    "book_prices": [
     {
      "book": "draftkings",
-     "price": 1200,
+     "price": 1300,
      "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 1200,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
      "price": 1200,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
      "price": 1200,
-     "best": true,
+     "best": false,
      "bettable": true
     },
     {
@@ -6477,14 +5825,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 1100,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
-     "price": 1000,
+     "price": 950,
      "best": false,
      "bettable": true
     }
@@ -6505,10 +5847,10 @@
    "snap_share": 0.32,
    "best_price": 500,
    "best_book": "betmgm",
-   "mkt_p": 0.19230769230769232,
-   "n_books": 7,
-   "mkt_p_consensus": 0.19230769230769232,
-   "edge": -0.06930769230769232,
+   "mkt_p": 0.18783068783068782,
+   "n_books": 6,
+   "mkt_p_consensus": 0.18783068783068782,
+   "edge": -0.06483068783068782,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -6528,30 +5870,24 @@
     },
     {
      "book": "ballybet",
-     "price": 430,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 420,
+     "price": 440,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 400,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 400,
+     "price": 425,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
+     "price": 425,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
      "price": 400,
      "best": false,
      "bettable": true
@@ -6574,13 +5910,13 @@
    "best_price": 265,
    "best_book": "ballybet",
    "mkt_p": 0.2857142857142857,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.2857142857142857,
    "edge": -0.0727142857142857,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
@@ -6611,12 +5947,6 @@
      "price": 250,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 250,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -6628,32 +5958,26 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.002,
    "model_p_cal": 0.032,
    "thin": false,
    "snap_share": 0.06,
    "best_price": 1000,
    "best_book": "ballybet",
-   "mkt_p": 0.10526315789473684,
-   "n_books": 5,
-   "mkt_p_consensus": 0.10526315789473684,
-   "edge": -0.07326315789473684,
+   "mkt_p": 0.10818713450292397,
+   "n_books": 4,
+   "mkt_p_consensus": 0.10818713450292397,
+   "edge": -0.07618713450292397,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
      "price": 1000,
      "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 900,
-     "best": false,
      "bettable": true
     },
     {
@@ -6684,44 +6008,38 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.108,
-   "model_p_cal": 0.253,
+   "model_p_cal": 0.254,
    "thin": false,
    "snap_share": 0.57,
-   "best_price": 210,
-   "best_book": "fanatics",
+   "best_price": 200,
+   "best_book": "draftkings",
    "mkt_p": 0.3333333333333333,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.3333333333333333,
-   "edge": -0.08033333333333331,
+   "edge": -0.07933333333333331,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
-    {
-     "book": "fanatics",
-     "price": 210,
-     "best": true,
-     "bettable": true
-    },
     {
      "book": "draftkings",
      "price": 200,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "fanduel",
      "price": 200,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "espnbet",
      "price": 200,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -6733,6 +6051,68 @@
     {
      "book": "ballybet",
      "price": 195,
+     "best": false,
+     "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "Kyren Williams",
+   "nkey": "kyren williams",
+   "pos": "RB",
+   "team": "LA",
+   "opp": "GB",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 23.25,
+   "td_share": 0.238,
+   "model_p_cal": 0.37,
+   "thin": false,
+   "snap_share": 0.65,
+   "best_price": 120,
+   "best_book": "draftkings",
+   "mkt_p": 0.46511627906976744,
+   "n_books": 6,
+   "mkt_p_consensus": 0.46511627906976744,
+   "edge": -0.09511627906976744,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": 120,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 120,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": 115,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": 115,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -106,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "betmgm",
+     "price": -110,
      "best": false,
      "bettable": true
     }
@@ -6753,14 +6133,14 @@
    "snap_share": 0.68,
    "best_price": 190,
    "best_book": "fanduel",
-   "mkt_p": 0.35659801678108316,
-   "n_books": 6,
-   "mkt_p_consensus": 0.35659801678108316,
-   "edge": -0.09459801678108315,
+   "mkt_p": 0.35714285714285715,
+   "n_books": 5,
+   "mkt_p_consensus": 0.35714285714285715,
+   "edge": -0.09514285714285714,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "fanduel",
@@ -6775,8 +6155,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 185,
+     "book": "draftkings",
+     "price": 180,
      "best": false,
      "bettable": true
     },
@@ -6787,82 +6167,8 @@
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": 175,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "ballybet",
      "price": 140,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "Kyren Williams",
-   "nkey": "kyren williams",
-   "pos": "RB",
-   "team": "LA",
-   "opp": "GB",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 23.25,
-   "td_share": 0.238,
-   "model_p_cal": 0.37,
-   "thin": false,
-   "snap_share": 0.65,
-   "best_price": 120,
-   "best_book": "espnbet",
-   "mkt_p": 0.46511627906976744,
-   "n_books": 7,
-   "mkt_p_consensus": 0.46511627906976744,
-   "edge": -0.09511627906976744,
-   "flag": "",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": [
-    {
-     "book": "espnbet",
-     "price": 120,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": 115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -108,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -110,
      "best": false,
      "bettable": true
     }
@@ -6884,7 +6190,7 @@
    "best_price": 160,
    "best_book": "betmgm",
    "mkt_p": 0.4,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.4,
    "edge": -0.09600000000000003,
    "flag": "",
@@ -6917,12 +6223,6 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 150,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "fanduel",
      "price": 145,
      "best": false,
@@ -6949,21 +6249,27 @@
    "model_p_cal": 0.113,
    "thin": false,
    "snap_share": 0.51,
-   "best_price": 380,
-   "best_book": "fanatics",
-   "mkt_p": 0.22727272727272727,
-   "n_books": 7,
-   "mkt_p_consensus": 0.22727272727272727,
-   "edge": -0.11427272727272726,
+   "best_price": 390,
+   "best_book": "draftkings",
+   "mkt_p": 0.21980676328502413,
+   "n_books": 6,
+   "mkt_p_consensus": 0.21980676328502413,
+   "edge": -0.10680676328502413,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
    "wx_wind": 0.0,
    "book_prices": [
     {
-     "book": "fanatics",
-     "price": 380,
+     "book": "draftkings",
+     "price": 390,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "espnbet",
+     "price": 360,
+     "best": false,
      "bettable": true
     },
     {
@@ -6973,20 +6279,8 @@
      "bettable": true
     },
     {
-     "book": "espnbet",
-     "price": 350,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": 340,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 340,
+     "price": 350,
      "best": false,
      "bettable": true
     },
@@ -7012,21 +6306,21 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.091,
-   "model_p_cal": 0.233,
+   "model_p_cal": 0.234,
    "thin": false,
    "snap_share": 0.72,
    "best_price": 210,
    "best_book": "ballybet",
    "mkt_p": 0.3508771929824561,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.3508771929824561,
-   "edge": -0.11787719298245611,
+   "edge": -0.11687719298245611,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "ballybet",
@@ -7042,12 +6336,6 @@
     },
     {
      "book": "espnbet",
-     "price": 185,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 185,
      "best": false,
      "bettable": true
@@ -7074,44 +6362,38 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.344,
-   "model_p_cal": 0.432,
+   "model_p_cal": 0.433,
    "thin": false,
    "snap_share": 0.74,
-   "best_price": -120,
-   "best_book": "espnbet",
-   "mkt_p": 0.5603864734299517,
-   "n_books": 6,
-   "mkt_p_consensus": 0.5603864734299517,
-   "edge": -0.12838647342995174,
+   "best_price": -125,
+   "best_book": "fanduel",
+   "mkt_p": 0.5555555555555556,
+   "n_books": 5,
+   "mkt_p_consensus": 0.5555555555555556,
+   "edge": -0.12255555555555558,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
-     "book": "espnbet",
-     "price": -120,
+     "book": "fanduel",
+     "price": -125,
      "best": true,
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "espnbet",
      "price": -125,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
      "book": "ballybet",
      "price": -125,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -130,
-     "best": false,
+     "best": true,
      "bettable": true
     },
     {
@@ -7121,8 +6403,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -130,
+     "book": "draftkings",
+     "price": -135,
      "best": false,
      "bettable": true
     }
@@ -7144,7 +6426,7 @@
    "best_price": -120,
    "best_book": "espnbet",
    "mkt_p": 0.5555555555555556,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.5555555555555556,
    "edge": -0.1315555555555556,
    "flag": "",
@@ -7187,12 +6469,6 @@
      "price": -130,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": -130,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -7211,10 +6487,10 @@
    "snap_share": 0.87,
    "best_price": 135,
    "best_book": "draftkings",
-   "mkt_p": 0.425531914893617,
-   "n_books": 7,
-   "mkt_p_consensus": 0.425531914893617,
-   "edge": -0.14253191489361705,
+   "mkt_p": 0.42921617389702493,
+   "n_books": 6,
+   "mkt_p_consensus": 0.42921617389702493,
+   "edge": -0.14621617389702496,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -7234,12 +6510,6 @@
     },
     {
      "book": "betmgm",
-     "price": 135,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": 135,
      "best": true,
      "bettable": true
@@ -7280,7 +6550,7 @@
    "best_price": 115,
    "best_book": "ballybet",
    "mkt_p": 0.5,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.5,
    "edge": -0.15100000000000002,
    "flag": "",
@@ -7292,6 +6562,12 @@
      "book": "ballybet",
      "price": 115,
      "best": true,
+     "bettable": true
+    },
+    {
+     "book": "draftkings",
+     "price": 100,
+     "best": false,
      "bettable": true
     },
     {
@@ -7307,20 +6583,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 100,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
      "price": -104,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "draftkings",
-     "price": -105,
      "best": false,
      "bettable": true
     },
@@ -7348,13 +6612,13 @@
    "best_price": -110,
    "best_book": "espnbet",
    "mkt_p": 0.5348837209302325,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.5348837209302325,
    "edge": -0.1588837209302325,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "espnbet",
@@ -7370,12 +6634,6 @@
     },
     {
      "book": "fanduel",
-     "price": -115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": -115,
      "best": false,
      "bettable": true
@@ -7410,7 +6668,7 @@
    "best_price": 115,
    "best_book": "betmgm",
    "mkt_p": 0.5121951219512195,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.5121951219512195,
    "edge": -0.16119512195121954,
    "flag": "",
@@ -7453,10 +6711,60 @@
      "price": -115,
      "best": false,
      "bettable": true
+    }
+   ]
+  },
+  {
+   "player": "James Cook",
+   "nkey": "james cook",
+   "pos": "RB",
+   "team": "BUF",
+   "opp": "KC",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 25.5,
+   "td_share": 0.189,
+   "model_p_cal": 0.347,
+   "thin": false,
+   "snap_share": 0.63,
+   "best_price": -110,
+   "best_book": "draftkings",
+   "mkt_p": 0.5348837209302325,
+   "n_books": 5,
+   "mkt_p_consensus": 0.5348837209302325,
+   "edge": -0.18788372093023253,
+   "flag": "",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": [
+    {
+     "book": "draftkings",
+     "price": -110,
+     "best": true,
+     "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -120,
+     "book": "espnbet",
+     "price": -110,
+     "best": true,
+     "bettable": true
+    },
+    {
+     "book": "fanduel",
+     "price": -115,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "williamhill_us",
+     "price": -118,
+     "best": false,
+     "bettable": true
+    },
+    {
+     "book": "ballybet",
+     "price": -159,
      "best": false,
      "bettable": true
     }
@@ -7475,12 +6783,12 @@
    "model_p_cal": 0.14,
    "thin": false,
    "snap_share": 0.22,
-   "best_price": 225,
+   "best_price": 220,
    "best_book": "ballybet",
-   "mkt_p": 0.3225806451612903,
-   "n_books": 7,
-   "mkt_p_consensus": 0.3225806451612903,
-   "edge": -0.1825806451612903,
+   "mkt_p": 0.3279569892473118,
+   "n_books": 6,
+   "mkt_p_consensus": 0.3279569892473118,
+   "edge": -0.1879569892473118,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -7488,13 +6796,13 @@
    "book_prices": [
     {
      "book": "ballybet",
-     "price": 225,
+     "price": 220,
      "best": true,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": 215,
+     "price": 210,
      "best": false,
      "bettable": true
     },
@@ -7505,14 +6813,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": 210,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "williamhill_us",
-     "price": 205,
+     "price": 200,
      "best": false,
      "bettable": true
     },
@@ -7545,10 +6847,10 @@
    "snap_share": 0.6,
    "best_price": 145,
    "best_book": "betmgm",
-   "mkt_p": 0.44642857142857145,
-   "n_books": 7,
-   "mkt_p_consensus": 0.44642857142857145,
-   "edge": -0.18942857142857145,
+   "mkt_p": 0.4494949494949495,
+   "n_books": 6,
+   "mkt_p_consensus": 0.4494949494949495,
+   "edge": -0.1924949494949495,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -7562,19 +6864,13 @@
     },
     {
      "book": "draftkings",
-     "price": 135,
+     "price": 125,
      "best": false,
      "bettable": true
     },
     {
      "book": "espnbet",
-     "price": 130,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": 124,
+     "price": 125,
      "best": false,
      "bettable": true
     },
@@ -7585,7 +6881,7 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
+     "book": "williamhill_us",
      "price": 120,
      "best": false,
      "bettable": true
@@ -7593,68 +6889,6 @@
     {
      "book": "ballybet",
      "price": 117,
-     "best": false,
-     "bettable": true
-    }
-   ]
-  },
-  {
-   "player": "James Cook",
-   "nkey": "james cook",
-   "pos": "RB",
-   "team": "BUF",
-   "opp": "KC",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 25.5,
-   "td_share": 0.189,
-   "model_p_cal": 0.347,
-   "thin": false,
-   "snap_share": 0.63,
-   "best_price": -110,
-   "best_book": "draftkings",
-   "mkt_p": 0.5380840622999786,
-   "n_books": 6,
-   "mkt_p_consensus": 0.5380840622999786,
-   "edge": -0.19108406229997865,
-   "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": [
-    {
-     "book": "draftkings",
-     "price": -110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "espnbet",
-     "price": -110,
-     "best": true,
-     "bettable": true
-    },
-    {
-     "book": "fanduel",
-     "price": -115,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "williamhill_us",
-     "price": -118,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": -120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
-     "price": -159,
      "best": false,
      "bettable": true
     }
@@ -7675,10 +6909,10 @@
    "snap_share": 0.33,
    "best_price": 130,
    "best_book": "fanduel",
-   "mkt_p": 0.45454545454545453,
-   "n_books": 7,
-   "mkt_p_consensus": 0.45454545454545453,
-   "edge": -0.20654545454545453,
+   "mkt_p": 0.4415204678362573,
+   "n_books": 6,
+   "mkt_p_consensus": 0.4415204678362573,
+   "edge": -0.19352046783625731,
    "flag": "",
    "wx_tag": "?",
    "wx_precip": null,
@@ -7704,13 +6938,7 @@
     },
     {
      "book": "draftkings",
-     "price": 120,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": 120,
+     "price": 125,
      "best": false,
      "bettable": true
     },
@@ -7722,7 +6950,7 @@
     },
     {
      "book": "ballybet",
-     "price": -108,
+     "price": -106,
      "best": false,
      "bettable": true
     }
@@ -7744,7 +6972,7 @@
    "best_price": -130,
    "best_book": "espnbet",
    "mkt_p": 0.5833333333333334,
-   "n_books": 7,
+   "n_books": 6,
    "mkt_p_consensus": 0.5833333333333334,
    "edge": -0.21533333333333338,
    "flag": "",
@@ -7760,12 +6988,6 @@
     },
     {
      "book": "betmgm",
-     "price": -135,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "fanatics",
      "price": -135,
      "best": false,
      "bettable": true
@@ -7811,10 +7033,10 @@
    "snap_share": 0.73,
    "best_price": -170,
    "best_book": "espnbet",
-   "mkt_p": 0.6551724137931034,
-   "n_books": 7,
-   "mkt_p_consensus": 0.6551724137931034,
-   "edge": -0.22217241379310343,
+   "mkt_p": 0.6490147783251232,
+   "n_books": 6,
+   "mkt_p_consensus": 0.6490147783251232,
+   "edge": -0.21601477832512322,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -7827,14 +7049,14 @@
      "bettable": true
     },
     {
-     "book": "fanduel",
+     "book": "draftkings",
      "price": -180,
      "best": false,
      "bettable": true
     },
     {
-     "book": "draftkings",
-     "price": -185,
+     "book": "fanduel",
+     "price": -180,
      "best": false,
      "bettable": true
     },
@@ -7845,19 +7067,13 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -195,
+     "book": "ballybet",
+     "price": -205,
      "best": false,
      "bettable": true
     },
     {
      "book": "betmgm",
-     "price": -210,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "ballybet",
      "price": -210,
      "best": false,
      "bettable": true
@@ -7879,10 +7095,10 @@
    "snap_share": 0.81,
    "best_price": -140,
    "best_book": "espnbet",
-   "mkt_p": 0.6078431372549019,
-   "n_books": 7,
-   "mkt_p_consensus": 0.6078431372549019,
-   "edge": -0.2268431372549019,
+   "mkt_p": 0.6039215686274509,
+   "n_books": 6,
+   "mkt_p_consensus": 0.6039215686274509,
+   "edge": -0.22292156862745094,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -7901,14 +7117,8 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -145,
-     "best": false,
-     "bettable": true
-    },
-    {
      "book": "draftkings",
-     "price": -155,
+     "price": -150,
      "best": false,
      "bettable": true
     },
@@ -7947,10 +7157,10 @@
    "snap_share": 0.76,
    "best_price": -240,
    "best_book": "espnbet",
-   "mkt_p": 0.7333333333333333,
-   "n_books": 7,
-   "mkt_p_consensus": 0.7333333333333333,
-   "edge": -0.2913333333333333,
+   "mkt_p": 0.7350877192982456,
+   "n_books": 6,
+   "mkt_p_consensus": 0.7350877192982456,
+   "edge": -0.29308771929824556,
    "flag": "",
    "wx_tag": "indoor",
    "wx_precip": 0.0,
@@ -7969,20 +7179,14 @@
      "bettable": true
     },
     {
-     "book": "fanatics",
-     "price": -265,
+     "book": "betmgm",
+     "price": -275,
      "best": false,
      "bettable": true
     },
     {
      "book": "draftkings",
-     "price": -275,
-     "best": false,
-     "bettable": true
-    },
-    {
-     "book": "betmgm",
-     "price": -275,
+     "price": -280,
      "best": false,
      "bettable": true
     },
@@ -8008,21 +7212,21 @@
    "opp": "PIT",
    "game": "DEN@PIT",
    "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
+   "implied_total": 20.5,
    "td_share": 0.105,
-   "model_p_cal": 0.237,
+   "model_p_cal": 0.238,
    "thin": false,
    "snap_share": 0.54,
    "best_price": -110,
    "best_book": "draftkings",
    "mkt_p": 0.5348837209302325,
-   "n_books": 6,
+   "n_books": 5,
    "mkt_p_consensus": 0.5348837209302325,
-   "edge": -0.2978837209302325,
+   "edge": -0.2968837209302325,
    "flag": "",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "draftkings",
@@ -8053,12 +7257,6 @@
      "price": -115,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": -115,
-     "best": false,
-     "bettable": true
     }
    ]
   },
@@ -8070,21 +7268,21 @@
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
+   "implied_total": 22.62,
    "td_share": 0.055,
-   "model_p_cal": 0.183,
+   "model_p_cal": 0.184,
    "thin": false,
    "snap_share": 0.38,
    "best_price": -120,
    "best_book": "espnbet",
-   "mkt_p": 0.559437166424066,
-   "n_books": 6,
-   "mkt_p_consensus": 0.559437166424066,
-   "edge": -0.37643716642406605,
+   "mkt_p": 0.5555555555555556,
+   "n_books": 5,
+   "mkt_p_consensus": 0.5555555555555556,
+   "edge": -0.3715555555555556,
    "flag": "",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": [
     {
      "book": "espnbet",
@@ -8115,28 +7313,22 @@
      "price": -130,
      "best": false,
      "bettable": true
-    },
-    {
-     "book": "fanatics",
-     "price": -130,
-     "best": false,
-     "bettable": true
     }
    ]
   },
   {
-   "player": "Terrance Ferguson",
-   "nkey": "terrance ferguson",
-   "pos": "WR/TE",
-   "team": "LA",
-   "opp": "GB",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 23.25,
-   "td_share": 0.087,
-   "model_p_cal": 0.231,
+   "player": "Justin Fields",
+   "nkey": "justin fields",
+   "pos": "QB",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.124,
+   "model_p_cal": 0.27,
    "thin": false,
-   "snap_share": 0.45,
+   "snap_share": 0.07,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8147,56 +7339,6 @@
    "wx_tag": "?",
    "wx_precip": null,
    "wx_wind": null,
-   "book_prices": []
-  },
-  {
-   "player": "Matt Araiza",
-   "nkey": "matt araiza",
-   "pos": "OTHER",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.001,
-   "model_p_cal": 0.018,
-   "thin": true,
-   "snap_share": 0.0,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": []
-  },
-  {
-   "player": "Nate Carter",
-   "nkey": "nate carter",
-   "pos": "RB",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.016,
-   "model_p_cal": 0.101,
-   "thin": false,
-   "snap_share": null,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
    "book_prices": []
   },
   {
@@ -8212,581 +7354,6 @@
    "model_p_cal": 0.077,
    "thin": false,
    "snap_share": 0.22,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": []
-  },
-  {
-   "player": "Davante Adams",
-   "nkey": "davante adams",
-   "pos": "WR/TE",
-   "team": "LA",
-   "opp": "GB",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 23.25,
-   "td_share": 0.205,
-   "model_p_cal": 0.345,
-   "thin": false,
-   "snap_share": 0.74,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": []
-  },
-  {
-   "player": "Pierre Strong",
-   "nkey": "pierre strong",
-   "pos": "RB",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.028,
-   "model_p_cal": 0.126,
-   "thin": false,
-   "snap_share": 0.33,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": []
-  },
-  {
-   "player": "Tanner McKee",
-   "nkey": "tanner mckee",
-   "pos": "QB",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.003,
-   "model_p_cal": 0.036,
-   "thin": false,
-   "snap_share": 1.0,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Cole Kmet",
-   "nkey": "cole kmet",
-   "pos": "WR/TE",
-   "team": "CHI",
-   "opp": "DET",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 29.0,
-   "td_share": 0.035,
-   "model_p_cal": 0.168,
-   "thin": false,
-   "snap_share": 0.61,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Andy Dalton",
-   "nkey": "andy dalton",
-   "pos": "QB",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.007,
-   "model_p_cal": 0.059,
-   "thin": false,
-   "snap_share": 0.08,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Tyquan Thornton",
-   "nkey": "tyquan thornton",
-   "pos": "WR/TE",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.132,
-   "model_p_cal": 0.278,
-   "thin": false,
-   "snap_share": 0.59,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": []
-  },
-  {
-   "player": "Elijah Mitchell",
-   "nkey": "elijah mitchell",
-   "pos": "RB",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.055,
-   "model_p_cal": 0.172,
-   "thin": false,
-   "snap_share": 0.4,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Emari Demercado",
-   "nkey": "emari demercado",
-   "pos": "RB",
-   "team": "DAL",
-   "opp": "PHI",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 28.25,
-   "td_share": 0.046,
-   "model_p_cal": 0.189,
-   "thin": false,
-   "snap_share": 0.21,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Frank Gore Jr.",
-   "nkey": "frank gore",
-   "pos": "RB",
-   "team": "BUF",
-   "opp": "KC",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 25.5,
-   "td_share": 0.001,
-   "model_p_cal": 0.022,
-   "thin": false,
-   "snap_share": 0.15,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": []
-  },
-  {
-   "player": "Brandon Johnson",
-   "nkey": "brandon johnson",
-   "pos": "WR/TE",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.001,
-   "model_p_cal": 0.021,
-   "thin": true,
-   "snap_share": 0.11,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": []
-  },
-  {
-   "player": "Dameon Pierce",
-   "nkey": "dameon pierce",
-   "pos": "RB",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.176,
-   "model_p_cal": 0.299,
-   "thin": false,
-   "snap_share": 0.79,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Puka Nacua",
-   "nkey": "puka nacua",
-   "pos": "WR/TE",
-   "team": "LA",
-   "opp": "GB",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 23.25,
-   "td_share": 0.21,
-   "model_p_cal": 0.349,
-   "thin": false,
-   "snap_share": 0.87,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "?",
-   "wx_precip": null,
-   "wx_wind": null,
-   "book_prices": []
-  },
-  {
-   "player": "Josh Palmer",
-   "nkey": "josh palmer",
-   "pos": "WR/TE",
-   "team": "BUF",
-   "opp": "KC",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 25.5,
-   "td_share": 0.054,
-   "model_p_cal": 0.194,
-   "thin": false,
-   "snap_share": 0.32,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": []
-  },
-  {
-   "player": "Mason Rudolph",
-   "nkey": "mason rudolph",
-   "pos": "QB",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.007,
-   "model_p_cal": 0.059,
-   "thin": false,
-   "snap_share": 0.07,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": []
-  },
-  {
-   "player": "Dontayvion Wicks",
-   "nkey": "dontayvion wicks",
-   "pos": "WR/TE",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.118,
-   "model_p_cal": 0.248,
-   "thin": false,
-   "snap_share": 0.8,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Tyler Badie",
-   "nkey": "tyler badie",
-   "pos": "RB",
-   "team": "DEN",
-   "opp": "PIT",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
-   "td_share": 0.024,
-   "model_p_cal": 0.116,
-   "thin": false,
-   "snap_share": 0.16,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": []
-  },
-  {
-   "player": "Case Keenum",
-   "nkey": "case keenum",
-   "pos": "QB",
-   "team": "CHI",
-   "opp": "DET",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 29.0,
-   "td_share": 0.025,
-   "model_p_cal": 0.141,
-   "thin": false,
-   "snap_share": 0.45,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Jashaun Corbin",
-   "nkey": "jashaun corbin",
-   "pos": "RB",
-   "team": "DAL",
-   "opp": "PHI",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 28.25,
-   "td_share": 0.001,
-   "model_p_cal": 0.033,
-   "thin": true,
-   "snap_share": 0.28,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Israel Abanikanda",
-   "nkey": "israel abanikanda",
-   "pos": "RB",
-   "team": "DAL",
-   "opp": "PHI",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 28.25,
-   "td_share": 0.001,
-   "model_p_cal": 0.019,
-   "thin": true,
-   "snap_share": 0.07,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Justin Watson",
-   "nkey": "justin watson",
-   "pos": "WR/TE",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.045,
-   "model_p_cal": 0.166,
-   "thin": false,
-   "snap_share": 0.06,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
-   "book_prices": []
-  },
-  {
-   "player": "Max Hurleman",
-   "nkey": "max hurleman",
-   "pos": "WR/TE",
-   "team": "PIT",
-   "opp": "DEN",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 17.75,
-   "td_share": 0.023,
-   "model_p_cal": 0.107,
-   "thin": true,
-   "snap_share": 0.31,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
-   "book_prices": []
-  },
-  {
-   "player": "Marquise Brown",
-   "nkey": "marquise brown",
-   "pos": "WR/TE",
-   "team": "PHI",
-   "opp": "DAL",
-   "game": "PHI@DAL",
-   "commence": "2026-11-26T21:30:00Z",
-   "implied_total": 19.75,
-   "td_share": 0.057,
-   "model_p_cal": 0.176,
-   "thin": false,
-   "snap_share": 0.43,
-   "best_price": null,
-   "best_book": null,
-   "mkt_p": null,
-   "n_books": null,
-   "mkt_p_consensus": null,
-   "edge": null,
-   "flag": "no price",
-   "wx_tag": "indoor",
-   "wx_precip": 0.0,
-   "wx_wind": 0.0,
-   "book_prices": []
-  },
-  {
-   "player": "Tyrod Taylor",
-   "nkey": "tyrod taylor",
-   "pos": "QB",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.039,
-   "model_p_cal": 0.149,
-   "thin": false,
-   "snap_share": 0.07,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8825,18 +7392,18 @@
    "book_prices": []
   },
   {
-   "player": "Jayden Reed",
-   "nkey": "jayden reed",
-   "pos": "WR/TE",
-   "team": "GB",
-   "opp": "LA",
-   "game": "GB@LA",
-   "commence": "2026-11-26T01:00:00Z",
-   "implied_total": 20.75,
-   "td_share": 0.053,
-   "model_p_cal": 0.174,
+   "player": "Mason Rudolph",
+   "nkey": "mason rudolph",
+   "pos": "QB",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.007,
+   "model_p_cal": 0.059,
    "thin": false,
-   "snap_share": 0.3,
+   "snap_share": 0.07,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8850,18 +7417,18 @@
    "book_prices": []
   },
   {
-   "player": "Brashard Smith",
-   "nkey": "brashard smith",
+   "player": "Nate Carter",
+   "nkey": "nate carter",
    "pos": "RB",
    "team": "KC",
    "opp": "BUF",
    "game": "KC@BUF",
    "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.064,
-   "model_p_cal": 0.198,
+   "implied_total": 22.62,
+   "td_share": 0.016,
+   "model_p_cal": 0.101,
    "thin": false,
-   "snap_share": 0.02,
+   "snap_share": null,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8869,24 +7436,149 @@
    "mkt_p_consensus": null,
    "edge": null,
    "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": []
   },
   {
-   "player": "Tyson Bagent",
-   "nkey": "tyson bagent",
-   "pos": "QB",
-   "team": "CHI",
-   "opp": "DET",
-   "game": "CHI@DET",
-   "commence": "2026-11-26T18:00:00Z",
-   "implied_total": 29.0,
-   "td_share": 0.009,
-   "model_p_cal": 0.085,
+   "player": "Justin Watson",
+   "nkey": "justin watson",
+   "pos": "WR/TE",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.045,
+   "model_p_cal": 0.167,
    "thin": false,
-   "snap_share": 0.6,
+   "snap_share": 0.06,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Terrance Ferguson",
+   "nkey": "terrance ferguson",
+   "pos": "WR/TE",
+   "team": "LA",
+   "opp": "GB",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 23.25,
+   "td_share": 0.087,
+   "model_p_cal": 0.231,
+   "thin": false,
+   "snap_share": 0.45,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Dontayvion Wicks",
+   "nkey": "dontayvion wicks",
+   "pos": "WR/TE",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.118,
+   "model_p_cal": 0.248,
+   "thin": false,
+   "snap_share": 0.8,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Brandon Johnson",
+   "nkey": "brandon johnson",
+   "pos": "WR/TE",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.001,
+   "model_p_cal": 0.021,
+   "thin": true,
+   "snap_share": 0.11,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Josh Palmer",
+   "nkey": "josh palmer",
+   "pos": "WR/TE",
+   "team": "BUF",
+   "opp": "KC",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 25.5,
+   "td_share": 0.054,
+   "model_p_cal": 0.194,
+   "thin": false,
+   "snap_share": 0.32,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Dameon Pierce",
+   "nkey": "dameon pierce",
+   "pos": "RB",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.176,
+   "model_p_cal": 0.299,
+   "thin": false,
+   "snap_share": 0.79,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8919,24 +7611,24 @@
    "mkt_p_consensus": null,
    "edge": null,
    "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": []
   },
   {
-   "player": "RJ Harvey",
-   "nkey": "rj harvey",
-   "pos": "RB",
-   "team": "DEN",
-   "opp": "PIT",
-   "game": "DEN@PIT",
-   "commence": "2026-11-27T20:00:00Z",
-   "implied_total": 20.25,
-   "td_share": 0.152,
-   "model_p_cal": 0.282,
+   "player": "Tyquan Thornton",
+   "nkey": "tyquan thornton",
+   "pos": "WR/TE",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.132,
+   "model_p_cal": 0.278,
    "thin": false,
-   "snap_share": 0.39,
+   "snap_share": 0.59,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -8944,22 +7636,22 @@
    "mkt_p_consensus": null,
    "edge": null,
    "flag": "no price",
-   "wx_tag": "windy",
-   "wx_precip": 0.1,
-   "wx_wind": 15.5,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": []
   },
   {
-   "player": "Justin Fields",
-   "nkey": "justin fields",
+   "player": "Tyrod Taylor",
+   "nkey": "tyrod taylor",
    "pos": "QB",
-   "team": "KC",
-   "opp": "BUF",
-   "game": "KC@BUF",
-   "commence": "2026-11-27T01:20:00Z",
-   "implied_total": 22.5,
-   "td_share": 0.124,
-   "model_p_cal": 0.269,
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.039,
+   "model_p_cal": 0.149,
    "thin": false,
    "snap_share": 0.07,
    "best_price": null,
@@ -8969,9 +7661,234 @@
    "mkt_p_consensus": null,
    "edge": null,
    "flag": "no price",
-   "wx_tag": "wet",
-   "wx_precip": 1.3,
-   "wx_wind": 13.9,
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Tyler Badie",
+   "nkey": "tyler badie",
+   "pos": "RB",
+   "team": "DEN",
+   "opp": "PIT",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 20.5,
+   "td_share": 0.024,
+   "model_p_cal": 0.117,
+   "thin": false,
+   "snap_share": 0.16,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Case Keenum",
+   "nkey": "case keenum",
+   "pos": "QB",
+   "team": "CHI",
+   "opp": "DET",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 29.0,
+   "td_share": 0.025,
+   "model_p_cal": 0.141,
+   "thin": false,
+   "snap_share": 0.45,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Josh Jacobs",
+   "nkey": "josh jacobs",
+   "pos": "RB",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.315,
+   "model_p_cal": 0.399,
+   "thin": false,
+   "snap_share": 0.46,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Puka Nacua",
+   "nkey": "puka nacua",
+   "pos": "WR/TE",
+   "team": "LA",
+   "opp": "GB",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 23.25,
+   "td_share": 0.21,
+   "model_p_cal": 0.349,
+   "thin": false,
+   "snap_share": 0.87,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Pierre Strong",
+   "nkey": "pierre strong",
+   "pos": "RB",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.028,
+   "model_p_cal": 0.126,
+   "thin": false,
+   "snap_share": 0.33,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Jashaun Corbin",
+   "nkey": "jashaun corbin",
+   "pos": "RB",
+   "team": "DAL",
+   "opp": "PHI",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 28.25,
+   "td_share": 0.001,
+   "model_p_cal": 0.033,
+   "thin": true,
+   "snap_share": 0.28,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Davante Adams",
+   "nkey": "davante adams",
+   "pos": "WR/TE",
+   "team": "LA",
+   "opp": "GB",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 23.25,
+   "td_share": 0.205,
+   "model_p_cal": 0.345,
+   "thin": false,
+   "snap_share": 0.74,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Tank Bigsby",
+   "nkey": "tank bigsby",
+   "pos": "RB",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.074,
+   "model_p_cal": 0.198,
+   "thin": false,
+   "snap_share": 0.24,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Brashard Smith",
+   "nkey": "brashard smith",
+   "pos": "RB",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.064,
+   "model_p_cal": 0.198,
+   "thin": false,
+   "snap_share": 0.02,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
    "book_prices": []
   },
   {
@@ -8987,6 +7904,31 @@
    "model_p_cal": 0.281,
    "thin": false,
    "snap_share": 0.98,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Jake Ferguson",
+   "nkey": "jake ferguson",
+   "pos": "WR/TE",
+   "team": "DAL",
+   "opp": "PHI",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 28.25,
+   "td_share": 0.123,
+   "model_p_cal": 0.298,
+   "thin": false,
+   "snap_share": 0.56,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
@@ -9025,18 +7967,318 @@
    "book_prices": []
   },
   {
-   "player": "Tank Bigsby",
-   "nkey": "tank bigsby",
+   "player": "Marquise Brown",
+   "nkey": "marquise brown",
+   "pos": "WR/TE",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.057,
+   "model_p_cal": 0.176,
+   "thin": false,
+   "snap_share": 0.43,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "RJ Harvey",
+   "nkey": "rj harvey",
+   "pos": "RB",
+   "team": "DEN",
+   "opp": "PIT",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 20.5,
+   "td_share": 0.152,
+   "model_p_cal": 0.284,
+   "thin": false,
+   "snap_share": 0.39,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Frank Gore Jr.",
+   "nkey": "frank gore",
+   "pos": "RB",
+   "team": "BUF",
+   "opp": "KC",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 25.5,
+   "td_share": 0.001,
+   "model_p_cal": 0.022,
+   "thin": false,
+   "snap_share": 0.15,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Cole Kmet",
+   "nkey": "cole kmet",
+   "pos": "WR/TE",
+   "team": "CHI",
+   "opp": "DET",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 29.0,
+   "td_share": 0.035,
+   "model_p_cal": 0.168,
+   "thin": false,
+   "snap_share": 0.61,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Elijah Mitchell",
+   "nkey": "elijah mitchell",
    "pos": "RB",
    "team": "PHI",
    "opp": "DAL",
    "game": "PHI@DAL",
    "commence": "2026-11-26T21:30:00Z",
    "implied_total": 19.75,
-   "td_share": 0.074,
-   "model_p_cal": 0.198,
+   "td_share": 0.055,
+   "model_p_cal": 0.172,
    "thin": false,
-   "snap_share": 0.24,
+   "snap_share": 0.4,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Tyson Bagent",
+   "nkey": "tyson bagent",
+   "pos": "QB",
+   "team": "CHI",
+   "opp": "DET",
+   "game": "CHI@DET",
+   "commence": "2026-11-26T18:00:00Z",
+   "implied_total": 29.0,
+   "td_share": 0.009,
+   "model_p_cal": 0.085,
+   "thin": false,
+   "snap_share": 0.6,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Max Hurleman",
+   "nkey": "max hurleman",
+   "pos": "WR/TE",
+   "team": "PIT",
+   "opp": "DEN",
+   "game": "DEN@PIT",
+   "commence": "2026-11-27T20:00:00Z",
+   "implied_total": 17.75,
+   "td_share": 0.023,
+   "model_p_cal": 0.107,
+   "thin": true,
+   "snap_share": 0.31,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Israel Abanikanda",
+   "nkey": "israel abanikanda",
+   "pos": "RB",
+   "team": "DAL",
+   "opp": "PHI",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 28.25,
+   "td_share": 0.001,
+   "model_p_cal": 0.019,
+   "thin": true,
+   "snap_share": 0.07,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Emari Demercado",
+   "nkey": "emari demercado",
+   "pos": "RB",
+   "team": "DAL",
+   "opp": "PHI",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 28.25,
+   "td_share": 0.046,
+   "model_p_cal": 0.189,
+   "thin": false,
+   "snap_share": 0.21,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Matt Araiza",
+   "nkey": "matt araiza",
+   "pos": "OTHER",
+   "team": "KC",
+   "opp": "BUF",
+   "game": "KC@BUF",
+   "commence": "2026-11-27T01:20:00Z",
+   "implied_total": 22.62,
+   "td_share": 0.001,
+   "model_p_cal": 0.018,
+   "thin": true,
+   "snap_share": 0.0,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Jayden Reed",
+   "nkey": "jayden reed",
+   "pos": "WR/TE",
+   "team": "GB",
+   "opp": "LA",
+   "game": "GB@LA",
+   "commence": "2026-11-26T01:00:00Z",
+   "implied_total": 20.75,
+   "td_share": 0.053,
+   "model_p_cal": 0.174,
+   "thin": false,
+   "snap_share": 0.3,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "?",
+   "wx_precip": null,
+   "wx_wind": null,
+   "book_prices": []
+  },
+  {
+   "player": "Tanner McKee",
+   "nkey": "tanner mckee",
+   "pos": "QB",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.003,
+   "model_p_cal": 0.036,
+   "thin": false,
+   "snap_share": 1.0,
+   "best_price": null,
+   "best_book": null,
+   "mkt_p": null,
+   "n_books": null,
+   "mkt_p_consensus": null,
+   "edge": null,
+   "flag": "no price",
+   "wx_tag": "indoor",
+   "wx_precip": 0.0,
+   "wx_wind": 0.0,
+   "book_prices": []
+  },
+  {
+   "player": "Andy Dalton",
+   "nkey": "andy dalton",
+   "pos": "QB",
+   "team": "PHI",
+   "opp": "DAL",
+   "game": "PHI@DAL",
+   "commence": "2026-11-26T21:30:00Z",
+   "implied_total": 19.75,
+   "td_share": 0.007,
+   "model_p_cal": 0.059,
+   "thin": false,
+   "snap_share": 0.08,
    "best_price": null,
    "best_book": null,
    "mkt_p": null,
